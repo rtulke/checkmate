@@ -24,6 +24,7 @@ type windowsTargets struct {
 	AuditPol []struct {
 		Rule        string `json:"rule"`
 		Subcategory string `json:"subcategory"`
+		GUID        string `json:"guid"`
 	} `json:"auditpol"`
 	HKU []struct {
 		Rule    string `json:"rule"`
@@ -34,6 +35,74 @@ type windowsTargets struct {
 }
 
 var winTargets windowsTargets
+
+// auditSubcategories maps audit subcategory names to their GUIDs (taken from
+// the collector targets of the server audits). auditpol is called with the
+// GUID: it does not depend on the display language, and some upstream names
+// are wrong ("PNP Activity" is "Plug and Play Events").
+var auditSubcategories = map[string]string{
+	"Account Lockout":                    "{0CCE9217-69AE-11D9-BED3-505054503030}",
+	"Application Group Management":       "{0CCE9239-69AE-11D9-BED3-505054503030}",
+	"Audit Policy Change":                "{0CCE922F-69AE-11D9-BED3-505054503030}",
+	"Authentication Policy Change":       "{0CCE9230-69AE-11D9-BED3-505054503030}",
+	"Authorization Policy Change":        "{0CCE9231-69AE-11D9-BED3-505054503030}",
+	"Computer Account Management":        "{0CCE9236-69AE-11D9-BED3-505054503030}",
+	"Credential Validation":              "{0CCE923F-69AE-11D9-BED3-505054503030}",
+	"Detailed File Share":                "{0CCE9244-69AE-11D9-BED3-505054503030}",
+	"Directory Service Access":           "{0CCE923B-69AE-11D9-BED3-505054503030}",
+	"Directory Service Changes":          "{0CCE923C-69AE-11D9-BED3-505054503030}",
+	"Distribution Group Management":      "{0CCE9238-69AE-11D9-BED3-505054503030}",
+	"File Share":                         "{0CCE9224-69AE-11D9-BED3-505054503030}",
+	"Group Membership":                   "{0CCE9249-69AE-11D9-BED3-505054503030}",
+	"IPsec Driver":                       "{0CCE9213-69AE-11D9-BED3-505054503030}",
+	"Kerberos Authentication Service":    "{0CCE9242-69AE-11D9-BED3-505054503030}",
+	"Kerberos Service Ticket Operations": "{0CCE9240-69AE-11D9-BED3-505054503030}",
+	"Logoff":                             "{0CCE9216-69AE-11D9-BED3-505054503030}",
+	"Logon":                              "{0CCE9215-69AE-11D9-BED3-505054503030}",
+	"MPSSVC Rule-Level Policy Change":    "{0CCE9232-69AE-11D9-BED3-505054503030}",
+	"Other Account Management Events":    "{0CCE923A-69AE-11D9-BED3-505054503030}",
+	"Other Logon/Logoff Events":          "{0CCE921C-69AE-11D9-BED3-505054503030}",
+	"Other Object Access Events":         "{0CCE9227-69AE-11D9-BED3-505054503030}",
+	"Other Policy Change Events":         "{0CCE9234-69AE-11D9-BED3-505054503030}",
+	"Other System Events":                "{0CCE9214-69AE-11D9-BED3-505054503030}",
+	"Plug and Play Events":               "{0CCE9248-69AE-11D9-BED3-505054503030}",
+	"Process Creation":                   "{0CCE922B-69AE-11D9-BED3-505054503030}",
+	"Removable Storage":                  "{0CCE9245-69AE-11D9-BED3-505054503030}",
+	"Security Group Management":          "{0CCE9237-69AE-11D9-BED3-505054503030}",
+	"Security State Change":              "{0CCE9210-69AE-11D9-BED3-505054503030}",
+	"Security System Extension":          "{0CCE9211-69AE-11D9-BED3-505054503030}",
+	"Sensitive Privilege Use":            "{0CCE9228-69AE-11D9-BED3-505054503030}",
+	"Special Logon":                      "{0CCE921B-69AE-11D9-BED3-505054503030}",
+	"System Integrity":                   "{0CCE9212-69AE-11D9-BED3-505054503030}",
+	"User Account Management":            "{0CCE9235-69AE-11D9-BED3-505054503030}",
+}
+
+var guidPattern = regexp.MustCompile(`^\{[0-9A-Fa-f-]{36}\}$`)
+
+// auditSubcategory returns the GUID to query and a display name.
+func auditSubcategory(name, guid string) (string, string) {
+	if guidPattern.MatchString(name) {
+		guid, name = name, ""
+	}
+	if name == "PNP Activity" {
+		name = "Plug and Play Events"
+	}
+	if guid == "" {
+		guid = auditSubcategories[name]
+	}
+	guid = strings.ToUpper(guid)
+	if name == "" {
+		for n, g := range auditSubcategories {
+			if strings.EqualFold(g, guid) {
+				name = n
+			}
+		}
+	}
+	if name == "" {
+		name = guid
+	}
+	return guid, name
+}
 
 func (b benchmark) windows() bool { return b.Package == "windows" }
 
@@ -232,14 +301,19 @@ foreach ($line in $lines) {
 if ($members.Count -eq 0) { 'NONE' } else { $members -join ',' }`, regexp.QuoteMeta(rest)), fmt.Sprintf("User right %s is assigned only as required", rest), nil
 
 	case "AuditPolicy":
-		sub := ""
+		sub, guid := "", ""
 		for _, t := range winTargets.AuditPol {
 			if t.Rule == rest {
-				sub = t.Subcategory
+				sub, guid = t.Subcategory, t.GUID
 			}
 		}
 		if sub == "" {
 			return "", "", fmt.Errorf("no audit subcategory for rule %s", rest)
+		}
+		guid, sub = auditSubcategory(sub, guid)
+		query := guid
+		if query == "" {
+			query = sub
 		}
 		return fmt.Sprintf(`$rows = @(& auditpol.exe /get ('/subcategory:' + %s) /r 2>$null)
 if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
@@ -252,7 +326,7 @@ foreach ($row in $rows) {
     if ($map.ContainsKey($i)) { $v = $map[$i] } else { $v = 'UNKNOWN=' + $i }
   }
 }
-$v`, psQuote(sub)), fmt.Sprintf("Audit policy %s is configured", sub), nil
+$v`, psQuote(query)), fmt.Sprintf("Audit policy %s is configured", sub), nil
 
 	case "Service":
 		return fmt.Sprintf(`$s = Get-Service -Name %s -ErrorAction SilentlyContinue

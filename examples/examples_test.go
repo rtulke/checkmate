@@ -257,7 +257,11 @@ foreach ($f in Get-ChildItem -LiteralPath $args[0] -Filter *.ps1) {
   foreach ($e in $errors) { $bad++; Write-Output ("{0}: {1} (line {2})" -f (Get-Content -LiteralPath $f.FullName -TotalCount 1), $e.Message, $e.Extent.StartLineNumber) }
 }
 exit [int]($bad -gt 0)`
-	out, err := exec.Command(shell, "-NoProfile", "-NonInteractive", "-Command", script, dir).CombinedOutput()
+	checker := filepath.Join(t.TempDir(), "check.ps1")
+	if err := os.WriteFile(checker, []byte(script), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	out, err := exec.Command(shell, "-NoProfile", "-NonInteractive", "-File", checker, dir).CombinedOutput()
 	if err != nil {
 		t.Errorf("PowerShell syntax errors:\n%s", out)
 	}

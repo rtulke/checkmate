@@ -2295,7 +2295,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Credential Validation') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE923F-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2314,7 +2314,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Application Group Management') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9239-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2333,7 +2333,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Security Group Management') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9237-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2352,7 +2352,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'User Account Management') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9235-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2366,12 +2366,12 @@ checks:
       $v
     expect: { some: "~ ^3$" }
   - id: "CIS-WIN2022-17.3.1-pnp_activity"
-    name: "Audit policy PNP Activity is configured"
+    name: "Audit policy Plug and Play Events is configured"
     description: "CIS Microsoft Windows Server 2022 benchmark recommendation 17.3.1. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'PNP Activity') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9248-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2390,7 +2390,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Process Creation') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE922B-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2409,7 +2409,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Account Lockout') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9217-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2428,7 +2428,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Group Membership') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9249-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2447,7 +2447,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Logoff') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9216-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2466,7 +2466,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Logon') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9215-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2485,7 +2485,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Other Logon/Logoff Events') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE921C-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2504,7 +2504,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Special Logon') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE921B-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2523,7 +2523,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Detailed File Share') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9244-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2542,7 +2542,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'File Share') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9224-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2561,7 +2561,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Other Object Access Events') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9227-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2580,7 +2580,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Removable Storage') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9245-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2599,7 +2599,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Audit Policy Change') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE922F-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2618,7 +2618,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Authentication Policy Change') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9230-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2637,7 +2637,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Authorization Policy Change') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9231-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2656,7 +2656,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'MPSSVC Rule-Level Policy Change') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9232-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2675,7 +2675,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Other Policy Change Events') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9234-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2694,7 +2694,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Sensitive Privilege Use') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9228-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2713,7 +2713,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'IPsec Driver') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9213-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2732,7 +2732,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Other System Events') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9214-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2751,7 +2751,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Security State Change') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9210-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2770,7 +2770,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Security System Extension') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9211-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2789,7 +2789,7 @@ checks:
     tags: [cis, cis-win2022, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'System Integrity') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9212-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -6426,7 +6426,7 @@ checks:
     severity: medium
     when: "cis_windows_role in [\"dc\"]"
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Kerberos Authentication Service') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9242-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -6446,7 +6446,7 @@ checks:
     severity: medium
     when: "cis_windows_role in [\"dc\"]"
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Kerberos Service Ticket Operations') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9240-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -6466,7 +6466,7 @@ checks:
     severity: medium
     when: "cis_windows_role in [\"dc\"]"
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Computer Account Management') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9236-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -6486,7 +6486,7 @@ checks:
     severity: medium
     when: "cis_windows_role in [\"dc\"]"
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Distribution Group Management') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9238-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -6506,7 +6506,7 @@ checks:
     severity: medium
     when: "cis_windows_role in [\"dc\"]"
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Other Account Management Events') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE923A-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -6526,7 +6526,7 @@ checks:
     severity: medium
     when: "cis_windows_role in [\"dc\"]"
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Directory Service Access') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE923B-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -6546,7 +6546,7 @@ checks:
     severity: medium
     when: "cis_windows_role in [\"dc\"]"
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + 'Directory Service Changes') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE923C-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'

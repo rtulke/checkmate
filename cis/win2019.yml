@@ -2267,12 +2267,12 @@ checks:
       else { '{0}={1}' -f $k.GetValueKind($n), (@($k.GetValue($n, $null, 'DoNotExpandEnvironmentNames')) -join '|') }
     expect: "== DWord=1"
   - id: "CIS-WIN2019-17.1.1-0cce923f_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce923f-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Credential Validation is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.1.1. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce923f-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE923F-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2286,12 +2286,12 @@ checks:
       $v
     expect: { some: "~ ^3$" }
   - id: "CIS-WIN2019-17.2.1-0cce9239_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9239-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Application Group Management is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.2.1. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9239-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9239-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2305,12 +2305,12 @@ checks:
       $v
     expect: { some: "~ ^3$" }
   - id: "CIS-WIN2019-17.2.5-0cce9237_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9237-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Security Group Management is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.2.5. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9237-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9237-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2324,12 +2324,12 @@ checks:
       $v
     expect: { some: "~ ^[13]$" }
   - id: "CIS-WIN2019-17.2.6-0cce9235_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9235-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy User Account Management is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.2.6. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9235-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9235-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2343,12 +2343,12 @@ checks:
       $v
     expect: { some: "~ ^3$" }
   - id: "CIS-WIN2019-17.3.1-0cce9248_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9248-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Plug and Play Events is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.3.1. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9248-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9248-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2362,12 +2362,12 @@ checks:
       $v
     expect: { some: "~ ^[13]$" }
   - id: "CIS-WIN2019-17.3.2-0cce922b_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce922b-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Process Creation is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.3.2. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce922b-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE922B-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2381,12 +2381,12 @@ checks:
       $v
     expect: { some: "~ ^[13]$" }
   - id: "CIS-WIN2019-17.5.1-0cce9217_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9217-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Account Lockout is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.5.1. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9217-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9217-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2400,12 +2400,12 @@ checks:
       $v
     expect: { some: "~ ^[23]$" }
   - id: "CIS-WIN2019-17.5.2-0cce9249_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9249-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Group Membership is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.5.2. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9249-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9249-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2419,12 +2419,12 @@ checks:
       $v
     expect: { some: "~ ^[13]$" }
   - id: "CIS-WIN2019-17.5.3-0cce9216_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9216-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Logoff is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.5.3. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9216-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9216-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2438,12 +2438,12 @@ checks:
       $v
     expect: { some: "~ ^[13]$" }
   - id: "CIS-WIN2019-17.5.4-0cce9215_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9215-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Logon is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.5.4. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9215-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9215-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2457,12 +2457,12 @@ checks:
       $v
     expect: { some: "~ ^3$" }
   - id: "CIS-WIN2019-17.5.5-0cce921c_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce921c-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Other Logon/Logoff Events is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.5.5. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce921c-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE921C-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2476,12 +2476,12 @@ checks:
       $v
     expect: { some: "~ ^3$" }
   - id: "CIS-WIN2019-17.5.6-0cce921b_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce921b-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Special Logon is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.5.6. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce921b-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE921B-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2495,12 +2495,12 @@ checks:
       $v
     expect: { some: "~ ^[13]$" }
   - id: "CIS-WIN2019-17.6.1-0cce9244_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9244-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Detailed File Share is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.6.1. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9244-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9244-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2514,12 +2514,12 @@ checks:
       $v
     expect: { some: "~ ^[23]$" }
   - id: "CIS-WIN2019-17.6.2-0cce9224_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9224-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy File Share is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.6.2. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9224-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9224-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2533,12 +2533,12 @@ checks:
       $v
     expect: { some: "~ ^3$" }
   - id: "CIS-WIN2019-17.6.3-0cce9227_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9227-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Other Object Access Events is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.6.3. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9227-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9227-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2552,12 +2552,12 @@ checks:
       $v
     expect: { some: "~ ^3$" }
   - id: "CIS-WIN2019-17.6.4-0cce9245_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9245-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Removable Storage is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.6.4. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9245-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9245-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2571,12 +2571,12 @@ checks:
       $v
     expect: { some: "~ ^3$" }
   - id: "CIS-WIN2019-17.7.1-0cce922f_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce922f-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Audit Policy Change is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.7.1. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce922f-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE922F-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2590,12 +2590,12 @@ checks:
       $v
     expect: { some: "~ ^[13]$" }
   - id: "CIS-WIN2019-17.7.2-0cce9230_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9230-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Authentication Policy Change is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.7.2. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9230-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9230-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2609,12 +2609,12 @@ checks:
       $v
     expect: { some: "~ ^[13]$" }
   - id: "CIS-WIN2019-17.7.3-0cce9231_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9231-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Authorization Policy Change is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.7.3. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9231-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9231-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2628,12 +2628,12 @@ checks:
       $v
     expect: { some: "~ ^[13]$" }
   - id: "CIS-WIN2019-17.7.4-0cce9232_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9232-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy MPSSVC Rule-Level Policy Change is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.7.4. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9232-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9232-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2647,12 +2647,12 @@ checks:
       $v
     expect: { some: "~ ^3$" }
   - id: "CIS-WIN2019-17.7.5-0cce9234_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9234-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Other Policy Change Events is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.7.5. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9234-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9234-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2666,12 +2666,12 @@ checks:
       $v
     expect: { some: "~ ^[23]$" }
   - id: "CIS-WIN2019-17.8.1-0cce9228_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9228-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Sensitive Privilege Use is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.8.1. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9228-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9228-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2685,12 +2685,12 @@ checks:
       $v
     expect: { some: "~ ^3$" }
   - id: "CIS-WIN2019-17.9.1-0cce9213_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9213-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy IPsec Driver is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.9.1. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9213-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9213-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2704,12 +2704,12 @@ checks:
       $v
     expect: { some: "~ ^3$" }
   - id: "CIS-WIN2019-17.9.2-0cce9214_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9214-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Other System Events is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.9.2. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9214-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9214-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2723,12 +2723,12 @@ checks:
       $v
     expect: { some: "~ ^3$" }
   - id: "CIS-WIN2019-17.9.3-0cce9210_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9210-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Security State Change is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.9.3. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9210-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9210-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2742,12 +2742,12 @@ checks:
       $v
     expect: { some: "~ ^[13]$" }
   - id: "CIS-WIN2019-17.9.4-0cce9211_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9211-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Security System Extension is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.9.4. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9211-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9211-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -2761,12 +2761,12 @@ checks:
       $v
     expect: { some: "~ ^[13]$" }
   - id: "CIS-WIN2019-17.9.5-0cce9212_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9212-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy System Integrity is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.9.5. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-member-server, cis-level1-member-server, cis-level2-member-server, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9212-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9212-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -6332,13 +6332,13 @@ checks:
       if ($null -eq $s) { 'NotInstalled' } else { $s.StartType.ToString() }
     expect: { some: "~ ^(Disabled|NotInstalled)$" }
   - id: "CIS-WIN2019-17.1.2-0cce9242_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9242-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Kerberos Authentication Service is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.1.2. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     when: "cis_windows_role in [\"dc\"]"
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9242-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9242-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -6352,13 +6352,13 @@ checks:
       $v
     expect: { some: "~ ^3$" }
   - id: "CIS-WIN2019-17.1.3-0cce9240_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9240-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Kerberos Service Ticket Operations is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.1.3. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     when: "cis_windows_role in [\"dc\"]"
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9240-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9240-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -6372,13 +6372,13 @@ checks:
       $v
     expect: { some: "~ ^3$" }
   - id: "CIS-WIN2019-17.2.2-0cce9236_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9236-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Computer Account Management is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.2.2. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     when: "cis_windows_role in [\"dc\"]"
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9236-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9236-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -6392,13 +6392,13 @@ checks:
       $v
     expect: { some: "~ ^[13]$" }
   - id: "CIS-WIN2019-17.2.3-0cce9238_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce9238-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Distribution Group Management is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.2.3. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     when: "cis_windows_role in [\"dc\"]"
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce9238-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE9238-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -6412,13 +6412,13 @@ checks:
       $v
     expect: { some: "~ ^[13]$" }
   - id: "CIS-WIN2019-17.2.4-0cce923a_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce923a-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Other Account Management Events is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.2.4. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     when: "cis_windows_role in [\"dc\"]"
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce923a-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE923A-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -6432,13 +6432,13 @@ checks:
       $v
     expect: { some: "~ ^[13]$" }
   - id: "CIS-WIN2019-17.4.1-0cce923b_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce923b-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Directory Service Access is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.4.1. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     when: "cis_windows_role in [\"dc\"]"
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce923b-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE923B-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
@@ -6452,13 +6452,13 @@ checks:
       $v
     expect: { some: "~ ^[23]$" }
   - id: "CIS-WIN2019-17.4.2-0cce923c_69ae_11d9_bed3_505054503030"
-    name: "Audit policy {0cce923c-69ae-11d9-bed3-505054503030} is configured"
+    name: "Audit policy Directory Service Changes is configured"
     description: "CIS Microsoft Windows Server 2019 benchmark recommendation 17.4.2. NIST SP 800-53 Rev. 5: AU-3, AU-3(1), AU-7, AU-12."
     tags: [cis, cis-win2019, cis-section-17, cis-level-1, cis-level-2, cis-domain-controller, cis-level1-domain-controller, cis-level2-domain-controller]
     severity: medium
     when: "cis_windows_role in [\"dc\"]"
     run: |
-      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0cce923c-69ae-11d9-bed3-505054503030}') /r 2>$null)
+      $rows = @(& auditpol.exe /get ('/subcategory:' + '{0CCE923C-69AE-11D9-BED3-505054503030}') /r 2>$null)
       if ($LASTEXITCODE -ne 0) { throw 'auditpol failed; checkmate must run as administrator' }
       $map = @{ 'No Auditing' = 0; 'Success' = 1; 'Failure' = 2; 'Success and Failure' = 3 }
       $v = 'ABSENT'
