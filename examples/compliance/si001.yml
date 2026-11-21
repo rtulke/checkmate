@@ -1,0 +1,575 @@
+name: Si001 IT-Grundschutz (Swiss Federal Administration)
+version: 1.0.0
+description: >
+  Technical checks for the requirements of Si001 "IT-Grundschutz in der
+  Bundesverwaltung" (version 5.1) that can be verified on a host. Si001 gives
+  concrete values only for passwords (T7), screen locking (S5.2) and autorun
+  (S5.3); the other checks are a technical interpretation of its principles
+  (hardening, logging, cryptographically secured and attributable
+  administration, updates, service accounts, integrity). Organisational
+  requirements (documentation, processes, zones, contracts) cannot be checked
+  on a host and are not included.
+
+  The Schutzbedarfsanalyse (Schuban) decides the protection level: run with
+  `-e si001_schutzbedarf=erhoeht` for objects with increased protection needs
+  to add their checks (disk encryption, regular integrity checks), and with
+  `-e si001_rolle=client` for federal clients (APS) to add S5.
+
+vars:
+  # Result of the Schuban: grundschutz or erhoeht.
+  si001_schutzbedarf: grundschutz
+  # server or client (Bundesclient / APS).
+  si001_rolle: server
+  # T7.1e: minimum password length and character classes.
+  si001_password_min_length: 10
+  si001_password_min_classes: 3
+  # T7.3: number of previous passwords that must not be reused.
+  si001_password_history: 10
+  # T7.4: failed attempts after which an account is locked.
+  si001_lockout_attempts: 5
+  # S5.2: screen lock after inactivity, in seconds.
+  si001_screen_lock_seconds: 900
+  # S4.3: processes of an accepted malware protection or EDR agent.
+  si001_malware_agents: [clamd, freshclam, falcon-sensor, mdatp, wdavdaemon, sentinelone, sophos-spl, ds_agent, cbagentd]
+  # Accounts below UID 1000 that may have a login shell.
+  si001_shell_system_accounts: [root, sync, shutdown, halt]
+
+  # PAM files that hold the password and auth stacks on RHEL, SUSE and Debian.
+  si001_pam_password: /etc/pam.d/system-auth /etc/pam.d/password-auth /etc/pam.d/common-password
+  si001_pam_auth: /etc/pam.d/system-auth /etc/pam.d/password-auth /etc/pam.d/common-auth
+
+snippets:
+  # Effective value of a pam_pwquality / pam_cracklib option: an argument on
+  # the PAM line wins over pwquality.conf; args.default is the built-in value.
+  pwquality: |
+    c=$({ cat /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf 2>/dev/null || true; } |
+      awk -F= -v key='{{ args.key }}' '{k = $1; gsub(/[[:space:]]/, "", k)} k == key {v = $2; gsub(/[[:space:]]/, "", v)} END {print v}')
+    p=$({ cat {{ si001_pam_password }} 2>/dev/null || true; } |
+      awk '/^[[:space:]]*password.*pam_(pwquality|cracklib)\.so/ {for (i = 1; i <= NF; i++) if ($i ~ /^{{ args.key }}=/) {split($i, a, "="); v = a[2]}} END {print v}')
+    echo "${p:-${c:-{{ args.default }}}}"
+
+defaults:
+  timeout: 120s
+
+checks:
+  # ===== T2.1 Hardening, minimal configuration and logging =====================
+
+  - id: SI001-T2.1-LEGACY-SERVICES
+    name: No unencrypted remote access services are listening
+    description: >
+      Si001 T2.1 a/b and T8.1: no telnet, rlogin, rsh, rexec or TFTP service.
+      Lists listening sockets on ports 23, 69, 512, 513 and 514.
+    tags: [si001, si001-t2, si001-t8]
+    severity: high
+    when:
+      - facts.os == "linux"
+      - facts.is_root
+    only_if: command -v ss
+    run: ss -Htulnp | awk '{split($5, a, ":"); p = a[length(a)]} p == 23 || p == 69 || p == 512 || p == 513 || p == 514'
+    expect: empty
+
+  - id: SI001-T2.1-FIREWALL
+    name: A host firewall is active
+    description: Si001 T2.1 a. firewalld, ufw or an nftables/iptables rule set with rules.
+    tags: [si001, si001-t2]
+    severity: medium
+    when:
+      - facts.os == "linux"
+      - facts.is_root
+    run: |
+      if command -v firewall-cmd >/dev/null && firewall-cmd --state >/dev/null 2>&1; then echo firewalld; exit 0; fi
+      if command -v ufw >/dev/null && ufw status 2>/dev/null | grep -q '^Status: active'; then echo ufw; exit 0; fi
+      if command -v nft >/dev/null && [ "$(nft list ruleset 2>/dev/null | grep -cE '^[[:space:]]+(ip|tcp|udp|ct|iif|meta|drop|reject|accept)')" -gt 0 ]; then echo nftables; exit 0; fi
+      if command -v iptables >/dev/null && [ "$(iptables -S 2>/dev/null | grep -cvE '^-P [A-Z]+ ACCEPT$')" -gt 0 ]; then echo iptables; exit 0; fi
+      echo none
+    expect: "!= none"
+
+  - id: SI001-T2.1C-SYSLOG
+    name: System events are written to a persistent log
+    description: Si001 T2.1 c. rsyslog or syslog-ng runs, or the journal is stored on disk.
+    tags: [si001, si001-t2, logging]
+    severity: medium
+    when: facts.os == "linux"
+    run: |
+      for s in rsyslog syslog-ng; do
+        if command -v systemctl >/dev/null && [ "$(systemctl show -p ActiveState "$s" 2>/dev/null | cut -d= -f2)" = active ]; then echo "$s"; exit 0; fi
+      done
+      storage=$({ cat /etc/systemd/journald.conf /etc/systemd/journald.conf.d/*.conf 2>/dev/null || true; } |
+        awk -F= '$1 == "Storage" {v = $2} END {print v}')
+      if [ "$storage" = persistent ] || { [ "${storage:-auto}" = auto ] && [ -d /var/log/journal ]; }; then echo journald; exit 0; fi
+      echo none
+    expect: "!= none"
+
+  - id: SI001-T2.1C-AUDITD
+    name: The audit daemon records security events
+    description: Si001 T2.1 c and T8.1 (administrative access is recorded).
+    tags: [si001, si001-t2, si001-t8, logging]
+    severity: medium
+    when:
+      - facts.os == "linux"
+      - facts.is_root
+    only_if: command -v systemctl && test -d /run/systemd/system
+    run: systemctl show -p ActiveState auditd | cut -d= -f2
+    expect: "== active"
+
+  - id: SI001-T2.1C-TIME
+    name: The system clock is synchronized
+    description: Si001 T2.1 c requires events with time stamps; they are only useful with a synchronized clock.
+    tags: [si001, si001-t2, logging]
+    severity: medium
+    when: facts.os == "linux"
+    only_if: command -v timedatectl && test -d /run/systemd/system
+    run: |
+      timedatectl status | awk -F': ' '/synchronized/ {print $2}'
+    expect: "== yes"
+
+  # ===== T6.1 / T8 Authentication and administrative access ===================
+
+  - id: SI001-T6.1-SSH-AUTH
+    name: SSH does not accept passwords alone
+    description: >
+      Si001 T6.1 requires authentication of at least level "mittel" or two
+      factors on server systems. Passes if password and keyboard-interactive
+      authentication are off, or if AuthenticationMethods requires two methods.
+    tags: [si001, si001-t6, ssh]
+    severity: high
+    when:
+      - facts.os == "linux"
+      - facts.is_root
+    only_if: command -v sshd
+    run: |
+      sshd -T 2>/dev/null | awk '
+        $1 == "passwordauthentication" {pw = $2}
+        $1 == "kbdinteractiveauthentication" || $1 == "challengeresponseauthentication" {kbd = $2}
+        $1 == "authenticationmethods" {am = $2}
+        END {
+          if (am ~ /,/) print "two factors: " am
+          else if (pw == "no" && kbd != "yes") print "key only"
+          else print "password authentication allowed (passwordauthentication " pw ", kbdinteractive " kbd ")"
+        }'
+    expect: "!~ ^password"
+    remediation: Set PasswordAuthentication no and KbdInteractiveAuthentication no, or AuthenticationMethods publickey,password.
+
+  - id: SI001-T8.1-SSH-CRYPTO
+    name: SSH offers no weak ciphers or MACs
+    description: Si001 T8.1 requires cryptographically secured administrative access.
+    tags: [si001, si001-t8, ssh]
+    severity: high
+    when:
+      - facts.os == "linux"
+      - facts.is_root
+    only_if: command -v sshd
+    run: sshd -T 2>/dev/null | awk '$1 == "ciphers" || $1 == "macs" {print}'
+    expect:
+      - "!empty"
+      - { none: "~ (cbc|arcfour|3des|blowfish|cast128|-md5|-96|umac-64[@-])" }
+
+  - id: SI001-T8.2-SSH-ROOT
+    name: Root cannot log in directly over SSH
+    description: Si001 T8.2 requires privileged access to be attributable to a person; direct root logins are not.
+    tags: [si001, si001-t8, ssh]
+    severity: high
+    when:
+      - facts.os == "linux"
+      - facts.is_root
+    only_if: command -v sshd
+    run: sshd -T 2>/dev/null | awk '$1 == "permitrootlogin" {print $2}'
+    expect: "== no"
+
+  - id: SI001-T8.2-UID0
+    name: root is the only account with UID 0
+    description: Si001 T8.2, privileged accounts must be attributable to a person.
+    tags: [si001, si001-t8, accounts]
+    severity: critical
+    when: facts.os == "linux"
+    run: |
+      awk -F: '$3 == 0 && $1 != "root" {print $1}' /etc/passwd
+    expect: empty
+
+  - id: SI001-T8.2-SUDO-AUTH
+    name: sudo always asks for authentication
+    description: Si001 T8.2 requires minimal, short-lived privileges; sudo rules without authentication grant permanent ones.
+    tags: [si001, si001-t8, sudo]
+    severity: medium
+    when:
+      - facts.os == "linux"
+      - facts.is_root
+    only_if: test -e /etc/sudoers
+    run: grep -rhiE '^[^#]*(NOPASSWD|!authenticate)' /etc/sudoers /etc/sudoers.d 2>/dev/null || true
+    expect: empty
+
+  # ===== T7 Passwords ==========================================================
+
+  - id: SI001-T7.1-PWQUALITY-ACTIVE
+    name: Password quality is enforced by PAM
+    description: Si001 T7.1 e/f. pam_pwquality or pam_cracklib must be part of the password stack.
+    tags: [si001, si001-t7, passwords, pam]
+    severity: high
+    when: facts.os == "linux"
+    run: |
+      { cat {{ si001_pam_password }} 2>/dev/null || true; } | grep -E '^[[:space:]]*password.*pam_(pwquality|cracklib)\.so' || true
+    expect: "!empty"
+    remediation: "RHEL: authselect (pam_pwquality is part of the default profiles); Debian/Ubuntu: apt install libpam-pwquality"
+
+  - id: SI001-T7.1-MINLEN
+    name: "Passwords have at least {{ si001_password_min_length }} characters"
+    description: >
+      Si001 T7.1 e. The 18 characters required for users with elevated
+      privileges cannot be enforced per account by pwquality and must be
+      ensured by the privileged access process.
+    tags: [si001, si001-t7, passwords]
+    severity: high
+    when: facts.os == "linux"
+    only_if: "{ cat {{ si001_pam_password }} 2>/dev/null || true; } | grep -qE 'pam_(pwquality|cracklib)\\.so'"
+    run: { use: pwquality, args: { key: minlen, default: 8 } }
+    expect: ">= {{ si001_password_min_length }}"
+    remediation: "echo 'minlen = {{ si001_password_min_length }}' >> /etc/security/pwquality.conf"
+
+  - id: SI001-T7.1-MINCLASS
+    name: "Passwords contain at least {{ si001_password_min_classes }} character classes"
+    description: >
+      Si001 T7.1 e: characters from at least three of upper case, lower case,
+      digits and special characters. Checks minclass of pwquality; negative
+      ucredit/lcredit/dcredit/ocredit values for three classes are accepted
+      too.
+    tags: [si001, si001-t7, passwords]
+    severity: high
+    when: facts.os == "linux"
+    only_if: "{ cat {{ si001_pam_password }} 2>/dev/null || true; } | grep -qE 'pam_(pwquality|cracklib)\\.so'"
+    run: |
+      get() {
+        c=$({ cat /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf 2>/dev/null || true; } |
+          awk -F= -v key="$1" '{k = $1; gsub(/[[:space:]]/, "", k)} k == key {v = $2; gsub(/[[:space:]]/, "", v)} END {print v}')
+        p=$({ cat {{ si001_pam_password }} 2>/dev/null || true; } |
+          awk -v key="$1" '/^[[:space:]]*password.*pam_(pwquality|cracklib)\.so/ {for (i = 1; i <= NF; i++) if (index($i, key "=") == 1) {v = substr($i, length(key) + 2)}} END {print v}')
+        echo "${p:-${c:-$2}}"
+      }
+      classes=$(get minclass 0)
+      credits=0
+      for k in ucredit lcredit dcredit ocredit; do
+        if [ "$(get "$k" 0)" -lt 0 ]; then credits=$((credits + 1)); fi
+      done
+      if [ "$credits" -gt "$classes" ]; then classes=$credits; fi
+      echo "$classes"
+    expect: ">= {{ si001_password_min_classes }}"
+    remediation: "echo 'minclass = {{ si001_password_min_classes }}' >> /etc/security/pwquality.conf"
+
+  - id: "SI001-T7.1-{{ item.key | upper }}"
+    name: "{{ item.value }}"
+    description: Si001 T7.1 f, the password must not be trivial or contain user attributes.
+    tags: [si001, si001-t7, passwords]
+    severity: medium
+    when: facts.os == "linux"
+    only_if: "{ cat {{ si001_pam_password }} 2>/dev/null || true; } | grep -qE 'pam_pwquality\\.so'"
+    loop:
+      usercheck: Passwords must not contain the user name
+      dictcheck: Passwords must not be dictionary words
+    run: { use: pwquality, args: { key: "{{ item.key }}", default: 1 } }
+    expect: "!= 0"
+
+  - id: SI001-T7.1-ROOT
+    name: Password rules also apply to root
+    description: Si001 T7.1 e applies to users with elevated privileges as well (enforce_for_root).
+    tags: [si001, si001-t7, passwords]
+    severity: medium
+    when: facts.os == "linux"
+    only_if: "{ cat {{ si001_pam_password }} 2>/dev/null || true; } | grep -qE 'pam_pwquality\\.so'"
+    run: |
+      { cat /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf {{ si001_pam_password }} 2>/dev/null || true; } |
+        grep -E '^[[:space:]]*(enforce_for_root|password.*pam_pwquality\.so.*enforce_for_root)' || true
+    expect: "!empty"
+
+  - id: SI001-T7.3-HISTORY
+    name: "The last {{ si001_password_history }} passwords cannot be reused"
+    description: Si001 T7.3. remember of pam_pwhistory (or pwhistory.conf) or of pam_unix.
+    tags: [si001, si001-t7, passwords, pam]
+    severity: high
+    when: facts.os == "linux"
+    run: |
+      v=$({ cat {{ si001_pam_password }} 2>/dev/null || true; } |
+        awk '/^[[:space:]]*password.*pam_(pwhistory|unix)\.so/ {for (i = 1; i <= NF; i++) if ($i ~ /^remember=/) {split($i, a, "="); if (a[2] > v) v = a[2]}} END {print v + 0}')
+      if [ "$v" -eq 0 ] && { cat {{ si001_pam_password }} 2>/dev/null || true; } | grep -qE '^[[:space:]]*password.*pam_pwhistory\.so'; then
+        v=$({ cat /etc/security/pwhistory.conf 2>/dev/null || true; } |
+          awk -F= '{k = $1; gsub(/[[:space:]]/, "", k)} k == "remember" {v = $2; gsub(/[[:space:]]/, "", v)} END {print (v == "" ? 10 : v)}')
+      fi
+      echo "$v"
+    expect: ">= {{ si001_password_history }}"
+    remediation: "Add 'password requisite pam_pwhistory.so remember={{ si001_password_history }} use_authtok' to the password stack."
+
+  - id: SI001-T7.4-LOCKOUT
+    name: "Accounts are locked after at most {{ si001_lockout_attempts }} failed logins"
+    description: Si001 T7.4. pam_faillock (deny, default 3) or pam_tally2 must be part of the auth stack.
+    tags: [si001, si001-t7, passwords, pam]
+    severity: high
+    when: facts.os == "linux"
+    run: |
+      stack=$({ cat {{ si001_pam_auth }} 2>/dev/null || true; } | grep -E '^[[:space:]]*auth.*pam_(faillock|tally2)\.so' || true)
+      if [ -z "$stack" ]; then echo "no pam_faillock or pam_tally2 in the auth stack"; exit 0; fi
+      p=$(echo "$stack" | grep -oE 'deny=[0-9]+' | cut -d= -f2 | sort -n | tail -n 1)
+      c=$({ cat /etc/security/faillock.conf 2>/dev/null || true; } |
+        awk -F= '{k = $1; gsub(/[[:space:]]/, "", k)} k == "deny" {v = $2; gsub(/[[:space:]]/, "", v)} END {print v}')
+      d=${p:-${c:-3}}
+      if [ "$d" -ge 1 ] && [ "$d" -le {{ si001_lockout_attempts }} ]; then echo "deny=$d"; else echo "deny=$d is not between 1 and {{ si001_lockout_attempts }}"; fi
+    expect: "~ ^deny=[0-9]+$"
+
+  - id: SI001-T7.4-UNLOCK
+    name: Locked accounts stay locked until an administrator unlocks them
+    description: >
+      Si001 T7.4: a locked password may only be released through a defined
+      process, so pam_faillock must not unlock automatically (unlock_time = 0).
+    tags: [si001, si001-t7, passwords, pam]
+    severity: medium
+    when: facts.os == "linux"
+    only_if: "{ cat {{ si001_pam_auth }} 2>/dev/null || true; } | grep -qE '^[[:space:]]*auth.*pam_faillock\\.so'"
+    run: |
+      p=$({ cat {{ si001_pam_auth }} 2>/dev/null || true; } | grep -E '^[[:space:]]*auth.*pam_faillock\.so' | grep -oE 'unlock_time=[0-9]+' | cut -d= -f2 | tail -n 1)
+      c=$({ cat /etc/security/faillock.conf 2>/dev/null || true; } |
+        awk -F= '{k = $1; gsub(/[[:space:]]/, "", k)} k == "unlock_time" {v = $2; gsub(/[[:space:]]/, "", v)} END {print v}')
+      echo "${p:-${c:-600}}"
+    expect: "== 0"
+
+  - id: SI001-T7.4-SSH-TRIES
+    name: "SSH allows at most {{ si001_lockout_attempts }} authentication attempts per connection"
+    description: Si001 T7.4.
+    tags: [si001, si001-t7, ssh]
+    severity: low
+    when:
+      - facts.os == "linux"
+      - facts.is_root
+    only_if: command -v sshd
+    run: sshd -T 2>/dev/null | awk '$1 == "maxauthtries" {print $2}'
+    expect: "<= {{ si001_lockout_attempts }}"
+
+  - id: SI001-T7.6-HASHES
+    name: All passwords are stored with a strong hash
+    description: Si001 T7.6. Lists accounts whose password hash is not yescrypt, SHA-512, SHA-256 or bcrypt.
+    tags: [si001, si001-t7, passwords]
+    severity: high
+    when:
+      - facts.os == "linux"
+      - facts.is_root
+    run: |
+      awk -F: '$2 !~ /^[!*]/ && $2 != "" && $2 !~ /^\$(y|gy|7|6|5|2[aby])\$/ {print $1}' /etc/shadow
+    expect: empty
+
+  - id: SI001-T7.6-EMPTY
+    name: No account has an empty password
+    description: Si001 T7.6.
+    tags: [si001, si001-t7, passwords]
+    severity: critical
+    when:
+      - facts.os == "linux"
+      - facts.is_root
+    run: |
+      awk -F: '$2 == "" {print $1}' /etc/shadow
+    expect: empty
+
+  - id: SI001-T7.6-ENCRYPT-METHOD
+    name: New passwords are hashed with yescrypt or SHA-512
+    description: Si001 T7.6. ENCRYPT_METHOD in /etc/login.defs.
+    tags: [si001, si001-t7, passwords]
+    severity: medium
+    when: facts.os == "linux"
+    run: awk '$1 == "ENCRYPT_METHOD" {v = toupper($2)} END {print v}' /etc/login.defs
+    expect: "in [YESCRYPT, SHA512]"
+
+  - id: SI001-T7.6-SHADOW-MODE
+    name: /etc/shadow is readable only by root (and group shadow)
+    description: Si001 T7.6.
+    tags: [si001, si001-t7, passwords, permissions]
+    severity: high
+    when: facts.os == "linux"
+    run: find -H /etc/shadow -perm /0137 -printf '%m %p\n'
+    expect: empty
+
+  # ===== I2.1 Encryption (increased protection needs) ==========================
+
+  - id: SI001-I2.1-DISK-ENCRYPTION
+    name: The root file system is encrypted
+    description: >
+      Si001 I2.1 (footnote 26): information with increased protection needs on
+      servers that are not specially protected physically must be stored with
+      disk encryption.
+    tags: [si001, si001-i2, si001-erhoeht, encryption]
+    severity: high
+    when:
+      - facts.os == "linux"
+      - si001_schutzbedarf == "erhoeht"
+      - facts.is_root
+    only_if: command -v lsblk && command -v findmnt
+    run: |
+      src=$(findmnt -n -o SOURCE /)
+      if lsblk -s -n -o TYPE "$src" 2>/dev/null | grep -q crypt; then echo encrypted; else echo "$src is not on a dm-crypt device"; fi
+    expect: "== encrypted"
+
+  # ===== S2 Updates ============================================================
+
+  - id: SI001-S2-SECURITY-UPDATES
+    name: No security updates are pending
+    description: Si001 S2 requires updates and patches to be installed promptly. Queries the package repositories.
+    tags: [si001, si001-s2, updates]
+    severity: high
+    when:
+      - facts.os == "linux"
+      - facts.is_root
+    run:
+      rhel: |
+        if command -v dnf >/dev/null; then dnf -q updateinfo list --security --available 2>/dev/null | awk 'NF >= 3 {print $3}' | sort -u
+        else yum -q updateinfo list security available 2>/dev/null | awk 'NF >= 3 {print $3}' | sort -u; fi
+      debian: |
+        apt-get -qq update >/dev/null 2>&1
+        apt-get -s upgrade 2>/dev/null | awk '/^Inst / && /-security/ {print $2}'
+      suse: zypper -q --non-interactive list-patches --category security 2>/dev/null | awk -F'|' 'NR > 2 && $1 ~ /[a-z]/ {print $2}'
+    expect: empty
+
+  - id: SI001-S2-REBOOT
+    name: The running kernel is the newest installed one
+    description: Si001 S2, an installed kernel update only takes effect after a reboot.
+    tags: [si001, si001-s2, updates]
+    severity: medium
+    when: facts.os == "linux"
+    run:
+      debian: if [ -e /var/run/reboot-required ]; then echo "reboot required"; else echo ok; fi
+      rhel,suse: |
+        newest=$(rpm -q --qf '%{INSTALLTIME} %{VERSION}-%{RELEASE}.%{ARCH}\n' kernel kernel-core kernel-default 2>/dev/null | grep -v 'not installed' | sort -n | tail -n 1 | cut -d' ' -f2)
+        if [ -z "$newest" ]; then echo ok; exit 0; fi
+        case "$(uname -r)" in *"${newest%.*}"*) echo ok ;; *) echo "running $(uname -r), newest installed $newest" ;; esac
+    expect: "== ok"
+
+  # ===== S3 Service accounts ===================================================
+
+  - id: SI001-S3.1-SYSTEM-SHELLS
+    name: Service accounts have no login shell
+    description: Si001 S3.1, service accounts only get the rights the service needs.
+    tags: [si001, si001-s3, accounts]
+    severity: medium
+    when: facts.os == "linux"
+    run: |
+      awk -F: -v allowed="{{ si001_shell_system_accounts | join(' ') }}" '
+        BEGIN {n = split(allowed, a, " "); for (i = 1; i <= n; i++) ok[a[i]] = 1}
+        $3 < 1000 && !($1 in ok) && $7 !~ /(nologin|false|sync|shutdown|halt)$/ {print $1 " " $7}' /etc/passwd
+    expect: empty
+
+  - id: SI001-S3.2-SYSTEM-PASSWORDS
+    name: Service accounts have no password
+    description: Si001 S3.2, service accounts use strong (ideally key-based) authentication instead of passwords.
+    tags: [si001, si001-s3, accounts]
+    severity: medium
+    when:
+      - facts.os == "linux"
+      - facts.is_root
+    run: |
+      awk -F: 'NR == FNR {uid[$1] = $3; next} ($1 in uid) && uid[$1] > 0 && uid[$1] < 1000 && $2 !~ /^[!*]/ && $2 != "" {print $1}' /etc/passwd /etc/shadow
+    expect: empty
+
+  # ===== S4 Integrity and malware protection ===================================
+
+  - id: SI001-S4.1-PACKAGE-SIGNATURES
+    name: Packages are installed only with valid signatures
+    description: Si001 S4.1, the integrity of software components is ensured with digital signatures.
+    tags: [si001, si001-s4, packages]
+    severity: high
+    when: facts.os == "linux"
+    run:
+      rhel: |
+        { cat /etc/dnf/dnf.conf /etc/yum.conf 2>/dev/null || true; } | awk -F= '{k = $1; gsub(/[[:space:]]/, "", k)} k == "gpgcheck" {v = $2; gsub(/[[:space:]]/, "", v)} END {if (v != "" && v != "1" && v != "True" && v != "true") print "main: gpgcheck=" v}'
+        grep -lE '^[[:space:]]*gpgcheck[[:space:]]*=[[:space:]]*(0|False|false|no)' /etc/yum.repos.d/*.repo 2>/dev/null || true
+      suse: |
+        { cat /etc/zypp/zypp.conf 2>/dev/null || true; } | grep -E '^[[:space:]]*(gpgcheck|repo_gpgcheck|pkg_gpgcheck)[[:space:]]*=[[:space:]]*(off|no|false|0)' || true
+        grep -lE '^[[:space:]]*gpgcheck[[:space:]]*=[[:space:]]*0' /etc/zypp/repos.d/*.repo 2>/dev/null || true
+      debian: |
+        grep -rhE '\[[^]]*trusted=yes' /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null || true
+        grep -rhiE 'AllowUnauthenticated[[:space:]]+"?(true|1|yes)' /etc/apt/apt.conf /etc/apt/apt.conf.d 2>/dev/null || true
+    expect: empty
+
+  - id: SI001-S4.1-INTEGRITY-TOOL
+    name: A file integrity checker runs regularly
+    description: >
+      Si001 S4.1: server systems with increased protection needs undergo
+      regular integrity checks. AIDE must be installed with a database and be
+      scheduled by cron or a systemd timer.
+    tags: [si001, si001-s4, si001-erhoeht, integrity]
+    severity: medium
+    when:
+      - facts.os == "linux"
+      - si001_schutzbedarf == "erhoeht"
+      - facts.is_root
+    run: |
+      command -v aide >/dev/null || { echo "aide is not installed"; exit 0; }
+      ls /var/lib/aide/aide.db* >/dev/null 2>&1 || { echo "no AIDE database"; exit 0; }
+      if grep -rqs aide /etc/crontab /etc/cron.d /etc/cron.daily /etc/cron.weekly /var/spool/cron 2>/dev/null; then echo scheduled; exit 0; fi
+      if command -v systemctl >/dev/null && systemctl list-timers --all --no-legend 2>/dev/null | grep -qi aide; then echo scheduled; exit 0; fi
+      echo "AIDE is not scheduled"
+    expect: "== scheduled"
+
+  - id: SI001-S4.3-MALWARE
+    name: A malware protection agent is running
+    description: >
+      Si001 S4.3, the system is part of a malware protection concept. Adjust
+      si001_malware_agents to the agents of the concept.
+    tags: [si001, si001-s4, malware]
+    severity: medium
+    when: facts.os == "linux"
+    only_if: command -v pgrep
+    run: |
+      for a in {{ si001_malware_agents | join(' ') }}; do
+        if pgrep -x "$a" >/dev/null 2>&1; then echo "$a"; exit 0; fi
+      done
+      echo none
+    expect: "!= none"
+
+  # ===== S5 Federal clients (APS) ==============================================
+
+  - id: SI001-S5.1-CLIENT-ENCRYPTION
+    name: Internal storage of the client is encrypted
+    description: Si001 S5.1, internal non-volatile storage of federal clients is transparently encrypted.
+    tags: [si001, si001-s5, si001-client, encryption]
+    severity: high
+    when:
+      - si001_rolle == "client"
+      - facts.os in ["linux", "darwin", "windows"]
+    run:
+      macos: fdesetup status
+      windows: (Get-BitLockerVolume -MountPoint $env:SystemDrive).ProtectionStatus
+      linux: |
+        src=$(findmnt -n -o SOURCE /)
+        if lsblk -s -n -o TYPE "$src" 2>/dev/null | grep -q crypt; then echo encrypted; else echo "$src is not on a dm-crypt device"; fi
+    expect:
+      if: { stdout: "~ (?i)filevault" }
+      then: "~ FileVault is On"
+      else: { any: ["== encrypted", "== On"] }
+
+  - id: SI001-S5.2-SCREEN-LOCK
+    name: "The screen locks after at most {{ (si001_screen_lock_seconds / 60) | int }} minutes"
+    description: >
+      Si001 S5.2. Linux: GNOME idle-delay and lock-enabled set system-wide in
+      dconf; Windows: InactivityTimeoutSecs.
+    tags: [si001, si001-s5, si001-client]
+    severity: medium
+    when:
+      - si001_rolle == "client"
+      - facts.os in ["linux", "windows"]
+    run:
+      windows: (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -ErrorAction SilentlyContinue).InactivityTimeoutSecs
+      linux: |
+        conf=$(cat /etc/dconf/db/*.d/* 2>/dev/null || true)
+        delay=$(echo "$conf" | awk -F= '$1 ~ /^idle-delay/ {gsub(/[^0-9]/, "", $2); v = $2} END {print v}')
+        lock=$(echo "$conf" | awk -F= '$1 ~ /^lock-enabled/ {gsub(/[[:space:]]/, "", $2); v = $2} END {print v}')
+        if [ "$lock" = true ] && [ -n "$delay" ] && [ "$delay" -gt 0 ]; then echo "$delay"; else echo 0; fi
+    expect:
+      - "> 0"
+      - "<= {{ si001_screen_lock_seconds }}"
+
+  - id: SI001-S5.3-AUTORUN
+    name: Autorun of external media is disabled
+    description: Si001 S5.3.
+    tags: [si001, si001-s5, si001-client]
+    severity: medium
+    when:
+      - si001_rolle == "client"
+      - facts.os in ["linux", "windows"]
+    run:
+      windows: (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer' -ErrorAction SilentlyContinue).NoDriveTypeAutoRun
+      linux: |
+        cat /etc/dconf/db/*.d/* 2>/dev/null | awk -F= '$1 ~ /^autorun-never/ {gsub(/[[:space:]]/, "", $2); v = $2} END {print (v == "" ? "not set" : v)}'
+    expect: { any: ["== true", "== 255"] }

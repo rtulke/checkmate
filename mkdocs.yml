@@ -181,6 +181,7 @@ nav:
           - examples/compliance/index.md
           - "Linux hardening baseline": examples/compliance/linux-hardening.md
           - "Managed RHEL baseline": examples/compliance/managed-rhel.md
+          - "Si001 IT-Grundschutz (Swiss Federal Administration)": examples/compliance/si001.md
   - CIS benchmarks:
       - cis/index.md
       - "Amazon Linux 2": cis/amazon2.md

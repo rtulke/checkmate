@@ -1,6 +1,6 @@
 # Examples
 
-53 ready-to-use policies with 955 checks. Every example is validated, syntax-checked for each
+54 ready-to-use policies with 990 checks. Every example is validated, syntax-checked for each
 platform and executed on RHEL, Debian, Ubuntu, openSUSE and Alpine in the test suite, so you can copy them as a
 starting point.
 
@@ -98,6 +98,6 @@ starting point.
 
     Complete baselines: a broad Linux hardening baseline modelled on OpenSCAP and CIS, and a managed-RHEL baseline with a tag-based selection model.
 
-    [Linux hardening baseline](compliance/linux-hardening.md) · [Managed RHEL baseline](compliance/managed-rhel.md)
+    [Linux hardening baseline](compliance/linux-hardening.md) · [Managed RHEL baseline](compliance/managed-rhel.md) · [Si001 IT-Grundschutz (Swiss Federal Administration)](compliance/si001.md)
 
 </div>
