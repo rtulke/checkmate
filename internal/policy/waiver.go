@@ -3,6 +3,7 @@ package policy
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"path"
 	"path/filepath"
 	"strings"
@@ -102,27 +103,52 @@ func parseWaivers(nodes []yaml.Node, file string) ([]Waiver, error) {
 	return out, nil
 }
 
-// LoadWaivers reads a file that contains only a waivers list, e.g. a
-// host-specific exception file passed with --waivers.
+// LoadWaivers reads a waiver file, e.g. a host-specific exception file
+// passed with --waivers. Besides waivers it may list other waiver files
+// under include (relative to the including file). The first matching waiver
+// wins, so the waivers of a file come before those it includes: a specific
+// file overrides the common files it builds on.
 func LoadWaivers(file string, opts LoadOptions) ([]Waiver, error) {
 	abs, err := filepath.Abs(file)
 	if err != nil {
 		return nil, err
 	}
-	l := &loader{opts: opts}
-	data, err := l.readFile(abs)
+	l := &loader{opts: opts, visiting: map[string]bool{}}
+	return l.loadWaivers(abs)
+}
+
+func (l *loader) loadWaivers(path string) ([]Waiver, error) {
+	if l.visiting[path] {
+		return nil, fmt.Errorf("include cycle detected at %s", path)
+	}
+	l.visiting[path] = true
+	defer delete(l.visiting, path)
+
+	data, err := l.readFile(path)
 	if err != nil {
 		return nil, err
 	}
 	var doc struct {
+		Include []string    `yaml:"include"`
 		Waivers []yaml.Node `yaml:"waivers"`
 	}
 	dec := yaml.NewDecoder(bytes.NewReader(data))
 	dec.KnownFields(true)
-	if err := dec.Decode(&doc); err != nil {
-		return nil, fmt.Errorf("%s: %w", abs, err)
+	if err := dec.Decode(&doc); err != nil && err != io.EOF {
+		return nil, fmt.Errorf("%s: %w", path, err)
 	}
-	return parseWaivers(doc.Waivers, abs)
+	out, err := parseWaivers(doc.Waivers, path)
+	if err != nil {
+		return nil, err
+	}
+	for _, inc := range doc.Include {
+		w, err := l.loadWaivers(resolve(filepath.Dir(path), inc))
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, w...)
+	}
+	return out, nil
 }
 
 // Eval evaluates a Jinja2 condition with the facts and variables of the

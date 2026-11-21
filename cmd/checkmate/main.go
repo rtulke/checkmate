@@ -193,7 +193,8 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintln(stderr, "checkmate:", err)
 			return exitUsage
 		}
-		waivers = append(waivers, w...)
+		// Files named later are more specific and take precedence.
+		waivers = append(w, waivers...)
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)

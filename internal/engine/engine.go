@@ -159,7 +159,9 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 	}
 	var waivers []policy.Waiver
 	if !opts.IgnoreWaivers {
-		waivers = append(append(waivers, p.Waivers...), opts.Waivers...)
+		// Waivers given on the command line are more specific than those of
+		// the policy; the first matching waiver wins.
+		waivers = append(append(waivers, opts.Waivers...), p.Waivers...)
 	}
 	var noticeMu sync.Mutex
 	notices := map[string]bool{}

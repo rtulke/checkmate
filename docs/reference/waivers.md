@@ -42,8 +42,11 @@ WAIVED  SSH-PORT  SSH listens on port 22   waived: Port 2222 by decision of the 
 | `when` | no | Jinja2 condition or list of conditions, like `when` of a check: facts and variables. The waiver applies only if all hold. |
 | `skip` | no | `true` does not run the check at all (status WAIVED without a result). Use it for checks that are slow or harmful on a host, not to hide results. |
 
-The first matching waiver wins. A waiver whose `when` does not hold is ignored
-for that check, so different hosts can have different waivers in one file.
+The first matching waiver wins, and the more specific source comes first: a
+file before the files it includes, a policy before the policies it includes,
+a later `--waivers` file before an earlier one, and `--waivers` files before
+the waivers of the policy. A waiver whose `when` does not hold is ignored for
+that check, so different hosts can have different waivers in one file.
 
 ## Where waivers live
 
@@ -56,7 +59,27 @@ sudo checkmate run cis/rhel9.yml --waivers /etc/checkmate/waivers.yml
 sudo checkmate run cis/rhel9.yml --waivers common.yml --waivers "$(hostname).yml"
 ```
 
-A waiver file contains only `waivers:`.
+A waiver file contains `waivers:` and may include other waiver files, with
+paths relative to the including file. This keeps common exceptions in one
+place and host- or role-specific ones on top:
+
+```yaml
+# /etc/checkmate/waivers/web01.yml
+include:
+  - common.yml          # site-wide exceptions
+  - roles/web.yml       # exceptions of all web servers
+waivers:
+  - id: SSH-PORT
+    reason: web01 is reached through the jump host on port 2222
+    until: 2027-06-30
+```
+
+```bash
+sudo checkmate run cis/rhel9.yml --waivers /etc/checkmate/waivers/web01.yml
+```
+
+Include cycles are reported as errors, and every included file gets the same
+ownership check as the file that includes it.
 
 **In a policy**, under `waivers:` next to `checks:`. Waivers of included
 files apply as well, so a site policy can include a benchmark and add its own

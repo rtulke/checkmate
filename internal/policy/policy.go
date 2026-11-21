@@ -125,7 +125,9 @@ func (l *loader) load(path string, top bool) error {
 	dir := filepath.Dir(path)
 
 	// Included files first: their checks run before ours and our values
-	// override theirs.
+	// override theirs. Our waivers go before theirs, because the first
+	// matching waiver wins.
+	waiverStart := len(l.policy.Waivers)
 	for _, inc := range doc.Include {
 		if err := l.load(resolve(dir, inc), false); err != nil {
 			return err
@@ -169,7 +171,7 @@ func (l *loader) load(path string, top bool) error {
 	if err != nil {
 		return err
 	}
-	p.Waivers = append(p.Waivers, waivers...)
+	p.Waivers = append(p.Waivers[:waiverStart], append(waivers, p.Waivers[waiverStart:]...)...)
 
 	for i := range doc.Checks {
 		node := &doc.Checks[i]
