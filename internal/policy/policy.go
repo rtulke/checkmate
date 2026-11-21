@@ -27,6 +27,7 @@ type Policy struct {
 	Defaults    Defaults
 	Snippets    map[string]CommandSpec
 	Checks      []CheckSource
+	Waivers     []Waiver // accepted deviations from all files
 	Files       []string // all files read, for diagnostics
 }
 
@@ -64,6 +65,7 @@ type fileDoc struct {
 	Defaults    fileDefaults           `yaml:"defaults"`
 	Snippets    map[string]CommandSpec `yaml:"snippets"`
 	Checks      []yaml.Node            `yaml:"checks"`
+	Waivers     []yaml.Node            `yaml:"waivers"`
 }
 
 type fileDefaults struct {
@@ -162,6 +164,12 @@ func (l *loader) load(path string, top bool) error {
 	if err := applyDefaults(&p.Defaults, doc.Defaults, path); err != nil {
 		return err
 	}
+
+	waivers, err := parseWaivers(doc.Waivers, path)
+	if err != nil {
+		return err
+	}
+	p.Waivers = append(p.Waivers, waivers...)
 
 	for i := range doc.Checks {
 		node := &doc.Checks[i]

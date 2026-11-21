@@ -30,6 +30,8 @@ Two rules are fixed on purpose:
 - **`info` never fails.** Use it for inventory-style checks you want to see but never enforce.
 - **Errors are never downgraded.** A check that could not be evaluated says nothing about the system, so it always counts, whatever its severity.
 
+Findings that are real but accepted for a documented reason are handled with [waivers](waivers.md), not by raising the threshold: a waiver names the check, the reason and an expiry date, and the check stays visible as WAIVED.
+
 A typical rollout: start with `--fail-on critical` to get a baseline without blocking anything, fix findings, then lower the threshold step by step.
 
 ## Score

@@ -107,6 +107,23 @@ expect:
 
 See the [reference](https://rtulke.github.io/checkmate/reference/expect/).
 
+Findings that are real but accepted go into a waiver file with a reason and an
+expiry date. Waived checks still run and stay visible as `WAIVED`, but do not
+fail the run; after `until` they count again:
+
+```yaml
+waivers:
+  - id: SSH-PORT
+    reason: Port 2222 by decision of the network team (ticket SEC-1234)
+    until: 2027-06-30
+```
+
+```bash
+checkmate run baseline.yml --waivers waivers.yml
+```
+
+See [waivers](https://rtulke.github.io/checkmate/reference/waivers/).
+
 ## Examples
 
 Nearly 50 tested policies with over 750 checks, organized like the documentation:

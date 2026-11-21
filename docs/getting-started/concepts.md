@@ -33,6 +33,7 @@ flowchart LR
 | <span class="st st-error">ERROR</span> | The check could not be evaluated: timeout, command not found, unexpected exit code, invalid definition. | **yes, always** |
 | <span class="st st-skip">SKIP</span> | Excluded by `when` or `only_if`. | no |
 | <span class="st st-na">N/A</span> | No command variant for this platform. | no |
+| <span class="st st-waived">WAIVED</span> | Failed, warned or errored, but a [waiver](../reference/waivers.md) accepts it with a reason. | no |
 
 ## When is a command an error?
 

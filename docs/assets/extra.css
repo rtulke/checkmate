@@ -22,5 +22,6 @@
 .st-warn  { color: #f9a825; }
 .st-error { color: #ad1457; }
 .st-skip, .st-na { color: #78909c; }
+.st-waived { color: #00838f; }
 
 .md-typeset table:not([class]) td code { white-space: nowrap; }

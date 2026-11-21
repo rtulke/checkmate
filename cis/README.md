@@ -88,3 +88,16 @@ Deviations from the Ansible Lockdown content, each applied deliberately:
 - The SSH banner file check reports "no banner configured" instead of failing
   in `stat` when no banner is set.
 - Commands that are not valid shell code upstream are left out and listed by the converter.
+
+## Accepted deviations
+
+Do not edit the generated policies to silence a finding. Keep accepted
+deviations in a waiver file with a reason and an expiry date and pass it with
+`--waivers` (see the [waivers reference](https://rtulke.github.io/checkmate/reference/waivers/)):
+
+```yaml
+waivers:
+  - id: CIS-RHEL9-1.1.2.1.*
+    reason: /tmp is a tmpfs mount managed by systemd
+    until: 2027-06-30
+```

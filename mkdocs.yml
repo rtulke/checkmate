@@ -51,6 +51,10 @@ extra_css:
 plugins:
   - search
 
+extra:
+  # No "Made with Material for MkDocs" notice in the footer.
+  generator: false
+
 markdown_extensions:
   - admonition
   - attr_list
@@ -92,6 +96,7 @@ nav:
       - Platforms and facts: reference/platforms.md
       - Command line: reference/cli.md
       - Results, severity and score: reference/results.md
+      - Waivers: reference/waivers.md
   - Guides:
       - guides/index.md
       - Writing robust checks: guides/writing-checks.md

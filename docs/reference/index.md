@@ -9,3 +9,4 @@
 | [Platforms and facts](platforms.md) | Facts, platform variants, shells |
 | [Command line](cli.md) | Commands, flags and exit codes |
 | [Results, severity and score](results.md) | Statuses, `fail_on`, warnings and the compliance score |
+| [Waivers](waivers.md) | Accepted deviations with reason, expiry date and host conditions |

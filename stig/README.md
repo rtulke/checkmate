@@ -40,3 +40,16 @@ The conversion and its deliberate deviations are described in
 [cis/README.md](../cis/README.md); fixes for broken upstream commands (wrong
 quoting that let awk errors pass, a NOPASSWD rule running an unrelated
 command, home directory modes compared as decimal numbers) apply here too.
+
+## Accepted deviations
+
+Do not edit the generated policies to silence a finding. Keep accepted
+deviations in a waiver file with a reason and an expiry date and pass it with
+`--waivers` (see the [waivers reference](https://rtulke.github.io/checkmate/reference/waivers/)):
+
+```yaml
+waivers:
+  - id: CIS-RHEL9-1.1.2.1.*
+    reason: /tmp is a tmpfs mount managed by systemd
+    until: 2027-06-30
+```

@@ -19,6 +19,8 @@ Flags may come before or after the policy file.
 | `--id PATTERNS` | Select checks by id, comma-separated glob patterns: `SSH-*,USR-001` |
 | `-e`, `--extra-var KEY=VALUE` | Set a variable (repeatable). Values are parsed as YAML: `-e ports='[22, 443]'` |
 | `--fail-on SEVERITY` | Lowest severity whose failures make the run non-compliant. Default: `defaults.fail_on`, else `low`. |
+| `--waivers FILE` | File with accepted deviations (repeatable). See [Waivers](waivers.md). |
+| `--ignore-waivers` | Report every result as if no waiver existed. |
 | `--format FORMAT` | Output on stdout: `text` (default), `json`, `junit`. |
 | `--json-out FILE` | Also write a JSON report to a file. |
 | `--junit-out FILE` | Also write a JUnit XML report to a file. |

@@ -61,8 +61,12 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 		writeDebugHeader(w, r, paint)
 	}
 
-	idWidth, nameWidth, sevWidth := 0, 0, 0
+	// WAIVED is the only six-letter status; widen the column only if needed.
+	idWidth, nameWidth, sevWidth, statusWidth := 0, 0, 0, 5
 	for _, res := range r.Results {
+		if res.Status == engine.StatusWaived && (!opts.Quiet || isProblem(res.Status)) {
+			statusWidth = 6
+		}
 		if !opts.Quiet || isProblem(res.Status) {
 			idWidth = maxInt(idWidth, minInt(len(res.ID), 32))
 			nameWidth = maxInt(nameWidth, minInt(runeLen(res.Name), 48))
@@ -82,8 +86,8 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 		color, _ := statusColor(res.Status)
 
 		// Build the line twice: plain to measure it, colored to print it.
-		plain := fmt.Sprintf("%-5s  %-*s  ", res.Status, idWidth, res.ID)
-		colored := paint(color, fmt.Sprintf("%-5s", res.Status)) + fmt.Sprintf("  %-*s  ", idWidth, res.ID)
+		plain := fmt.Sprintf("%-*s  %-*s  ", statusWidth, res.Status, idWidth, res.ID)
+		colored := paint(color, fmt.Sprintf("%-*s", statusWidth, res.Status)) + fmt.Sprintf("  %-*s  ", idWidth, res.ID)
 		reason := oneLine(res.Message)
 		if opts.Verbosity == 0 || reason == "" {
 			plain += res.Name
@@ -122,6 +126,13 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 		}
 	}
 
+	if len(r.Notices) > 0 {
+		fmt.Fprintln(w)
+		for _, n := range r.Notices {
+			fmt.Fprintln(w, paint(colorYellow, "notice: ")+n)
+		}
+	}
+
 	s := r.Summary
 	count := func(n int, label, color string) string {
 		text := fmt.Sprintf("%d %s", n, label)
@@ -134,12 +145,17 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 	if s.Total == 1 {
 		checksLabel = "check"
 	}
-	fmt.Fprintf(w, "\n%d %s · %s · %s · %s · %s · %s · %s · %s\n",
+	waived := ""
+	if s.Waived > 0 {
+		waived = " · " + count(s.Waived, "waived", colorCyan)
+	}
+	fmt.Fprintf(w, "\n%d %s · %s · %s · %s · %s%s · %s · %s · %s\n",
 		s.Total, checksLabel,
 		count(s.Passed, "passed", colorGreen),
 		count(s.Failed, "failed", colorRed),
 		count(s.Warnings, "warnings", colorYellow),
 		count(s.Errors, "errors", colorMagenta),
+		waived,
 		count(s.Skipped, "skipped", colorDim),
 		count(s.NotApplicable, "n/a", colorDim),
 		(time.Duration(r.DurationMS) * time.Millisecond).String())
@@ -196,6 +212,13 @@ func writeDetails(w io.Writer, res engine.Result, paint func(string, string) str
 	}
 	if res.Message != "" && (debug || runeLen(oneLine(res.Message)) > 60 || strings.Contains(res.Message, "\n")) {
 		field("message", res.Message)
+	}
+	if res.Waiver != nil {
+		waiver := res.Waiver.Reason + " (" + res.Waiver.Source
+		if res.Waiver.Until != "" {
+			waiver += ", until " + res.Waiver.Until
+		}
+		field("waiver", waiver+")")
 	}
 	field("command", res.Command)
 	if res.RC != nil {
@@ -322,6 +345,8 @@ func statusColor(s engine.Status) (color string, dim bool) {
 		return colorYellow, false
 	case engine.StatusError:
 		return colorBold + colorMagenta, false
+	case engine.StatusWaived:
+		return colorCyan, false
 	}
 	return colorDim, true
 }
@@ -395,7 +420,7 @@ func JUnit(w io.Writer, r *engine.Report) error {
 		Tests:     s.Total,
 		Failures:  s.Failed,
 		Errors:    s.Errors,
-		Skipped:   s.Skipped + s.NotApplicable,
+		Skipped:   s.Skipped + s.NotApplicable + s.Waived,
 		Time:      seconds(r.DurationMS),
 		Timestamp: r.Started.Format(time.RFC3339),
 	}
@@ -416,7 +441,7 @@ func JUnit(w io.Writer, r *engine.Report) error {
 			c.Failure = &junitMessage{Message: res.Message, Body: details}
 		case engine.StatusError:
 			c.Error = &junitMessage{Message: res.Message, Body: details}
-		case engine.StatusSkip, engine.StatusNA:
+		case engine.StatusSkip, engine.StatusNA, engine.StatusWaived:
 			c.Skipped = &junitMessage{Message: res.Message}
 		case engine.StatusWarn:
 			// Warnings do not fail a CI build but stay visible in the log.

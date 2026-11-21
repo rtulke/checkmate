@@ -151,6 +151,9 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	color := fs.String("color", "auto", "colored output: auto, always or never")
 	noColor := fs.Bool("no-color", false, "shorthand for --color never")
 	failOn := fs.String("fail-on", "", "lowest severity whose failures count as non-compliant: info, low, medium, high, critical (default: policy defaults.fail_on or low)")
+	var waiverFiles multiFlag
+	fs.Var(&waiverFiles, "waivers", "file with accepted deviations (repeatable), see the waivers reference")
+	ignoreWaivers := fs.Bool("ignore-waivers", false, "report every result as if no waiver existed")
 	fs.Usage = func() {
 		fmt.Fprintln(stderr, "Usage: checkmate run [flags] <policy.yml>")
 		fs.PrintDefaults()
@@ -183,14 +186,26 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 		return exitUsage
 	}
 
+	var waivers []policy.Waiver
+	for _, f := range waiverFiles {
+		w, err := policy.LoadWaivers(f, policy.LoadOptions{AllowInsecure: common.allowInsecure})
+		if err != nil {
+			fmt.Fprintln(stderr, "checkmate:", err)
+			return exitUsage
+		}
+		waivers = append(waivers, w...)
+	}
+
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 	r := engine.Run(ctx, p, engine.Options{
-		Facts:  facts.Gather(),
-		Vars:   vars,
-		Filter: common.filter(),
-		Jobs:   *jobs,
-		FailOn: *failOn,
+		Facts:         facts.Gather(),
+		Vars:          vars,
+		Filter:        common.filter(),
+		Jobs:          *jobs,
+		FailOn:        *failOn,
+		Waivers:       waivers,
+		IgnoreWaivers: *ignoreWaivers,
 	})
 
 	if *jsonOut != "" {

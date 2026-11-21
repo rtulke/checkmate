@@ -107,6 +107,23 @@ expect:
 
 Details stehen in der [Referenz](https://rtulke.github.io/checkmate/reference/expect/).
 
+Echte, aber akzeptierte Abweichungen kommen in eine Waiver-Datei mit Begründung
+und Ablaufdatum. Gewaiverte Checks laufen weiter und bleiben als `WAIVED`
+sichtbar, lassen den Lauf aber nicht scheitern; nach `until` zählen sie wieder:
+
+```yaml
+waivers:
+  - id: SSH-PORT
+    reason: Port 2222 by decision of the network team (ticket SEC-1234)
+    until: 2027-06-30
+```
+
+```bash
+checkmate run baseline.yml --waivers waivers.yml
+```
+
+Siehe [Waivers](https://rtulke.github.io/checkmate/reference/waivers/).
+
 ## Beispiele
 
 Fast 50 getestete Policies mit über 750 Checks, gegliedert wie die Dokumentation:

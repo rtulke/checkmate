@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"runtime"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -19,35 +20,47 @@ import (
 type Status string
 
 const (
-	StatusPass  Status = "PASS"  // the expectation holds
-	StatusFail  Status = "FAIL"  // the expectation does not hold
-	StatusWarn  Status = "WARN"  // failed, but below the fail_on severity threshold
-	StatusError Status = "ERROR" // the check could not be evaluated; counts as non-compliant
-	StatusSkip  Status = "SKIP"  // `when` or `only_if` excluded the check
-	StatusNA    Status = "N/A"   // no command variant for this platform
+	StatusPass   Status = "PASS"   // the expectation holds
+	StatusFail   Status = "FAIL"   // the expectation does not hold
+	StatusWarn   Status = "WARN"   // failed, but below the fail_on severity threshold
+	StatusError  Status = "ERROR"  // the check could not be evaluated; counts as non-compliant
+	StatusSkip   Status = "SKIP"   // `when` or `only_if` excluded the check
+	StatusNA     Status = "N/A"    // no command variant for this platform
+	StatusWaived Status = "WAIVED" // failed, warned or errored, but a waiver accepts it
 )
 
 // Result is the outcome of one check.
 type Result struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Description string   `json:"description,omitempty"`
-	Tags        []string `json:"tags,omitempty"`
-	Severity    string   `json:"severity,omitempty"`
-	Status      Status   `json:"status"`
-	Message     string   `json:"message,omitempty"`
-	Expected    string   `json:"expected,omitempty"`
-	When        []string `json:"when,omitempty"`
-	OnlyIf      string   `json:"only_if,omitempty"`
-	Command     string   `json:"command,omitempty"`
-	Shell       string   `json:"shell,omitempty"`
-	RC          *int     `json:"rc,omitempty"`
-	Stdout      string   `json:"stdout,omitempty"`
-	Stderr      string   `json:"stderr,omitempty"`
-	DurationMS  int64    `json:"duration_ms"`
-	Remediation string   `json:"remediation,omitempty"`
-	Reference   string   `json:"reference,omitempty"`
-	Location    string   `json:"location"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description,omitempty"`
+	Tags        []string    `json:"tags,omitempty"`
+	Severity    string      `json:"severity,omitempty"`
+	Status      Status      `json:"status"`
+	Message     string      `json:"message,omitempty"`
+	Expected    string      `json:"expected,omitempty"`
+	When        []string    `json:"when,omitempty"`
+	OnlyIf      string      `json:"only_if,omitempty"`
+	Command     string      `json:"command,omitempty"`
+	Shell       string      `json:"shell,omitempty"`
+	RC          *int        `json:"rc,omitempty"`
+	Stdout      string      `json:"stdout,omitempty"`
+	Stderr      string      `json:"stderr,omitempty"`
+	DurationMS  int64       `json:"duration_ms"`
+	Remediation string      `json:"remediation,omitempty"`
+	Reference   string      `json:"reference,omitempty"`
+	Location    string      `json:"location"`
+	Waiver      *WaiverInfo `json:"waiver,omitempty"`
+}
+
+// WaiverInfo records the waiver applied to a result.
+type WaiverInfo struct {
+	Reason string `json:"reason"`
+	Until  string `json:"until,omitempty"`
+	Source string `json:"source"`
+	// Status is what the check would have been without the waiver; empty if
+	// the check was not run (skip: true).
+	Status Status `json:"status,omitempty"`
 }
 
 // Summary counts results by status.
@@ -59,7 +72,8 @@ type Summary struct {
 	Errors        int     `json:"errors"`
 	Skipped       int     `json:"skipped"`
 	NotApplicable int     `json:"not_applicable"`
-	Evaluated     int     `json:"evaluated"` // checks that passed, failed, warned or errored
+	Waived        int     `json:"waived"`
+	Evaluated     int     `json:"evaluated"` // checks that passed, failed, warned, errored or were waived
 	FailOn        string  `json:"fail_on"`
 	Score         float64 `json:"score"` // weighted share of passed checks, 0-100; -1 if nothing was evaluated
 	Compliant     bool    `json:"compliant"`
@@ -76,6 +90,7 @@ type Report struct {
 	DurationMS    int64       `json:"duration_ms"`
 	Summary       Summary     `json:"summary"`
 	Results       []Result    `json:"results"`
+	Notices       []string    `json:"notices,omitempty"` // e.g. expired waivers
 }
 
 // Options configure a run.
@@ -88,6 +103,12 @@ type Options struct {
 	// non-compliant; failures below it are reported as warnings. Empty
 	// means the policy default (defaults.fail_on, "low" if unset).
 	FailOn string
+	// Waivers are added to the waivers of the policy.
+	Waivers []policy.Waiver
+	// IgnoreWaivers reports every result as if no waiver existed.
+	IgnoreWaivers bool
+	// Now is the time waiver expiry is compared against (default: now).
+	Now time.Time
 }
 
 // Run expands and executes all selected checks of a policy.
@@ -132,18 +153,53 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 		failOn = p.Defaults.FailOn
 	}
 	threshold := policy.SeverityRank(failOn)
+	now := opts.Now
+	if now.IsZero() {
+		now = time.Now()
+	}
+	var waivers []policy.Waiver
+	if !opts.IgnoreWaivers {
+		waivers = append(append(waivers, p.Waivers...), opts.Waivers...)
+	}
+	var noticeMu sync.Mutex
+	notices := map[string]bool{}
+	notice := func(s string) {
+		noticeMu.Lock()
+		notices[s] = true
+		noticeMu.Unlock()
+	}
 	for i, c := range selected {
 		wg.Add(1)
 		sem <- struct{}{}
 		go func(i int, c *policy.Check) {
 			defer wg.Done()
 			defer func() { <-sem }()
+			w, err := findWaiver(c, waivers, now, notice)
+			if err != nil {
+				checkResults[i] = withStatus(baseResult(c), StatusError, err.Error())
+				return
+			}
+			if w != nil && w.Skip {
+				res := withStatus(baseResult(c), StatusWaived, "waived, not run: "+w.Reason)
+				res.Waiver = &WaiverInfo{Reason: w.Reason, Until: w.UntilString(), Source: w.Source}
+				checkResults[i] = res
+				return
+			}
 			res := runCheck(ctx, p, c, platformKeys)
 			// Failures below the threshold (always including "info") are
 			// warnings. Errors are never downgraded: a check that cannot be
 			// evaluated must not look harmless.
 			if res.Status == StatusFail && (policy.SeverityRank(res.Severity) < threshold || res.Severity == "info") {
 				res.Status = StatusWarn
+			}
+			if w != nil && (res.Status == StatusFail || res.Status == StatusWarn || res.Status == StatusError) {
+				res.Waiver = &WaiverInfo{Reason: w.Reason, Until: w.UntilString(), Source: w.Source, Status: res.Status}
+				msg := "waived: " + w.Reason
+				if res.Message != "" {
+					msg += " (" + string(res.Status) + ": " + res.Message + ")"
+				}
+				res.Status = StatusWaived
+				res.Message = msg
 			}
 			checkResults[i] = res
 		}(i, c)
@@ -163,12 +219,48 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 	}
 	report.Summary = summarize(results)
 	report.Summary.FailOn = failOn
+	for n := range notices {
+		report.Notices = append(report.Notices, n)
+	}
+	sort.Strings(report.Notices)
 	return report
 }
 
-func runCheck(ctx context.Context, p *policy.Policy, c *policy.Check, platformKeys []string) (res Result) {
-	start := time.Now()
-	res = Result{
+// findWaiver returns the first waiver that covers the check and whose
+// conditions hold. Matching waivers that have expired are reported as
+// notices and ignored, so the check counts again.
+func findWaiver(c *policy.Check, waivers []policy.Waiver, now time.Time, notice func(string)) (*policy.Waiver, error) {
+	for i := range waivers {
+		w := &waivers[i]
+		if !w.Matches(c.ID) {
+			continue
+		}
+		applies := true
+		for _, cond := range w.When {
+			ok, err := c.Eval(cond)
+			if err != nil {
+				return nil, fmt.Errorf("waiver %s: when: %w", w.Source, err)
+			}
+			if !ok {
+				applies = false
+				break
+			}
+		}
+		if !applies {
+			continue
+		}
+		if w.Expired(now) {
+			notice(fmt.Sprintf("waiver %s expired on %s and no longer applies to %s", w.Source, w.UntilString(), c.ID))
+			continue
+		}
+		return w, nil
+	}
+	return nil, nil
+}
+
+// baseResult fills the fields of a result that describe the check itself.
+func baseResult(c *policy.Check) Result {
+	return Result{
 		ID:          c.ID,
 		Name:        c.Name,
 		Description: c.Description,
@@ -180,6 +272,11 @@ func runCheck(ctx context.Context, p *policy.Policy, c *policy.Check, platformKe
 		Reference:   c.Reference,
 		Location:    c.Source.Location(),
 	}
+}
+
+func runCheck(ctx context.Context, p *policy.Policy, c *policy.Check, platformKeys []string) (res Result) {
+	start := time.Now()
+	res = baseResult(c)
 	defer func() {
 		res.DurationMS = time.Since(start).Milliseconds()
 		// A panic in a single check must not hide the check or crash the
@@ -317,9 +414,11 @@ func summarize(results []Result) Summary {
 			s.Skipped++
 		case StatusNA:
 			s.NotApplicable++
+		case StatusWaived:
+			s.Waived++
 		}
 	}
-	s.Evaluated = s.Passed + s.Failed + s.Warnings + s.Errors
+	s.Evaluated = s.Passed + s.Failed + s.Warnings + s.Errors + s.Waived
 	// A run in which every check was skipped or not applicable has checked
 	// nothing and must not look compliant.
 	s.Compliant = s.Failed == 0 && s.Errors == 0 && s.Evaluated > 0
