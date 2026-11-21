@@ -18,6 +18,7 @@ type TextOptions struct {
 	Verbose bool // show command and output for failed and errored checks
 	Quiet   bool // show only failed and errored checks
 	Version string
+	Width   int // terminal width; reasons are shortened to fit (0 = no limit)
 }
 
 const (
@@ -54,49 +55,83 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 	}
 	fmt.Fprintf(w, "%s %s · %s · %s\n\n", paint(colorBold, "checkmate"), opts.Version, title, host)
 
-	width := 0
+	idWidth, nameWidth, sevWidth := 0, 0, 0
 	for _, res := range r.Results {
-		if l := len(res.ID); l > width && l <= 32 {
-			width = l
+		if !opts.Quiet || isProblem(res.Status) {
+			idWidth = maxInt(idWidth, minInt(len(res.ID), 32))
+			nameWidth = maxInt(nameWidth, minInt(runeLen(res.Name), 48))
+		}
+		if isProblem(res.Status) && res.Severity != "" {
+			sevWidth = maxInt(sevWidth, len(res.Severity)+2)
 		}
 	}
 
+	hasDetails := false
 	for _, res := range r.Results {
-		failed := res.Status == engine.StatusFail || res.Status == engine.StatusError || res.Status == engine.StatusWarn
-		if opts.Quiet && !failed {
+		problem := isProblem(res.Status)
+		if opts.Quiet && !problem {
 			continue
 		}
-		color, dim := statusColor(res.Status)
-		line := fmt.Sprintf("%s  %-*s  %s", paint(color, fmt.Sprintf("%-5s", res.Status)), width, res.ID, res.Name)
-		if failed && res.Severity != "" {
-			line += "  " + paint(severityColor(res.Severity), "["+res.Severity+"]")
-		}
-		if dim && res.Message != "" {
-			line += paint(colorDim, "  ("+res.Message+")")
-		}
-		fmt.Fprintln(w, line)
+		color, _ := statusColor(res.Status)
 
-		if !failed {
+		// Build the line twice: plain to measure it, colored to print it.
+		plain := fmt.Sprintf("%-5s  %-*s  ", res.Status, idWidth, res.ID)
+		colored := paint(color, fmt.Sprintf("%-5s", res.Status)) + fmt.Sprintf("  %-*s  ", idWidth, res.ID)
+		name := res.Name
+		reason := oneLine(res.Message)
+		if reason == "" {
+			plain += name
+			colored += name
+		} else {
+			plain += padRight(name, nameWidth) + "  "
+			colored += padRight(name, nameWidth) + "  "
+			if sevWidth > 0 {
+				sev := ""
+				if problem && res.Severity != "" {
+					sev = "[" + res.Severity + "]"
+				}
+				plain += padRight(sev, sevWidth) + "  "
+				colored += paint(severityColor(res.Severity), sev) + strings.Repeat(" ", sevWidth-len(sev)) + "  "
+			}
+			// Keep every result on one line: shorten the reason to the
+			// terminal width instead of letting the terminal wrap it.
+			if opts.Width > 0 {
+				if room := opts.Width - runeLen(plain); room < runeLen(reason) {
+					reason = truncate(reason, room)
+				}
+			}
+			reasonColor := colorDim
+			if problem {
+				reasonColor = ""
+			}
+			colored += paint(reasonColor, reason)
+		}
+		fmt.Fprintln(w, strings.TrimRight(colored, " "))
+
+		if !problem {
+			continue
+		}
+		if res.Remediation != "" || res.Command != "" {
+			hasDetails = true
+		}
+		if !opts.Verbose {
 			continue
 		}
 		indent := strings.Repeat(" ", 7)
-		if res.Message != "" {
-			fmt.Fprintf(w, "%s%s\n", indent, res.Message)
+		if res.Message != "" && oneLine(res.Message) != reason {
+			fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorDim, "message:"), indentBlock(res.Message, indent+"  "))
 		}
-		if opts.Verbose {
-			if res.Command != "" {
-				fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorDim, "command:"), indentBlock(res.Command, indent+"  "))
-			}
-			if res.RC != nil {
-				fmt.Fprintf(w, "%s%s %d\n", indent, paint(colorDim, "exit code:"), *res.RC)
-			}
-			if s := strings.TrimSpace(res.Stdout); s != "" {
-				fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorDim, "stdout:"), indentBlock(s, indent+"  "))
-			}
-			if s := strings.TrimSpace(res.Stderr); s != "" {
-				fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorDim, "stderr:"), indentBlock(s, indent+"  "))
-			}
-			fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorDim, "defined at:"), res.Location)
+		if res.Command != "" {
+			fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorDim, "command:"), indentBlock(res.Command, indent+"  "))
+		}
+		if res.RC != nil {
+			fmt.Fprintf(w, "%s%s %d\n", indent, paint(colorDim, "exit code:"), *res.RC)
+		}
+		if s := strings.TrimSpace(res.Stdout); s != "" {
+			fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorDim, "stdout:"), indentBlock(s, indent+"  "))
+		}
+		if s := strings.TrimSpace(res.Stderr); s != "" {
+			fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorDim, "stderr:"), indentBlock(s, indent+"  "))
 		}
 		if res.Remediation != "" {
 			fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorBlue, "fix:"), indentBlock(res.Remediation, indent+"     "))
@@ -104,6 +139,7 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 		if res.Reference != "" {
 			fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorBlue, "see:"), res.Reference)
 		}
+		fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorDim, "defined at:"), res.Location)
 	}
 
 	s := r.Summary
@@ -114,8 +150,12 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 		}
 		return paint(color, text)
 	}
-	fmt.Fprintf(w, "\n%d checks · %s · %s · %s · %s · %s · %s · %s\n",
-		s.Total,
+	checksLabel := "checks"
+	if s.Total == 1 {
+		checksLabel = "check"
+	}
+	fmt.Fprintf(w, "\n%d %s · %s · %s · %s · %s · %s · %s · %s\n",
+		s.Total, checksLabel,
 		count(s.Passed, "passed", colorGreen),
 		count(s.Failed, "failed", colorRed),
 		count(s.Warnings, "warnings", colorYellow),
@@ -138,7 +178,54 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 		verdict = paint(colorBold+colorRed, "NOT COMPLIANT")
 	}
 	fmt.Fprintf(w, "Result %s %s\n", verdict, paint(colorDim, fmt.Sprintf("(failures of severity %s and above count; errors always count)", s.FailOn)))
+	if hasDetails && !opts.Verbose {
+		fmt.Fprintln(w, paint(colorDim, "Run with -v to see commands, output and remediation."))
+	}
 	return nil
+}
+
+func isProblem(s engine.Status) bool {
+	return s == engine.StatusFail || s == engine.StatusError || s == engine.StatusWarn
+}
+
+// oneLine collapses whitespace, including newlines, into single spaces.
+func oneLine(s string) string {
+	return strings.Join(strings.Fields(s), " ")
+}
+
+func runeLen(s string) int { return len([]rune(s)) }
+
+func padRight(s string, width int) string {
+	if n := runeLen(s); n < width {
+		return s + strings.Repeat(" ", width-n)
+	}
+	return s
+}
+
+// truncate shortens s to at most n runes, ending with an ellipsis.
+func truncate(s string, n int) string {
+	r := []rune(s)
+	if len(r) <= n {
+		return s
+	}
+	if n <= 1 {
+		return "…"
+	}
+	return string(r[:n-1]) + "…"
+}
+
+func maxInt(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func minInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 // scoreBar draws a horizontal bar of the given width for a 0-100 score.

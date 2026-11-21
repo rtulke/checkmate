@@ -56,9 +56,10 @@ Every check has three essential parts:
 Change `">= 500"` to `">= 999999"` and run again:
 
 ```text
-FAIL   FIRST-002  At least 500 MB free in /tmp  [medium]
-       expected stdout >= "999999", got "48211"
+FAIL   FIRST-002  At least 500 MB free in /tmp  [medium]  expected stdout >= "999999", got "48211"
 ```
+
+Every check stays on one line; the reason is shortened to the width of the terminal if necessary. Add `-v` to see the command, its exit code and output, and the remediation.
 
 The exit code is now `1`, so `checkmate run first.yml && echo ok` would not print `ok`.
 

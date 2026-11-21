@@ -10,6 +10,7 @@ import (
 	"io"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 
@@ -18,6 +19,7 @@ import (
 	"github.com/rtulke/checkmate/internal/policy"
 	"github.com/rtulke/checkmate/internal/report"
 
+	"golang.org/x/term"
 	"gopkg.in/yaml.v3"
 )
 
@@ -211,6 +213,7 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 			Verbose: *verbose,
 			Quiet:   *quiet,
 			Version: version,
+			Width:   terminalWidth(stdout),
 		})
 	}
 	if err != nil {
@@ -396,6 +399,23 @@ func writeFile(path string, write func(io.Writer) error) error {
 		return err
 	}
 	return fh.Close()
+}
+
+// terminalWidth returns the width of the terminal stdout is attached to, or
+// 0 if it is not a terminal. COLUMNS overrides the detected width.
+func terminalWidth(w io.Writer) int {
+	if c, err := strconv.Atoi(os.Getenv("COLUMNS")); err == nil && c > 0 {
+		return c
+	}
+	f, ok := w.(*os.File)
+	if !ok || !term.IsTerminal(int(f.Fd())) {
+		return 0
+	}
+	width, _, err := term.GetSize(int(f.Fd()))
+	if err != nil {
+		return 0
+	}
+	return width
 }
 
 func useColor(w io.Writer) bool {

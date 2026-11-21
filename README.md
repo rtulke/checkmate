@@ -20,8 +20,7 @@
 ```console
 $ checkmate run baseline.yml
 PASS   SSH-001   Root login over SSH is disabled
-FAIL   FS-001    /tmp has at least 500 MB free  [high]
-       expected stdout >= "500", got "312"
+FAIL   FS-001    /tmp has at least 500 MB free    [high]  expected stdout >= "500", got "312"
 
 2 checks · 1 passed · 1 failed · 0 warnings · 0 errors · 0 skipped · 0 n/a · 42ms
 Score  █████████████████░░░░░░░░░░░░░ 58.8%

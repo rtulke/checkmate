@@ -23,7 +23,7 @@ Flags may come before or after the policy file.
 | `--json-out FILE` | Also write a JSON report to a file. |
 | `--junit-out FILE` | Also write a JUnit XML report to a file. |
 | `-j`, `--jobs N` | Checks to run in parallel. Default: number of CPUs. |
-| `-v`, `--verbose` | Show command, exit code, stdout and stderr of failed checks. |
+| `-v`, `--verbose` | Show command, exit code, stdout, stderr and remediation of failed checks below the result line. Without `-v`, every check is a single line whose reason is shortened to the terminal width (`COLUMNS` overrides the width). |
 | `-q`, `--quiet` | Show only failed checks and the summary. |
 | `--color WHEN` | `auto` (default: on a terminal), `always`, `never`. `NO_COLOR` is honored. |
 | `--no-color` | Same as `--color never`. |
