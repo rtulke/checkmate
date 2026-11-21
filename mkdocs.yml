@@ -180,6 +180,7 @@ nav:
       - cis/index.md
       - "Amazon Linux 2": cis/amazon2.md
       - "Amazon Linux 2023": cis/amazon2023.md
+      - "Apache HTTP Server 2.4": cis/apache.md
       - "Debian 11": cis/debian11.md
       - "Debian 12": cis/debian12.md
       - "Debian 13": cis/debian13.md
