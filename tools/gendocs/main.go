@@ -161,7 +161,10 @@ func writeCISPages() ([]cisPage, error) {
 		var b bytes.Buffer
 		fmt.Fprintf(&b, "# %s\n\n%s\n\n", p.Name, strings.TrimSpace(p.Description))
 		fmt.Fprintf(&b, "**Policy:** [`%s`](%s/blob/main/%s) · **Benchmark version:** %s\n\n", f, repoURL, f, p.Version)
-		if strings.HasPrefix(key, "macos") {
+		if key == "postgresql" {
+			fmt.Fprintf(&b, "Runs as root and queries the server as the postgres user over the local socket:\n\n")
+			fmt.Fprintf(&b, "```bash\nsudo checkmate run %s\nsudo checkmate run %s --tags cis-postgresql-db -v\n```\n\n", f, f)
+		} else if strings.HasPrefix(key, "macos") {
 			fmt.Fprintf(&b, "The checks read system settings and configuration profiles and need root:\n\n")
 			fmt.Fprintf(&b, "```bash\nsudo checkmate run %s --tags cis-level-1\nsudo checkmate run %s --tags cis-level-2 -v\n```\n\n", f, f)
 		} else {
@@ -215,7 +218,7 @@ func writeCISPages() ([]cisPage, error) {
 
 	var idx bytes.Buffer
 	idx.WriteString("# CIS benchmarks\n\n")
-	idx.WriteString("Automated checks for the CIS benchmarks of 14 Linux platforms and macOS. The Linux policies are generated\n")
+	idx.WriteString("Automated checks for the CIS benchmarks of 15 Linux platforms, macOS and PostgreSQL. The Linux policies are generated\n")
 	idx.WriteString("from the goss audit content of [Ansible Lockdown](https://github.com/ansible-lockdown) (MIT license), the macOS\n")
 	idx.WriteString("policies from the [macOS Security Compliance Project](https://github.com/usnistgov/macos_security) (CC BY 4.0).\n")
 	idx.WriteString("The recommendation number is part of the ID. The policies contain no benchmark text.\n\n")
@@ -235,7 +238,8 @@ func writeCISPages() ([]cisPage, error) {
 	idx.WriteString("| `cis-section-1` … | one chapter |\n")
 	idx.WriteString("| `cis-rhel9`, `cis-debian12`, `cis-macos15`, … | one benchmark |\n")
 	idx.WriteString("| `nist-800-53r5-moderate`, `nist-800-171`, `disa-stig`, `cmmc-level-2`, … | macOS checks that are also part of these baselines |\n\n")
-	idx.WriteString("macOS has no server/workstation split; use `cis-level-1` or `cis-level-2`.\n\n")
+	idx.WriteString("macOS has no server/workstation split; use `cis-level-1` or `cis-level-2`. The PostgreSQL policy is written by hand;\n")
+	idx.WriteString("its profiles are `cis-postgresql-db` (database settings) and `cis-postgresql-linux` (operating system).\n\n")
 	idx.WriteString("```bash\ncheckmate run cis/rhel9.yml --tags cis-level1-server\n")
 	idx.WriteString("checkmate run cis/debian12.yml --tags cis-level-2+cis-server --fail-on high\n")
 	idx.WriteString("checkmate run cis/ubuntu24.yml --id 'CIS-UBUNTU24-5.*' -vv\n```\n\n")
@@ -246,11 +250,12 @@ func writeCISPages() ([]cisPage, error) {
 
 // cisRule extracts the recommendation number from a check ID.
 func cisRule(id, key string) string {
-	rest := strings.TrimPrefix(id, "CIS-"+strings.ToUpper(key)+"-")
-	if i := strings.IndexByte(rest, '-'); i >= 0 {
-		return rest[:i]
+	// IDs look like CIS-<BENCHMARK>-<number>-<name>.
+	parts := strings.SplitN(id, "-", 4)
+	if len(parts) < 3 {
+		return id
 	}
-	return rest
+	return parts[2]
 }
 
 func contains(list []string, s string) bool {

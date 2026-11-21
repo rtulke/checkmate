@@ -23,6 +23,7 @@ var platforms = map[string]facts.Facts{
 	"rhel8":      {OS: "linux", Distro: "rhel", DistroLike: []string{"fedora"}, Version: "8.10", VersionMajor: 8, IsRoot: true},
 	"debian12":   {OS: "linux", Distro: "debian", Version: "12", VersionMajor: 12, IsRoot: true},
 	"ubuntu24":   {OS: "linux", Distro: "ubuntu", DistroLike: []string{"debian"}, Version: "24.04", VersionMajor: 24, IsRoot: true},
+	"ubuntu26":   {OS: "linux", Distro: "ubuntu", DistroLike: []string{"debian"}, Version: "26.04", VersionMajor: 26, IsRoot: true},
 	"sles15":     {OS: "linux", Distro: "sles", DistroLike: []string{"suse"}, Version: "15.6", VersionMajor: 15, IsRoot: true},
 	"alpine":     {OS: "linux", Distro: "alpine", Version: "3.20.0", VersionMajor: 3, IsRoot: true},
 	"macos":      {OS: "darwin", Distro: "macos", Version: "15.1", VersionMajor: 15},

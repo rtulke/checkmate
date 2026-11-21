@@ -4,7 +4,7 @@ PLATFORMS := linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 win
 
 .PHONY: build test lint docs docs-serve dist test-linux test-cis cis-import clean
 
-CIS_BENCHMARKS := rhel7 rhel8 rhel9 rhel10 debian11 debian12 debian13 ubuntu20 ubuntu22 ubuntu24 suse15 suse16 amazon2 amazon2023
+CIS_BENCHMARKS := rhel7 rhel8 rhel9 rhel10 debian11 debian12 debian13 ubuntu20 ubuntu22 ubuntu24 ubuntu26 suse15 suse16 amazon2 amazon2023
 CIS_CACHE := .cache/cis
 
 build:
@@ -61,6 +61,7 @@ cis-import:
 # Runs every CIS policy in a container of its platform (needs docker).
 test-cis:
 	test/linux/run-cis.sh
+	test/linux/cis-postgres.sh
 
 clean:
 	rm -rf bin dist site test/linux/out test/linux/out-cis

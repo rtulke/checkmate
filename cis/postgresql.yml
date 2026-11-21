@@ -1,0 +1,375 @@
+# Written by hand following the recommendation numbers of the CIS PostgreSQL 12
+# benchmark (the structure is the same up to PostgreSQL 17). Settings are read
+# from the running server, so values from postgresql.conf, postgresql.auto.conf
+# and ALTER SYSTEM are all taken into account.
+name: CIS PostgreSQL
+version: 1.0.0
+description: >
+  Checks for the automatable recommendations of the CIS PostgreSQL benchmark,
+  for PostgreSQL 12 and later. checkmate runs as root and queries the server
+  as the postgres user with psql over the local socket. Recommendations that
+  need a human review (privilege design, row level security, backup
+  strategy) are not included. Profiles: `cis-postgresql-db` (database
+  settings) and `cis-postgresql-linux` (operating system); every
+  recommendation is Level 1.
+
+vars:
+  # psql as the database superuser; -X ignores ~/.psqlrc.
+  psql: cd / && runuser -u postgres -- psql -X -A -t -q
+  # Roles that may hold superuser or other administrative attributes.
+  admin_roles: [postgres]
+
+defaults:
+  when:
+    - facts.os == "linux"
+    - facts.is_root
+
+checks:
+  - id: CIS-PG-0-server-reachable
+    name: The PostgreSQL server answers on the local socket
+    description: Precondition for all other checks of this policy.
+    tags: [cis, cis-postgresql]
+    severity: info
+    only_if: command -v psql && command -v runuser
+    run: "{{ psql }} -c 'SELECT 1'"
+    expect: "== 1"
+
+  # 1 Installation and patches
+
+  - id: CIS-PG-1.2-service-enabled
+    name: A PostgreSQL systemd unit is enabled
+    description: CIS PostgreSQL benchmark recommendation 1.2.
+    tags: [cis, cis-postgresql, cis-section-1, cis-level-1, cis-level-2, cis-postgresql-linux]
+    severity: medium
+    only_if: command -v systemctl && test -d /run/systemd/system && command -v psql
+    run: systemctl list-unit-files --no-legend 2>/dev/null | awk '$1 ~ /^postgresql/ && $2 == "enabled" {print $1}'
+    expect: "!empty"
+
+  - id: CIS-PG-1.3-cluster-initialized
+    name: The data directory contains an initialized cluster
+    description: CIS PostgreSQL benchmark recommendation 1.3.
+    tags: [cis, cis-postgresql, cis-section-1, cis-level-1, cis-level-2, cis-postgresql-linux]
+    severity: medium
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: |
+      d=$({{ psql }} -c 'SHOW data_directory')
+      if [ -f "$d/PG_VERSION" ]; then echo initialized; else echo "$d has no PG_VERSION"; fi
+    expect: "== initialized"
+
+  # 2 Directory and file permissions
+
+  - id: CIS-PG-2.1-umask
+    name: The postgres account uses umask 077
+    description: CIS PostgreSQL benchmark recommendation 2.1.
+    tags: [cis, cis-postgresql, cis-section-2, cis-level-1, cis-level-2, cis-postgresql-linux]
+    severity: medium
+    only_if: getent passwd postgres && command -v runuser
+    run: cd / && runuser -l postgres -c umask 2>/dev/null | tail -n 1
+    expect: "~ ^0?077$"
+
+  - id: CIS-PG-2.1-data-directory-mode
+    name: The data directory is accessible only by its owner
+    description: Related to CIS PostgreSQL benchmark recommendation 2.1. PostgreSQL also accepts 0750 when group access was enabled at initdb.
+    tags: [cis, cis-postgresql, cis-section-2, cis-level-1, cis-level-2, cis-postgresql-linux]
+    severity: medium
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: stat -c '%a %U' "$({{ psql }} -c 'SHOW data_directory')"
+    expect: "~ ^7[05]0 postgres$"
+
+  # 3 Logging, monitoring and auditing
+
+  - id: CIS-PG-3.1.2-log-destination
+    name: Server messages are written to a log destination
+    description: CIS PostgreSQL benchmark recommendation 3.1.2.
+    tags: [cis, cis-postgresql, cis-section-3, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: medium
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: "{{ psql }} -c 'SHOW log_destination'"
+    expect: "~ (stderr|csvlog|jsonlog|syslog)"
+
+  - id: "CIS-PG-{{ item.value.cis }}-{{ item.key }}"
+    name: "{{ item.value.name }}"
+    description: "CIS PostgreSQL benchmark recommendation {{ item.value.cis }}."
+    tags: [cis, cis-postgresql, cis-section-3, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: medium
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    loop:
+      logging_collector: { cis: 3.1.3, name: The logging collector is enabled, expect: "== on" }
+      log_directory: { cis: 3.1.4, name: A log directory is set, expect: "!empty" }
+      log_filename: { cis: 3.1.5, name: Log file names contain a time pattern, expect: "~ %" }
+      log_file_mode: { cis: 3.1.6, name: Log files are readable only by the server account, expect: "~ ^0[46]00$" }
+      log_truncate_on_rotation: { cis: 3.1.7, name: Log files are truncated on time-based rotation, expect: "== on" }
+      syslog_facility: { cis: 3.1.10, name: A local syslog facility is used, expect: "~ ^local[0-7]$" }
+      syslog_sequence_numbers: { cis: 3.1.11, name: Syslog messages carry sequence numbers, expect: "== on" }
+      syslog_split_messages: { cis: 3.1.12, name: Long syslog messages are split instead of truncated, expect: "== on" }
+      syslog_ident: { cis: 3.1.13, name: A syslog program name is set, expect: "!empty" }
+      log_min_messages: { cis: 3.1.14, name: Warnings and more severe messages are logged, expect: "in [warning, notice, info, debug1, debug2, debug3, debug4, debug5]" }
+      log_min_error_statement: { cis: 3.1.15, name: Statements causing errors are logged, expect: "in [error, warning, notice, info, debug1, debug2, debug3, debug4, debug5]" }
+      debug_print_parse: { cis: 3.1.16, name: Parse trees are not logged, expect: "== off" }
+      debug_print_rewritten: { cis: 3.1.17, name: Rewritten query trees are not logged, expect: "== off" }
+      debug_print_plan: { cis: 3.1.18, name: Execution plans are not logged, expect: "== off" }
+      debug_pretty_print: { cis: 3.1.19, name: Debug output is indented, expect: "== on" }
+      log_connections: { cis: 3.1.20, name: Connection attempts are logged, expect: "!= off" }
+      log_disconnections: { cis: 3.1.21, name: Session ends are logged, expect: "== on" }
+      log_error_verbosity: { cis: 3.1.22, name: Error messages are logged with detail, expect: "in [default, verbose]" }
+      log_hostname: { cis: 3.1.23, name: Client host names are not resolved for logging, expect: "== off" }
+      log_statement: { cis: 3.1.25, name: Data definition statements are logged, expect: "in [ddl, mod, all]" }
+      log_timezone: { cis: 3.1.26, name: Log timestamps use UTC, expect: "in [UTC, GMT, Etc/UTC, Etc/GMT, Etc/Universal, Universal, Zulu]" }
+    run: "{{ psql }} -c 'SHOW {{ item.key }}'"
+    expect: "{{ item.value.expect }}"
+
+  - id: CIS-PG-3.1.8-log-rotation-age
+    name: Log files are rotated by age
+    description: CIS PostgreSQL benchmark recommendation 3.1.8 (value in minutes).
+    tags: [cis, cis-postgresql, cis-section-3, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: low
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: "{{ psql }} -c \"SELECT setting FROM pg_settings WHERE name = 'log_rotation_age'\""
+    expect: "> 0"
+
+  - id: CIS-PG-3.1.9-log-rotation-size
+    name: Log files are rotated by size
+    description: CIS PostgreSQL benchmark recommendation 3.1.9 (value in kB).
+    tags: [cis, cis-postgresql, cis-section-3, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: low
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: "{{ psql }} -c \"SELECT setting FROM pg_settings WHERE name = 'log_rotation_size'\""
+    expect: "> 0"
+
+  - id: CIS-PG-3.1.24-log-line-prefix
+    name: Log lines carry time, process, database, user and client
+    description: CIS PostgreSQL benchmark recommendation 3.1.24.
+    tags: [cis, cis-postgresql, cis-section-3, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: medium
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: "{{ psql }} -c 'SHOW log_line_prefix'"
+    expect:
+      - "~ %[mtn]"
+      - "~ %p"
+      - "~ %d"
+      - "~ %u"
+      - "~ %[hr]"
+
+  - id: CIS-PG-3.2-pgaudit
+    name: The pgAudit extension is preloaded
+    description: CIS PostgreSQL benchmark recommendation 3.2.
+    tags: [cis, cis-postgresql, cis-section-3, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: medium
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: "{{ psql }} -c 'SHOW shared_preload_libraries'"
+    expect: '~ (^|,)\s*pgaudit\s*(,|$)'
+
+  # 4 User access and authorization
+
+  - id: CIS-PG-4.1-postgres-no-sudo
+    name: The postgres account cannot run commands with sudo
+    description: CIS PostgreSQL benchmark recommendation 4.1.
+    tags: [cis, cis-postgresql, cis-section-4, cis-level-1, cis-level-2, cis-postgresql-linux]
+    severity: high
+    only_if: command -v sudo && getent passwd postgres
+    run: sudo -n -l -U postgres 2>/dev/null | grep -E '^[[:space:]]+\(' || true
+    expect: empty
+
+  - id: CIS-PG-4.2-admin-roles
+    name: Only approved roles have administrative attributes
+    description: CIS PostgreSQL benchmark recommendation 4.2. Lists roles with superuser, createrole, createdb, replication or bypassrls that are not in admin_roles.
+    tags: [cis, cis-postgresql, cis-section-4, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: high
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: >-
+      {{ psql }} -c "SELECT rolname FROM pg_roles
+      WHERE (rolsuper OR rolcreaterole OR rolcreatedb OR rolreplication OR rolbypassrls)
+      AND rolname !~ '^pg_'
+      AND rolname NOT IN ({% for r in admin_roles %}'{{ r }}'{{ ', ' if not loop.last }}{% endfor %})"
+    expect: empty
+
+  - id: CIS-PG-4.3-security-definer
+    name: No user function runs with the privileges of its owner
+    description: CIS PostgreSQL benchmark recommendation 4.3. Lists SECURITY DEFINER functions outside the system schemas in every database; review each one.
+    tags: [cis, cis-postgresql, cis-section-4, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: medium
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: |
+      for db in $({{ psql }} -c "SELECT datname FROM pg_database WHERE datallowconn"); do
+        {{ psql }} -d "$db" -c "SELECT current_database() || ': ' || n.nspname || '.' || p.proname
+          FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+          WHERE p.prosecdef AND n.nspname NOT IN ('pg_catalog', 'information_schema')"
+      done
+    expect: empty
+
+  - id: CIS-PG-4.6-set-user
+    name: The set_user extension is available
+    description: CIS PostgreSQL benchmark recommendation 4.6.
+    tags: [cis, cis-postgresql, cis-section-4, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: low
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: "{{ psql }} -c \"SELECT count(*) FROM pg_available_extensions WHERE name = 'set_user'\""
+    expect: "> 0"
+
+  # 5 Connection and login
+
+  - id: CIS-PG-5.1-no-trust
+    name: No pg_hba.conf rule allows login without authentication
+    description: CIS PostgreSQL benchmark recommendation 5.1.
+    tags: [cis, cis-postgresql, cis-section-5, cis-level-1, cis-level-2, cis-postgresql-linux]
+    severity: critical
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: "{{ psql }} -c \"SELECT 'line ' || line_number || ': ' || type || ' ' || array_to_string(database, ',') || ' ' || array_to_string(user_name, ',') FROM pg_hba_file_rules WHERE auth_method = 'trust'\""
+    expect: empty
+
+  - id: CIS-PG-5.2-host-auth
+    name: Network logins use a strong authentication method
+    description: CIS PostgreSQL benchmark recommendation 5.2. Lists host rules with trust, password (clear text) or md5.
+    tags: [cis, cis-postgresql, cis-section-5, cis-level-1, cis-level-2, cis-postgresql-linux]
+    severity: high
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: "{{ psql }} -c \"SELECT 'line ' || line_number || ': ' || type || ' ' || coalesce(address, '') || ' ' || auth_method FROM pg_hba_file_rules WHERE type LIKE 'host%' AND auth_method IN ('trust', 'password', 'md5')\""
+    expect: empty
+
+  - id: CIS-PG-5.2-hba-valid
+    name: pg_hba.conf has no invalid lines
+    description: Related to CIS PostgreSQL benchmark recommendation 5.2. An invalid line is ignored by the server, which can open or close access unexpectedly.
+    tags: [cis, cis-postgresql, cis-section-5, cis-level-1, cis-level-2, cis-postgresql-linux]
+    severity: high
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: "{{ psql }} -c \"SELECT 'line ' || line_number || ': ' || error FROM pg_hba_file_rules WHERE error IS NOT NULL\""
+    expect: empty
+
+  - id: CIS-PG-5.2-password-encryption
+    name: Passwords are stored as SCRAM-SHA-256
+    description: Related to CIS PostgreSQL benchmark recommendation 5.2.
+    tags: [cis, cis-postgresql, cis-section-5, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: high
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: "{{ psql }} -c 'SHOW password_encryption'"
+    expect: "== scram-sha-256"
+
+  # 6 PostgreSQL settings
+
+  - id: CIS-PG-6.7-fips
+    name: The kernel runs in FIPS mode
+    description: CIS PostgreSQL benchmark recommendation 6.7. PostgreSQL uses the OpenSSL of the system, which follows the kernel FIPS mode.
+    tags: [cis, cis-postgresql, cis-section-6, cis-level-1, cis-level-2, cis-postgresql-linux]
+    severity: low
+    only_if: command -v psql
+    run: cat /proc/sys/crypto/fips_enabled 2>/dev/null || echo 0
+    expect: "== 1"
+
+  - id: CIS-PG-6.8-ssl
+    name: TLS is enabled
+    description: CIS PostgreSQL benchmark recommendation 6.8.
+    tags: [cis, cis-postgresql, cis-section-6, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: high
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: "{{ psql }} -c 'SHOW ssl'"
+    expect: "== on"
+
+  - id: CIS-PG-6.8-ssl-min-protocol
+    name: TLS 1.2 or newer is required
+    description: CIS PostgreSQL benchmark recommendation 6.8.
+    tags: [cis, cis-postgresql, cis-section-6, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: high
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: "{{ psql }} -c 'SHOW ssl_min_protocol_version'"
+    expect: "in [TLSv1.2, TLSv1.3]"
+
+  - id: CIS-PG-6.8-ssl-key-file
+    name: The TLS private key is readable only by its owner
+    description: CIS PostgreSQL benchmark recommendation 6.8. A relative path is resolved against the data directory.
+    tags: [cis, cis-postgresql, cis-section-6, cis-level-1, cis-level-2, cis-postgresql-linux]
+    severity: high
+    only_if: "{{ psql }} -c 'SHOW ssl' | grep -qx on"
+    run: |
+      k=$({{ psql }} -c 'SHOW ssl_key_file')
+      case "$k" in /*) ;; *) k="$({{ psql }} -c 'SHOW data_directory')/$k" ;; esac
+      stat -L -c '%a %U' "$k"
+    expect: "~ ^[46]00 (postgres|root)$"
+
+  - id: CIS-PG-6.9-pgcrypto
+    name: The pgcrypto extension is available
+    description: CIS PostgreSQL benchmark recommendation 6.9.
+    tags: [cis, cis-postgresql, cis-section-6, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: low
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: "{{ psql }} -c \"SELECT count(*) FROM pg_available_extensions WHERE name = 'pgcrypto'\""
+    expect: "> 0"
+
+  # 7 Replication
+
+  - id: CIS-PG-7.1-replication-not-superuser
+    name: Replication does not connect as a superuser
+    description: CIS PostgreSQL benchmark recommendation 7.1. Lists active replication connections of superusers.
+    tags: [cis, cis-postgresql, cis-section-7, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: high
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: "{{ psql }} -c 'SELECT r.usename FROM pg_stat_replication r JOIN pg_roles a ON a.oid = r.usesysid WHERE a.rolsuper'"
+    expect: empty
+
+  - id: CIS-PG-7.2-log-replication-commands
+    name: Replication commands are logged
+    description: CIS PostgreSQL benchmark recommendation 7.2.
+    tags: [cis, cis-postgresql, cis-section-7, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: medium
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: "{{ psql }} -c 'SHOW log_replication_commands'"
+    expect: "== on"
+
+  - id: CIS-PG-7.4-wal-archiving
+    name: WAL archiving is enabled and has a target
+    description: CIS PostgreSQL benchmark recommendation 7.4. archive_library exists from PostgreSQL 15 on.
+    tags: [cis, cis-postgresql, cis-section-7, cis-level-1, cis-level-2, cis-postgresql-linux]
+    severity: medium
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: >-
+      {{ psql }} -c "SELECT CASE WHEN current_setting('archive_mode') = 'off' THEN 'archive_mode is off'
+      WHEN current_setting('archive_command') NOT IN ('', '(disabled)')
+        OR coalesce(current_setting('archive_library', true), '') <> '' THEN 'ok'
+      ELSE 'no archive_command or archive_library' END"
+    expect: "== ok"
+
+  - id: CIS-PG-7.5-standby-tls
+    name: A standby connects to its primary with TLS
+    description: CIS PostgreSQL benchmark recommendation 7.5.
+    tags: [cis, cis-postgresql, cis-section-7, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: medium
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: "{{ psql }} -c \"SELECT CASE WHEN pg_is_in_recovery() THEN current_setting('primary_conninfo') ELSE 'not a standby' END\""
+    expect:
+      any:
+        - "== not a standby"
+        - "~ sslmode=(require|verify-ca|verify-full)"
+
+  # 8 Special configuration considerations
+
+  - id: CIS-PG-8.1-log-directory-outside
+    name: The log directory is outside the data directory
+    description: CIS PostgreSQL benchmark recommendation 8.1.
+    tags: [cis, cis-postgresql, cis-section-8, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: low
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: |
+      d=$({{ psql }} -c 'SHOW data_directory')
+      l=$({{ psql }} -c 'SHOW log_directory')
+      case "$l" in
+        /*) case "$l/" in "$d"/*) echo "log_directory $l is inside $d" ;; *) echo outside ;; esac ;;
+        *) echo "log_directory $l is relative to $d" ;;
+      esac
+    expect: "== outside"
+
+  - id: CIS-PG-8.2-pgbackrest
+    name: pgBackRest is installed
+    description: CIS PostgreSQL benchmark recommendation 8.2.
+    tags: [cis, cis-postgresql, cis-section-8, cis-level-1, cis-level-2, cis-postgresql-linux]
+    severity: low
+    only_if: command -v psql
+    run: command -v pgbackrest
+    expect: true
+
+  - id: CIS-PG-8.3-dynamic-library-path
+    name: Libraries are loaded only from the installation directory
+    description: CIS PostgreSQL benchmark recommendation 8.3.
+    tags: [cis, cis-postgresql, cis-section-8, cis-level-1, cis-level-2, cis-postgresql-db]
+    severity: medium
+    only_if: "{{ psql }} -c 'SELECT 1'"
+    run: "{{ psql }} -c 'SHOW dynamic_library_path'"
+    expect: "== $libdir"

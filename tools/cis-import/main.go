@@ -47,6 +47,7 @@ var benchmarks = map[string]benchmark{
 	"ubuntu20":   {"ubuntu20", "Ubuntu 20.04 LTS", "UBUNTU20-CIS-Audit", `facts.distro == "ubuntu" and facts.version_major == 20`, "dpkg"},
 	"ubuntu22":   {"ubuntu22", "Ubuntu 22.04 LTS", "UBUNTU22-CIS-Audit", `facts.distro == "ubuntu" and facts.version_major == 22`, "dpkg"},
 	"ubuntu24":   {"ubuntu24", "Ubuntu 24.04 LTS", "UBUNTU24-CIS-Audit", `facts.distro == "ubuntu" and facts.version_major == 24`, "dpkg"},
+	"ubuntu26":   {"ubuntu26", "Ubuntu 26.04 LTS", "UBUNTU26-CIS-Audit", `facts.distro == "ubuntu" and facts.version_major == 26`, "dpkg"},
 	"suse15":     {"suse15", "SUSE Linux Enterprise 15", "SUSE15-CIS-Audit", suseWhen(15), "rpm"},
 	"suse16":     {"suse16", "SUSE Linux Enterprise 16", "SUSE16-CIS-Audit", suseWhen(16), "rpm"},
 	"amazon2":    {"amazon2", "Amazon Linux 2", "AMAZON2-CIS-Audit", `facts.distro == "amzn" and facts.version_major == 2`, "rpm"},

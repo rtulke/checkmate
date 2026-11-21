@@ -49,3 +49,5 @@ jobs:
           go-version-file: go.mod
       - name: Run every CIS policy in a container of its platform
         run: test/linux/run-cis.sh
+      - name: Run the PostgreSQL policy against hardened servers
+        run: test/linux/cis-postgres.sh

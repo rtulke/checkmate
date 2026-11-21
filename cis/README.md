@@ -12,10 +12,11 @@ converters and run `make cis-import`.
 |---|---|
 | `rhel7.yml` – `rhel10.yml` | Red Hat Enterprise Linux 7–10 and rebuilds (Rocky, Alma, Oracle, CentOS) |
 | `debian11.yml` – `debian13.yml` | Debian 11–13 |
-| `ubuntu20.yml` – `ubuntu24.yml` | Ubuntu 20.04, 22.04, 24.04 LTS |
+| `ubuntu20.yml` – `ubuntu26.yml` | Ubuntu 20.04, 22.04, 24.04, 26.04 LTS |
 | `suse15.yml`, `suse16.yml` | SUSE Linux Enterprise / openSUSE Leap 15 and 16 |
 | `amazon2.yml`, `amazon2023.yml` | Amazon Linux 2 and 2023 |
 | `macos14.yml`, `macos15.yml`, `macos26.yml` | Apple macOS 14 Sonoma, 15 Sequoia, 26 Tahoe (run with `sudo`) |
+| `postgresql.yml` | PostgreSQL 12 and later, written by hand (run with `sudo`) |
 
 Each policy only runs on its own platform (`defaults.when`).
 
@@ -33,6 +34,13 @@ Each policy only runs on its own platform (`defaults.when`).
 | `nist-800-53r5-low/-moderate/-high`, `nist-800-171`, `disa-stig`, `cmmc-level-1/-2` | macOS checks that are also part of these baselines |
 
 macOS has no server/workstation split; use `cis-level-1` or `cis-level-2`.
+PostgreSQL has the profiles `cis-postgresql-db` and `cis-postgresql-linux`.
+
+`postgresql.yml` is not generated. It reads the settings of the running
+server with psql (`SHOW`, `pg_settings`, `pg_hba_file_rules`), so values from
+`postgresql.conf`, `postgresql.auto.conf` and `ALTER SYSTEM` all count. If
+psql cannot connect as postgres over the local socket, the first check is an
+ERROR and the others are skipped.
 
 ```bash
 checkmate run cis/rhel9.yml --tags cis-level1-server

@@ -186,6 +186,7 @@ nav:
       - "Apple macOS 14 Sonoma": cis/macos14.md
       - "Apple macOS 15 Sequoia": cis/macos15.md
       - "Apple macOS 26 Tahoe": cis/macos26.md
+      - "PostgreSQL": cis/postgresql.md
       - "Red Hat Enterprise Linux 7": cis/rhel7.md
       - "Red Hat Enterprise Linux 8": cis/rhel8.md
       - "Red Hat Enterprise Linux 9": cis/rhel9.md
@@ -195,4 +196,5 @@ nav:
       - "Ubuntu 20.04 LTS": cis/ubuntu20.md
       - "Ubuntu 22.04 LTS": cis/ubuntu22.md
       - "Ubuntu 24.04 LTS": cis/ubuntu24.md
+      - "Ubuntu 26.04 LTS": cis/ubuntu26.md
   # END generated examples navigation

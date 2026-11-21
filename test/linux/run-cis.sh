@@ -17,7 +17,7 @@ image_for() {
     rhel7) echo centos:7 ;;          rhel8) echo rockylinux:8 ;;
     rhel9) echo rockylinux:9 ;;      rhel10) echo rockylinux/rockylinux:10 ;;
     debian11) echo debian:11 ;;      debian12) echo debian:12 ;;      debian13) echo debian:13 ;;
-    ubuntu20) echo ubuntu:20.04 ;;   ubuntu22) echo ubuntu:22.04 ;;   ubuntu24) echo ubuntu:24.04 ;;
+    ubuntu20) echo ubuntu:20.04 ;;   ubuntu22) echo ubuntu:22.04 ;;   ubuntu24) echo ubuntu:24.04 ;;   ubuntu26) echo ubuntu:26.04 ;;
     suse15) echo opensuse/leap:15.6 ;; suse16) echo opensuse/leap:16.0 ;;
     amazon2) echo amazonlinux:2 ;;   amazon2023) echo amazonlinux:2023 ;;
     *) echo "unknown benchmark $1" >&2; return 1 ;;
@@ -30,7 +30,7 @@ GOOS=linux GOARCH=$goarch CGO_ENABLED=0 go build -o bin/checkmate-linux ./cmd/ch
 
 benches=("$@")
 if [ ${#benches[@]} -eq 0 ]; then
-  benches=(rhel7 rhel8 rhel9 rhel10 debian11 debian12 debian13 ubuntu20 ubuntu22 ubuntu24 suse15 suse16 amazon2 amazon2023)
+  benches=(rhel7 rhel8 rhel9 rhel10 debian11 debian12 debian13 ubuntu20 ubuntu22 ubuntu24 ubuntu26 suse15 suse16 amazon2 amazon2023)
 fi
 
 for b in "${benches[@]}"; do
