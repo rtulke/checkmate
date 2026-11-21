@@ -183,6 +183,9 @@ nav:
       - "Debian 11": cis/debian11.md
       - "Debian 12": cis/debian12.md
       - "Debian 13": cis/debian13.md
+      - "Apple macOS 14 Sonoma": cis/macos14.md
+      - "Apple macOS 15 Sequoia": cis/macos15.md
+      - "Apple macOS 26 Tahoe": cis/macos26.md
       - "Red Hat Enterprise Linux 7": cis/rhel7.md
       - "Red Hat Enterprise Linux 8": cis/rhel8.md
       - "Red Hat Enterprise Linux 9": cis/rhel9.md

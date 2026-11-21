@@ -59,6 +59,6 @@ checkmate is **fail-closed**: a check must never pass because something went wro
 |---|---|
 | `0` | Compliant: no FAIL and no ERROR. |
 | `1` | Not compliant: at least one FAIL or ERROR. |
-| `2` | Usage error, invalid policy file or no checks selected. |
+| `2` | Usage error, invalid policy file, no checks selected, or no check evaluated (all skipped or not applicable). |
 
 See [Results, severity and score](../reference/results.md) for thresholds and the score.

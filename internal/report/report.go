@@ -151,6 +151,12 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 	case s.Score >= 70:
 		scoreColor = colorYellow
 	}
+	if s.Evaluated == 0 {
+		fmt.Fprintf(w, "Score  %s %s\n", paint(colorDim, scoreBar(0, 30)), paint(colorDim, "n/a"))
+		fmt.Fprintf(w, "Result %s %s\n", paint(colorBold+colorYellow, "NOTHING EVALUATED"),
+			paint(colorDim, "(every check was skipped or not applicable on this host)"))
+		return nil
+	}
 	fmt.Fprintf(w, "Score  %s %s\n", paint(scoreColor, scoreBar(s.Score, 30)), paint(colorBold+scoreColor, fmt.Sprintf("%.1f%%", s.Score)))
 
 	verdict := paint(colorBold+colorGreen, "COMPLIANT")

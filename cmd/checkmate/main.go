@@ -228,6 +228,10 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "checkmate: no checks selected")
 		return exitUsage
 	}
+	if r.Summary.Evaluated == 0 {
+		fmt.Fprintln(stderr, "checkmate: no check was evaluated (all skipped or not applicable)")
+		return exitUsage
+	}
 	if r.Summary.Compliant {
 		return exitCompliant
 	}

@@ -59,8 +59,9 @@ type Summary struct {
 	Errors        int     `json:"errors"`
 	Skipped       int     `json:"skipped"`
 	NotApplicable int     `json:"not_applicable"`
+	Evaluated     int     `json:"evaluated"` // checks that passed, failed, warned or errored
 	FailOn        string  `json:"fail_on"`
-	Score         float64 `json:"score"` // weighted share of passed checks, 0-100
+	Score         float64 `json:"score"` // weighted share of passed checks, 0-100; -1 if nothing was evaluated
 	Compliant     bool    `json:"compliant"`
 }
 
@@ -318,7 +319,10 @@ func summarize(results []Result) Summary {
 			s.NotApplicable++
 		}
 	}
-	s.Compliant = s.Failed == 0 && s.Errors == 0
+	s.Evaluated = s.Passed + s.Failed + s.Warnings + s.Errors
+	// A run in which every check was skipped or not applicable has checked
+	// nothing and must not look compliant.
+	s.Compliant = s.Failed == 0 && s.Errors == 0 && s.Evaluated > 0
 
 	// Score: passed weight / evaluated weight. Broken definitions without
 	// a severity count as medium so they lower the score.
@@ -337,7 +341,10 @@ func summarize(results []Result) Summary {
 			total += w
 		}
 	}
-	s.Score = 100
+	s.Score = -1
+	if s.Evaluated > 0 {
+		s.Score = 100
+	}
 	if total > 0 {
 		s.Score = float64(int(float64(passed)*1000/float64(total))) / 10
 	}

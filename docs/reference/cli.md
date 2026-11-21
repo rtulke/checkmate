@@ -113,4 +113,4 @@ SSH-003  high      system,ssh,crypto   No weak ciphers
 |---|---|
 | `0` | Compliant |
 | `1` | Not compliant: at least one FAIL or ERROR |
-| `2` | Usage error, invalid policy or no checks selected |
+| `2` | Usage error, invalid policy, no checks selected, or no check evaluated |

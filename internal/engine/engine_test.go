@@ -187,7 +187,8 @@ func TestScore(t *testing.T) {
 	if s.Score != 71.4 {
 		t.Errorf("score = %v, want 71.4", s.Score)
 	}
-	if summarize(nil).Score != 100 {
-		t.Error("an empty run scores 100")
+	empty := summarize([]Result{{Status: StatusSkip}, {Status: StatusNA}})
+	if empty.Score != -1 || empty.Compliant || empty.Evaluated != 0 {
+		t.Errorf("a run without evaluated checks must not be compliant: %+v", empty)
 	}
 }

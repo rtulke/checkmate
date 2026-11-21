@@ -23,7 +23,7 @@ func sampleReport() *engine.Report {
 				When: []string{"facts.os == \"linux\""}},
 			{ID: "C-333", Name: "third", Status: engine.StatusSkip, Message: "when: x is false"},
 		},
-		Summary: engine.Summary{Total: 3, Passed: 1, Failed: 1, Skipped: 1, FailOn: "low", Score: 20},
+		Summary: engine.Summary{Total: 3, Passed: 1, Failed: 1, Skipped: 1, Evaluated: 2, FailOn: "low", Score: 20},
 	}
 }
 
@@ -113,5 +113,19 @@ func TestVerbosity3ShowsDebugForEveryCheck(t *testing.T) {
 		if !strings.Contains(out, want) {
 			t.Errorf("-vvv output lacks %q", want)
 		}
+	}
+}
+
+func TestNothingEvaluated(t *testing.T) {
+	r := sampleReport()
+	r.Results = r.Results[2:]
+	r.Summary = engine.Summary{Total: 1, Skipped: 1, Score: -1}
+	var b bytes.Buffer
+	if err := Text(&b, r, TextOptions{}); err != nil {
+		t.Fatal(err)
+	}
+	out := b.String()
+	if !strings.Contains(out, "NOTHING EVALUATED") || strings.Contains(out, "COMPLIANT") {
+		t.Errorf("a run without evaluated checks must not look compliant:\n%s", out)
 	}
 }

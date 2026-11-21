@@ -40,7 +40,8 @@ dist:
 test-linux:
 	test/linux/run.sh
 
-# Regenerates cis/*.yml from the Ansible Lockdown audit repositories (needs gh).
+# Regenerates cis/*.yml from the Ansible Lockdown audit repositories and the
+# macOS Security Compliance Project (needs gh).
 # The downloaded repositories are kept in $(CIS_CACHE).
 cis-import:
 	@for b in $(CIS_BENCHMARKS); do \
@@ -49,6 +50,12 @@ cis-import:
 		mkdir -p $(CIS_CACHE)/$$b; \
 		gh api repos/ansible-lockdown/$$repo/tarball/$$branch | tar xzf - -C $(CIS_CACHE)/$$b --strip-components=1; \
 		go run ./tools/cis-import -src $(CIS_CACHE)/$$b -bench $$b -out cis/$$b.yml || exit 1; \
+	done
+	@for v in sonoma:14 sequoia:15 tahoe:26; do \
+		branch=$${v%%:*}; major=$${v#*:}; \
+		mkdir -p $(CIS_CACHE)/mscp-$$branch; \
+		gh api repos/usnistgov/macos_security/tarball/$$branch | tar xzf - -C $(CIS_CACHE)/mscp-$$branch --strip-components=1; \
+		go run ./tools/mscp-import -src $(CIS_CACHE)/mscp-$$branch -macos $$major -out cis/macos$$major.yml || exit 1; \
 	done
 
 # Runs every CIS policy in a container of its platform (needs docker).

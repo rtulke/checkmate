@@ -161,7 +161,12 @@ func writeCISPages() ([]cisPage, error) {
 		var b bytes.Buffer
 		fmt.Fprintf(&b, "# %s\n\n%s\n\n", p.Name, strings.TrimSpace(p.Description))
 		fmt.Fprintf(&b, "**Policy:** [`%s`](%s/blob/main/%s) · **Benchmark version:** %s\n\n", f, repoURL, f, p.Version)
-		fmt.Fprintf(&b, "```bash\ncheckmate run %s --tags cis-level1-server\ncheckmate run %s --tags cis-level-2 -v\n```\n\n", f, f)
+		if strings.HasPrefix(key, "macos") {
+			fmt.Fprintf(&b, "The checks read system settings and configuration profiles and need root:\n\n")
+			fmt.Fprintf(&b, "```bash\nsudo checkmate run %s --tags cis-level-1\nsudo checkmate run %s --tags cis-level-2 -v\n```\n\n", f, f)
+		} else {
+			fmt.Fprintf(&b, "```bash\ncheckmate run %s --tags cis-level1-server\ncheckmate run %s --tags cis-level-2 -v\n```\n\n", f, f)
+		}
 		fmt.Fprintf(&b, "| ID | Check | Profiles | Severity |\n|---|---|---|---|\n")
 		for _, c := range checks {
 			id := c.ID
@@ -182,6 +187,16 @@ func writeCISPages() ([]cisPage, error) {
 					}
 				}
 			}
+			if len(profiles) == 0 {
+				// Benchmarks without server/workstation profiles (macOS).
+				if contains(c.Tags, "cis-level-1") {
+					profiles = append(profiles, "L1")
+					rules[rule]["l1"] = true
+				} else if contains(c.Tags, "cis-level-2") {
+					profiles = append(profiles, "L2")
+					rules[rule]["l2"] = true
+				}
+			}
 			fmt.Fprintf(&b, "| `%s` | %s | %s | %s |\n", id, escapeTable(c.Name), strings.Join(profiles, ", "), severityBadge(c.Severity))
 		}
 		cp.Rules = len(rules)
@@ -200,9 +215,10 @@ func writeCISPages() ([]cisPage, error) {
 
 	var idx bytes.Buffer
 	idx.WriteString("# CIS benchmarks\n\n")
-	idx.WriteString("Automated checks for the CIS benchmarks of 14 Linux platforms, generated from the goss audit content of\n")
-	idx.WriteString("[Ansible Lockdown](https://github.com/ansible-lockdown) (MIT license). Check names describe what is verified;\n")
-	idx.WriteString("the recommendation number is part of the ID. The policies contain no benchmark text.\n\n")
+	idx.WriteString("Automated checks for the CIS benchmarks of 14 Linux platforms and macOS. The Linux policies are generated\n")
+	idx.WriteString("from the goss audit content of [Ansible Lockdown](https://github.com/ansible-lockdown) (MIT license), the macOS\n")
+	idx.WriteString("policies from the [macOS Security Compliance Project](https://github.com/usnistgov/macos_security) (CC BY 4.0).\n")
+	idx.WriteString("The recommendation number is part of the ID. The policies contain no benchmark text.\n\n")
 	idx.WriteString("| Benchmark | Recommendations | Level 1 | Level 2 only | Checks |\n|---|---|---|---|---|\n")
 	tr, tc := 0, 0
 	for _, p := range pages {
@@ -217,7 +233,9 @@ func writeCISPages() ([]cisPage, error) {
 	idx.WriteString("| `cis-level-1`, `cis-level-2` | a level (Level 2 includes Level 1) |\n")
 	idx.WriteString("| `cis-server`, `cis-workstation` | recommendations of a profile type |\n")
 	idx.WriteString("| `cis-section-1` … | one chapter |\n")
-	idx.WriteString("| `cis-rhel9`, `cis-debian12`, … | one benchmark |\n\n")
+	idx.WriteString("| `cis-rhel9`, `cis-debian12`, `cis-macos15`, … | one benchmark |\n")
+	idx.WriteString("| `nist-800-53r5-moderate`, `nist-800-171`, `disa-stig`, `cmmc-level-2`, … | macOS checks that are also part of these baselines |\n\n")
+	idx.WriteString("macOS has no server/workstation split; use `cis-level-1` or `cis-level-2`.\n\n")
 	idx.WriteString("```bash\ncheckmate run cis/rhel9.yml --tags cis-level1-server\n")
 	idx.WriteString("checkmate run cis/debian12.yml --tags cis-level-2+cis-server --fail-on high\n")
 	idx.WriteString("checkmate run cis/ubuntu24.yml --id 'CIS-UBUNTU24-5.*' -vv\n```\n\n")
