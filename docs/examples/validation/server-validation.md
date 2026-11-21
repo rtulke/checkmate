@@ -1,0 +1,235 @@
+# Server validation (goss style)
+
+Validate that a server is set up the way it should be, in the style of goss and serverspec: users and groups, packages, services, processes, listening ports, files, mounts, kernel parameters, DNS, HTTP endpoints and network reachability. Describe the expected state in `vars`; the checks stay the same for every server role.
+
+<div class="grid cards" markdown>
+
+- :material-file-code: **Policy file**  
+  [`examples/validation/server-validation.yml`](https://github.com/rtulke/checkmate/blob/main/examples/validation/server-validation.yml)
+- :material-format-list-checks: **Checks**  
+  19 from 14 definitions, 14 with loops
+- :material-monitor: **Platforms**  
+  alpine, debian, rhel, suse
+
+</div>
+
+## Run it
+
+```bash
+# Show what would run on this host
+checkmate list -v examples/validation/server-validation.yml
+
+# Run the checks
+checkmate run examples/validation/server-validation.yml
+
+# Override a variable from the command line
+checkmate run examples/validation/server-validation.yml -e name=value
+```
+
+## Checks
+
+| ID | Check | Severity | Tags |
+|---|---|---|---|
+| `VAL-USER-app` | User app exists with UID 1500, home /srv/app and shell /usr/sbin/nologin | <span class="sev sev-medium">medium</span> | validation, users |
+| `VAL-USER-GROUPS-app` | User app is a member of app | <span class="sev sev-medium">medium</span> | validation, users |
+| `VAL-GROUP-app` | Group app exists with GID 1500 | <span class="sev sev-medium">medium</span> | validation, users |
+| `VAL-PKG-nginx` | nginx 1.20 or newer is installed | <span class="sev sev-medium">medium</span> | validation, packages |
+| `VAL-PKG-chrony` | chrony 4.0 or newer is installed | <span class="sev sev-medium">medium</span> | validation, packages |
+| `VAL-SVC-nginx` | nginx is running and enabled | <span class="sev sev-medium">medium</span> | validation, services |
+| `VAL-SVC-chronyd` | chronyd is running and enabled | <span class="sev sev-medium">medium</span> | validation, services |
+| `VAL-PROC-_usr_sbin_nginx` | /usr/sbin/nginx runs as root | <span class="sev sev-medium">medium</span> | validation, processes |
+| `VAL-PORT-tcp-80` | TCP port 80 listens on 0.0.0.0 | <span class="sev sev-medium">medium</span> | validation, network, ports |
+| `VAL-PORT-tcp-443` | TCP port 443 listens on 0.0.0.0 | <span class="sev sev-medium">medium</span> | validation, network, ports |
+| `VAL-DNS-example.com` | example.com resolves | <span class="sev sev-medium">medium</span> | validation, network, dns |
+| `VAL-HTTP-http-127.0.0.1_` | http://127.0.0.1/ answers with 200 | <span class="sev sev-medium">medium</span> | validation, network, http |
+| `VAL-REACH-1.1.1.1-53` | 1.1.1.1:53 is reachable | <span class="sev sev-medium">medium</span> | validation, network |
+| `VAL-FILE-_etc_nginx_nginx.conf` | /etc/nginx/nginx.conf has mode 644 and owner root:root | <span class="sev sev-medium">medium</span> | validation, files |
+| `VAL-FILE-_srv_app` | /srv/app has mode 750 and owner app:app | <span class="sev sev-medium">medium</span> | validation, files |
+| `VAL-FILE-CONTENT-_etc_nginx_nginx.conf` | /etc/nginx/nginx.conf contains worker_processes | <span class="sev sev-medium">medium</span> | validation, files |
+| `VAL-MOUNT-_srv` | /srv is a xfs mount with nodev | <span class="sev sev-medium">medium</span> | validation, files, mounts |
+| `VAL-SYSCTL-net.core.somaxconn` | net.core.somaxconn >= 1024 | <span class="sev sev-medium">medium</span> | validation, kernel |
+| `VAL-SYSCTL-vm.swappiness` | vm.swappiness <= 10 | <span class="sev sev-medium">medium</span> | validation, kernel |
+
+## Policy
+
+```yaml title="examples/validation/server-validation.yml" linenums="1"
+name: Server validation (goss style)
+version: 1.0.0
+description: >
+  Validate that a server is set up the way it should be, in the style of
+  goss and serverspec: users and groups, packages, services, processes,
+  listening ports, files, mounts, kernel parameters, DNS, HTTP endpoints
+  and network reachability. Describe the expected state in `vars`; the
+  checks stay the same for every server role.
+
+defaults:
+  when: facts.os == "linux"
+
+vars:
+  users:
+    - { name: app, uid: 1500, home: /srv/app, shell: /usr/sbin/nologin, groups: [app] }
+  groups:
+    - { name: app, gid: 1500 }
+  packages:
+    - { name: nginx, min_version: "1.20" }
+    - { name: chrony, min_version: "4.0" }
+  services: [nginx, chronyd]
+  processes:
+    - { exe: /usr/sbin/nginx, user: root }
+  ports:
+    - { proto: tcp, port: 80, address: "0.0.0.0" }
+    - { proto: tcp, port: 443, address: "0.0.0.0" }
+  files:
+    - { path: /etc/nginx/nginx.conf, mode: "644", owner: root, group: root, contains: "worker_processes" }
+    - { path: /srv/app, mode: "750", owner: app, group: app, type: directory }
+  mounts:
+    - { path: /srv, fstype: xfs, options: [nodev] }
+  kernel_params:
+    vm.swappiness: "<= 10"
+    net.core.somaxconn: ">= 1024"
+  dns:
+    - { name: example.com, resolves: true }
+  http:
+    - { url: "http://127.0.0.1/", status: 200, body: "" }
+  reachable:
+    - { host: 1.1.1.1, port: 53 }
+
+snippets:
+  pkg_version:
+    rhel,suse: rpm -q --qf '%{VERSION}' {{ arg }}
+    debian: dpkg-query -W -f='${Version}' {{ arg }} | sed -E 's/^[0-9]+://; s/-[^-]*$//'
+    alpine: apk info -v {{ arg }} 2>/dev/null | sed -E 's/^{{ arg }}-//; s/-r[0-9]+$//'
+
+checks:
+  # --- users and groups ------------------------------------------------------------
+  - id: "VAL-USER-{{ item.name }}"
+    name: "User {{ item.name }} exists with UID {{ item.uid }}, home {{ item.home }} and shell {{ item.shell }}"
+    tags: [validation, users]
+    loop: "{{ users }}"
+    run: |
+      getent passwd {{ item.name }} | cut -d: -f3,6,7
+    allow_rc: [0, 2]
+    expect: "== {{ item.uid }}:{{ item.home }}:{{ item.shell }}"
+
+  - id: "VAL-USER-GROUPS-{{ item.name }}"
+    name: "User {{ item.name }} is a member of {{ item.groups | join(', ') }}"
+    tags: [validation, users]
+    loop: "{{ users }}"
+    # Prints every expected group the user is not a member of.
+    run: |
+      member=$(id -nG {{ item.name }} 2>/dev/null) || { echo "no such user"; exit 0; }
+      for g in {{ item.groups | join(' ') }}; do
+        case " $member " in *" $g "*) ;; *) echo "$g" ;; esac
+      done
+    expect: empty
+
+  - id: "VAL-GROUP-{{ item.name }}"
+    name: "Group {{ item.name }} exists with GID {{ item.gid }}"
+    tags: [validation, users]
+    loop: "{{ groups }}"
+    run: |
+      getent group {{ item.name }} | cut -d: -f3
+    allow_rc: [0, 2]
+    expect: "== {{ item.gid }}"
+
+  # --- packages, services, processes ------------------------------------------------
+  - id: "VAL-PKG-{{ item.name }}"
+    name: "{{ item.name }} {{ item.min_version }} or newer is installed"
+    tags: [validation, packages]
+    loop: "{{ packages }}"
+    run: { use: pkg_version, arg: "{{ item.name }}" }
+    allow_rc: [0, 1]
+    as: version
+    expect: ["!empty", "!~ not installed", ">= {{ item.min_version }}"]
+
+  - id: "VAL-SVC-{{ item }}"
+    name: "{{ item }} is running and enabled"
+    tags: [validation, services]
+    loop: "{{ services }}"
+    run: echo "$(systemctl is-active {{ item }} 2>/dev/null) $(systemctl is-enabled {{ item }} 2>/dev/null)"
+    expect: "== active enabled"
+
+  - id: "VAL-PROC-{{ item.exe | replace('/', '_') }}"
+    name: "{{ item.exe }} runs as {{ item.user }}"
+    tags: [validation, processes]
+    loop: "{{ processes }}"
+    # Match the executable path, not a substring of a command line.
+    run: |
+      for pid in $(ls /proc | grep -E '^[0-9]+$'); do
+        if [ "$(readlink /proc/$pid/exe 2>/dev/null)" = "{{ item.exe }}" ]; then ps -o user= -p "$pid"; fi
+      done | sort -u
+    expect: { some: "== {{ item.user }}" }
+
+  # --- network ---------------------------------------------------------------------
+  - id: "VAL-PORT-{{ item.proto }}-{{ item.port }}"
+    name: "{{ item.proto | upper }} port {{ item.port }} listens on {{ item.address }}"
+    tags: [validation, network, ports]
+    loop: "{{ ports }}"
+    run: ss -Hln{{ 't' if item.proto == 'tcp' else 'u' }} 'sport = :{{ item.port }}' | awk '{print $4}'
+    # Listening on all interfaces (*, [::]) also covers the requested address.
+    expect: { some: "in ['{{ item.address }}:{{ item.port }}', '*:{{ item.port }}', '[::]:{{ item.port }}', '0.0.0.0:{{ item.port }}']" }
+
+  - id: "VAL-DNS-{{ item.name }}"
+    name: "{{ item.name }} resolves"
+    tags: [validation, network, dns]
+    loop: "{{ dns }}"
+    timeout: 10s
+    run: getent ahosts {{ item.name }} | sed -n 1p
+    allow_rc: [0, 2]
+    expect: "{{ '!empty' if item.resolves else 'empty' }}"
+
+  - id: "VAL-HTTP-{{ item.url | replace('://', '-') | replace('/', '_') }}"
+    name: "{{ item.url }} answers with {{ item.status }}"
+    tags: [validation, network, http]
+    loop: "{{ http }}"
+    timeout: 20s
+    run: curl -s -o /dev/null --max-time 15 -w '%{http_code}' '{{ item.url }}'
+    allow_rc: [0, 7, 28]
+    expect: "== {{ item.status }}"
+
+  - id: "VAL-REACH-{{ item.host }}-{{ item.port }}"
+    name: "{{ item.host }}:{{ item.port }} is reachable"
+    tags: [validation, network]
+    loop: "{{ reachable }}"
+    timeout: 10s
+    run: timeout 5 bash -c '</dev/tcp/{{ item.host }}/{{ item.port }}' 2>/dev/null
+    expect: true
+
+  # --- files, mounts, kernel ----------------------------------------------------------
+  - id: "VAL-FILE-{{ item.path | replace('/', '_') }}"
+    name: "{{ item.path }} has mode {{ item.mode }} and owner {{ item.owner }}:{{ item.group }}"
+    tags: [validation, files]
+    loop: "{{ files }}"
+    run: stat -c '%F %a %U %G' {{ item.path }}
+    allow_rc: [0, 1]
+    expect: "~ ^{{ item.type | default('regular( empty)? file') }} {{ item.mode }} {{ item.owner }} {{ item.group }}$"
+
+  - id: "VAL-FILE-CONTENT-{{ item.path | replace('/', '_') }}"
+    name: "{{ item.path }} contains {{ item.contains }}"
+    tags: [validation, files]
+    loop: "{{ files | selectattr('contains', 'defined') | list }}"
+    run: cat {{ item.path }}
+    allow_rc: [0, 1]
+    expect: { some: "~ {{ item.contains }}" }
+
+  - id: "VAL-MOUNT-{{ item.path | replace('/', '_') }}"
+    name: "{{ item.path }} is a {{ item.fstype }} mount with {{ item.options | join(',') }}"
+    tags: [validation, files, mounts]
+    loop: "{{ mounts }}"
+    # Prints every deviation from the expected file system type and options.
+    run: |
+      out=$(findmnt -n -o FSTYPE,OPTIONS {{ item.path }}) || { echo "not mounted"; exit 0; }
+      set -- $out
+      [ "$1" = "{{ item.fstype }}" ] || echo "file system type is $1"
+      for o in {{ item.options | join(' ') }}; do
+        case ",$2," in *",$o,"*) ;; *) echo "option $o is missing" ;; esac
+      done
+    expect: empty
+
+  - id: "VAL-SYSCTL-{{ item.key }}"
+    name: "{{ item.key }} {{ item.value }}"
+    tags: [validation, kernel]
+    loop: "{{ kernel_params }}"
+    run: sysctl -n {{ item.key }}
+    expect: "{{ item.value }}"
+```

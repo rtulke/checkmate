@@ -75,6 +75,16 @@ Undefined variables are an **error**, so typos never render as an empty string.
         expect: true
     ```
 
+=== "Expression"
+
+    ```yaml
+    # Any Jinja2 expression that yields a list or mapping
+    - id: "CONTENT-{{ item.path | replace('/', '_') }}"
+      loop: "{{ files | selectattr('contains', 'defined') | list }}"
+      run: cat {{ item.path }}
+      expect: { some: "~ {{ item.contains }}" }
+    ```
+
 Since the expectation is a template too, a loop value can carry the whole condition:
 
 ```yaml

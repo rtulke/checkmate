@@ -1,0 +1,86 @@
+name: MySQL and MariaDB
+version: 1.0.0
+description: >
+  Server settings, accounts and file permissions for MySQL and MariaDB.
+  Queries run through a snippet with the client of the local root account
+  (socket authentication), so no password is stored in the policy.
+
+vars:
+  min_version: "8.0"
+
+snippets:
+  # Runs the SQL in {{ arg }} and prints the bare result.
+  sql: mysql --batch --skip-column-names -e "{{ arg }}"
+
+checks:
+  - id: MYSQL-001
+    name: The server answers
+    tags: [applications, mysql]
+    severity: critical
+    only_if: command -v mysqladmin
+    run: mysqladmin ping
+    expect: "~ alive"
+
+  - id: MYSQL-002
+    name: No anonymous accounts
+    tags: [applications, mysql, accounts]
+    severity: critical
+    only_if: command -v mysqladmin && mysqladmin ping >/dev/null 2>&1
+    run: { use: sql, arg: "SELECT CONCAT(user, '@', host) FROM mysql.user WHERE user = ''" }
+    expect: empty
+
+  - id: MYSQL-003
+    name: root can only log in locally
+    tags: [applications, mysql, accounts]
+    severity: high
+    only_if: command -v mysqladmin && mysqladmin ping >/dev/null 2>&1
+    run: { use: sql, arg: "SELECT host FROM mysql.user WHERE user = 'root'" }
+    expect: { each: "in [localhost, 127.0.0.1, '::1']" }
+
+  - id: MYSQL-004
+    name: No account accepts connections from any host
+    tags: [applications, mysql, accounts]
+    severity: high
+    only_if: command -v mysqladmin && mysqladmin ping >/dev/null 2>&1
+    run: { use: sql, arg: "SELECT CONCAT(user, '@', host) FROM mysql.user WHERE host = '%'" }
+    expect: empty
+
+  - id: "MYSQL-VAR-{{ item.key }}"
+    name: "{{ item.key }} {{ item.value }}"
+    tags: [applications, mysql]
+    only_if: command -v mysqladmin && mysqladmin ping >/dev/null 2>&1
+    loop:
+      local_infile: "in [OFF, 0]"
+      skip_symbolic_links: "in [ON, YES, 1]"
+      require_secure_transport: "in [ON, 1]"
+      log_error: "!empty"
+      sql_mode: "~ STRICT_(TRANS|ALL)_TABLES"
+    run: { use: sql, arg: "SELECT @@{{ item.key }}" }
+    expect: "{{ item.value }}"
+
+  - id: MYSQL-005
+    name: "Server version {{ min_version }} or newer"
+    tags: [applications, mysql, updates]
+    only_if: command -v mysqladmin && mysqladmin ping >/dev/null 2>&1
+    run: { use: sql, arg: "SELECT VERSION()" }
+    as: version
+    expect: ">= {{ min_version }}"
+
+  - id: MYSQL-006
+    name: The data directory is only accessible by mysql
+    tags: [applications, mysql, permissions]
+    severity: high
+    only_if: test -d /var/lib/mysql
+    run: find /var/lib/mysql -maxdepth 0 \( -perm /o+rwx -o ! -user mysql \)
+    expect: empty
+
+  - id: MYSQL-007
+    name: No credentials in world-readable option files
+    tags: [applications, mysql, credentials]
+    severity: high
+    run: |
+      for f in /etc/my.cnf /etc/mysql/my.cnf /etc/my.cnf.d/*.cnf /etc/mysql/conf.d/*.cnf /root/.my.cnf; do
+        [ -f "$f" ] || continue
+        if grep -qiE '^[[:space:]]*password[[:space:]]*=' "$f" && [ -n "$(find "$f" -perm /o+r)" ]; then echo "$f"; fi
+      done
+    expect: empty

@@ -129,7 +129,7 @@ checks:
     tags: [platform, rhel, kernel]
     when: facts.distro == "rhel" or "rhel" in facts.distro_like
     run: |
-      newest=$(rpm -q --last kernel-core kernel 2>/dev/null | head -1 | awk '{print $1}' | sed -E 's/^kernel(-core)?-//')
+      newest=$(rpm -q --last kernel-core kernel 2>/dev/null | sed -n 1p | awk '{print $1}' | sed -E 's/^kernel(-core)?-//')
       [ "$newest" = "$(uname -r)" ]
     expect: true
     remediation: Reboot into the newest kernel.

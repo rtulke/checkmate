@@ -13,6 +13,12 @@
 //	expect: { stderr: empty }    # stderr instead of stdout
 //	expect: ["!empty", "!~ x"]   # all conditions must hold
 //	expect: { any: [a, b] }      # at least one condition must hold
+//	expect: { not: "~ x" }       # negation of any expectation
+//	expect: { each: "< 90" }     # every non-empty stdout line ("some", "none")
+//	expect:                      # conditional expectation
+//	  if: { stdout: "~ ^Ubuntu" }
+//	  then: { stdout: "~ 24\\." }
+//	  else: true
 package expect
 
 import (
@@ -86,9 +92,28 @@ func Parse(node *yaml.Node) (Expectation, error) {
 		return parseGroup(node, true)
 	case yaml.MappingNode:
 		var items []Expectation
+		var ifNode, thenNode, elseNode *yaml.Node
 		for i := 0; i+1 < len(node.Content); i += 2 {
 			key, value := node.Content[i].Value, node.Content[i+1]
 			switch key {
+			case "if":
+				ifNode = value
+			case "then":
+				thenNode = value
+			case "else":
+				elseNode = value
+			case "not":
+				inner, err := Parse(value)
+				if err != nil {
+					return nil, fmt.Errorf("not: %w", err)
+				}
+				items = append(items, negation{inner: inner})
+			case "each", "some", "none":
+				e, err := parseLines(key, value)
+				if err != nil {
+					return nil, err
+				}
+				items = append(items, e)
 			case "all", "any":
 				g, err := parseGroup(value, key == "all")
 				if err != nil {
@@ -102,8 +127,15 @@ func Parse(node *yaml.Node) (Expectation, error) {
 				}
 				items = append(items, e)
 			default:
-				return nil, fmt.Errorf("unknown expect key %q (use stdout, stderr, lines, rc, all or any)", key)
+				return nil, fmt.Errorf("unknown expect key %q (use stdout, stderr, lines, rc, all, any, not, each, some, none or if/then/else)", key)
 			}
+		}
+		if ifNode != nil || thenNode != nil || elseNode != nil {
+			c, err := parseConditional(ifNode, thenNode, elseNode)
+			if err != nil {
+				return nil, err
+			}
+			items = append(items, c)
 		}
 		if len(items) == 0 {
 			return nil, fmt.Errorf("expect is empty")
@@ -308,7 +340,11 @@ func (c *condition) value(out Output) string {
 }
 
 func (c *condition) Eval(out Output, mode Mode) (bool, string, error) {
-	got := c.value(out)
+	return c.evalValue(c.value(out), mode)
+}
+
+// evalValue evaluates the condition against an already extracted value.
+func (c *condition) evalValue(got string, mode Mode) (bool, string, error) {
 	if c.target == "lines" || c.target == "rc" {
 		mode = ModeNumber
 	}
@@ -544,4 +580,170 @@ func versionParts(v string) []string {
 	}
 	flush()
 	return parts
+}
+
+// negation inverts an expectation.
+type negation struct{ inner Expectation }
+
+func (n negation) Eval(out Output, mode Mode) (bool, string, error) {
+	ok, _, err := n.inner.Eval(out, mode)
+	if err != nil {
+		return false, "", err
+	}
+	if ok {
+		return false, fmt.Sprintf("expected not (%s), but it holds", n.inner.String()), nil
+	}
+	return true, "", nil
+}
+
+func (n negation) NeedsOutput() bool { return n.inner.NeedsOutput() }
+func (n negation) String() string    { return "not (" + n.inner.String() + ")" }
+
+// conditional evaluates "then" if "if" holds, otherwise "else". Without an
+// "else", a check whose condition does not hold passes.
+type conditional struct {
+	cond, then, otherwise Expectation
+}
+
+func parseConditional(ifNode, thenNode, elseNode *yaml.Node) (Expectation, error) {
+	if ifNode == nil || thenNode == nil {
+		return nil, fmt.Errorf("if/then/else: both \"if\" and \"then\" are required")
+	}
+	c := conditional{}
+	var err error
+	if c.cond, err = Parse(ifNode); err != nil {
+		return nil, fmt.Errorf("if: %w", err)
+	}
+	if c.then, err = Parse(thenNode); err != nil {
+		return nil, fmt.Errorf("then: %w", err)
+	}
+	if elseNode != nil {
+		if c.otherwise, err = Parse(elseNode); err != nil {
+			return nil, fmt.Errorf("else: %w", err)
+		}
+	}
+	return c, nil
+}
+
+func (c conditional) Eval(out Output, mode Mode) (bool, string, error) {
+	holds, _, err := c.cond.Eval(out, mode)
+	if err != nil {
+		return false, "", fmt.Errorf("if: %w", err)
+	}
+	branch, label := c.then, "then"
+	if !holds {
+		if c.otherwise == nil {
+			return true, "", nil
+		}
+		branch, label = c.otherwise, "else"
+	}
+	ok, msg, err := branch.Eval(out, mode)
+	if err != nil {
+		return false, "", fmt.Errorf("%s: %w", label, err)
+	}
+	if !ok {
+		return false, fmt.Sprintf("%s (%s branch, because %s %s)", msg, label, c.cond.String(),
+			map[bool]string{true: "holds", false: "does not hold"}[holds]), nil
+	}
+	return true, "", nil
+}
+
+func (c conditional) NeedsOutput() bool {
+	return c.cond.NeedsOutput() || c.then.NeedsOutput() || (c.otherwise != nil && c.otherwise.NeedsOutput())
+}
+
+func (c conditional) String() string {
+	s := fmt.Sprintf("if %s then %s", c.cond.String(), c.then.String())
+	if c.otherwise != nil {
+		s += " else " + c.otherwise.String()
+	}
+	return s
+}
+
+// lineCheck applies conditions to every non-empty line of stdout.
+type lineCheck struct {
+	mode  string // each, some, none
+	conds []*condition
+}
+
+func parseLines(mode string, node *yaml.Node) (Expectation, error) {
+	var raw []string
+	switch node.Kind {
+	case yaml.ScalarNode:
+		raw = []string{node.Value}
+	case yaml.SequenceNode:
+		for _, child := range node.Content {
+			if child.Kind != yaml.ScalarNode {
+				return nil, fmt.Errorf("%s: expected condition strings", mode)
+			}
+			raw = append(raw, child.Value)
+		}
+	default:
+		return nil, fmt.Errorf("%s: expected a condition string or a list of them", mode)
+	}
+	lc := lineCheck{mode: mode}
+	for _, r := range raw {
+		e, err := ParseCondition("line", r)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", mode, err)
+		}
+		lc.conds = append(lc.conds, e.(*condition))
+	}
+	if len(lc.conds) == 0 {
+		return nil, fmt.Errorf("%s: no conditions", mode)
+	}
+	return lc, nil
+}
+
+func (l lineCheck) matches(line string, mode Mode) (bool, string, error) {
+	for _, c := range l.conds {
+		ok, msg, err := c.evalValue(line, mode)
+		if err != nil || !ok {
+			return false, msg, err
+		}
+	}
+	return true, "", nil
+}
+
+func (l lineCheck) Eval(out Output, mode Mode) (bool, string, error) {
+	var lines []string
+	for _, line := range strings.Split(out.Stdout, "\n") {
+		if line = strings.TrimSpace(line); line != "" {
+			lines = append(lines, line)
+		}
+	}
+	matched := 0
+	for i, line := range lines {
+		ok, msg, err := l.matches(line, mode)
+		if err != nil {
+			return false, "", fmt.Errorf("line %d: %w", i+1, err)
+		}
+		switch {
+		case ok:
+			matched++
+			if l.mode == "none" {
+				return false, fmt.Sprintf("line %d %s matches %s", i+1, describe(line), l.condString()), nil
+			}
+		case l.mode == "each":
+			return false, fmt.Sprintf("line %d: %s", i+1, msg), nil
+		}
+	}
+	if l.mode == "some" && matched == 0 {
+		return false, fmt.Sprintf("no line matches %s (%d lines checked)", l.condString(), len(lines)), nil
+	}
+	return true, "", nil
+}
+
+func (l lineCheck) NeedsOutput() bool { return true }
+
+func (l lineCheck) condString() string {
+	parts := make([]string, len(l.conds))
+	for i, c := range l.conds {
+		parts[i] = c.String()
+	}
+	return strings.Join(parts, " and ")
+}
+
+func (l lineCheck) String() string {
+	return l.mode + " " + l.condString()
 }

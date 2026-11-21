@@ -157,10 +157,19 @@ nav:
           - examples/applications/index.md
           - "Docker": examples/applications/docker.md
           - "Kubernetes cluster": examples/applications/kubernetes.md
+          - "MySQL and MariaDB": examples/applications/mysql.md
           - "PostgreSQL": examples/applications/postgresql.md
+          - "Redis": examples/applications/redis.md
           - "Web endpoints": examples/applications/web-endpoints.md
           - "nginx and Apache httpd": examples/applications/web-servers.md
+      - "Cloud":
+          - examples/cloud/index.md
+          - "Cloud instances": examples/cloud/instance-metadata.md
+      - "Server validation":
+          - examples/validation/index.md
+          - "Server validation (goss style)": examples/validation/server-validation.md
       - "Compliance baselines":
           - examples/compliance/index.md
+          - "Linux hardening baseline": examples/compliance/linux-hardening.md
           - "Managed RHEL baseline": examples/compliance/managed-rhel.md
   # END generated examples navigation

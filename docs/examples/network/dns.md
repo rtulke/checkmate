@@ -77,8 +77,8 @@ checks:
     severity: high
     timeout: 10s
     run:
-      linux: getent ahosts {{ dns_test_name }} | head -1
-      macos: dscacheutil -q host -a name {{ dns_test_name }} | head -2
+      linux: getent ahosts {{ dns_test_name }} | sed -n 1p
+      macos: dscacheutil -q host -a name {{ dns_test_name }} | sed -n 1,2p
     expect: "!empty"
 
   - id: DNS-004
@@ -103,6 +103,6 @@ checks:
     tags: [network, dns]
     severity: low
     when: facts.os == "linux"
-    run: getent hosts "$(hostname -f)" | awk '{print $1}' | head -1
+    run: getent hosts "$(hostname -f)" | awk '{print $1}' | sed -n 1p
     expect: ["!empty", "!~ ^(127\\.|::1$)"]
 ```

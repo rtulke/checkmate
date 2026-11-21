@@ -1,6 +1,6 @@
 # Examples
 
-44 ready-to-use policies with 496 checks. Every example is validated, syntax-checked for each
+49 ready-to-use policies with 770 checks. Every example is validated, syntax-checked for each
 platform and executed on RHEL, Debian, Ubuntu, openSUSE and Alpine in the test suite, so you can copy them as a
 starting point.
 
@@ -72,16 +72,32 @@ starting point.
 
     ---
 
-    Docker, Kubernetes, web servers, PostgreSQL and web endpoints.
+    Docker, Kubernetes, web servers, PostgreSQL, MySQL, Redis and web endpoints.
 
-    [Docker](applications/docker.md) · [Kubernetes cluster](applications/kubernetes.md) · [PostgreSQL](applications/postgresql.md) · [Web endpoints](applications/web-endpoints.md) · [nginx and Apache httpd](applications/web-servers.md)
+    [Docker](applications/docker.md) · [Kubernetes cluster](applications/kubernetes.md) · [MySQL and MariaDB](applications/mysql.md) · [PostgreSQL](applications/postgresql.md) · [Redis](applications/redis.md) · [Web endpoints](applications/web-endpoints.md) · [nginx and Apache httpd](applications/web-servers.md)
+
+- :material-cloud-check: **[Cloud](cloud/index.md)**
+
+    ---
+
+    Cloud instances on AWS, Azure and Google Cloud: metadata service, agents and stored credentials.
+
+    [Cloud instances](cloud/instance-metadata.md)
+
+- :material-clipboard-check: **[Server validation](validation/index.md)**
+
+    ---
+
+    Describe the expected state of a server role and validate it, in the style of goss and serverspec.
+
+    [Server validation (goss style)](validation/server-validation.md)
 
 - :material-shield-check: **[Compliance baselines](compliance/index.md)**
 
     ---
 
-    Complete baselines that combine many checks with a tag-based selection model.
+    Complete baselines: a broad Linux hardening baseline modelled on OpenSCAP and CIS, and a managed-RHEL baseline with a tag-based selection model.
 
-    [Managed RHEL baseline](compliance/managed-rhel.md)
+    [Linux hardening baseline](compliance/linux-hardening.md) · [Managed RHEL baseline](compliance/managed-rhel.md)
 
 </div>

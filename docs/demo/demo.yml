@@ -1,0 +1,40 @@
+name: Demo baseline
+vars:
+  etc: /tmp/checkmate-demo
+  services: [sshd, chronyd, auditd]
+
+checks:
+  - id: SSH-ROOT
+    name: Root login over SSH is disabled
+    severity: critical
+    run: awk '$1 == "PermitRootLogin" {print $2}' {{ etc }}/sshd_config
+    expect: "== no"
+
+  - id: SSH-CIPHERS
+    name: No weak SSH ciphers
+    severity: high
+    run: grep '^Ciphers' {{ etc }}/sshd_config
+    expect: "!~ (cbc|3des|arcfour)"
+
+  - id: "SVC-{{ item }}"
+    name: "{{ item }} is enabled"
+    loop: "{{ services }}"
+    run: grep -qx {{ item }} {{ etc }}/enabled-services
+    expect: true
+
+  - id: DISK
+    name: Every file system is below 90 %
+    run: awk '{print $2}' {{ etc }}/df
+    expect: { each: "< 90" }
+
+  - id: TIME
+    name: Clock offset is below 0.5 s
+    severity: low
+    run: cat {{ etc }}/clock-offset
+    expect: "< 0.5"
+
+  - id: SELINUX
+    name: SELinux is enforcing
+    only_if: command -v getenforce
+    run: getenforce
+    expect: "== Enforcing"

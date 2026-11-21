@@ -94,7 +94,7 @@ checks:
     severity: high
     when: facts.is_root
     only_if: command -v iptables && ! command -v firewall-cmd && ! command -v nft
-    run: iptables -S INPUT | head -1
+    run: iptables -S INPUT | sed -n 1p
     expect: "in ['-P INPUT DROP', '-P INPUT REJECT']"
 
   - id: FW-006
@@ -103,6 +103,6 @@ checks:
     severity: high
     when: facts.is_root
     only_if: command -v ufw
-    run: ufw status | head -1
+    run: ufw status | sed -n 1p
     expect: "== Status: active"
 ```

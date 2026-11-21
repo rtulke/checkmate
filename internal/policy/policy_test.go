@@ -196,3 +196,32 @@ checks:
 		t.Error("defaults.when must exclude macOS")
 	}
 }
+
+func TestLoopExpression(t *testing.T) {
+	path := writePolicy(t, map[string]string{"p.yml": `
+vars:
+  files:
+    - { path: /a, contains: x }
+    - { path: /b }
+checks:
+  - id: "C-{{ item.path | replace('/', '') }}"
+    loop: "{{ files | selectattr('contains', 'defined') | list }}"
+    run: grep {{ item.contains }} {{ item.path }}
+    expect: true
+  - id: "R-{{ item }}"
+    loop: "{{ range(1, 4) | list }}"
+    run: echo {{ item }}
+    expect: true
+`}, "p.yml")
+	checks, errs := Expand(load(t, path), linuxFacts, nil)
+	if len(errs) > 0 {
+		t.Fatal(errs)
+	}
+	var ids []string
+	for _, c := range checks {
+		ids = append(ids, c.ID)
+	}
+	if got := strings.Join(ids, " "); got != "C-a R-1 R-2 R-3" {
+		t.Errorf("ids = %s", got)
+	}
+}

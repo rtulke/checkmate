@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -47,7 +48,26 @@ func policyFiles(t *testing.T) []string {
 	if len(files) == 0 {
 		t.Fatal("no example policies found")
 	}
-	return files
+	// The policy of the terminal demo (docs/demo.tape) is checked as well.
+	return append(files, "../docs/demo/demo.yml")
+}
+
+// colonSpace finds single-line commands containing ": ", which YAML reads
+// as a mapping (a frequent mistake with awk -F: and cut -d:).
+var colonSpace = regexp.MustCompile(`^\s+(run|only_if|[a-z,]+): [^|>"'{\[#].*(: |:$)`)
+
+func TestNoUnquotedColonSpace(t *testing.T) {
+	for _, file := range policyFiles(t) {
+		data, err := os.ReadFile(file)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for i, line := range strings.Split(string(data), "\n") {
+			if colonSpace.MatchString(line) {
+				t.Errorf("%s:%d: command contains \": \"; use a block scalar (run: |): %s", file, i+1, strings.TrimSpace(line))
+			}
+		}
+	}
 }
 
 func TestExamplesAreValid(t *testing.T) {
@@ -57,7 +77,9 @@ func TestExamplesAreValid(t *testing.T) {
 			t.Errorf("%s: %v", file, err)
 			continue
 		}
-		if p.Name == "" || p.Description == "" {
+		// The demo policy is deliberately minimal; style rules apply to examples only.
+		styleRules := !strings.HasPrefix(file, "../docs/")
+		if styleRules && (p.Name == "" || p.Description == "") {
 			t.Errorf("%s: every example needs a name and a description", file)
 		}
 		for name, f := range platforms {
@@ -69,6 +91,9 @@ func TestExamplesAreValid(t *testing.T) {
 				t.Errorf("[%s] %s: no checks", name, file)
 			}
 			for _, c := range checks {
+				if !styleRules {
+					continue
+				}
 				if c.Name == c.ID {
 					t.Errorf("%s: check %s needs a descriptive name", file, c.ID)
 				}

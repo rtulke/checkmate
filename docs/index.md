@@ -16,16 +16,7 @@ hide:
   expect: "== no"
 ```
 
-```console
-$ checkmate run baseline.yml
-PASS   SSH-001   Root login over SSH is disabled
-FAIL   FS-001    /tmp has at least 500 MB free  [high]
-       expected stdout >= "500", got "312"
-
-2 checks · 1 passed · 1 failed · 0 warnings · 0 errors · 0 skipped · 0 n/a · 42ms
-Score  █████████████████░░░░░░░░░░░░░ 58.8%
-Result NOT COMPLIANT
-```
+![checkmate demo: show a policy, run it, fix a finding, run it with a severity threshold, list checks, JSON summary](assets/demo.gif)
 
 <div class="grid cards" markdown>
 

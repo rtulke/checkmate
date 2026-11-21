@@ -47,8 +47,10 @@ var categories = []category{
 	{"hardware", "Hardware", "CPU and memory, disks and RAID, virtualization and IPMI sensors."},
 	{"network-devices", "Network devices", "Switches, routers and firewalls over SSH, eAPI and SNMP: Cisco, Juniper, Arista and any SNMP device."},
 	{"remote", "Remote hosts", "Checking servers from a management host over SSH without installing anything."},
-	{"applications", "Applications", "Docker, Kubernetes, web servers, PostgreSQL and web endpoints."},
-	{"compliance", "Compliance baselines", "Complete baselines that combine many checks with a tag-based selection model."},
+	{"applications", "Applications", "Docker, Kubernetes, web servers, PostgreSQL, MySQL, Redis and web endpoints."},
+	{"cloud", "Cloud", "Cloud instances on AWS, Azure and Google Cloud: metadata service, agents and stored credentials."},
+	{"validation", "Server validation", "Describe the expected state of a server role and validate it, in the style of goss and serverspec."},
+	{"compliance", "Compliance baselines", "Complete baselines: a broad Linux hardening baseline modelled on OpenSCAP and CIS, and a managed-RHEL baseline with a tag-based selection model."},
 }
 
 type policyDoc struct {
@@ -400,6 +402,8 @@ func categoryIcon(dir string) string {
 		"remote":          ":material-remote-desktop:",
 		"applications":    ":material-application-cog:",
 		"compliance":      ":material-shield-check:",
+		"cloud":           ":material-cloud-check:",
+		"validation":      ":material-clipboard-check:",
 	}
 	if i, ok := icons[dir]; ok {
 		return i

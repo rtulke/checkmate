@@ -99,6 +99,14 @@ installed=$(rpm -q --qf '%{INSTALLTIME}' "kernel-$(uname -r)" 2>/dev/null) ||
   { echo "no package for kernel $(uname -r)" >&2; exit 1; }
 ```
 
+### head closes pipes early
+
+`cmd | head -1` lets `head` exit after the first line. If `cmd` is still writing, it is killed by SIGPIPE and, with `pipefail`, the whole command fails with exit code 141, depending on timing. Use `sed -n 1p` (or `awk 'NR == 1'`), which reads all input:
+
+```yaml
+run: getent ahosts example.com | sed -n 1p      # not: | head -1
+```
+
 ### Pipelines
 
 Commands run with `pipefail`: a failure anywhere in a pipeline sets the exit code. This catches broken commands but also means that `grep` without a match in the middle of a pipeline fails it. Add the exit code to `allow_rc` when that is expected.

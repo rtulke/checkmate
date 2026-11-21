@@ -90,6 +90,108 @@ expect: { any: [empty, "~ => disabled"] }
 expect: { all: ["~ ok", { rc: "== 0" }] }
 ```
 
+## Negation
+
+`not` inverts any expectation, including groups and conditionals:
+
+```yaml
+expect: { not: "~ (telnet|rsh)" }
+expect: { not: { any: ["== disabled", "== masked"] } }
+```
+
+## Every line, some line, no line
+
+`each`, `some` and `none` apply conditions to every non-empty line of stdout. This removes the need to squeeze a listing into a single value with awk:
+
+```yaml
+# Every filesystem below 90 % usage
+run: df -P | awk 'NR > 1 {sub(/%/, "", $5); print $5}'
+expect: { each: "< 90" }
+
+# At least one selected time source (chrony marks it with ^*)
+run: chronyc -n sources
+expect: { some: "~ ^\\^\\*" }
+
+# No line enables root login
+run: sshd -T
+expect: { none: "~ ^permitrootlogin yes" }
+
+# Several conditions per line
+expect: { each: ["~ ^/", "!~ /tmp"] }
+```
+
+| Key | Holds when | Empty output |
+|---|---|---|
+| `each` | every line satisfies all conditions | holds |
+| `some` | at least one line satisfies all conditions | does not hold |
+| `none` | no line satisfies all conditions | holds |
+
+Combine `each` with `"!empty"` if there must be at least one line.
+
+## Conditional expectations
+
+`if` / `then` / `else` select an expectation based on another one. Each part can be any expectation, including other conditionals:
+
+```yaml
+# Ubuntu needs 24.04, everything else at least release 12
+run: . /etc/os-release && echo "$ID $VERSION_ID"
+expect:
+  if: { stdout: "~ ^ubuntu" }
+  then: { stdout: "~ 2[4-9]\\." }
+  else: { stdout: "~ (1[2-9]|[2-9][0-9])" }
+
+# If cups is installed, it must not be running
+run: systemctl is-active cups
+allow_rc: [0, 3, 4]        # 3 = inactive, 4 = no such unit
+expect:
+  if: { rc: "!= 4" }
+  then: "!= active"
+```
+
+Without `else`, the expectation holds when the condition does not.
+
+### Conditions on facts and variables
+
+The condition of `if` looks at the command output. To choose an expectation by **facts or variables**, use Jinja2 directly in `expect`, or split the check with `when`:
+
+```yaml
+# Inline Jinja2 condition
+expect: "{{ '>= 9' if facts.distro == 'rhel' else '>= 12' }}"
+
+# Two checks with when
+- id: KERNEL-RHEL
+  when: facts.distro == "rhel"
+  run: rpm -E %rhel
+  expect: ">= 9"
+- id: KERNEL-DEBIAN
+  when: facts.distro == "debian"
+  run: cut -d. -f1 /etc/debian_version
+  expect: ">= 12"
+```
+
+## Building blocks at a glance
+
+| Building block | Example |
+|---|---|
+| exit code | `true`, `false`, `{ rc: "in [0, 100]" }` |
+| comparison | `"== x"`, `">= 5"`, `"!> 90"`, `"in [a, b]"`, `"~ regex"`, `empty` |
+| other target | `{ stderr: … }`, `{ lines: … }` |
+| all / any | `["!empty", "<= 5"]`, `{ any: [a, b] }` |
+| negation | `{ not: … }` |
+| per line | `{ each: … }`, `{ some: … }`, `{ none: … }` |
+| conditional | `{ if: …, then: …, else: … }` |
+
+All of them nest freely:
+
+```yaml
+expect:
+  all:
+    - { lines: ">= 1" }
+    - { each: ["~ ^[a-z]", "!~ (?i)deprecated"] }
+    - if: { some: "~ ^ssl" }
+      then: { none: "~ ^ssl_protocols .*TLSv1(\\.1)?[ ;]" }
+```
+
 ## Output checks and exit codes
 
 When `expect` inspects the output, the command must exit with an exit code listed in `allow_rc` (default `[0]`); otherwise the check is an <span class="st st-error">ERROR</span>. Many tools signal "nothing found" with exit code 1, so allow it explicitly:

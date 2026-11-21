@@ -7,6 +7,8 @@
 
 [English version](README.md) · [Dokumentation](https://rtulke.github.io/checkmate/) · [Beispiele](https://rtulke.github.io/checkmate/examples/)
 
+![checkmate: Policy anzeigen, ausführen, einen Befund beheben, mit Schwellwert ausführen, Checks auflisten, JSON-Zusammenfassung](docs/assets/demo.gif)
+
 ```yaml
 - id: SSH-001
   name: Root login over SSH is disabled
@@ -92,11 +94,22 @@ checks:
     expect: empty
 ```
 
-`expect` versteht `true`/`false` (Exit-Code), `==`, `!=`, `>`, `>=`, `<`, `<=`, `!>`, `!<`, reguläre Ausdrücke (`~`, `!~`), Listen (`in`, `!in`), `empty`, Zeilenanzahl und stderr sowie Kombinationen davon. Details stehen in der [Referenz](https://rtulke.github.io/checkmate/reference/).
+`expect` versteht `true`/`false` (Exit-Code), `==`, `!=`, `>`, `>=`, `<`, `<=`, `!>`, `!<`, reguläre Ausdrücke (`~`, `!~`), Listen (`in`, `!in`), `empty`, Zeilenanzahl und stderr. Diese Bausteine lassen sich mit `all`, `any`, `not`, zeilenweisen Prüfungen (`each`, `some`, `none`) und bedingten Erwartungen kombinieren:
+
+```yaml
+expect: { each: "< 90" }                     # jede Zeile der Ausgabe
+expect: { none: "~ ^permitrootlogin yes" }   # keine Zeile darf passen
+expect:
+  if: { stdout: "~ ^ubuntu" }                # je Distribution eine andere Regel
+  then: "~ 24\\."
+  else: "~ 12"
+```
+
+Details stehen in der [Referenz](https://rtulke.github.io/checkmate/reference/expect/).
 
 ## Beispiele
 
-Mehr als 40 getestete Policies mit über 300 Checks, gegliedert wie die Dokumentation:
+Fast 50 getestete Policies mit über 750 Checks, gegliedert wie die Dokumentation:
 
 | Kategorie | Inhalt |
 |---|---|
@@ -107,8 +120,10 @@ Mehr als 40 getestete Policies mit über 300 Checks, gegliedert wie die Dokument
 | [Hardware](examples/hardware) | CPU, Speicher, Festplatten, RAID, Virtualisierung, IPMI |
 | [Netzwerkgeräte](examples/network-devices) | Cisco IOS, Juniper Junos, Arista EOS, SNMP |
 | [Entfernte Hosts](examples/remote) | Linux-Server über SSH |
-| [Anwendungen](examples/applications) | Docker, Kubernetes, nginx/Apache, PostgreSQL, Web-Endpunkte |
-| [Compliance](examples/compliance) | eine vollständige Managed-RHEL-Baseline |
+| [Anwendungen](examples/applications) | Docker, Kubernetes, nginx/Apache, PostgreSQL, MySQL, Redis, Web-Endpunkte |
+| [Cloud](examples/cloud) | Instanzen in AWS, Azure und Google Cloud: Metadatendienst, Agenten, Zugangsdaten |
+| [Server-Validierung](examples/validation) | Validierung einer Server-Rolle im Stil von goss: Benutzer, Pakete, Ports, Dateien, HTTP |
+| [Compliance](examples/compliance) | eine umfassende Linux-Hardening-Baseline nach dem Vorbild von OpenSCAP und CIS sowie eine Managed-RHEL-Baseline |
 
 Jedes Beispiel wird für jede Plattform validiert und syntaktisch geprüft. In der CI läuft es außerdem echt auf Rocky Linux 8/9, Debian 12, Ubuntu 24.04, openSUSE Leap und Alpine.
 
@@ -120,6 +135,7 @@ make test         # Unit-Tests, Validierung der Beispiele, Escape-Tests
 make lint         # gofmt und go vet
 make test-linux   # alle Beispiele in Linux-Containern ausführen (docker)
 make docs-serve   # Dokumentation unter http://127.0.0.1:8000 (mkdocs-material)
+vhs docs/demo.tape  # Terminal-Demo neu aufnehmen (vhs, docker)
 make dist         # Binaries für Linux, macOS und Windows
 ```
 

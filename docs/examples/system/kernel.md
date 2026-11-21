@@ -124,7 +124,7 @@ checks:
     tags: [system, kernel, updates]
     run:
       rhel: |
-        newest=$(rpm -q --last kernel-core kernel 2>/dev/null | head -1 | awk '{print $1}' | sed -E 's/^kernel(-core)?-//')
+        newest=$(rpm -q --last kernel-core kernel 2>/dev/null | sed -n 1p | awk '{print $1}' | sed -E 's/^kernel(-core)?-//')
         [ "$newest" = "$(uname -r)" ]
       debian: test ! -f /var/run/reboot-required
       suse: zypper needs-rebooting >/dev/null

@@ -192,3 +192,39 @@ checks:
     run: |
       printf 'grüezi\tmiteinand\n' | cut -f2
     expect: "== miteinand"
+
+  - id: E-EACH-LINE
+    name: each line of a df-style listing is below a limit
+    run: |
+      printf '/ 42%%\n/var 89%%\n' | awk '{sub(/%/, "", $2); print $2}'
+    expect: { each: "< 90" }
+
+  - id: E-SOME-LINE
+    name: at least one chrony-style line marks a selected source
+    run: |
+      printf '^- 10.0.0.1\n^* 10.0.0.2\n'
+    expect: { some: "~ ^\\^\\*" }
+
+  - id: E-NONE-LINE
+    name: no line enables a forbidden setting
+    run: |
+      printf 'Port 22\nPermitRootLogin no\n'
+    expect: { none: "~ (?i)^permitrootlogin[[:space:]]+yes" }
+
+  - id: E-IF-THEN-ELSE
+    name: conditional expectation on the output
+    run: echo "ID=debian VERSION=12"
+    expect:
+      if: { stdout: "~ ID=ubuntu" }
+      then: "~ VERSION=24"
+      else: "~ VERSION=1[2-9]"
+
+  - id: E-NOT
+    name: negation of a group
+    run: echo ssh
+    expect: { not: { any: ["== telnet", "== rsh"] } }
+
+  - id: E-JINJA-CONDITIONAL-EXPECT
+    name: fact-dependent expectation with an inline Jinja2 if
+    run: echo 5
+    expect: "{{ '>= 5' if facts.os in ['linux', 'darwin'] else '>= 0' }}"

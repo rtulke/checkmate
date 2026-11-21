@@ -665,7 +665,7 @@ checks:
     tags: [itslc, full, limited]
     run: |
       grep -rhE '^[[:space:]]*(readonly[[:space:]]+|declare[[:space:]]+-r[[:space:]]+)?TMOUT=' /etc/profile /etc/profile.d/ 2>/dev/null |
-        sed -E 's/.*TMOUT=([0-9]+).*/\1/' | sort -n | head -1
+        sed -E 's/.*TMOUT=([0-9]+).*/\1/' | sort -n | sed -n 1p
     allow_rc: [0, 1]
     expect: ["!empty", "> 0", "<= 1800"]
 

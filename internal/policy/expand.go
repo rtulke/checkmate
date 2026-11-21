@@ -1,6 +1,7 @@
 package policy
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -377,13 +378,28 @@ func loopItems(node *yaml.Node, ctx map[string]any) ([]any, error) {
 		}
 		return items, nil
 	case yaml.ScalarNode:
-		path, ok := variableReference(node.Value)
-		if !ok {
-			return nil, fmt.Errorf("expected a list, a mapping or a variable reference like \"{{ my_list }}\"")
-		}
-		value, ok := lookupPath(ctx, path)
-		if !ok {
-			return nil, fmt.Errorf("variable %q is not defined", path)
+		var value any
+		if path, ok := variableReference(node.Value); ok {
+			v, found := lookupPath(ctx, path)
+			if !found {
+				return nil, fmt.Errorf("variable %q is not defined", path)
+			}
+			value = v
+		} else {
+			// Any other Jinja2 expression, e.g. a filtered list: render it as
+			// JSON and decode the result.
+			expr, ok := templateExpression(node.Value)
+			if !ok {
+				return nil, fmt.Errorf("expected a list, a mapping or a Jinja2 expression like \"{{ my_list }}\"")
+			}
+			out, err := tmpl.Render("{{ ("+expr+") | tojson }}", ctx)
+			if err != nil {
+				return nil, err
+			}
+			if err := json.Unmarshal([]byte(out), &value); err != nil {
+				return nil, fmt.Errorf("expression %q does not produce a list or mapping", expr)
+			}
+			value = integralNumbers(value)
 		}
 		switch v := value.(type) {
 		case []any:
@@ -395,9 +411,39 @@ func loopItems(node *yaml.Node, ctx map[string]any) ([]any, error) {
 			}
 			return items, nil
 		}
-		return nil, fmt.Errorf("variable %q is neither a list nor a mapping", path)
+		return nil, fmt.Errorf("%q is neither a list nor a mapping", node.Value)
 	}
 	return nil, fmt.Errorf("unsupported loop value")
+}
+
+// integralNumbers turns whole float64 values from JSON back into ints, so
+// that 1 renders as "1" and not as "1.0".
+func integralNumbers(v any) any {
+	switch x := v.(type) {
+	case float64:
+		if x == float64(int64(x)) {
+			return int(x)
+		}
+	case []any:
+		for i := range x {
+			x[i] = integralNumbers(x[i])
+		}
+	case map[string]any:
+		for k := range x {
+			x[k] = integralNumbers(x[k])
+		}
+	}
+	return v
+}
+
+// templateExpression extracts the expression from "{{ expr }}".
+func templateExpression(s string) (string, bool) {
+	s = strings.TrimSpace(s)
+	if !strings.HasPrefix(s, "{{") || !strings.HasSuffix(s, "}}") {
+		return "", false
+	}
+	expr := strings.TrimSpace(s[2 : len(s)-2])
+	return expr, expr != ""
 }
 
 // variableReference extracts "a.b" from "{{ a.b }}".
