@@ -187,6 +187,7 @@ nav:
       - "MITRE ATT&CK":
           - examples/attack/index.md
           - "MITRE ATT&CK Linux": examples/attack/linux.md
+          - "MITRE ATT&CK macOS": examples/attack/macos.md
           - "MITRE ATT&CK Windows": examples/attack/windows.md
   - CIS benchmarks:
       - cis/index.md

@@ -146,7 +146,8 @@ Jedes Beispiel wird für jede Plattform validiert und syntaktisch geprüft. In d
 
 Fertige Sicherheitsstandards: [CIS Benchmarks](cis/) für 17 Linux-Distributionen,
 Windows 11 und Server 2019/2022/2025, macOS, PostgreSQL und Apache, [DISA STIGs](stig/), BSI IT-Grundschutz und
-Si001 (Schweiz). Siehe die
+Si001 (Schweiz) sowie MITRE-ATT&CK-Checks für Linux, Windows und macOS mit
+Layern für den ATT&CK Navigator. Siehe die
 [Übersicht](https://rtulke.github.io/checkmate/standards/).
 
 ## Entwicklung

@@ -11,7 +11,7 @@ deviations go into a [waiver file](reference/waivers.md).
 | [BSI IT-Grundschutz](examples/compliance/bsi-grundschutz.md) | Linux servers (SYS.1.1, SYS.1.3) | `examples/compliance/bsi-grundschutz.yml` | `bsi-basis`, `bsi-standard`, `bsi-hoch` |
 | [Si001 IT-Grundschutz Bund (CH)](examples/compliance/si001.md) | Linux servers and clients, macOS and Windows clients | `examples/compliance/si001.yml` | `-e si001_schutzbedarf=erhoeht`, `-e si001_rolle=client` |
 | NIST SP 800-53 / 800-171, CMMC | macOS (via mSCP), Linux (via STIG) | `cis/macos*.yml`, `stig/*.yml` | `nist-800-53r5-moderate`, `nist-800-171`, `cmmc-level-2`, … |
-| [MITRE ATT&CK](examples/attack/index.md) | Linux | `examples/attack/*.yml` | `attack-t1053.003`, `attack-persistence`, … and `--attack-layer` |
+| [MITRE ATT&CK](examples/attack/index.md) | Linux, Windows, macOS | `examples/attack/*.yml` | `attack-t1053.003`, `attack-persistence`, … and `--attack-layer` |
 | [Linux hardening](examples/compliance/linux-hardening.md) | Linux | `examples/compliance/linux-hardening.yml` | `hardening` |
 
 ```bash
@@ -75,7 +75,14 @@ techniques. checkmate uses it in two ways:
 ```bash
 sudo checkmate run examples/attack/linux.yml --attack-layer attack.json
 sudo checkmate run examples/attack/linux.yml --tags attack-persistence -v
+checkmate run examples/attack/windows.yml --attack-layer attack.json   # elevated PowerShell
+sudo checkmate run examples/attack/macos.yml --attack-layer attack.json
 ```
+
+Each policy is tested with planted artifacts: 15 on Rocky Linux 9 and
+Debian 12 (`test/linux/attack-sim.sh`), 7 on Windows Server 2022 and 2025
+(`test/windows/attack-sim.ps1`); every one must be found, and no check may
+end in an error.
 
 An automatic mapping of all CIS and STIG checks through NIST 800-53 was
 evaluated and left out: generic controls such as CM-6 map to more than 300
