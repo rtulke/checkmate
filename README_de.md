@@ -205,6 +205,47 @@ tools/              cis-import (CIS, STIG, Windows), mscp-import (macOS), gendoc
 test/               Container-Testumgebungen für Linux, Windows-Analyse und Angriffssimulationen
 ```
 
+## Referenzen und Quellen
+
+### Unterstützte Standards
+
+| Standard | Herausgeber | In checkmate |
+|---|---|---|
+| [CIS Benchmarks](https://www.cisecurity.org/cis-benchmarks) | Center for Internet Security | `cis/`: Linux, Windows, macOS, PostgreSQL, Apache httpd |
+| [CIS Controls v8](https://www.cisecurity.org/controls) | Center for Internet Security | in den Beschreibungen der CIS-Linux-Checks genannt |
+| [DISA STIGs](https://public.cyber.mil/stigs/) | US Defense Information Systems Agency | `stig/`: RHEL, Ubuntu, Amazon Linux |
+| [NIST SP 800-53 Rev. 5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) | NIST | Control-IDs in den CIS-, STIG- und macOS-Checks; Tags `nist-800-53r5-*` (macOS) |
+| [NIST SP 800-171](https://csrc.nist.gov/pubs/sp/800/171/r3/final) | NIST | Tag `nist-800-171` (macOS) |
+| [CMMC](https://dodcio.defense.gov/CMMC/) | US-Verteidigungsministerium | Tags `cmmc-level-1`, `cmmc-level-2` (macOS) |
+| [IT-Grundschutz-Kompendium](https://www.bsi.bund.de/DE/Themen/Unternehmen-und-Organisationen/Standards-und-Zertifizierung/IT-Grundschutz/IT-Grundschutz-Kompendium/IT-Grundschutz-Bausteine/Bausteine_Download_Edition_node.html), Edition 2023 | BSI (Deutschland) | `examples/compliance/bsi-grundschutz.yml`: SYS.1.1, SYS.1.3 |
+| [Si001 IT-Grundschutz in der Bundesverwaltung](https://www.sepos.admin.ch/de/sicherheitsverfahren), V5.1, und die [Schutzbedarfsanalyse (Schuban)](https://www.bacs.admin.ch/de/beurteilung-des-schutzbedarfs) | SEPOS (früher BACS), Schweiz | `examples/compliance/si001.yml` |
+| [MITRE ATT&CK](https://attack.mitre.org/) Enterprise 20.1 | The MITRE Corporation | `examples/attack/`, `--attack-layer` |
+
+### Quellen der Checks
+
+| Quelle | Verwendet für | Lizenz |
+|---|---|---|
+| [Ansible Lockdown](https://github.com/ansible-lockdown) CIS-Audits: [RHEL7](https://github.com/ansible-lockdown/RHEL7-CIS-Audit), [RHEL8](https://github.com/ansible-lockdown/RHEL8-CIS-Audit), [RHEL9](https://github.com/ansible-lockdown/RHEL9-CIS-Audit), [RHEL10](https://github.com/ansible-lockdown/RHEL10-CIS-Audit), [DEBIAN11](https://github.com/ansible-lockdown/DEBIAN11-CIS-Audit), [DEBIAN12](https://github.com/ansible-lockdown/DEBIAN12-CIS-Audit), [DEBIAN13](https://github.com/ansible-lockdown/DEBIAN13-CIS-Audit), [UBUNTU20](https://github.com/ansible-lockdown/UBUNTU20-CIS-Audit), [UBUNTU22](https://github.com/ansible-lockdown/UBUNTU22-CIS-Audit), [UBUNTU24](https://github.com/ansible-lockdown/UBUNTU24-CIS-Audit), [UBUNTU26](https://github.com/ansible-lockdown/UBUNTU26-CIS-Audit), [SUSE15](https://github.com/ansible-lockdown/SUSE15-CIS-Audit), [SUSE16](https://github.com/ansible-lockdown/SUSE16-CIS-Audit), [AMAZON2](https://github.com/ansible-lockdown/AMAZON2-CIS-Audit), [AMAZON2023](https://github.com/ansible-lockdown/AMAZON2023-CIS-Audit), [AMAZON2027](https://github.com/ansible-lockdown/AMAZON2027-CIS-Audit), [UBUNTU18](https://github.com/ansible-lockdown/UBUNTU18-CIS-Audit) | CIS-Policies für Linux, konvertiert mit `tools/cis-import` | MIT |
+| Ansible-Lockdown-Audits für Windows: [Windows-11](https://github.com/ansible-lockdown/Windows-11-CIS-Audit), [Windows-2019](https://github.com/ansible-lockdown/Windows-2019-CIS-Audit), [Windows-2022](https://github.com/ansible-lockdown/Windows-2022-CIS-Audit), [Windows-2025](https://github.com/ansible-lockdown/Windows-2025-CIS-Audit) | CIS-Policies für Windows | MIT |
+| Ansible-Lockdown-STIG-Audits: [RHEL7](https://github.com/ansible-lockdown/RHEL7-STIG-Audit), [RHEL8](https://github.com/ansible-lockdown/RHEL8-STIG-Audit), [RHEL9](https://github.com/ansible-lockdown/RHEL9-STIG-Audit), [RHEL10](https://github.com/ansible-lockdown/RHEL10-STIG-Audit), [UBUNTU22](https://github.com/ansible-lockdown/UBUNTU22-STIG-Audit), [UBUNTU24](https://github.com/ansible-lockdown/UBUNTU24-STIG-Audit), [AMAZON2023](https://github.com/ansible-lockdown/AMAZON2023-STIG-Audit) | DISA-STIG-Policies | MIT |
+| Ansible-Lockdown-Rollen [POSTGRES-12-CIS](https://github.com/ansible-lockdown/POSTGRES-12-CIS), [APACHE-2.4-CIS](https://github.com/ansible-lockdown/APACHE-2.4-CIS) | Anforderungen und Level der von Hand geschriebenen PostgreSQL- und Apache-Policies | MIT |
+| [macOS Security Compliance Project](https://github.com/usnistgov/macos_security) ([Dokumentation](https://pages.nist.gov/macos_security/)) | CIS-Policies für macOS, konvertiert mit `tools/mscp-import` | CC BY 4.0 |
+| BSI IT-Grundschutz-Kompendium, Bausteine SYS.1.1 und SYS.1.3 | Anforderungs-IDs der BSI-Policy (eigene Formulierungen) | Nutzungsbedingungen des BSI |
+| Si001 V5.1 und der Schuban-Leitfaden des SEPOS | Anforderungen der Si001-Policy | Schweizerische Bundesverwaltung |
+| [ATT&CK-STIX-Daten](https://github.com/mitre-attack/attack-stix-data) | Technikliste zur Prüfung der `attack-*`-Tags | Nutzungsbedingungen von ATT&CK |
+
+### Verwandte Werkzeuge und Vorbilder
+
+| Werkzeug | Bezug zu checkmate |
+|---|---|
+| [CIS-CAT Pro](https://www.cisecurity.org/cybersecurity-tools/cis-cat-pro) | das Prüfwerkzeug des CIS; dessen lizenzierter Inhalt wird nicht verwendet, checkmate deckt die Benchmark-Empfehlungen über die oben genannten Quellen ab |
+| [OpenSCAP](https://www.open-scap.org/) und [ComplianceAsCode / SCAP Security Guide](https://github.com/ComplianceAsCode/content) | Vorbild für die Linux-Hardening-Baseline und die httpd-Checks |
+| [Wazuh SCA](https://github.com/wazuh/wazuh/tree/main/ruleset/sca) | Vorbild für Checks der Hardening-Baseline und der Anwendungsbeispiele |
+| [goss](https://github.com/goss-org/goss) | Format der Ansible-Lockdown-Audits; Vorbild für die Beispiele zur Server-Validierung |
+| [InSpec](https://github.com/inspec/inspec) | Vorbild für Waivers |
+| [ATT&CK Navigator](https://mitre-attack.github.io/attack-navigator/) | öffnet die mit `--attack-layer` erzeugten Layer |
+| [Mappings Explorer](https://center-for-threat-informed-defense.github.io/mappings-explorer/) (Center for Threat-Informed Defense) | Zuordnungen von NIST zu ATT&CK, geprüft und nicht für Tags verwendet (allgemeine Controls verweisen auf Hunderte Techniken) |
+
 ## Lizenz
 
 Apache License 2.0, siehe [LICENSE](LICENSE). Die erzeugten Policies stammen aus den Ansible-Lockdown-Audits (MIT, [cis/NOTICE](cis/NOTICE), [stig/NOTICE](stig/NOTICE)) und dem macOS Security Compliance Project (CC BY 4.0); ATT&CK-Daten werden mit Erlaubnis der MITRE Corporation verwendet ([examples/attack/NOTICE](examples/attack/NOTICE)). CIS Benchmarks ist eine Marke des Center for Internet Security; die Policies enthalten keinen Benchmark-Text.
