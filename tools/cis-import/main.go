@@ -367,6 +367,15 @@ func commandCheck(c check, name string, attrs map[string]any) []check {
 	if exec == "" {
 		return nil
 	}
+	for _, f := range commandFixes {
+		if f.match(name, exec) {
+			c.Run = f.run
+			c.Name = f.name
+			c.Expect = f.expect
+			c.AllowAnyRC = false
+			return []check{c}
+		}
+	}
 	c.Run = exec
 	c.Name = fmt.Sprintf("%s: %s", humanize(name), firstLine(exec, 90))
 	codes := exitCodes(attrs["exit-status"])
@@ -817,6 +826,44 @@ var patches = []patch{
 	{"MaxSessions 10 is allowed; only values above 10 fail", "MaxSessions (1|1[1-9]|", "MaxSessions (1[1-9]|"},
 	{`APT accepts "false" as well as "0"`, `APT::Install-Recommends \"0\";`, `APT::Install-Recommends \"(0|false)\";`},
 	{`APT accepts "false" as well as "0"`, `APT::Install-Suggests \"0\";`, `APT::Install-Suggests \"(0|false)\";`},
+}
+
+// commandFix replaces an upstream command that gives wrong results.
+type commandFix struct {
+	why    string
+	match  func(name, exec string) bool
+	name   string
+	run    string
+	expect []string
+}
+
+var commandFixes = []commandFix{
+	{
+		why: "upstream variants compare dates as strings, or turn 'never' into an error that passes",
+		match: func(name, exec string) bool {
+			return strings.Contains(name, "passwd_chg_past") && strings.Contains(exec, "chage")
+		},
+		name: "No user has a last password change date in the future",
+		run: `now=$(date +%s)
+for usr in $(cut -d: -f1 /etc/shadow); do
+  d=$(chage --list "$usr" 2>/dev/null | awk -F': ' '/^Last password change/ {print $2}')
+  case "$d" in ""|never|*"must be changed"*) continue ;; esac
+  t=$(date -d "$d" +%s 2>/dev/null) || { echo "$usr: cannot parse last password change '$d'"; continue; }
+  if [ "$t" -gt "$now" ]; then echo "$usr: last password change $d is in the future"; fi
+done`,
+		expect: []string{"empty"},
+	},
+	{
+		why: "stat fails without an operand when no banner is configured",
+		match: func(name, exec string) bool {
+			return strings.Contains(exec, "stat -Lc '%a %U %G' $(sshd -T")
+		},
+		name: "The SSH banner file is owned by root and not writable by others",
+		run: `b=$(sshd -T 2>/dev/null | awk 'tolower($1)=="banner" {print $2}')
+if [ -z "$b" ] || [ "$b" = none ]; then echo "no banner configured"; exit 0; fi
+stat -Lc '%a %U %G' "$b"`,
+		expect: []string{`{ any: [ { some: "~ ^no banner configured$" }, { some: "~ ^[0-6][04][04] root root$" } ] }`},
+	},
 }
 
 func applyPatches(s string) string {

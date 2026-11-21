@@ -424,7 +424,7 @@ checkmate run cis/ubuntu20.yml --tags cis-level-2 -v
 | `CIS-UBUNTU20-5.4.1.4-yescrypt_login_defs-content` | /etc/login.defs has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.4.1.5-inactive_passwd` | inactive passwd: useradd -D \| grep INACTIVE | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.4.1.5-inactive_users` | inactive users: cat /etc/shadow \| grep -v '!*' \| awk -F':' '{ if ($7 > 45 ){ print $1 } }' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-5.4.1.6-passwd_chg_past` | passwd chg past: for usr in `cut -d: -f1 /etc/shadow`; do [ "$(date --date="$(chage --list $usr \| grep "^L… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU20-5.4.1.6-passwd_chg_past` | No user has a last password change date in the future | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.4.2.1-root_only_uid_0` | root only uid 0: awk -F: '($3 == 0) { print $1 }' /etc/passwd | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.4.2.2-root_only_gid_0` | root only gid 0: awk -F: '($1 !~ /^(sync\|shutdown\|halt\|operator)/ && $4=='0') {print $1":"$4}' /etc/passwd | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.4.2.3-group_root_only_0` | group root only 0: awk -F: '$3=='0'{print $1":"$3}' /etc/group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

@@ -238,7 +238,7 @@ checkmate run cis/rhel7.yml --tags cis-level-2 -v
 | `CIS-RHEL7-5.5.1.3-login_defs_warn_age` | login defs warn age: grep PASS_WARN_AGE /etc/login.defs | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL7-5.5.1.4-inactive_passwd` | inactive passwd: useradd -D \| grep INACTIVE | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL7-5.5.1.4-inactive_users` | inactive users: grep -E ^[^:]+:[^\!*] /etc/shadow \| grep -vw root \| cut -d : -f1,7 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL7-5.5.1.5-passwd_chg_past` | passwd chg past: for usr in `cut -d: -f1 /etc/shadow`; do [ "$(date --date="$(chage --list $usr \| grep "^L… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL7-5.5.1.5-passwd_chg_past` | No user has a last password change date in the future | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL7-5.5.2-secure_system_LK` | secure system LK: /awk -F: '$3<1000' /etc/passwd \| egrep -wv 'root' \| cut -d: -f1 \| xargs -I '{}' passwd -S… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL7-5.5.2-secure_system_accts` | secure system accts: /awk -F: '$3<1000' /etc/passwd \| egrep -v 'root\|sync\|halt\|shutdown\|/sbin/nologin\|/bin/fal… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL7-5.5.3-root` | User root exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

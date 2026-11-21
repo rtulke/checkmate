@@ -379,7 +379,7 @@ checkmate run cis/debian12.yml --tags cis-level-2 -v
 | `CIS-DEBIAN12-5.4.1.4-login_defs_hashing-content` | /etc/login.defs has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN12-5.4.1.5-inactive_passwd` | inactive passwd: useradd -D \| grep INACTIVE | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN12-5.4.1.5-inactive_users` | inactive users: grep -E '^[^:]+:[^!*]' /etc/shadow \| cut -d: -f7 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN12-5.4.1.6-passwd_chg_past` | passwd chg past: for usr in `cut -d':' -f1 /etc/shadow`; do last_change=$(date -d "$(chage --list $usr \| g… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-DEBIAN12-5.4.1.6-passwd_chg_past` | No user has a last password change date in the future | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN12-5.4.2.1-uid_0_check` | uid 0 check: awk -F: '($3 == 0) { print $1 }' /etc/passwd | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN12-5.4.2.2-gid_0_check` | gid 0 check: awk -F: '($1 !~ /^(sync\|shutdown\|halt\|operator)/ && $4=='0') {print $1":"$4}' /etc/passwd | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN12-5.4.2.3-group_root_only_0` | group root only 0: awk -F: '$3=='0'{print $1":"$3}' /etc/group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

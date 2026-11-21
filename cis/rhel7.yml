@@ -2430,16 +2430,19 @@ checks:
       - { rc: "== 0" }
       - { none: "~ ." }
   - id: "CIS-RHEL7-5.5.1.5-passwd_chg_past"
-    name: "passwd chg past: for usr in `cut -d: -f1 /etc/shadow`; do [ \"$(date --date=\"$(chage --list $usr | grep \"^L…"
+    name: "No user has a last password change date in the future"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.5.1.5. CIS Controls v8: 5.2."
     tags: [cis, cis-rhel7, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      for usr in `cut -d: -f1 /etc/shadow`; do [ "$(date --date="$(chage --list $usr | grep "^Last password change" | cut -d: -f2)" +%s)" -gt "$(date "+%s")" ] && echo "Failed" ; done
-    allow_rc: any
-    expect:
-      - { rc: "== 1" }
-      - { none: "~ Failed" }
+      now=$(date +%s)
+      for usr in $(cut -d: -f1 /etc/shadow); do
+        d=$(chage --list "$usr" 2>/dev/null | awk -F': ' '/^Last password change/ {print $2}')
+        case "$d" in ""|never|*"must be changed"*) continue ;; esac
+        t=$(date -d "$d" +%s 2>/dev/null) || { echo "$usr: cannot parse last password change '$d'"; continue; }
+        if [ "$t" -gt "$now" ]; then echo "$usr: last password change $d is in the future"; fi
+      done
+    expect: empty
   - id: "CIS-RHEL7-5.5.2-secure_system_LK"
     name: "secure system LK: /awk -F: '$3\u003c1000' /etc/passwd | egrep -wv 'root' | cut -d: -f1 | xargs -I '{}' passwd -S…"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.5.2. CIS Controls v8: 3.3."

@@ -3575,16 +3575,19 @@ checks:
       - { rc: "== 0" }
       - { none: "~ ." }
   - id: "CIS-AMAZON2-4.5.1.5-passwd_chg_past"
-    name: "passwd chg past: for usr in `cut -d: -f1 /etc/shadow`; do [ \"$(date --date=\"$(chage --list $usr | grep \"^L…"
+    name: "No user has a last password change date in the future"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.1.5."
     tags: [cis, cis-amazon2, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
     run: |
-      for usr in `cut -d: -f1 /etc/shadow`; do [ "$(date --date="$(chage --list $usr | grep "^Last password change" | cut -d: -f2)" +%s)" -gt "$(date "+%s")" ] && echo "Failed" ; done
-    allow_rc: any
-    expect:
-      - { rc: "== 1" }
-      - { none: "~ Failed" }
+      now=$(date +%s)
+      for usr in $(cut -d: -f1 /etc/shadow); do
+        d=$(chage --list "$usr" 2>/dev/null | awk -F': ' '/^Last password change/ {print $2}')
+        case "$d" in ""|never|*"must be changed"*) continue ;; esac
+        t=$(date -d "$d" +%s 2>/dev/null) || { echo "$usr: cannot parse last password change '$d'"; continue; }
+        if [ "$t" -gt "$now" ]; then echo "$usr: last password change $d is in the future"; fi
+      done
+    expect: empty
   - id: "CIS-AMAZON2-4.5.2.1-root_gid"
     name: "User root_gid exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.2.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."

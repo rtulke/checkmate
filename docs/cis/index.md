@@ -16,7 +16,7 @@ The recommendation number is part of the ID. The policies contain no benchmark t
 | [CIS Apple macOS 15 Sequoia](macos15.md) | 95 | 81 | 14 | 117 |
 | [CIS Apple macOS 26 Tahoe](macos26.md) | 92 | 79 | 13 | 115 |
 | [CIS Red Hat Enterprise Linux 7](rhel7.md) | 193 | 162 | 31 | 272 |
-| [CIS Red Hat Enterprise Linux 8](rhel8.md) | 301 | 240 | 61 | 563 |
+| [CIS Red Hat Enterprise Linux 8](rhel8.md) | 302 | 241 | 61 | 564 |
 | [CIS Red Hat Enterprise Linux 9](rhel9.md) | 274 | 218 | 56 | 510 |
 | [CIS Red Hat Enterprise Linux 10](rhel10.md) | 316 | 240 | 76 | 563 |
 | [CIS SUSE Linux Enterprise 15](suse15.md) | 267 | 207 | 60 | 447 |
@@ -24,7 +24,7 @@ The recommendation number is part of the ID. The policies contain no benchmark t
 | [CIS Ubuntu 20.04 LTS](ubuntu20.md) | 293 | 238 | 55 | 554 |
 | [CIS Ubuntu 22.04 LTS](ubuntu22.md) | 280 | 225 | 55 | 500 |
 | [CIS Ubuntu 24.04 LTS](ubuntu24.md) | 308 | 242 | 66 | 562 |
-| **Total** | **4245** | | | **7275** |
+| **Total** | **4246** | | | **7276** |
 
 ## Selecting profiles
 

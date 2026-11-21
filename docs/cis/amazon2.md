@@ -373,7 +373,7 @@ checkmate run cis/amazon2.yml --tags cis-level-2 -v
 | `CIS-AMAZON2-4.5.1.3-login_expire_warn-content` | /etc/login.defs has the expected content (2 rules) | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-4.5.1.4-inactive_passwd` | inactive passwd: useradd -D \| grep INACTIVE | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-4.5.1.4-inactive_users` | inactive users: grep -E ^[^:]+:[^\!*] /etc/shadow \| grep -vw root \| cut -d : -f1,7 | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2-4.5.1.5-passwd_chg_past` | passwd chg past: for usr in `cut -d: -f1 /etc/shadow`; do [ "$(date --date="$(chage --list $usr \| grep "^L… | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2-4.5.1.5-passwd_chg_past` | No user has a last password change date in the future | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-4.5.2.1-root_gid` | User root_gid exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-4.5.2.2-root_bash_profile-attrs` | /root/.bash_profile: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-4.5.2.2-root_bash_profile-content` | /root/.bash_profile has the expected content (2 rules) | L1 server | <span class="sev sev-medium">medium</span> |

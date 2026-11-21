@@ -4012,16 +4012,19 @@ checks:
       - { rc: "== 0" }
       - { none: "~ ." }
   - id: "CIS-DEBIAN13-5.4.1.6-passwd_chg_past"
-    name: "passwd chg past: for usr in `cut -d':' -f1 /etc/shadow`; do last_change=$(date -d \"$(chage --list $usr | g…"
+    name: "No user has a last password change date in the future"
     description: "CIS Debian 13 benchmark recommendation 5.4.1.6. NIST SP 800-53 Rev. 5: NA."
     tags: [cis, cis-debian13, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      for usr in `cut -d':' -f1 /etc/shadow`; do last_change=$(date -d "$(chage --list $usr | grep '^Last password change' | cut -d':' -f2 | grep -v 'never$')" +%s); if [ -n "$last_change" ] && [ "$last_change" -gt "$(date +%s)" ]; then echo failure; fi; done
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ failure" }
+      now=$(date +%s)
+      for usr in $(cut -d: -f1 /etc/shadow); do
+        d=$(chage --list "$usr" 2>/dev/null | awk -F': ' '/^Last password change/ {print $2}')
+        case "$d" in ""|never|*"must be changed"*) continue ;; esac
+        t=$(date -d "$d" +%s 2>/dev/null) || { echo "$usr: cannot parse last password change '$d'"; continue; }
+        if [ "$t" -gt "$now" ]; then echo "$usr: last password change $d is in the future"; fi
+      done
+    expect: empty
   - id: "CIS-DEBIAN13-5.4.2.1-uid_0_check"
     name: "uid 0 check: awk -F: '($3 == 0) { if ($1 == \"root\") r = 1; else print \"FAIL: \" $1 } END { if (!r) prin…"
     description: "CIS Debian 13 benchmark recommendation 5.4.2.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."

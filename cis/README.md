@@ -66,4 +66,9 @@ Deviations from the Ansible Lockdown content, each applied deliberately:
 - Content checks of `/etc/ssh/sshd_config` include `/etc/ssh/sshd_config.d/*.conf`.
 - `MaxSessions 10` is accepted (an upstream pattern also matched 10).
 - APT accepts `"false"` as well as `"0"` for `Install-Recommends`/`Install-Suggests`.
+- "No password change date in the future" uses one robust command on every
+  platform; the upstream variants compared dates as strings or passed when
+  `chage` printed `never`.
+- The SSH banner file check reports "no banner configured" instead of failing
+  in `stat` when no banner is set.
 - Commands that are not valid shell code upstream are left out and listed by the converter.

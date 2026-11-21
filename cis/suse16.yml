@@ -1487,16 +1487,15 @@ checks:
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
   - id: "CIS-SUSE16-1.7.9-sshd_banner_file_perms"
-    name: "sshd banner file perms: stat -Lc '%a %U %G' $(sshd -T 2\u003e/dev/null | awk 'tolower($1)==\"banner\" {print $2}')"
+    name: "The SSH banner file is owned by root and not writable by others"
     description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 1.7.9."
     tags: [cis, cis-suse16, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      stat -Lc '%a %U %G' $(sshd -T 2>/dev/null | awk 'tolower($1)=="banner" {print $2}')
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { some: "~ ^[0-6][04][04] root root$" }
+      b=$(sshd -T 2>/dev/null | awk 'tolower($1)=="banner" {print $2}')
+      if [ -z "$b" ] || [ "$b" = none ]; then echo "no banner configured"; exit 0; fi
+      stat -Lc '%a %U %G' "$b"
+    expect: { any: [ { some: "~ ^no banner configured$" }, { some: "~ ^[0-6][04][04] root root$" } ] }
   - id: "CIS-SUSE16-2.1.1-autofs_pkg"
     name: "Package autofs is not installed"
     description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 2.1.1. NIST SP 800-53 Rev. 5: SI-3, MP-7."
@@ -3435,23 +3434,19 @@ checks:
       - { rc: "== 0" }
       - { none: "~ ^.*" }
   - id: "CIS-SUSE16-5.4.1.6-passwd_chg_past"
-    name: "passwd chg past: now=$(date +%s)"
+    name: "No user has a last password change date in the future"
     description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 5.4.1.6. NIST SP 800-53 Rev. 5: NA."
     tags: [cis, cis-suse16, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
       now=$(date +%s)
-      while IFS=: read -r usr _; do
-        d=$(chage --list "$usr" 2>/dev/null | awk -F': ' '/^Last password change/{print $2}')
-        case "$d" in ''|never|password*) continue;; esac
-        s=$(date -d "$d" +%s 2>/dev/null) || continue
-        [ "$s" -gt "$now" ] && echo "Failed: $usr"
-      done < /etc/shadow
-      true
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Failed" }
+      for usr in $(cut -d: -f1 /etc/shadow); do
+        d=$(chage --list "$usr" 2>/dev/null | awk -F': ' '/^Last password change/ {print $2}')
+        case "$d" in ""|never|*"must be changed"*) continue ;; esac
+        t=$(date -d "$d" +%s 2>/dev/null) || { echo "$usr: cannot parse last password change '$d'"; continue; }
+        if [ "$t" -gt "$now" ]; then echo "$usr: last password change $d is in the future"; fi
+      done
+    expect: empty
   - id: "CIS-SUSE16-5.4.2.1-uid_0_check"
     name: "uid 0 check: awk -F: '($3 == 0) { print $1 }' /etc/passwd"
     description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 5.4.2.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."

@@ -157,7 +157,7 @@ checkmate run cis/suse16.yml --tags cis-level-2 -v
 | `CIS-SUSE16-1.7.6-motd_access_configured` | motd access configured: find /etc/motd -maxdepth 0 \( -perm /0133 -o ! -user root -o ! -group root \) 2>/dev/null… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-1.7.7-etc_issue_access-attrs` | /etc/issue: exists, mode 0644 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-1.7.8-etc_issue_net_access-attrs` | /etc/issue.net: exists, mode 0644 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE16-1.7.9-sshd_banner_file_perms` | sshd banner file perms: stat -Lc '%a %U %G' $(sshd -T 2>/dev/null \| awk 'tolower($1)=="banner" {print $2}') | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE16-1.7.9-sshd_banner_file_perms` | The SSH banner file is owned by root and not writable by others | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-2.1.1-autofs_pkg` | Package autofs is not installed | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-2.1.2-avahi_pkg` | Package avahi is not installed | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-2.1.3-dhcp_pkg` | Package dhcp-server is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -345,7 +345,7 @@ checkmate run cis/suse16.yml --tags cis-level-2 -v
 | `CIS-SUSE16-5.4.1.4-login_defs_hashing-content` | /etc/login.defs has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-5.4.1.5-inactive_passwd` | inactive passwd: useradd -D \| grep INACTIVE | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-5.4.1.5-inactive_users` | inactive users: awk -F':' '($2~/^\\$.+\\$/) {if($7 > 45 \|\| $7 < 0)print $1 }' /etc/shadow | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE16-5.4.1.6-passwd_chg_past` | passwd chg past: now=$(date +%s) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE16-5.4.1.6-passwd_chg_past` | No user has a last password change date in the future | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-5.4.2.1-uid_0_check` | uid 0 check: awk -F: '($3 == 0) { print $1 }' /etc/passwd | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-5.4.2.2-gid_0_check` | gid 0 check: awk -F: '($1 !~ /^(root\|sync\|shutdown\|halt\|operator)$/ && $4 == 0) {print $1}' /etc/passwd | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-5.4.2.3-group_root_only_0` | group root only 0: awk -F: '$3=='0'{print $1":"$3}' /etc/group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
