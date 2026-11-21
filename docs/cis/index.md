@@ -1,6 +1,6 @@
 # CIS benchmarks
 
-Automated checks for the CIS benchmarks of 15 Linux platforms, macOS and PostgreSQL. The Linux policies are generated
+Automated checks for the CIS benchmarks of 15 Linux platforms, macOS, PostgreSQL and Apache httpd. The Linux policies are generated
 from the goss audit content of [Ansible Lockdown](https://github.com/ansible-lockdown) (MIT license), the macOS
 policies from the [macOS Security Compliance Project](https://github.com/usnistgov/macos_security) (CC BY 4.0).
 The recommendation number is part of the ID. The policies contain no benchmark text.
@@ -9,6 +9,7 @@ The recommendation number is part of the ID. The policies contain no benchmark t
 |---|---|---|---|---|
 | [CIS Amazon Linux 2](amazon2.md) | 276 | 221 | 55 | 502 |
 | [CIS Amazon Linux 2023](amazon2023.md) | 239 | 177 | 62 | 402 |
+| [CIS Apache HTTP Server 2.4](apache.md) | 70 | 49 | 20 | 70 |
 | [CIS Debian 11](debian11.md) | 284 | 226 | 58 | 489 |
 | [CIS Debian 12](debian12.md) | 290 | 233 | 57 | 501 |
 | [CIS Debian 13](debian13.md) | 325 | 247 | 78 | 555 |
@@ -26,7 +27,7 @@ The recommendation number is part of the ID. The policies contain no benchmark t
 | [CIS Ubuntu 22.04 LTS](ubuntu22.md) | 280 | 225 | 55 | 500 |
 | [CIS Ubuntu 24.04 LTS](ubuntu24.md) | 308 | 242 | 66 | 562 |
 | [CIS Ubuntu 26.04 LTS](ubuntu26.md) | 332 | 257 | 75 | 555 |
-| **Total** | **4624** | | | **7882** |
+| **Total** | **4694** | | | **7952** |
 
 ## Selecting profiles
 
@@ -39,8 +40,8 @@ The recommendation number is part of the ID. The policies contain no benchmark t
 | `cis-rhel9`, `cis-debian12`, `cis-macos15`, … | one benchmark |
 | `nist-800-53r5-moderate`, `nist-800-171`, `disa-stig`, `cmmc-level-2`, … | macOS checks that are also part of these baselines |
 
-macOS has no server/workstation split; use `cis-level-1` or `cis-level-2`. The PostgreSQL policy is written by hand;
-its profiles are `cis-postgresql-db` (database settings) and `cis-postgresql-linux` (operating system).
+macOS has no server/workstation split; use `cis-level-1` or `cis-level-2`. The PostgreSQL and Apache policies are written by hand;
+PostgreSQL has the profiles `cis-postgresql-db` and `cis-postgresql-linux`, Apache uses `cis-level-1` and `cis-level-2`.
 
 ```bash
 checkmate run cis/rhel9.yml --tags cis-level1-server

@@ -550,6 +550,13 @@ func cloneNode(n *yaml.Node) *yaml.Node {
 	if n == nil {
 		return nil
 	}
+	if n.Kind == yaml.AliasNode && n.Alias != nil {
+		// Inline the anchored node so that templates in it are rendered for
+		// every use, not only where the anchor is defined.
+		c := cloneNode(n.Alias)
+		c.Anchor = ""
+		return c
+	}
 	c := *n
 	if n.Content != nil {
 		c.Content = make([]*yaml.Node, len(n.Content))

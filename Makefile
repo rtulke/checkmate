@@ -62,6 +62,7 @@ cis-import:
 test-cis:
 	test/linux/run-cis.sh
 	test/linux/cis-postgres.sh
+	test/linux/cis-apache.sh
 
 clean:
 	rm -rf bin dist site test/linux/out test/linux/out-cis

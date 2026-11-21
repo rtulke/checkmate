@@ -1,6 +1,6 @@
 # Apache httpd in depth
 
-A detailed Apache httpd review following the topics of the httpd rules in the SCAP Security Guide: loaded modules, information disclosure, directory options, request limits and timeouts, TLS, logging, the service account and file permissions. Module lists come from `apachectl -M`, the configuration is read from all files below the server root.
+A detailed Apache httpd review following the topics of the httpd rules in the SCAP Security Guide: loaded modules, information disclosure, directory options, request limits and timeouts, TLS, logging, the service account and file permissions. Module lists come from `httpd -M`, the configuration is read from all files below the server root.
 
 <div class="grid cards" markdown>
 
@@ -70,10 +70,13 @@ description: >
   A detailed Apache httpd review following the topics of the httpd rules in
   the SCAP Security Guide: loaded modules, information disclosure,
   directory options, request limits and timeouts, TLS, logging, the service
-  account and file permissions. Module lists come from `apachectl -M`, the
+  account and file permissions. Module lists come from `httpd -M`, the
   configuration is read from all files below the server root.
 
 vars:
+  # httpd itself; on RHEL 8 and later apachectl no longer passes options on,
+  # on Debian and SUSE apache2ctl sets up the environment first.
+  httpd: "$(command -v apache2ctl || command -v httpd)"
   unwanted_modules: [autoindex_module, status_module, info_module, userdir_module, dav_module, dav_fs_module, cgi_module, proxy_ftp_module]
 
 snippets:
@@ -97,8 +100,8 @@ checks:
     name: The configuration is valid
     tags: [applications, apache]
     severity: high
-    only_if: command -v apachectl
-    run: apachectl configtest
+    only_if: 'command -v apache2ctl || command -v httpd'
+    run: '{{ httpd }} configtest'
     # An invalid configuration exits 1: that is a failure, not an error.
     allow_rc: [0, 1]
     expect: { stderr: "~ Syntax OK" }
@@ -107,15 +110,15 @@ checks:
     name: "Module {{ item }} is not loaded"
     tags: [applications, apache, modules]
     loop: "{{ unwanted_modules }}"
-    only_if: command -v apachectl
-    run: apachectl -M 2>/dev/null
+    only_if: 'command -v apache2ctl || command -v httpd'
+    run: '{{ httpd }} -M 2>/dev/null'
     allow_rc: [0, 1]
     expect: { none: "~ ^[[:space:]]*{{ item }}[[:space:]]" }
 
   - id: "HTTPD-DIRECTIVE-{{ item.key | upper }}"
     name: "{{ item.key }} {{ item.value }}"
     tags: [applications, apache]
-    only_if: command -v apachectl
+    only_if: 'command -v apache2ctl || command -v httpd'
     loop:
       ServerTokens: "== prod"
       ServerSignature: "== off"
@@ -134,7 +137,7 @@ checks:
   - id: HTTPD-NO-INDEXES
     name: Directory listings are disabled
     tags: [applications, apache]
-    only_if: command -v apachectl
+    only_if: 'command -v apache2ctl || command -v httpd'
     run: { use: conf }
     allow_rc: [0, 1]
     expect: { none: "~ (?i)^[[:space:]]*Options[[:space:]].*([[:space:]]|\\+)Indexes" }
@@ -142,7 +145,7 @@ checks:
   - id: HTTPD-NO-SSI-EXEC
     name: Server-side includes cannot execute programs
     tags: [applications, apache]
-    only_if: command -v apachectl
+    only_if: 'command -v apache2ctl || command -v httpd'
     run: { use: conf }
     allow_rc: [0, 1]
     expect: { none: "~ (?i)^[[:space:]]*Options[[:space:]].*([[:space:]]|\\+)(Includes|ExecCGI)([[:space:]]|$)" }
@@ -151,7 +154,7 @@ checks:
     name: Access to the file system root is denied
     tags: [applications, apache]
     severity: high
-    only_if: command -v apachectl
+    only_if: 'command -v apache2ctl || command -v httpd'
     run: { use: conf }
     allow_rc: [0, 1]
     expect: { some: "~ (?i)^[[:space:]]*Require[[:space:]]+all[[:space:]]+denied" }
@@ -160,7 +163,7 @@ checks:
     name: .htaccess files are not served
     tags: [applications, apache]
     severity: high
-    only_if: command -v apachectl
+    only_if: 'command -v apache2ctl || command -v httpd'
     run: { use: conf }
     allow_rc: [0, 1]
     expect: { some: "~ (?i)<Files(Match)?[[:space:]].*\\^?\\\\?\\.ht" }
@@ -169,7 +172,7 @@ checks:
     name: httpd runs as an unprivileged user
     tags: [applications, apache, accounts]
     severity: high
-    only_if: command -v apachectl
+    only_if: 'command -v apache2ctl || command -v httpd'
     run: { use: directive, arg: User }
     expect: ["!empty", "!in [root, '0']"]
 
@@ -193,7 +196,7 @@ checks:
     name: Only TLS 1.2 and newer are offered
     tags: [applications, apache, tls]
     severity: high
-    only_if: command -v apachectl && apachectl -M 2>/dev/null | grep -q ssl_module
+    only_if: 'command -v apache2ctl || command -v httpd && {{ httpd }} -M 2>/dev/null | grep -q ssl_module'
     run: { use: conf }
     allow_rc: [0, 1]
     expect:
@@ -205,7 +208,7 @@ checks:
     name: No weak cipher suites
     tags: [applications, apache, tls]
     severity: high
-    only_if: command -v apachectl && apachectl -M 2>/dev/null | grep -q ssl_module
+    only_if: 'command -v apache2ctl || command -v httpd && {{ httpd }} -M 2>/dev/null | grep -q ssl_module'
     run: { use: conf }
     allow_rc: [0, 1]
     expect: { none: "~ (?i)^[[:space:]]*SSLCipherSuite[[:space:]].*(^|[:+ ])(RC4|DES|3DES|MD5|EXPORT|NULL)([: ]|$)" }
@@ -214,7 +217,7 @@ checks:
     name: TLS compression and insecure renegotiation are off
     tags: [applications, apache, tls]
     severity: low
-    only_if: command -v apachectl && apachectl -M 2>/dev/null | grep -q ssl_module
+    only_if: 'command -v apache2ctl || command -v httpd && {{ httpd }} -M 2>/dev/null | grep -q ssl_module'
     run: { use: conf }
     allow_rc: [0, 1]
     expect: { none: "~ (?i)^[[:space:]]*(SSLCompression|SSLInsecureRenegotiation)[[:space:]]+on" }

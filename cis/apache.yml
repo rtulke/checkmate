@@ -1,0 +1,687 @@
+# Written by hand following the recommendation numbers of the CIS Apache HTTP
+# Server 2.4 benchmark. The configuration is read the way httpd sees it: the
+# list of included files comes from `httpd -t -D DUMP_INCLUDES`, users and
+# paths from `httpd -S`, modules from `httpd -M`.
+name: CIS Apache HTTP Server 2.4
+version: 1.0.0
+description: >
+  Checks for the automatable recommendations of the CIS Apache HTTP Server 2.4
+  benchmark on RHEL-like systems (httpd) and Debian/Ubuntu (apache2). Run as
+  root. Directive values are server-wide: the last occurrence in the included
+  files wins, as for directives outside of virtual hosts. Recommendations
+  that need a human review (planning, multi-use systems, patch level) are not
+  included. Select levels with `--tags cis-level-1` or `--tags cis-level-2`.
+
+vars:
+  # httpd itself; on RHEL 8 and later apachectl no longer passes options on,
+  # on Debian and SUSE apache2ctl sets up the environment first.
+  httpd: "$(command -v apache2ctl || command -v httpd)"
+  # All configuration lines httpd reads, without comments and blank lines.
+  conf: >-
+    for f in $($(command -v apache2ctl || command -v httpd) -t -D DUMP_INCLUDES 2>/dev/null | awk '$1 ~ /^[(]/ {print $NF}'); do cat "$f"; done
+    | grep -vE '^[[:space:]]*(#|$)'
+
+defaults:
+  when:
+    - facts.os == "linux"
+    - facts.is_root
+
+checks:
+  - id: CIS-APACHE-0-config-valid
+    name: The httpd configuration is valid
+    description: Precondition for all other checks of this policy.
+    tags: [cis, cis-apache24]
+    severity: high
+    only_if: 'command -v apache2ctl || command -v httpd'
+    run: '{{ httpd }} -t'
+    allow_rc: [0, 1]
+    expect: { stderr: "~ Syntax OK" }
+
+  # 2 Minimize Apache modules
+
+  - id: CIS-APACHE-2.2-log-config-module
+    name: The logging module is loaded
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 2.2.
+    tags: [cis, cis-apache24, cis-section-2, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: '{{ httpd }} -M 2>/dev/null'
+    expect: { some: "~ ^[[:space:]]*log_config_module[[:space:]]" }
+
+  - id: "CIS-APACHE-{{ item.value.cis }}-{{ item.key }}"
+    name: "{{ item.value.name }}"
+    description: "CIS Apache HTTP Server 2.4 benchmark recommendation {{ item.value.cis }}."
+    tags: [cis, cis-apache24, cis-section-2, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    loop:
+      webdav: { cis: 2.3, name: WebDAV modules are not loaded, modules: "dav_[a-z_]*module|dav_module" }
+      status: { cis: 2.4, name: The status module is not loaded, modules: status_module }
+      autoindex: { cis: 2.5, name: The directory listing module is not loaded, modules: autoindex_module }
+      proxy: { cis: 2.6, name: Proxy modules are not loaded, modules: "proxy_[a-z0-9_]*module|proxy_module" }
+      userdir: { cis: 2.7, name: The user directories module is not loaded, modules: userdir_module }
+      info: { cis: 2.8, name: The server information module is not loaded, modules: info_module }
+      basic-digest-auth: { cis: 2.9, name: Basic and digest authentication modules are not loaded, modules: "auth_basic_module|auth_digest_module" }
+    run: '{{ httpd }} -M 2>/dev/null'
+    expect: { none: "~ ^[[:space:]]*({{ item.value.modules }})[[:space:]]" }
+
+  # 3 Principles, permissions and ownership
+
+  - id: CIS-APACHE-3.1-non-root-user
+    name: httpd runs as a dedicated non-root user
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 3.1.
+    tags: [cis, cis-apache24, cis-section-3, cis-level-1, cis-level-2]
+    severity: high
+    only_if: '{{ httpd }} -t'
+    run: |
+      {{ httpd }} -S 2>/dev/null | awk -F'"' '$1 == "User: name=" {print $2}'
+    expect:
+      - "!empty"
+      - "!= root"
+
+  - id: CIS-APACHE-3.2-user-shell
+    name: The httpd user has no login shell
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 3.2.
+    tags: [cis, cis-apache24, cis-section-3, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: |
+      u=$({{ httpd }} -S 2>/dev/null | awk -F'"' '$1 == "User: name=" {print $2}')
+      getent passwd "$u" | cut -d: -f7
+    expect: "~ (nologin|false)$"
+
+  - id: CIS-APACHE-3.3-user-locked
+    name: The httpd user account is locked
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 3.3.
+    tags: [cis, cis-apache24, cis-section-3, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: |
+      u=$({{ httpd }} -S 2>/dev/null | awk -F'"' '$1 == "User: name=" {print $2}')
+      getent shadow "$u" | cut -d: -f2
+    expect: "~ ^[!*]"
+
+  - id: "CIS-APACHE-{{ item.value.cis }}-server-root-{{ item.key }}"
+    name: "{{ item.value.name }}"
+    description: "CIS Apache HTTP Server 2.4 benchmark recommendation {{ item.value.cis }}. Symbolic links are not followed."
+    tags: [cis, cis-apache24, cis-section-3, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    loop:
+      owner: { cis: 3.4, name: Files below the server root are owned by root, find: "! -user root" }
+      group: { cis: 3.5, name: Files below the server root belong to group root, find: "! -group root" }
+      other-write: { cis: 3.6, name: Files below the server root are not writable by others, find: "! -type l -perm -0002" }
+      group-write: { cis: 3.11, name: Files below the server root are not writable by the group, find: "! -type l -perm -0020" }
+    run: |
+      r=$({{ httpd }} -S 2>/dev/null | awk -F'"' '$1 == "ServerRoot: " {print $2}')
+      [ -d "$r" ] || { echo "server root '$r' not found"; exit 0; }
+      find "$r" {{ item.value.find }} -print
+    expect: empty
+
+  - id: CIS-APACHE-3.12-document-root-group-write
+    name: Files below the document root are not writable by the httpd group
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 3.12.
+    tags: [cis, cis-apache24, cis-section-3, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: |
+      d=$({{ httpd }} -S 2>/dev/null | awk -F'"' '$1 == "Main DocumentRoot: " {print $2}')
+      g=$({{ httpd }} -S 2>/dev/null | awk -F'"' '$1 == "Group: name=" {print $2}')
+      [ -d "$d" ] || { echo "document root '$d' not found"; exit 0; }
+      find "$d" ! -type l -group "$g" -perm -0020 -print
+    expect: empty
+
+  - id: CIS-APACHE-3.7-core-dump-directory
+    name: A core dump directory is not inside the document root and not accessible by others
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 3.7.
+    tags: [cis, cis-apache24, cis-section-3, cis-level-1, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -t'
+    run: |
+      c=$({{ conf }} | awk 'tolower($1) == "coredumpdirectory" {v = $2} END {print v}' | tr -d '"')
+      [ -n "$c" ] || { echo "not set"; exit 0; }
+      d=$({{ httpd }} -S 2>/dev/null | awk -F'"' '$1 == "Main DocumentRoot: " {print $2}')
+      case "$c/" in "$d"/*) echo "$c is inside the document root $d"; exit 0 ;; esac
+      stat -c '%U %a' "$c"
+    expect:
+      any:
+        - "== not set"
+        - "~ ^root [0-7][0-7]0$"
+
+  - id: CIS-APACHE-3.9-pid-file
+    name: The PID file directory is owned by root and not writable by others
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 3.9.
+    tags: [cis, cis-apache24, cis-section-3, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: |
+      p=$({{ httpd }} -S 2>/dev/null | awk -F'"' '$1 == "PidFile: " {print $2}')
+      d=$({{ httpd }} -S 2>/dev/null | awk -F'"' '$1 == "Main DocumentRoot: " {print $2}')
+      case "$p" in "$d"/*) echo "$p is inside the document root $d"; exit 0 ;; esac
+      stat -L -c '%U %a' "$(dirname "$p")"
+    expect: "~ ^root [0-7][0-7][0145]$"
+
+  # 4 Access control
+
+  - id: CIS-APACHE-4.1-root-directory-denied
+    name: Access to the file system root is denied
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 4.1.
+    tags: [cis, cis-apache24, cis-section-4, cis-level-1, cis-level-2]
+    severity: high
+    only_if: '{{ httpd }} -t'
+    run: &rootdir |
+      {{ conf }} | awk '
+        tolower($1) == "<directory" && ($2 == "/>" || $2 == "\"/\">") {in_root = 1; next}
+        tolower($1) == "</directory>" {in_root = 0}
+        in_root'
+    expect:
+      - { some: '~ (?i)^[[:space:]]*require[[:space:]]+all[[:space:]]+denied' }
+      - { none: '~ (?i)^[[:space:]]*(allow[[:space:]]+from|require[[:space:]]+all[[:space:]]+granted)' }
+
+  - id: CIS-APACHE-4.3-root-directory-override
+    name: .htaccess overrides are disabled for the file system root
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 4.3.
+    tags: [cis, cis-apache24, cis-section-4, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: *rootdir
+    expect:
+      - { some: '~ (?i)^[[:space:]]*allowoverride[[:space:]]+none[[:space:]]*$' }
+      - { none: '~ (?i)^[[:space:]]*allowoverridelist' }
+
+  - id: CIS-APACHE-4.4-override-disabled
+    name: .htaccess overrides are disabled everywhere
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 4.4.
+    tags: [cis, cis-apache24, cis-section-4, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: "{{ conf }} | grep -iE '^[[:space:]]*allowoverride' || true"
+    expect:
+      each: '~ (?i)^[[:space:]]*allowoverride[[:space:]]+none[[:space:]]*$'
+
+  # 5 Features, content and options
+
+  - id: CIS-APACHE-5.1-root-directory-options
+    name: No options are enabled for the file system root
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 5.1.
+    tags: [cis, cis-apache24, cis-section-5, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: *rootdir
+    expect: { some: '~ (?i)^[[:space:]]*options[[:space:]]+none[[:space:]]*$' }
+
+  - id: CIS-APACHE-5.2-document-root-options
+    name: The document root allows no options except MultiViews
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 5.2.
+    tags: [cis, cis-apache24, cis-section-5, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: |
+      d=$({{ httpd }} -S 2>/dev/null | awk -F'"' '$1 == "Main DocumentRoot: " {print $2}')
+      {{ conf }} | awk -v d="$d" '
+        tolower($1) == "<directory" { p = $2; gsub(/[">]/, "", p); in_doc = (p == d || p == d "/") ; next }
+        tolower($1) == "</directory>" {in_doc = 0}
+        in_doc && tolower($1) == "options"'
+    expect:
+      each: '~ (?i)^[[:space:]]*options[[:space:]]+(none|[+]?multiviews)[[:space:]]*$'
+
+  - id: CIS-APACHE-5.3-no-includes
+    name: Server-side includes with command execution are not enabled
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 5.3. IncludesNOEXEC is allowed.
+    tags: [cis, cis-apache24, cis-section-5, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: "{{ conf }} | grep -iE '^[[:space:]]*options[[:space:]]' || true"
+    expect:
+      none: '~ (?i)[[:space:]+](includes|all)([[:space:]]|$)'
+
+  - id: CIS-APACHE-5.4-default-content
+    name: Default welcome pages and the manual are removed
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 5.4.
+    tags: [cis, cis-apache24, cis-section-5, cis-level-1, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -t'
+    run: |
+      for f in /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/manual.conf /etc/httpd/conf.d/autoindex.conf \
+               /etc/apache2/conf-enabled/apache2-doc.conf /usr/share/httpd/noindex/index.html; do
+        [ -e "$f" ] && echo "$f"
+      done
+      for f in /var/www/html/index.html; do
+        [ -f "$f" ] && grep -qiE 'Apache2 (Debian|Ubuntu) Default Page|It works!|Test Page for the (Apache|HTTP)' "$f" && echo "$f is the default page"
+      done
+      true
+    expect: empty
+
+  - id: CIS-APACHE-5.5-printenv
+    name: The printenv CGI example is removed
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 5.5.
+    tags: [cis, cis-apache24, cis-section-5, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: find /var/www /usr/lib/cgi-bin /srv/www -name 'printenv*' -print 2>/dev/null || true
+    expect: empty
+
+  - id: CIS-APACHE-5.6-test-cgi
+    name: The test-cgi CGI example is removed
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 5.6.
+    tags: [cis, cis-apache24, cis-section-5, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: find /var/www /usr/lib/cgi-bin /srv/www -name 'test-cgi*' -print 2>/dev/null || true
+    expect: empty
+
+  - id: CIS-APACHE-5.7-limit-methods
+    name: HTTP request methods are limited
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 5.7.
+    tags: [cis, cis-apache24, cis-section-5, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: "{{ conf }}"
+    expect: { some: '~ (?i)^[[:space:]]*<limitexcept[[:space:]]' }
+
+  - id: CIS-APACHE-5.8-trace-disabled
+    name: The TRACE method is disabled
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 5.8.
+    tags: [cis, cis-apache24, cis-section-5, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: "{{ conf }} | awk 'tolower($1) == \"traceenable\" {v = tolower($2)} END {print (v == \"\" ? \"on\" : v)}'"
+    expect: "== off"
+
+  - id: CIS-APACHE-5.9-old-protocols
+    name: Requests with old HTTP protocol versions are rejected
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 5.9.
+    tags: [cis, cis-apache24, cis-section-5, cis-level-1, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -t'
+    run: "{{ conf }}"
+    expect: { some: '~ (?i)^[[:space:]]*rewritecond[[:space:]]+%\{THE_REQUEST\}.*HTTP/1' }
+
+  - id: CIS-APACHE-5.10-htaccess-files
+    name: Access to .ht* files is denied
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 5.10.
+    tags: [cis, cis-apache24, cis-section-5, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: |
+      {{ conf }} | awk '
+        tolower($1) ~ /^<files(match)?$/ && $0 ~ /\.ht/ {in_ht = 1; next}
+        tolower($1) ~ /^<\/files(match)?>$/ {in_ht = 0}
+        in_ht'
+    expect: { some: '~ (?i)^[[:space:]]*require[[:space:]]+all[[:space:]]+denied' }
+
+  - id: CIS-APACHE-5.11-file-extensions
+    name: Only approved file extensions can be requested
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 5.11 (deny all, then allow a list of extensions).
+    tags: [cis, cis-apache24, cis-section-5, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -t'
+    run: "{{ conf }}"
+    expect: { some: '~ (?i)^[[:space:]]*<filesmatch[[:space:]]+"?\^\.\*\$"?>' }
+
+  - id: CIS-APACHE-5.12-ip-requests
+    name: Requests for an IP address instead of the host name are rejected
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 5.12.
+    tags: [cis, cis-apache24, cis-section-5, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -t'
+    run: "{{ conf }}"
+    expect: { some: '~ (?i)^[[:space:]]*rewritecond[[:space:]]+%\{HTTP_HOST\}' }
+
+  - id: CIS-APACHE-5.13-listen-addresses
+    name: httpd listens only on explicit IP addresses
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 5.13.
+    tags: [cis, cis-apache24, cis-section-5, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -t'
+    run: "{{ conf }} | grep -iE '^[[:space:]]*listen[[:space:]]'"
+    expect:
+      - each: '~ (?i)^[[:space:]]*listen[[:space:]]+(\[[0-9a-f:]+\]|[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):[0-9]+'
+      - none: '~ (0\.0\.0\.0|\[::\]):'
+
+  - id: CIS-APACHE-5.14-framing
+    name: Pages cannot be framed by other sites
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 5.14.
+    tags: [cis, cis-apache24, cis-section-5, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -t'
+    run: "{{ conf }}"
+    expect: { some: '~ (?i)^[[:space:]]*header[[:space:]]+(always[[:space:]]+)?(set|append)[[:space:]]+(x-frame-options|content-security-policy.*frame-ancestors)' }
+
+  # 6 Operations: logging, monitoring and maintenance
+
+  - id: CIS-APACHE-6.1-error-log
+    name: Errors are logged at notice level or more detailed
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 6.1.
+    tags: [cis, cis-apache24, cis-section-6, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: |
+      {{ conf }} | awk '
+        tolower($1) == "errorlog" {e = 1}
+        tolower($1) == "loglevel" {l = tolower($2)}
+        END {print (e ? "errorlog" : "no ErrorLog"), (l == "" ? "warn" : l)}'
+    expect: "~ ^errorlog (notice|info|debug|trace[1-8])"
+
+  - id: CIS-APACHE-6.3-access-log
+    name: An access log is written
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 6.3.
+    tags: [cis, cis-apache24, cis-section-6, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: "{{ conf }}"
+    expect: { some: '~ (?i)^[[:space:]]*(customlog|transferlog)[[:space:]]' }
+
+  - id: CIS-APACHE-6.4-log-rotation
+    name: Logs are rotated and kept for at least 13 rotations
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 6.4.
+    tags: [cis, cis-apache24, cis-section-6, cis-level-1, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -t'
+    run: |
+      f=$(ls /etc/logrotate.d/httpd /etc/logrotate.d/apache2 2>/dev/null | sed -n 1p)
+      [ -n "$f" ] || { echo 0; exit 0; }
+      r=$(awk '$1 == "rotate" {print $2}' "$f" | sort -n | sed -n 1p)
+      # Without its own rotate line the file inherits the global setting.
+      [ -n "$r" ] || r=$(awk '/^[[:space:]]*[^#].*\{/ {depth++} /\}/ {depth--} depth == 0 && $1 == "rotate" {print $2}' /etc/logrotate.conf 2>/dev/null | sed -n 1p)
+      echo "${r:-0}"
+    expect: ">= 13"
+
+  - id: CIS-APACHE-6.6-modsecurity
+    name: ModSecurity is loaded
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 6.6.
+    tags: [cis, cis-apache24, cis-section-6, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -t'
+    run: '{{ httpd }} -M 2>/dev/null'
+    expect: { some: "~ ^[[:space:]]*security2_module[[:space:]]" }
+
+  - id: CIS-APACHE-6.7-owasp-crs
+    name: The OWASP Core Rule Set is included
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 6.7.
+    tags: [cis, cis-apache24, cis-section-6, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -t'
+    run: "{{ conf }}"
+    expect: { some: '~ (?i)^[[:space:]]*include(optional)?[[:space:]].*(crs|owasp)' }
+
+  # 7 SSL/TLS
+
+  - id: CIS-APACHE-7.1-mod-ssl
+    name: The TLS module is loaded
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.1.
+    tags: [cis, cis-apache24, cis-section-7, cis-level-1, cis-level-2]
+    severity: high
+    only_if: '{{ httpd }} -t'
+    run: '{{ httpd }} -M 2>/dev/null'
+    expect: { some: "~ ^[[:space:]]*(ssl|nss)_module[[:space:]]" }
+
+  - id: CIS-APACHE-7.2-certificates-valid
+    name: Configured certificates are valid and trusted
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.2. Each SSLCertificateFile is verified against the system trust store, with the file itself as chain.
+    tags: [cis, cis-apache24, cis-section-7, cis-level-1, cis-level-2]
+    severity: high
+    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module && command -v openssl'
+    run: |
+      {{ conf }} | awk 'tolower($1) == "sslcertificatefile" {gsub(/"/, "", $2); print $2}' | sort -u |
+      while read -r c; do
+        if [ ! -r "$c" ]; then echo "$c: not readable"; continue; fi
+        if ! openssl x509 -in "$c" -noout -checkend 0 >/dev/null 2>&1; then echo "$c: expired or invalid"; continue; fi
+        if ! openssl verify -untrusted "$c" "$c" >/dev/null 2>&1; then echo "$c: not trusted"; fi
+      done
+    expect: empty
+
+  - id: CIS-APACHE-7.3-private-keys
+    name: Private keys are readable only by root
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.3.
+    tags: [cis, cis-apache24, cis-section-7, cis-level-1, cis-level-2]
+    severity: high
+    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    run: |
+      {{ conf }} | awk 'tolower($1) == "sslcertificatekeyfile" {gsub(/"/, "", $2); print $2}' | sort -u |
+      while read -r k; do
+        s=$(stat -L -c '%a %U' "$k" 2>&1) || { echo "$k: $s"; continue; }
+        case "$s" in [46]00\ root) ;; *) echo "$k: $s" ;; esac
+      done
+    expect: empty
+
+  - id: CIS-APACHE-7.4-protocols
+    name: Only TLS 1.2 and newer are enabled
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.4. Without SSLProtocol, httpd enables every protocol except SSLv3, unless a system crypto policy (RHEL 8 and later) other than LEGACY restricts OpenSSL to TLS 1.2 and newer.
+    tags: [cis, cis-apache24, cis-section-7, cis-level-1, cis-level-2]
+    severity: high
+    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    run: |
+      policy=$(cat /etc/crypto-policies/config 2>/dev/null)
+      {{ conf }} | awk -v policy="$policy" '
+        tolower($1) == "sslprotocol" {seen = 1; last = $0}
+        END {
+          if (!seen) {
+            if (policy == "" || policy ~ /^LEGACY/) print "SSLProtocol is not set (enables TLSv1 and TLSv1.1)"
+            exit
+          }
+          n = split(last, f, /[[:space:]]+/)
+          for (i = 1; i <= n; i++) {
+            if (tolower(f[i]) == "sslprotocol" || f[i] == "") continue
+            p = tolower(f[i]); s = "+"
+            if (p ~ /^[+-]/) { s = substr(p, 1, 1); p = substr(p, 2) }
+            if (p == "all") { on["tlsv1"] = on["tlsv1.1"] = on["tlsv1.2"] = on["tlsv1.3"] = (s == "+") }
+            else on[p] = (s == "+")
+          }
+          for (p in on) if (on[p] && (p == "sslv3" || p == "tlsv1" || p == "tlsv1.1")) print "SSLProtocol enables " p
+        }'
+    expect: empty
+
+  - id: CIS-APACHE-7.5-weak-ciphers
+    name: Weak cipher suites are disabled
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.5. Checks the effective (last) SSLCipherSuite.
+    tags: [cis, cis-apache24, cis-section-7, cis-level-1, cis-level-2]
+    severity: high
+    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    run: "{{ conf }} | awk 'tolower($1) == \"sslciphersuite\" {v = $0} END {print v}'"
+    expect:
+      none: '~ (?i)([[:space:]:]|^)[+]?(null|enull|anull|exp|export|des|3des|rc4|md5|low)(:|[[:space:]]|$)'
+
+  - id: CIS-APACHE-7.6-insecure-renegotiation
+    name: Insecure TLS renegotiation is disabled
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.6.
+    tags: [cis, cis-apache24, cis-section-7, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    run: "{{ conf }} | awk 'tolower($1) == \"sslinsecurerenegotiation\" {v = tolower($2)} END {print v}'"
+    expect: "!= on"
+
+  - id: CIS-APACHE-7.7-compression
+    name: TLS compression is disabled
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.7.
+    tags: [cis, cis-apache24, cis-section-7, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    run: "{{ conf }} | awk 'tolower($1) == \"sslcompression\" {v = tolower($2)} END {print v}'"
+    expect: "!= on"
+
+  - id: CIS-APACHE-7.9-https-redirect
+    name: Plain HTTP virtual hosts redirect to HTTPS
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.9. Lists port 80 virtual hosts without a redirect to https.
+    tags: [cis, cis-apache24, cis-section-7, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: |
+      {{ conf }} | awk '
+        tolower($1) == "<virtualhost" && $0 ~ /:80>/ {in_vh = 1; name = $2; sub(/>$/, "", name); redirect = 0; next}
+        in_vh && tolower($1) == "servername" {name = $2}
+        in_vh && tolower($0) ~ /(redirect|rewriterule).*https:/ {redirect = 1}
+        tolower($1) == "</virtualhost>" && in_vh { if (!redirect) print name; in_vh = 0 }'
+    expect: empty
+
+  - id: CIS-APACHE-7.11-ocsp-stapling
+    name: OCSP stapling is enabled
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.11.
+    tags: [cis, cis-apache24, cis-section-7, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    run: "{{ conf }} | awk 'tolower($1) == \"sslusestapling\" {v = tolower($2)} END {print (v == \"\" ? \"off\" : v)}'"
+    expect: "== on"
+
+  - id: CIS-APACHE-7.12-hsts
+    name: HTTP Strict Transport Security is sent
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.12.
+    tags: [cis, cis-apache24, cis-section-7, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    run: "{{ conf }}"
+    expect: { some: '~ (?i)^[[:space:]]*header[[:space:]]+(always[[:space:]]+)?set[[:space:]]+strict-transport-security' }
+
+  - id: CIS-APACHE-7.13-forward-secrecy
+    name: Only cipher suites with forward secrecy are enabled
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.13. Checks the effective (last) SSLCipherSuite.
+    tags: [cis, cis-apache24, cis-section-7, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    run: "{{ conf }} | awk 'tolower($1) == \"sslciphersuite\" {v = $0} END {print v}'"
+    expect:
+      - "!empty"
+      - each: '~ (?i)(ecdhe|eecdh|dhe|edh)'
+      - none: '~ (?i)([[:space:]:]|^)[+]?(rsa|krsa|aes128-sha|aes256-sha|aes128-gcm-sha256|aes256-gcm-sha384)(:|[[:space:]]|$)'
+
+  # 8 Information leakage
+
+  - id: CIS-APACHE-8.1-server-tokens
+    name: The Server header reveals only the product name
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 8.1.
+    tags: [cis, cis-apache24, cis-section-8, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: "{{ conf }} | awk 'tolower($1) == \"servertokens\" {v = tolower($2)} END {print (v == \"\" ? \"full\" : v)}'"
+    expect: "in [prod, productonly]"
+
+  - id: CIS-APACHE-8.2-server-signature
+    name: Error pages carry no server signature
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 8.2 (off is the default).
+    tags: [cis, cis-apache24, cis-section-8, cis-level-1, cis-level-2]
+    severity: medium
+    only_if: '{{ httpd }} -t'
+    run: "{{ conf }} | awk 'tolower($1) == \"serversignature\" {v = tolower($2)} END {print (v == \"\" ? \"off\" : v)}'"
+    expect: "== off"
+
+  - id: CIS-APACHE-8.3-icons
+    name: The default icons alias is removed
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 8.3.
+    tags: [cis, cis-apache24, cis-section-8, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -t'
+    run: "{{ conf }}"
+    expect: { none: '~ (?i)^[[:space:]]*alias[[:space:]]+"?/icons/' }
+
+  - id: CIS-APACHE-8.4-etag
+    name: ETag headers do not contain inode numbers
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 8.4.
+    tags: [cis, cis-apache24, cis-section-8, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -t'
+    run: "{{ conf }} | grep -iE '^[[:space:]]*fileetag[[:space:]]' || true"
+    expect: { none: '~ (?i)[[:space:]+](all|inode)([[:space:]]|$)' }
+
+  # 9 Denial of service mitigations, 10 request limits
+
+  - id: "CIS-APACHE-{{ item.value.cis }}-{{ item.key | lower }}"
+    name: "{{ item.value.name }}"
+    description: "CIS Apache HTTP Server 2.4 benchmark recommendation {{ item.value.cis }}. Without the directive httpd uses {{ item.value.default }}."
+    tags: [cis, cis-apache24, cis-section-9, cis-level-1, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -t'
+    loop:
+      Timeout: { cis: "9.1", name: The request timeout is 10 seconds or less, default: 60, expect: "<= 10" }
+      KeepAlive: { cis: "9.2", name: Persistent connections are enabled, default: "on", expect: "== on" }
+      MaxKeepAliveRequests: { cis: "9.3", name: A persistent connection serves at least 100 requests, default: 100, expect: ">= 100" }
+      KeepAliveTimeout: { cis: "9.4", name: Idle persistent connections close within 15 seconds, default: 5, expect: "<= 15" }
+    run: |
+      v=$({{ conf }} | awk 'tolower($1) == tolower("{{ item.key }}") {v = tolower($2)} END {print v}')
+      # 0 means unlimited for LimitRequestBody
+      if [ "{{ item.key }}" = LimitRequestBody ] && [ "$v" = 0 ]; then v=1073741824; fi
+      echo "${v:-{{ item.value.default }}}"
+    expect: "{{ item.value.expect }}"
+
+
+  - id: "CIS-APACHE-{{ item.value.cis }}-{{ item.key | lower }}"
+    name: "{{ item.value.name }}"
+    description: "CIS Apache HTTP Server 2.4 benchmark recommendation {{ item.value.cis }}. Without the directive httpd uses {{ item.value.default }}."
+    tags: [cis, cis-apache24, cis-section-10, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -t'
+    loop:
+      LimitRequestLine: { cis: "10.1", name: The request line is limited to 512 bytes, default: 8190, expect: "<= 512" }
+      LimitRequestFields: { cis: "10.2", name: A request has at most 100 header fields, default: 100, expect: "<= 100" }
+      LimitRequestFieldSize: { cis: "10.3", name: A header field is limited to 1024 bytes, default: 8190, expect: "<= 1024" }
+      LimitRequestBody: { cis: "10.4", name: The request body is limited to 100 KB, default: "1073741824", expect: "<= 102400" }
+    run: |
+      v=$({{ conf }} | awk 'tolower($1) == tolower("{{ item.key }}") {v = tolower($2)} END {print v}')
+      # 0 means unlimited for LimitRequestBody
+      if [ "{{ item.key }}" = LimitRequestBody ] && [ "$v" = 0 ]; then v=1073741824; fi
+      echo "${v:-{{ item.value.default }}}"
+    expect: "{{ item.value.expect }}"
+
+  - id: CIS-APACHE-9.5-request-read-timeout
+    name: Slow requests are cut off by mod_reqtimeout
+    description: CIS Apache HTTP Server 2.4 benchmark recommendations 9.5 and 9.6.
+    tags: [cis, cis-apache24, cis-section-9, cis-level-1, cis-level-2]
+    severity: low
+    only_if: '{{ httpd }} -t'
+    run: '{{ httpd }} -M 2>/dev/null'
+    expect: { some: "~ ^[[:space:]]*reqtimeout_module[[:space:]]" }
+
+  # 11 SELinux (RHEL-like systems)
+
+  - id: CIS-APACHE-11.1-selinux-enforcing
+    name: SELinux is enforcing
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 11.1.
+    tags: [cis, cis-apache24, cis-section-11, cis-level-2]
+    severity: low
+    when: 'facts.distro in ["rhel", "centos", "rocky", "almalinux", "ol", "fedora"] or "rhel" in facts.distro_like'
+    only_if: '{{ httpd }} -t'
+    run: getenforce 2>/dev/null || echo "SELinux not available"
+    expect: "== Enforcing"
+
+  - id: CIS-APACHE-11.2-httpd-confined
+    name: httpd processes run in the httpd_t domain
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 11.2.
+    tags: [cis, cis-apache24, cis-section-11, cis-level-2]
+    severity: low
+    when: 'facts.distro in ["rhel", "centos", "rocky", "almalinux", "ol", "fedora"] or "rhel" in facts.distro_like'
+    only_if: '{{ httpd }} -t && pgrep -x httpd'
+    run: ps -eZ | awk '$NF == "httpd" {print $1}'
+    expect:
+      - "!empty"
+      - each: "~ :httpd_t:"
+
+  - id: CIS-APACHE-11.3-httpd-not-permissive
+    name: The httpd_t domain is not permissive
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 11.3.
+    tags: [cis, cis-apache24, cis-section-11, cis-level-2]
+    severity: low
+    when: 'facts.distro in ["rhel", "centos", "rocky", "almalinux", "ol", "fedora"] or "rhel" in facts.distro_like'
+    only_if: '{{ httpd }} -t && command -v semodule'
+    run: semodule -l 2>/dev/null | grep -i permissive_httpd_t || true
+    expect: empty
+
+  # 12 AppArmor (Debian and Ubuntu)
+
+  - id: CIS-APACHE-12.1-apparmor-enabled
+    name: AppArmor is enabled
+    description: CIS Apache HTTP Server 2.4 benchmark recommendation 12.1.
+    tags: [cis, cis-apache24, cis-section-12, cis-level-2]
+    severity: low
+    when: 'facts.distro in ["debian", "ubuntu"] or "debian" in facts.distro_like'
+    only_if: '{{ httpd }} -t'
+    run: cat /sys/module/apparmor/parameters/enabled 2>/dev/null || echo N
+    expect: "== Y"
+
+  - id: CIS-APACHE-12.3-apparmor-enforce
+    name: An AppArmor profile for apache2 is in enforce mode
+    description: CIS Apache HTTP Server 2.4 benchmark recommendations 12.2 and 12.3.
+    tags: [cis, cis-apache24, cis-section-12, cis-level-2]
+    severity: low
+    when: 'facts.distro in ["debian", "ubuntu"] or "debian" in facts.distro_like'
+    only_if: '{{ httpd }} -t && command -v aa-status'
+    run: aa-status 2>/dev/null | sed -n '/profiles are in enforce mode/,/profiles are in complain mode/p' | grep -c apache2 || true
+    expect: "> 0"

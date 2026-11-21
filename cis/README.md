@@ -17,6 +17,7 @@ converters and run `make cis-import`.
 | `amazon2.yml`, `amazon2023.yml` | Amazon Linux 2 and 2023 |
 | `macos14.yml`, `macos15.yml`, `macos26.yml` | Apple macOS 14 Sonoma, 15 Sequoia, 26 Tahoe (run with `sudo`) |
 | `postgresql.yml` | PostgreSQL 12 and later, written by hand (run with `sudo`) |
+| `apache.yml` | Apache HTTP Server 2.4 on RHEL-like systems and Debian/Ubuntu, written by hand (run with `sudo`) |
 
 Each policy only runs on its own platform (`defaults.when`).
 
@@ -41,6 +42,13 @@ server with psql (`SHOW`, `pg_settings`, `pg_hba_file_rules`), so values from
 `postgresql.conf`, `postgresql.auto.conf` and `ALTER SYSTEM` all count. If
 psql cannot connect as postgres over the local socket, the first check is an
 ERROR and the others are skipped.
+
+`apache.yml` is not generated either. It takes the list of configuration files
+from `httpd -t -D DUMP_INCLUDES` (`apache2ctl` on Debian and SUSE; on RHEL 8 and
+later `apachectl` no longer passes options to httpd), so only files httpd really
+reads count. If the configuration is invalid, the first check fails and the
+others are skipped. A missing `SSLProtocol` is accepted on systems with a
+crypto policy other than LEGACY, which already limits OpenSSL to TLS 1.2.
 
 ```bash
 checkmate run cis/rhel9.yml --tags cis-level1-server

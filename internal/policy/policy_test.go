@@ -225,3 +225,37 @@ checks:
 		t.Errorf("ids = %s", got)
 	}
 }
+
+func TestYAMLAliasesAreRendered(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "p.yml")
+	data := `name: aliases
+vars:
+  greeting: hello
+checks:
+  - id: A
+    name: anchor
+    run: &cmd echo {{ greeting }}
+    expect: "== hello"
+  - id: B
+    name: alias
+    run: *cmd
+    expect: "== hello"
+`
+	if err := os.WriteFile(path, []byte(data), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	p, err := Load(path, LoadOptions{AllowInsecure: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	checks, errs := Expand(p, linuxFacts, nil)
+	if len(errs) > 0 {
+		t.Fatal(errs)
+	}
+	for _, c := range checks {
+		if cmd := c.Run.Command; cmd != "echo hello" {
+			t.Errorf("%s: run = %q, want %q", c.ID, cmd, "echo hello")
+		}
+	}
+}
