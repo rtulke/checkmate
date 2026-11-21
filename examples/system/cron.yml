@@ -23,6 +23,10 @@ vars:
     - motd-news.timer
     - dpkg-db-backup.timer
 
+defaults:
+  # Shell commands for Unix-like systems.
+  when: facts.os != "windows"
+
 checks:
   - id: CRON-001
     name: cron files are owned by root and not writable by others

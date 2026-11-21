@@ -5,6 +5,7 @@ PLATFORMS := linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 win
 .PHONY: build test lint docs docs-serve dist test-linux test-cis cis-import stig-import clean
 
 CIS_BENCHMARKS := rhel7 rhel8 rhel9 rhel10 debian11 debian12 debian13 ubuntu18 ubuntu20 ubuntu22 ubuntu24 ubuntu26 suse15 suse16 amazon2 amazon2023 amazon2027
+CIS_WINDOWS := win11:Windows-11 win2019:Windows-2019 win2022:Windows-2022 win2025:Windows-2025
 STIG_BENCHMARKS := rhel7 rhel8 rhel9 rhel10 ubuntu22 ubuntu24 amazon2023
 CIS_CACHE := .cache/cis
 
@@ -47,6 +48,13 @@ test-linux:
 cis-import:
 	@for b in $(CIS_BENCHMARKS); do \
 		repo=$$(echo $$b | tr a-z A-Z)-CIS-Audit; \
+		branch=$$(gh api repos/ansible-lockdown/$$repo -q .default_branch); \
+		mkdir -p $(CIS_CACHE)/$$b; \
+		gh api repos/ansible-lockdown/$$repo/tarball/$$branch | tar xzf - -C $(CIS_CACHE)/$$b --strip-components=1; \
+		go run ./tools/cis-import -src $(CIS_CACHE)/$$b -bench $$b -out cis/$$b.yml || exit 1; \
+	done
+	@for w in $(CIS_WINDOWS); do \
+		b=$${w%%:*}; repo=$${w#*:}-CIS-Audit; \
 		branch=$$(gh api repos/ansible-lockdown/$$repo -q .default_branch); \
 		mkdir -p $(CIS_CACHE)/$$b; \
 		gh api repos/ansible-lockdown/$$repo/tarball/$$branch | tar xzf - -C $(CIS_CACHE)/$$b --strip-components=1; \

@@ -6,7 +6,7 @@ deviations go into a [waiver file](reference/waivers.md).
 
 | Standard | Platforms | Policies | Select with |
 |---|---|---|---|
-| [CIS Benchmarks](cis/index.md) | 17 Linux distributions, macOS 14/15/26, PostgreSQL, Apache httpd | `cis/*.yml` | `cis-level-1`, `cis-level-2`, `cis-level1-server`, … |
+| [CIS Benchmarks](cis/index.md) | 17 Linux distributions, Windows 11, Windows Server 2019/2022/2025, macOS 14/15/26, PostgreSQL, Apache httpd | `cis/*.yml` | `cis-level-1`, `cis-level-2`, `cis-level1-server`, … |
 | [DISA STIG](stig/index.md) | RHEL 7–10, Ubuntu 22.04/24.04, Amazon Linux 2023 | `stig/*.yml` | `stig-cat-1`, `stig-cat-2`, `stig-cat-3` |
 | [BSI IT-Grundschutz](examples/compliance/bsi-grundschutz.md) | Linux servers (SYS.1.1, SYS.1.3) | `examples/compliance/bsi-grundschutz.yml` | `bsi-basis`, `bsi-standard`, `bsi-hoch` |
 | [Si001 IT-Grundschutz Bund (CH)](examples/compliance/si001.md) | Linux servers and clients, macOS and Windows clients | `examples/compliance/si001.yml` | `-e si001_schutzbedarf=erhoeht`, `-e si001_rolle=client` |

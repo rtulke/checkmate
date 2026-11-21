@@ -12,6 +12,10 @@ snippets:
   # Runs the SQL in {{ arg }} and prints the bare result.
   sql: mysql --batch --skip-column-names -e "{{ arg }}"
 
+defaults:
+  # Shell commands for Unix-like systems.
+  when: facts.os != "windows"
+
 checks:
   - id: MYSQL-001
     name: The server answers

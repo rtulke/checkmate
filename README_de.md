@@ -145,7 +145,7 @@ Fast 50 getestete Policies mit über 750 Checks, gegliedert wie die Dokumentatio
 Jedes Beispiel wird für jede Plattform validiert und syntaktisch geprüft. In der CI läuft es außerdem echt auf Rocky Linux 8/9, Debian 12, Ubuntu 24.04, openSUSE Leap und Alpine.
 
 Fertige Sicherheitsstandards: [CIS Benchmarks](cis/) für 17 Linux-Distributionen,
-macOS, PostgreSQL und Apache, [DISA STIGs](stig/), BSI IT-Grundschutz und
+Windows 11 und Server 2019/2022/2025, macOS, PostgreSQL und Apache, [DISA STIGs](stig/), BSI IT-Grundschutz und
 Si001 (Schweiz). Siehe die
 [Übersicht](https://rtulke.github.io/checkmate/standards/).
 

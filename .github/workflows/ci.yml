@@ -53,3 +53,26 @@ jobs:
         run: test/linux/cis-postgres.sh
       - name: Run the Apache policy against hardened servers
         run: test/linux/cis-apache.sh
+
+  windows-cis:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            policy: cis/win2022.yml
+          - os: windows-2025
+            policy: cis/win2025.yml
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Run the CIS policy of the runner's Windows version
+        shell: pwsh
+        run: |
+          go build -o checkmate.exe ./cmd/checkmate
+          ./checkmate.exe facts
+          ./checkmate.exe run ${{ matrix.policy }} -q --format json --json-out report.json | Out-Null
+          python test/windows/analyze.py report.json

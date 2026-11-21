@@ -16,6 +16,10 @@ snippets:
     {{ args.script }}
     REMOTE
 
+defaults:
+  # Shell commands for Unix-like systems.
+  when: facts.os != "windows"
+
 checks:
   - id: "REMOTE-ROOTLOGIN-{{ item }}"
     name: "{{ item }}: root login over SSH is disabled"

@@ -45,6 +45,10 @@ description: >
   sudo configuration: syntax, file permissions, dangerous rules, logging
   and an allowlist of approved sudoers files by SHA-256 checksum.
 
+defaults:
+  # Shell commands for Unix-like systems.
+  when: facts.os != "windows"
+
 checks:
   - id: SUDO-001
     name: sudoers syntax is valid

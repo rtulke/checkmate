@@ -61,6 +61,11 @@ var benchmarks = map[string]benchmark{
 	"amazon2027": {"amazon2027", "Amazon Linux 2027", "AMAZON2027-CIS-Audit", `facts.distro == "amzn" and facts.version_major == 2027`, "rpm"},
 	"ubuntu18":   {"ubuntu18", "Ubuntu 18.04 LTS", "UBUNTU18-CIS-Audit", `facts.distro == "ubuntu" and facts.version_major == 18`, "dpkg"},
 
+	"win11":   {"win11", "Microsoft Windows 11 Enterprise", "Windows-11-CIS-Audit", windowsWhen("Windows 11"), "windows"},
+	"win2019": {"win2019", "Microsoft Windows Server 2019", "Windows-2019-CIS-Audit", windowsWhen("Windows Server 2019"), "windows"},
+	"win2022": {"win2022", "Microsoft Windows Server 2022", "Windows-2022-CIS-Audit", windowsWhen("Windows Server 2022"), "windows"},
+	"win2025": {"win2025", "Microsoft Windows Server 2025", "Windows-2025-CIS-Audit", windowsWhen("Windows Server 2025"), "windows"},
+
 	"rhel7-stig":      {"rhel7-stig", "Red Hat Enterprise Linux 7", "RHEL7-STIG-Audit", rhelWhen(7), "rpm"},
 	"rhel8-stig":      {"rhel8-stig", "Red Hat Enterprise Linux 8", "RHEL8-STIG-Audit", rhelWhen(8), "rpm"},
 	"rhel9-stig":      {"rhel9-stig", "Red Hat Enterprise Linux 9", "RHEL9-STIG-Audit", rhelWhen(9), "rpm"},
@@ -91,6 +96,7 @@ type check struct {
 	Timeout     string
 	As          string
 	OnlyIf      string
+	When        []string
 }
 
 // ruleMeta is the meta block of a goss resource.
@@ -98,8 +104,13 @@ type ruleMeta struct {
 	CISID       string // CIS recommendation number, or the STIG ID
 	Server      int
 	Workstation int
-	NIST        []string
-	Controls    []string
+	// Windows server profiles and the Windows 11 BitLocker profile
+	MemberServer     int
+	DomainController int
+	BitLocker        int
+	DomainScoped     bool
+	NIST             []string
+	Controls         []string
 	// STIG only
 	Cat     int
 	VulID   string
@@ -158,65 +169,131 @@ func convert(src string, b benchmark, out string) (stats, error) {
 		return st, err
 	}
 	sort.Slice(files, func(i, j int) bool { return naturalLess(files[i], files[j]) })
+	kinds := []string{"kernel-param", "mount", "package", "service", "file", "command", "user", "group"}
+	if b.windows() {
+		if err := loadWindowsTargets(src); err != nil {
+			return st, err
+		}
+		kinds = []string{"registry", "file", "command"}
+	}
+
+	// Windows server audits render differently per system role. Every role
+	// is rendered and the results are merged; checks that exist only for
+	// some roles get a condition on cis_windows_role.
+	roleKey := ""
+	for k := range vars {
+		if strings.HasSuffix(k, "_system_role") {
+			roleKey = k
+		}
+	}
+	roles := []string{""}
+	if b.windows() && roleKey != "" {
+		roles = []string{"standalone", "memberserver", "domaincontroller"}
+	}
+	roleRendering = len(roles) > 1
+	type entry struct {
+		c     check
+		roles []string
+	}
+	var entries []*entry
+	bySignature := map[string]*entry{}
 
 	var checks []check
 	rules := map[string]bool{}
 	seen := map[string]int{}
-	for _, f := range files {
-		st.files++
-		rendered, err := render(f, vars)
-		if err != nil {
-			return st, fmt.Errorf("%s: %w", f, err)
+	for ri, role := range roles {
+		if role != "" {
+			vars[roleKey] = role
 		}
-		doc, err := decodeResources(rendered)
-		if err != nil {
-			return st, fmt.Errorf("%s: %w", f, err)
-		}
-		for _, kind := range []string{"kernel-param", "mount", "package", "service", "file", "command", "user", "group"} {
-			resources := doc[kind]
-			for _, name := range sortedKeys(resources) {
-				attrs := resources[name]
-				if truthy(attrs["skip"]) {
-					st.skipped++
-					continue
-				}
-				meta := parseMeta(attrs["meta"])
-				if meta.CISID == "" {
-					meta.CISID = cisIDFromPath(f)
-				}
-				if b.stig() {
-					meta.Title, meta.Qualify = stigTitle(str(attrs["title"]))
-					if meta.Cat == 0 {
-						meta.Cat = catFromPath(f)
-					}
-				}
-				generated := convertResource(b, kind, name, attrs, meta)
-				if len(generated) == 0 {
-					st.skipped++
-					continue
-				}
-				// Commands that are not valid shell code upstream are left out
-				// and reported, instead of producing a check that always errors.
-				valid := generated[:0]
-				for _, c := range generated {
-					if err := shellSyntax(c.Run); err != nil {
-						fmt.Fprintf(os.Stderr, "  skipped %s (%s): invalid shell syntax: %v\n", c.ID, filepath.Base(f), err)
+		for _, f := range files {
+			if ri == 0 {
+				st.files++
+			}
+			rendered, err := render(f, vars)
+			if err != nil {
+				return st, fmt.Errorf("%s: %w", f, err)
+			}
+			doc, err := decodeResources(rendered)
+			if err != nil {
+				return st, fmt.Errorf("%s: %w", f, err)
+			}
+			for _, kind := range kinds {
+				resources := doc[kind]
+				for _, name := range sortedKeys(resources) {
+					attrs := resources[name]
+					if truthy(attrs["skip"]) {
+						if ri > 0 {
+							continue
+						}
+						reason := ""
+						if m, ok := attrs["meta"].(map[string]any); ok {
+							reason = str(m["skip_reason"])
+						}
+						fmt.Fprintf(os.Stderr, "  skipped %s (%s): upstream skip %s\n", name, filepath.Base(f), firstLine(reason, 100))
 						st.skipped++
 						continue
 					}
-					valid = append(valid, c)
-				}
-				generated = valid
-				if len(generated) == 0 {
-					continue
-				}
-				rules[meta.CISID] = true
-				for _, c := range generated {
-					c.ID = uniqueID(seen, c.ID)
-					checks = append(checks, c)
+					meta := parseMeta(attrs["meta"])
+					if meta.CISID == "" {
+						meta.CISID = cisIDFromPath(f)
+					}
+					if b.stig() {
+						meta.Title, meta.Qualify = stigTitle(str(attrs["title"]))
+						if meta.Cat == 0 {
+							meta.Cat = catFromPath(f)
+						}
+					}
+					generated := convertResource(b, kind, name, attrs, meta)
+					if len(generated) == 0 {
+						if ri == 0 {
+							st.skipped++
+						}
+						continue
+					}
+					// Commands that are not valid shell code upstream are left out
+					// and reported, instead of producing a check that always errors.
+					valid := generated[:0]
+					for _, c := range generated {
+						if b.windows() {
+							valid = append(valid, c)
+							continue
+						}
+						if err := shellSyntax(c.Run); err != nil {
+							fmt.Fprintf(os.Stderr, "  skipped %s (%s): invalid shell syntax: %v\n", c.ID, filepath.Base(f), err)
+							st.skipped++
+							continue
+						}
+						valid = append(valid, c)
+					}
+					generated = valid
+					if len(generated) == 0 {
+						continue
+					}
+					rules[meta.CISID] = true
+					for _, c := range generated {
+						sig := c.ID + "\x00" + c.Run + "\x00" + strings.Join(c.Expect, "\x00") + "\x00" + strings.Join(c.When, "\x00")
+						if e := bySignature[sig]; e != nil {
+							e.roles = append(e.roles, role)
+							continue
+						}
+						e := &entry{c: c, roles: []string{role}}
+						bySignature[sig] = e
+						entries = append(entries, e)
+					}
 				}
 			}
 		}
+	}
+	for _, e := range entries {
+		c := e.c
+		if len(e.roles) < len(roles) {
+			c.When = append(c.When, windowsRoleCondition(e.roles))
+		}
+		if _, taken := seen[c.ID]; taken && len(e.roles) == 1 {
+			c.ID += "-" + windowsRoleNames[e.roles[0]]
+		}
+		c.ID = uniqueID(seen, c.ID)
+		checks = append(checks, c)
 	}
 	st.rules = len(rules)
 	st.checks = len(checks)
@@ -247,6 +324,19 @@ func loadVars(src string) (map[string]any, string, error) {
 		}
 	}
 	vars["run_heavy_tests"] = true
+	for k := range vars {
+		if strings.HasSuffix(k, "_snapshot_dir") {
+			vars[k] = snapshotSentinel
+		}
+		// Domain-scoped Windows rules are generated and get a when on
+		// cis_windows_domain_joined instead of being skipped.
+		if strings.HasSuffix(k, "_domain_joined") {
+			vars[k] = false
+		}
+		if strings.HasSuffix(k, "_system_role") {
+			vars[k] = "standalone"
+		}
+	}
 	version := strings.TrimPrefix(fmt.Sprint(vars["benchmark_version"]), "v")
 	return vars, version, nil
 }
@@ -404,7 +494,13 @@ func render(path string, vars map[string]any) ([]byte, error) {
 
 // convertResource translates one goss resource.
 func convertResource(b benchmark, kind, name string, attrs map[string]any, m ruleMeta) []check {
-	id := fmt.Sprintf("CIS-%s-%s-%s", strings.ToUpper(b.Key), m.CISID, sanitize(name))
+	idName := name
+	if b.windows() && kind == "registry" {
+		idName = name[strings.LastIndex(name, `\`)+1:]
+	} else if b.windows() {
+		idName = winRuleName.ReplaceAllString(name, "")
+	}
+	id := fmt.Sprintf("CIS-%s-%s-%s", strings.ToUpper(b.Key), m.CISID, sanitize(idName))
 	if b.stig() {
 		id = fmt.Sprintf("STIG-%s-%s", m.CISID, sanitize(name))
 	}
@@ -416,6 +512,9 @@ func convertResource(b benchmark, kind, name string, attrs map[string]any, m rul
 	}
 	if t, ok := attrs["timeout"]; ok {
 		base.Timeout = fmt.Sprintf("%vms", t)
+	}
+	if b.windows() && !roleRendering && m.DomainScoped {
+		base.When = append(base.When, "not cis_windows_domain_joined")
 	}
 	generated := convertKind(b, kind, name, attrs, base)
 	if b.stig() && m.Title != "" {
@@ -435,6 +534,17 @@ func convertResource(b benchmark, kind, name string, attrs map[string]any, m rul
 }
 
 func convertKind(b benchmark, kind, name string, attrs map[string]any, base check) []check {
+	if b.windows() {
+		switch kind {
+		case "registry":
+			return winRegistryCheck(base, name, attrs)
+		case "file":
+			return winFileCheck(base, attrs)
+		case "command":
+			return winCommandCheck(base, name, attrs)
+		}
+		return nil
+	}
 	switch kind {
 	case "command":
 		return commandCheck(base, name, attrs)
@@ -867,6 +977,10 @@ func parseMeta(v any) ruleMeta {
 	m.CCI = stringList(meta["CCI"])
 	m.NISTR4 = stringList(meta["NIST800-53R4"])
 	m.Server = intValue(meta["server"])
+	m.MemberServer = intValue(meta["memberserver"])
+	m.DomainController = intValue(meta["domaincontroller"])
+	m.BitLocker = intValue(meta["bitlocker"])
+	m.DomainScoped = strings.HasPrefix(str(meta["skip_reason"]), "domain scoped")
 	m.Workstation = intValue(meta["workstation"])
 	m.NIST = stringList(meta["NIST800-53R5"])
 	m.Controls = stringList(meta["CISv8"])
@@ -874,6 +988,9 @@ func parseMeta(v any) ruleMeta {
 }
 
 func tags(b benchmark, m ruleMeta) []string {
+	if b.windows() {
+		return windowsTags(b, m)
+	}
 	if b.stig() {
 		t := []string{"stig", "stig-" + b.platform()}
 		if m.Cat >= 1 && m.Cat <= 3 {
@@ -913,6 +1030,12 @@ func tags(b benchmark, m ruleMeta) []string {
 }
 
 func severity(m ruleMeta) string {
+	if lvl := windowsLevel(m); lvl > 0 && (m.MemberServer != 0 || m.DomainController != 0 || m.BitLocker != 0) {
+		if lvl == 1 {
+			return "medium"
+		}
+		return "low"
+	}
 	switch m.Cat {
 	case 1:
 		return "high"
@@ -1069,7 +1192,22 @@ func writePolicy(path string, b benchmark, version string, checks []check, rules
 	fmt.Fprintf(&w, "  (version %s), converted from the goss audit content of the\n", version)
 	fmt.Fprintf(&w, "  ansible-lockdown project. Check names describe what is verified; the\n")
 	fmt.Fprintf(&w, "  recommendation number is in the ID and the description. Select profiles\n")
-	fmt.Fprintf(&w, "  with tags, e.g. `--tags cis-level-1+cis-server`.\n\n")
+	if b.windows() {
+		fmt.Fprintf(&w, "  with tags, e.g. `--tags cis-level1-member-server`. Run elevated (as\n")
+		fmt.Fprintf(&w, "  administrator). Every check collects its own value (registry, secedit,\n")
+		fmt.Fprintf(&w, "  auditpol, services, firewall). Set `-e cis_windows_role=dc` on domain\n")
+		if roleRendering {
+			fmt.Fprintf(&w, "  controllers and `-e cis_windows_role=standalone` on servers that are not\n")
+			fmt.Fprintf(&w, "  domain members (adds the password and lockout rules the domain sets).\n\n")
+			fmt.Fprintf(&w, "vars:\n  # standalone, member (domain member server) or dc (domain controller)\n  cis_windows_role: member\n\n")
+		} else {
+			fmt.Fprintf(&w, "  controllers. On domain members set `-e cis_windows_domain_joined=true`;\n")
+			fmt.Fprintf(&w, "  the domain policy then sets password and lockout settings.\n\n")
+			fmt.Fprintf(&w, "vars:\n  # true skips password and lockout rules that the domain policy sets\n  cis_windows_domain_joined: false\n\n")
+		}
+	} else {
+		fmt.Fprintf(&w, "  with tags, e.g. `--tags cis-level-1+cis-server`.\n\n")
+	}
 	return writeChecks(&w, path, b, checks)
 }
 
@@ -1083,6 +1221,14 @@ func writeChecks(w *bytes.Buffer, path string, b benchmark, checks []check) erro
 		fmt.Fprintf(w, "    severity: %s\n", c.Severity)
 		if c.Timeout != "" {
 			fmt.Fprintf(w, "    timeout: %s\n", c.Timeout)
+		}
+		if len(c.When) == 1 {
+			fmt.Fprintf(w, "    when: %s\n", yamlString(c.When[0]))
+		} else if len(c.When) > 1 {
+			w.WriteString("    when:\n")
+			for _, cond := range c.When {
+				fmt.Fprintf(w, "      - %s\n", yamlString(cond))
+			}
 		}
 		if c.OnlyIf != "" {
 			fmt.Fprintf(w, "    only_if: %s\n", yamlString(c.OnlyIf))
@@ -1304,4 +1450,65 @@ func catFromPath(p string) int {
 		return n
 	}
 	return 0
+}
+
+var winRuleName = regexp.MustCompile(`^[a-z0-9]+cis_([0-9]+_)+`)
+
+func windowsWhen(product string) string {
+	return fmt.Sprintf(`facts.os == "windows" and facts.distro_name == "%s"`, product)
+}
+
+// windowsLevel is the lowest CIS level of any profile the rule belongs to.
+func windowsLevel(m ruleMeta) int {
+	level := 0
+	for _, l := range []int{m.Workstation, m.Server, m.MemberServer, m.DomainController, m.BitLocker} {
+		if l != 0 && (level == 0 || l < level) {
+			level = l
+		}
+	}
+	return level
+}
+
+func windowsTags(b benchmark, m ruleMeta) []string {
+	t := []string{"cis", "cis-" + b.Key}
+	if section := strings.SplitN(m.CISID, ".", 2)[0]; section != "" {
+		t = append(t, "cis-section-"+section)
+	}
+	switch windowsLevel(m) {
+	case 1:
+		t = append(t, "cis-level-1", "cis-level-2")
+	case 2:
+		t = append(t, "cis-level-2")
+	}
+	profile := func(level int, name string) {
+		if level == 0 {
+			return
+		}
+		t = append(t, "cis-"+name)
+		if level == 1 {
+			t = append(t, "cis-level1-"+name)
+		}
+		t = append(t, "cis-level2-"+name)
+	}
+	profile(m.Workstation, "workstation")
+	profile(m.MemberServer, "member-server")
+	profile(m.DomainController, "domain-controller")
+	if m.BitLocker != 0 {
+		t = append(t, "cis-bitlocker")
+	}
+	return t
+}
+
+// roleRendering is set while converting a Windows server audit.
+var roleRendering bool
+
+// windowsRoleNames maps upstream system roles to values of cis_windows_role.
+var windowsRoleNames = map[string]string{"standalone": "standalone", "memberserver": "member", "domaincontroller": "dc"}
+
+func windowsRoleCondition(roles []string) string {
+	var names []string
+	for _, r := range roles {
+		names = append(names, `"`+windowsRoleNames[r]+`"`)
+	}
+	return "cis_windows_role in [" + strings.Join(names, ", ") + "]"
 }

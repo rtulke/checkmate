@@ -15,6 +15,7 @@ converters and run `make cis-import`.
 | `ubuntu18.yml` – `ubuntu26.yml` | Ubuntu 18.04, 20.04, 22.04, 24.04, 26.04 LTS |
 | `suse15.yml`, `suse16.yml` | SUSE Linux Enterprise / openSUSE Leap 15 and 16 |
 | `amazon2.yml`, `amazon2023.yml`, `amazon2027.yml` | Amazon Linux 2, 2023 and 2027 |
+| `win11.yml`, `win2019.yml`, `win2022.yml`, `win2025.yml` | Windows 11 Enterprise, Windows Server 2019, 2022, 2025 (run elevated) |
 | `macos14.yml`, `macos15.yml`, `macos26.yml` | Apple macOS 14 Sonoma, 15 Sequoia, 26 Tahoe (run with `sudo`) |
 | `postgresql.yml` | PostgreSQL 12 and later, written by hand (run with `sudo`) |
 | `apache.yml` | Apache HTTP Server 2.4 on RHEL-like systems and Debian/Ubuntu, written by hand (run with `sudo`) |
@@ -75,6 +76,18 @@ check script and expected result; organization-defined values use the CIS
 value. Many of them read managed preferences, so on a Mac without a
 configuration profile (MDM) they fail even if the setting was made by hand,
 exactly as in mSCP. Rules without an automated check are left out.
+
+For Windows, the upstream audits read most values from one shared snapshot
+(one secedit export, one auditpol call, ...) written before the checks run.
+checkmate checks stay independent: every generated check collects its own
+value (registry value, secedit setting, user right, audit subcategory,
+service start type, firewall profile, per-user policy) with the same logic as
+the upstream collector. The server audits render differently per system role,
+so they are rendered for every role and merged; role-specific checks depend on
+`cis_windows_role` (`member` by default, `standalone` or `dc`). Windows 11
+uses `cis_windows_domain_joined` for the password and lockout rules a domain
+policy sets. The Server 2016 audit is not converted: it depends on
+pre-generated gpresult and audit files.
 
 Deviations from the Ansible Lockdown content, each applied deliberately:
 

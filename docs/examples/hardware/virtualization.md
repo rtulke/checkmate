@@ -49,6 +49,10 @@ description: >
 vars:
   allowed_platforms: [vmware, kvm, qemu, microsoft, xen, amazon, none]
 
+defaults:
+  # Shell commands for Unix-like systems.
+  when: facts.os != "windows"
+
 checks:
   - id: VIRT-001
     name: Runs on an approved platform

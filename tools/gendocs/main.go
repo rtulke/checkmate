@@ -165,7 +165,14 @@ func writeCISPages() ([]cisPage, error) {
 		var b bytes.Buffer
 		fmt.Fprintf(&b, "# %s\n\n%s\n\n", p.Name, strings.TrimSpace(p.Description))
 		fmt.Fprintf(&b, "**Policy:** [`%s`](%s/blob/main/%s) · **Benchmark version:** %s\n\n", f, repoURL, f, p.Version)
-		if key == "apache" {
+		if strings.HasPrefix(key, "win") {
+			fmt.Fprintf(&b, "Run in an elevated PowerShell (as administrator). Every check collects its own value:\n\n")
+			if key == "win11" {
+				fmt.Fprintf(&b, "```powershell\ncheckmate run %s --tags cis-level1-workstation\ncheckmate run %s --tags cis-level-2 -e cis_windows_domain_joined=true\n```\n\n", f, f)
+			} else {
+				fmt.Fprintf(&b, "```powershell\ncheckmate run %s --tags cis-level1-member-server\ncheckmate run %s --tags cis-level1-domain-controller -e cis_windows_role=dc\ncheckmate run %s -e cis_windows_role=standalone\n```\n\n", f, f, f)
+			}
+		} else if key == "apache" {
 			fmt.Fprintf(&b, "Runs as root and reads the configuration the way httpd sees it (`httpd -t -D DUMP_INCLUDES`, `-S`, `-M`):\n\n")
 			fmt.Fprintf(&b, "```bash\nsudo checkmate run %s --tags cis-level-1\nsudo checkmate run %s --tags cis-level-2 -v\n```\n\n", f, f)
 		} else if key == "postgresql" {
@@ -225,7 +232,7 @@ func writeCISPages() ([]cisPage, error) {
 
 	var idx bytes.Buffer
 	idx.WriteString("# CIS benchmarks\n\n")
-	idx.WriteString("Automated checks for the CIS benchmarks of 17 Linux platforms, macOS, PostgreSQL and Apache httpd. The Linux policies are generated\n")
+	idx.WriteString("Automated checks for the CIS benchmarks of 17 Linux platforms, Windows 11 and Windows Server 2019/2022/2025, macOS, PostgreSQL and Apache httpd. The Linux policies are generated\n")
 	idx.WriteString("from the goss audit content of [Ansible Lockdown](https://github.com/ansible-lockdown) (MIT license), the macOS\n")
 	idx.WriteString("policies from the [macOS Security Compliance Project](https://github.com/usnistgov/macos_security) (CC BY 4.0).\n")
 	idx.WriteString("The recommendation number is part of the ID. The policies contain no benchmark text.\n\n")

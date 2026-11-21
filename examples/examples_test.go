@@ -6,6 +6,7 @@
 package examples
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -41,6 +42,11 @@ var platforms = map[string]facts.Facts{
 	"amzn2023": {OS: "linux", Distro: "amzn", DistroLike: []string{"fedora"}, Version: "2023", VersionMajor: 2023, IsRoot: true},
 	"amzn2027": {OS: "linux", Distro: "amzn", DistroLike: []string{"fedora"}, Version: "2027", VersionMajor: 2027, IsRoot: true},
 	"ubuntu18": {OS: "linux", Distro: "ubuntu", DistroLike: []string{"debian"}, Version: "18.04", VersionMajor: 18, IsRoot: true},
+	// Targets of the Windows CIS benchmarks.
+	"win11":   {OS: "windows", Distro: "windows", DistroName: "Windows 11", Version: "10.0.26100", VersionMajor: 10, IsRoot: true},
+	"win2019": {OS: "windows", Distro: "windows", DistroName: "Windows Server 2019", Version: "10.0.17763", VersionMajor: 10, IsRoot: true},
+	"win2022": {OS: "windows", Distro: "windows", DistroName: "Windows Server 2022", Version: "10.0.20348", VersionMajor: 10, IsRoot: true},
+	"win2025": {OS: "windows", Distro: "windows", DistroName: "Windows Server 2025", Version: "10.0.26100", VersionMajor: 10, IsRoot: true},
 }
 
 func policyFiles(t *testing.T) []string {
@@ -175,4 +181,84 @@ func TestExampleCommandsParse(t *testing.T) {
 		}
 	}
 	t.Logf("checked %d rendered commands", checked)
+}
+
+// TestPowerShellCommandsParse parses every rendered Windows command with the
+// PowerShell parser. It needs pwsh or powershell; without one, setting
+// CHECKMATE_PS_DUMP=<dir> writes the commands to files for parsing elsewhere
+// (e.g. in a PowerShell container).
+func TestPowerShellCommandsParse(t *testing.T) {
+	shell := ""
+	for _, s := range []string{"pwsh", "powershell"} {
+		if _, err := exec.LookPath(s); err == nil {
+			shell = s
+			break
+		}
+	}
+	dump := os.Getenv("CHECKMATE_PS_DUMP")
+	if shell == "" && dump == "" {
+		t.Skip("neither pwsh nor powershell available")
+	}
+	dir := dump
+	if dir == "" {
+		dir = t.TempDir()
+	}
+	seen := map[string]bool{}
+	n := 0
+	for _, file := range policyFiles(t) {
+		p, err := policy.Load(file, policy.LoadOptions{AllowInsecure: true})
+		if err != nil {
+			t.Errorf("%s: %v", file, err)
+			continue
+		}
+		for _, f := range platforms {
+			if f.OS != "windows" {
+				continue
+			}
+			// Role-specific checks of the Windows benchmarks apply only with
+			// the matching variables.
+			for _, vars := range []map[string]any{
+				nil,
+				{"cis_windows_role": "standalone", "cis_windows_domain_joined": true},
+				{"cis_windows_role": "dc"},
+			} {
+				checks, _ := policy.Expand(p, f, vars)
+				for _, c := range checks {
+					if applies, _, err := c.Applies(); err != nil || !applies {
+						continue
+					}
+					for _, spec := range []policy.CommandSpec{c.Run, c.OnlyIf} {
+						if spec.IsZero() {
+							continue
+						}
+						cmd, ok, err := c.Command(spec, f.PlatformKeys())
+						if err != nil || !ok || seen[cmd] {
+							continue
+						}
+						seen[cmd] = true
+						n++
+						name := filepath.Join(dir, fmt.Sprintf("%05d.ps1", n))
+						if err := os.WriteFile(name, []byte("# "+file+" "+c.ID+"\n"+cmd+"\n"), 0o644); err != nil {
+							t.Fatal(err)
+						}
+					}
+				}
+			}
+		}
+	}
+	t.Logf("%d distinct PowerShell commands", n)
+	if shell == "" {
+		return
+	}
+	script := `$bad = 0
+foreach ($f in Get-ChildItem -LiteralPath $args[0] -Filter *.ps1) {
+  $tokens = $null; $errors = $null
+  [System.Management.Automation.Language.Parser]::ParseFile($f.FullName, [ref]$tokens, [ref]$errors) | Out-Null
+  foreach ($e in $errors) { $bad++; Write-Output ("{0}: {1} (line {2})" -f (Get-Content -LiteralPath $f.FullName -TotalCount 1), $e.Message, $e.Extent.StartLineNumber) }
+}
+exit [int]($bad -gt 0)`
+	out, err := exec.Command(shell, "-NoProfile", "-NonInteractive", "-Command", script, dir).CombinedOutput()
+	if err != nil {
+		t.Errorf("PowerShell syntax errors:\n%s", out)
+	}
 }

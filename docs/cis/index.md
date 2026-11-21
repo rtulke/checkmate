@@ -1,6 +1,6 @@
 # CIS benchmarks
 
-Automated checks for the CIS benchmarks of 17 Linux platforms, macOS, PostgreSQL and Apache httpd. The Linux policies are generated
+Automated checks for the CIS benchmarks of 17 Linux platforms, Windows 11 and Windows Server 2019/2022/2025, macOS, PostgreSQL and Apache httpd. The Linux policies are generated
 from the goss audit content of [Ansible Lockdown](https://github.com/ansible-lockdown) (MIT license), the macOS
 policies from the [macOS Security Compliance Project](https://github.com/usnistgov/macos_security) (CC BY 4.0).
 The recommendation number is part of the ID. The policies contain no benchmark text.
@@ -29,7 +29,11 @@ The recommendation number is part of the ID. The policies contain no benchmark t
 | [CIS Ubuntu 22.04 LTS](ubuntu22.md) | 280 | 225 | 55 | 500 |
 | [CIS Ubuntu 24.04 LTS](ubuntu24.md) | 308 | 242 | 66 | 562 |
 | [CIS Ubuntu 26.04 LTS](ubuntu26.md) | 332 | 257 | 75 | 555 |
-| **Total** | **5232** | | | **8822** |
+| [CIS Microsoft Windows 11 Enterprise](win11.md) | 471 | 374 | 97 | 510 |
+| [CIS Microsoft Windows Server 2019](win2019.md) | 424 | 352 | 72 | 458 |
+| [CIS Microsoft Windows Server 2022](win2022.md) | 433 | 357 | 76 | 467 |
+| [CIS Microsoft Windows Server 2025](win2025.md) | 452 | 374 | 78 | 486 |
+| **Total** | **7012** | | | **10743** |
 
 ## Selecting profiles
 

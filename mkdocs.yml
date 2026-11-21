@@ -208,6 +208,10 @@ nav:
       - "Ubuntu 22.04 LTS": cis/ubuntu22.md
       - "Ubuntu 24.04 LTS": cis/ubuntu24.md
       - "Ubuntu 26.04 LTS": cis/ubuntu26.md
+      - "Microsoft Windows 11 Enterprise": cis/win11.md
+      - "Microsoft Windows Server 2019": cis/win2019.md
+      - "Microsoft Windows Server 2022": cis/win2022.md
+      - "Microsoft Windows Server 2025": cis/win2025.md
   - DISA STIG:
       - stig/index.md
       - "Amazon Linux 2023": stig/amazon2023.md

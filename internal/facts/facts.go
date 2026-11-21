@@ -24,7 +24,7 @@ type Facts struct {
 	Version      string   `json:"version"`       // distribution version, e.g. 9.4
 	VersionMajor int      `json:"version_major"` // leading number of Version, 0 if unknown
 	Kernel       string   `json:"kernel"`        // kernel release
-	IsRoot       bool     `json:"is_root"`       // effective UID 0 (always false on Windows)
+	IsRoot       bool     `json:"is_root"`       // effective UID 0; on Windows: running elevated
 }
 
 // Gather collects facts for the current host. It never fails; facts that
@@ -122,6 +122,33 @@ func gatherWindows(f *Facts) {
 	out := commandOutput("cmd", "/c", "ver")
 	f.Version = windowsVersionRe.FindString(out)
 	f.Kernel = f.Version
+	windowsDetails(f)
+	f.IsRoot = windowsElevated()
+}
+
+// windowsProduct names the Windows product from the installation type
+// ("Client", "Server", "Server Core") and the build number.
+func windowsProduct(installType string, build int) string {
+	if strings.HasPrefix(installType, "Server") {
+		switch {
+		case build >= 26100:
+			return "Windows Server 2025"
+		case build >= 20348:
+			return "Windows Server 2022"
+		case build >= 17763:
+			return "Windows Server 2019"
+		case build >= 14393:
+			return "Windows Server 2016"
+		}
+		return "Windows Server"
+	}
+	switch {
+	case build >= 22000:
+		return "Windows 11"
+	case build >= 10240:
+		return "Windows 10"
+	}
+	return "Windows"
 }
 
 // readOSRelease parses an os-release(5) file into a key/value map.

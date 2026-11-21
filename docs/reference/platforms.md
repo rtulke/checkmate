@@ -26,9 +26,10 @@ $ checkmate facts
 | `os` | `linux` | `darwin` | `windows` |
 | `distro` | `ID` from os-release (`rhel`, `rocky`, `debian`, `ubuntu`, `sles`, `alpine`, …) | `macos` | `windows` |
 | `distro_like` | `ID_LIKE` from os-release | empty | empty |
+| `distro_name` | `PRETTY_NAME` | `sw_vers -productName` | `Windows 11`, `Windows 10`, `Windows Server 2016` … `2025` |
 | `version` | `VERSION_ID` | `sw_vers -productVersion` | build number from `ver` |
 | `version_major` | leading number of `version` | | |
-| `is_root` | effective UID 0 | effective UID 0 | always `false` |
+| `is_root` | effective UID 0 | effective UID 0 | running elevated (as administrator) |
 
 ## Platform variants
 

@@ -49,6 +49,10 @@ description: >
 vars:
   allowed_firewalld_services: [ssh, dhcpv6-client, cockpit]
 
+defaults:
+  # Shell commands for Unix-like systems.
+  when: facts.os != "windows"
+
 checks:
   - id: FW-001
     name: firewalld is running

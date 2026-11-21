@@ -17,6 +17,10 @@ snippets:
     -a SHA -A "$SNMP_AUTH" -x AES -X "$SNMP_PRIV" -Oqvt -t 3 -r 1
     {{ arg }} {{ args.oid }}
 
+defaults:
+  # Shell commands for Unix-like systems.
+  when: facts.os != "windows"
+
 checks:
   - id: "SNMP-UPTIME-{{ item }}"
     name: "{{ item }}: up for at least {{ min_uptime_days }} day(s)"
