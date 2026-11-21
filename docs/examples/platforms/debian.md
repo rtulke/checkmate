@@ -86,7 +86,8 @@ checks:
     when: facts.distro == "debian" or "debian" in facts.distro_like
     run: |
       apt-config dump APT::Periodic::Unattended-Upgrade | awk '{print $2}' | tr -d '";'
-    expect: "== 1"
+    # A number of days, a duration (e.g. 1d) or "always" (Debian 13) enables it.
+    expect: "~ ^(always|[1-9][0-9]*[smhd]?)$"
 
   - id: DEB-005
     name: No security updates pending

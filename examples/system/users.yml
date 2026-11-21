@@ -94,7 +94,8 @@ checks:
     name: root's PATH contains no empty or relative entries
     tags: [system, users]
     when: facts.os == "linux" and facts.is_root
-    run: su - root -c 'printf %s "$PATH"'
+    # Login scripts may print banners; only the PATH= line is used.
+    run: su - root -c 'printf "PATH=%s\\n" "$PATH"' 2>/dev/null | sed -n 's/^PATH=//p' | tail -1
     expect: '!~ (^|:)\.?(:|$)'
 
   - id: USR-009

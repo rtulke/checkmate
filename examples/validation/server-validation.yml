@@ -91,7 +91,8 @@ checks:
     name: "{{ item }} is running and enabled"
     tags: [validation, services]
     loop: "{{ services }}"
-    run: echo "$(systemctl is-active {{ item }} 2>/dev/null) $(systemctl is-enabled {{ item }} 2>/dev/null)"
+    # systemctl show resolves aliases such as chronyd -> chrony.service.
+    run: echo "$(systemctl show -p ActiveState --value {{ item }}) $(systemctl show -p UnitFileState --value {{ item }})"
     expect: "== active enabled"
 
   - id: "VAL-PROC-{{ item.exe | replace('/', '_') }}"
@@ -129,7 +130,8 @@ checks:
     loop: "{{ http }}"
     timeout: 20s
     run: curl -s -o /dev/null --max-time 15 -w '%{http_code}' '{{ item.url }}'
-    allow_rc: [0, 7, 28]
+    # Connection problems (refused, timeout, empty reply) are failures.
+    allow_rc: [0, 6, 7, 28, 35, 52, 56]
     expect: "== {{ item.status }}"
 
   - id: "VAL-REACH-{{ item.host }}-{{ item.port }}"

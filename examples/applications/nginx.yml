@@ -94,7 +94,7 @@ checks:
       { nginx -T 2>/dev/null | awk '$1 == "ssl_certificate_key" {gsub(/;/, "", $2); print $2}'; } | sort -u |
         while read -r key; do
           [ -f "$key" ] || continue
-          find "$key" \( -perm /077 -o ! -user root \)
+          find -H "$key" \( -perm /077 -o ! -user root \)
         done
     expect: empty
 

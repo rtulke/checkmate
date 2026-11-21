@@ -115,6 +115,31 @@ Symbolic links always have mode 777, so `find /etc/nginx -perm /022` reports eve
 run: find /etc/nginx ! -type l \( ! -user root -o -perm /022 \)
 ```
 
+### Unit aliases in systemd
+
+`systemctl is-enabled chronyd` prints `alias` when `chronyd` is an alias of `chrony.service` (Debian). `systemctl show` resolves aliases:
+
+```yaml
+run: echo "$(systemctl show -p ActiveState --value chronyd) $(systemctl show -p UnitFileState --value chronyd)"
+expect: "== active enabled"
+```
+
+### Login scripts print banners
+
+`su - root -c '…'` runs root's login scripts, which may print a message of the day before your output. Mark the value and extract it:
+
+```yaml
+run: su - root -c 'printf "PATH=%s\\n" "$PATH"' | sed -n 's/^PATH=//p' | tail -1
+```
+
+### Symbolic links to the files you check
+
+Certificates and keys are often symbolic links (Let's Encrypt keeps them in `live/`). `find -H` follows links given on the command line, so the permissions of the real file are checked.
+
+### Report a missing component once
+
+If a component such as auditd is missing, one check should say so. Guard all checks that need it with `only_if: command -v auditctl`, otherwise a single missing package produces dozens of failures.
+
 ### Pipelines
 
 Commands run with `pipefail`: a failure anywhere in a pipeline sets the exit code. This catches broken commands but also means that `grep` without a match in the middle of a pipeline fails it. Add the exit code to `allow_rc` when that is expected.

@@ -3,3 +3,4 @@
 /site/
 /test/linux/out/
 .DS_Store
+/test/linux/out-remote/

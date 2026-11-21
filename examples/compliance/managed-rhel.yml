@@ -517,5 +517,6 @@ checks:
     name: root's PATH has no empty or relative entries
     tags: [itslc, full, limited]
     when: facts.is_root
-    run: su - root -c 'printf %s "$PATH"'
+    # Login scripts may print banners; only the PATH= line is used.
+    run: su - root -c 'printf "PATH=%s\\n" "$PATH"' 2>/dev/null | sed -n 's/^PATH=//p' | tail -1
     expect: '!~ (^|:)\.?(:|$)'

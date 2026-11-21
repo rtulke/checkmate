@@ -773,13 +773,14 @@ checks:
     name: auditd is running and enabled
     tags: [hardening, audit]
     severity: high
-    run: echo "$(systemctl is-active auditd 2>/dev/null) $(systemctl is-enabled auditd 2>/dev/null)"
+    run: echo "$(systemctl show -p ActiveState --value auditd) $(systemctl show -p UnitFileState --value auditd)"
     expect: "== active enabled"
 
   - id: "HRD-AUD-RULE-{{ item.id }}"
     name: "Audit rules cover {{ item.name }}"
     tags: [hardening, audit]
     when: facts.is_root
+    only_if: command -v auditctl
     loop: "{{ audit_rules }}"
     run: auditctl -l
     expect: "~ {{ item.pattern }}"
@@ -789,6 +790,7 @@ checks:
     tags: [hardening, audit]
     severity: low
     when: facts.is_root
+    only_if: command -v auditctl
     run: auditctl -s | awk '$1 == "enabled" {print $2}'
     expect: "== 2"
     remediation: Add "-e 2" as the last line of the audit rules.
@@ -797,6 +799,7 @@ checks:
     name: "auditd.conf: {{ item.key }} {{ item.value }}"
     tags: [hardening, audit]
     # auditd accepts the values in any case (ROTATE, rotate).
+    only_if: test -f /etc/audit/auditd.conf
     loop:
       max_log_file_action: "~ (?i)^(keep_logs|rotate)$"
       space_left_action: "~ (?i)^(email|exec|single|halt)$"
@@ -1117,7 +1120,7 @@ checks:
     severity: high
     loop: "{{ file_permissions }}"
     only_if: test -e {{ item.path }}
-    run: find {{ item.path }} -maxdepth 0 \( -perm /{{ item.forbidden }} -o ! -user root \)
+    run: find -H {{ item.path }} -maxdepth 0 \( -perm /{{ item.forbidden }} -o ! -user root \)
     expect: empty
     remediation: "chown root {{ item.path }} && chmod go-w,o-rwx {{ item.path }}"
 
@@ -1211,6 +1214,7 @@ checks:
     name: Every SUID/SGID program is covered by an audit rule
     tags: [hardening, audit]
     when: facts.is_root
+    only_if: command -v auditctl
     timeout: 10m
     # Prints every privileged program without a matching "-F path=" rule.
     run: |
@@ -1227,6 +1231,7 @@ checks:
     name: "Audit rules cover {{ item.name }}"
     tags: [hardening, audit]
     when: facts.is_root
+    only_if: command -v auditctl
     loop: "{{ audit_rules_extra }}"
     run: auditctl -l
     expect: "~ {{ item.pattern }}"
@@ -1236,6 +1241,7 @@ checks:
     tags: [hardening, audit]
     severity: low
     loop: "{{ auditd_retention }}"
+    only_if: test -f /etc/audit/auditd.conf
     run: { use: conf_value, args: { files: /etc/audit/auditd.conf, key: "{{ item.key }}" } }
     expect: ["!empty", "{{ item.value }}"]
 

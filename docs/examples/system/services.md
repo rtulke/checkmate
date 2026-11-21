@@ -109,9 +109,7 @@ checks:
     tags: [system, services]
     severity: low
     when: facts.os == "linux"
-    # is-enabled prints "masked" and exits 1 for masked units.
-    run: systemctl is-enabled ctrl-alt-del.target
-    allow_rc: [0, 1]
+    run: systemctl show -p UnitFileState --value ctrl-alt-del.target
     expect: "== masked"
     remediation: systemctl mask ctrl-alt-del.target
 
