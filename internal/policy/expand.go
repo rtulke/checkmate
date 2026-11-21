@@ -31,7 +31,8 @@ type Check struct {
 	Mode        expect.Mode
 	Shell       string
 	Timeout     time.Duration
-	AllowRC     []int
+	AllowRC     []int // nil together with AnyRC means every exit code
+	AnyRC       bool  // allow_rc: any
 	Remediation string
 	Reference   string
 	Source      CheckSource
@@ -68,7 +69,7 @@ type rawCheck struct {
 	As          string      `yaml:"as"`
 	Shell       string      `yaml:"shell"`
 	Timeout     string      `yaml:"timeout"`
-	AllowRC     []int       `yaml:"allow_rc"`
+	AllowRC     ExitCodes   `yaml:"allow_rc"`
 	Remediation string      `yaml:"remediation"`
 	Reference   string      `yaml:"reference"`
 }
@@ -92,6 +93,45 @@ func checkKnownKeys(n *yaml.Node, allowed []string) error {
 		}
 	}
 	return nil
+}
+
+// ExitCodes is a list of exit codes or the word "any".
+type ExitCodes struct {
+	Codes []int
+	Any   bool
+}
+
+// UnmarshalYAML implements yaml.Unmarshaler.
+func (e *ExitCodes) UnmarshalYAML(node *yaml.Node) error {
+	if node.Kind == yaml.ScalarNode && node.Value == "any" {
+		e.Any = true
+		return nil
+	}
+	if node.Kind == yaml.ScalarNode {
+		var code int
+		if err := node.Decode(&code); err != nil {
+			return fmt.Errorf("line %d: allow_rc must be a list of exit codes or \"any\"", node.Line)
+		}
+		e.Codes = []int{code}
+		return nil
+	}
+	if err := node.Decode(&e.Codes); err != nil {
+		return fmt.Errorf("line %d: allow_rc must be a list of exit codes or \"any\"", node.Line)
+	}
+	return nil
+}
+
+// AllowsRC reports whether an exit code is acceptable for output checks.
+func (c *Check) AllowsRC(rc int) bool {
+	if c.AnyRC {
+		return true
+	}
+	for _, x := range c.AllowRC {
+		if x == rc {
+			return true
+		}
+	}
+	return false
 }
 
 // StringList accepts a single string or a list of strings.
@@ -221,7 +261,8 @@ func build(p *Policy, src CheckSource, raw rawCheck, ctx map[string]any) (*Check
 		Run:         raw.Run,
 		Shell:       raw.Shell,
 		Timeout:     p.Defaults.Timeout,
-		AllowRC:     raw.AllowRC,
+		AllowRC:     raw.AllowRC.Codes,
+		AnyRC:       raw.AllowRC.Any,
 		Remediation: strings.TrimSpace(raw.Remediation),
 		Reference:   raw.Reference,
 		Source:      src,
@@ -256,7 +297,7 @@ func build(p *Policy, src CheckSource, raw rawCheck, ctx map[string]any) (*Check
 		}
 		c.Timeout = t
 	}
-	if len(c.AllowRC) == 0 {
+	if len(c.AllowRC) == 0 && !c.AnyRC {
 		c.AllowRC = []int{0}
 	}
 	mode, err := expect.ParseMode(raw.As)

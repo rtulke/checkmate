@@ -238,7 +238,7 @@ func runCheck(ctx context.Context, p *policy.Policy, c *policy.Check, platformKe
 		return withStatus(res, StatusError, fmt.Sprintf("command not found or not executable (exit code %d)%s",
 			rc, stderrHint(out.Stderr)))
 	}
-	if c.Expect.NeedsOutput() && !containsInt(c.AllowRC, rc) {
+	if c.Expect.NeedsOutput() && !c.AllowsRC(rc) {
 		return withStatus(res, StatusError, fmt.Sprintf("command failed with exit code %d%s "+
 			"(add allow_rc to accept it)", rc, stderrHint(out.Stderr)))
 	}
@@ -298,15 +298,6 @@ func oneLine(s string) string {
 		s = s[:157] + "..."
 	}
 	return s
-}
-
-func containsInt(list []int, v int) bool {
-	for _, x := range list {
-		if x == v {
-			return true
-		}
-	}
-	return false
 }
 
 func summarize(results []Result) Summary {

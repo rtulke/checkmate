@@ -32,7 +32,7 @@
 | `run` | yes | A command string, platform variants or a snippet reference. See [Platforms](platforms.md). |
 | `expect` | yes | The condition. See [expect operators](expect.md). |
 | `as` | | How values are compared: `auto` (default), `number`, `version`, `string`. |
-| `allow_rc` | | Exit codes that are acceptable when `expect` inspects the output. Default `[0]`. |
+| `allow_rc` | | Exit codes that are acceptable when `expect` inspects the output. Default `[0]`. `any` accepts every exit code (except 126/127), so the exit code can be judged in `expect`, e.g. `[{ rc: "== 0" }, "~ pattern"]`. |
 | `timeout` | | Go duration (`500ms`, `30s`, `5m`). Default from `defaults.timeout`, else 30s. |
 | `shell` | | `bash`, `sh`, `zsh`, `pwsh`, `powershell` or `cmd`. Default: bash (or sh) on POSIX systems, pwsh (or powershell) on Windows. |
 | `remediation` | | How to fix a failure; printed below failed checks. |

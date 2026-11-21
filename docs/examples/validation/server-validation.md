@@ -147,7 +147,8 @@ checks:
     tags: [validation, services]
     loop: "{{ services }}"
     # systemctl show resolves aliases such as chronyd -> chrony.service.
-    run: echo "$(systemctl show -p ActiveState --value {{ item }}) $(systemctl show -p UnitFileState --value {{ item }})"
+    run: |
+      echo "$(systemctl show -p ActiveState {{ item }} | cut -d= -f2) $(systemctl show -p UnitFileState {{ item }} | cut -d= -f2)"
     expect: "== active enabled"
 
   - id: "VAL-PROC-{{ item.exe | replace('/', '_') }}"

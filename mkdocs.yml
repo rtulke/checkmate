@@ -176,4 +176,20 @@ nav:
           - examples/compliance/index.md
           - "Linux hardening baseline": examples/compliance/linux-hardening.md
           - "Managed RHEL baseline": examples/compliance/managed-rhel.md
+  - CIS benchmarks:
+      - cis/index.md
+      - "Amazon Linux 2": cis/amazon2.md
+      - "Amazon Linux 2023": cis/amazon2023.md
+      - "Debian 11": cis/debian11.md
+      - "Debian 12": cis/debian12.md
+      - "Debian 13": cis/debian13.md
+      - "Red Hat Enterprise Linux 7": cis/rhel7.md
+      - "Red Hat Enterprise Linux 8": cis/rhel8.md
+      - "Red Hat Enterprise Linux 9": cis/rhel9.md
+      - "Red Hat Enterprise Linux 10": cis/rhel10.md
+      - "SUSE Linux Enterprise 15": cis/suse15.md
+      - "SUSE Linux Enterprise 16": cis/suse16.md
+      - "Ubuntu 20.04 LTS": cis/ubuntu20.md
+      - "Ubuntu 22.04 LTS": cis/ubuntu22.md
+      - "Ubuntu 24.04 LTS": cis/ubuntu24.md
   # END generated examples navigation

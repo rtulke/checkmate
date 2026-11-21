@@ -29,6 +29,11 @@ checks:
     run: echo partial; exit 1
     allow_rc: [0, 1]
     expect: "== partial"
+  - id: T-ANY-RC
+    name: allow_rc any turns an unexpected exit code into a failure
+    run: echo partial; exit 4
+    allow_rc: any
+    expect: [{ rc: "== 0" }, "== partial"]
   - id: T-NOTFOUND
     name: missing command
     run: this-command-does-not-exist-anywhere

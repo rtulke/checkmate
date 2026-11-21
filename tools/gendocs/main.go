@@ -10,7 +10,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/rtulke/checkmate/internal/facts"
@@ -118,7 +120,146 @@ func run() error {
 	if err := writeExamplesIndex(cats, byCategory); err != nil {
 		return err
 	}
-	return updateNav(cats, byCategory)
+	cisPages, err := writeCISPages()
+	if err != nil {
+		return err
+	}
+	return updateNav(cats, byCategory, cisPages)
+}
+
+// cisPage is a generated page for one CIS benchmark policy.
+type cisPage struct {
+	Key, Title, Target string
+	Rules, Checks      int
+	Levels             map[string]int
+}
+
+// writeCISPages documents the generated CIS policies in cis/.
+func writeCISPages() ([]cisPage, error) {
+	files, _ := filepath.Glob("cis/*.yml")
+	sort.Slice(files, func(i, j int) bool { return naturalLess(files[i], files[j]) })
+	dir := "docs/cis"
+	if err := os.RemoveAll(dir); err != nil {
+		return nil, err
+	}
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return nil, err
+	}
+	var pages []cisPage
+	for _, f := range files {
+		p, err := policy.Load(f, policy.LoadOptions{AllowInsecure: true})
+		if err != nil {
+			return nil, err
+		}
+		checks, errs := policy.Expand(p, docFacts, nil)
+		if len(errs) > 0 {
+			return nil, errs[0]
+		}
+		key := strings.TrimSuffix(filepath.Base(f), ".yml")
+		cp := cisPage{Key: key, Title: p.Name, Target: filepath.Join(dir, key+".md"), Checks: len(checks), Levels: map[string]int{}}
+		rules := map[string]map[string]bool{}
+		var b bytes.Buffer
+		fmt.Fprintf(&b, "# %s\n\n%s\n\n", p.Name, strings.TrimSpace(p.Description))
+		fmt.Fprintf(&b, "**Policy:** [`%s`](%s/blob/main/%s) · **Benchmark version:** %s\n\n", f, repoURL, f, p.Version)
+		fmt.Fprintf(&b, "```bash\ncheckmate run %s --tags cis-level1-server\ncheckmate run %s --tags cis-level-2 -v\n```\n\n", f, f)
+		fmt.Fprintf(&b, "| ID | Check | Profiles | Severity |\n|---|---|---|---|\n")
+		for _, c := range checks {
+			id := c.ID
+			rule := cisRule(id, key)
+			if rules[rule] == nil {
+				rules[rule] = map[string]bool{}
+			}
+			var profiles []string
+			for _, t := range c.Tags {
+				switch t {
+				case "cis-level1-server", "cis-level1-workstation":
+					profiles = append(profiles, "L1 "+strings.TrimPrefix(t, "cis-level1-"))
+					rules[rule]["l1"] = true
+				case "cis-level2-server", "cis-level2-workstation":
+					if !contains(c.Tags, strings.Replace(t, "level2", "level1", 1)) {
+						profiles = append(profiles, "L2 "+strings.TrimPrefix(t, "cis-level2-"))
+						rules[rule]["l2"] = true
+					}
+				}
+			}
+			fmt.Fprintf(&b, "| `%s` | %s | %s | %s |\n", id, escapeTable(c.Name), strings.Join(profiles, ", "), severityBadge(c.Severity))
+		}
+		cp.Rules = len(rules)
+		for _, r := range rules {
+			if r["l1"] {
+				cp.Levels["l1"]++
+			} else if r["l2"] {
+				cp.Levels["l2"]++
+			}
+		}
+		if err := os.WriteFile(cp.Target, b.Bytes(), 0o644); err != nil {
+			return nil, err
+		}
+		pages = append(pages, cp)
+	}
+
+	var idx bytes.Buffer
+	idx.WriteString("# CIS benchmarks\n\n")
+	idx.WriteString("Automated checks for the CIS benchmarks of 14 Linux platforms, generated from the goss audit content of\n")
+	idx.WriteString("[Ansible Lockdown](https://github.com/ansible-lockdown) (MIT license). Check names describe what is verified;\n")
+	idx.WriteString("the recommendation number is part of the ID. The policies contain no benchmark text.\n\n")
+	idx.WriteString("| Benchmark | Recommendations | Level 1 | Level 2 only | Checks |\n|---|---|---|---|---|\n")
+	tr, tc := 0, 0
+	for _, p := range pages {
+		fmt.Fprintf(&idx, "| [%s](%s.md) | %d | %d | %d | %d |\n", p.Title, p.Key, p.Rules, p.Levels["l1"], p.Levels["l2"], p.Checks)
+		tr += p.Rules
+		tc += p.Checks
+	}
+	fmt.Fprintf(&idx, "| **Total** | **%d** | | | **%d** |\n\n", tr, tc)
+	idx.WriteString("## Selecting profiles\n\n")
+	idx.WriteString("| Tag | Selects |\n|---|---|\n")
+	idx.WriteString("| `cis-level1-server`, `cis-level2-server`, `cis-level1-workstation`, `cis-level2-workstation` | one of the four CIS profiles |\n")
+	idx.WriteString("| `cis-level-1`, `cis-level-2` | a level (Level 2 includes Level 1) |\n")
+	idx.WriteString("| `cis-server`, `cis-workstation` | recommendations of a profile type |\n")
+	idx.WriteString("| `cis-section-1` … | one chapter |\n")
+	idx.WriteString("| `cis-rhel9`, `cis-debian12`, … | one benchmark |\n\n")
+	idx.WriteString("```bash\ncheckmate run cis/rhel9.yml --tags cis-level1-server\n")
+	idx.WriteString("checkmate run cis/debian12.yml --tags cis-level-2+cis-server --fail-on high\n")
+	idx.WriteString("checkmate run cis/ubuntu24.yml --id 'CIS-UBUNTU24-5.*' -vv\n```\n\n")
+	idx.WriteString("See [cis/README.md](https://github.com/rtulke/checkmate/blob/main/cis/README.md) for how the conversion works and the\n")
+	idx.WriteString("few deliberate deviations from the upstream content.\n")
+	return pages, os.WriteFile(filepath.Join(dir, "index.md"), idx.Bytes(), 0o644)
+}
+
+// cisRule extracts the recommendation number from a check ID.
+func cisRule(id, key string) string {
+	rest := strings.TrimPrefix(id, "CIS-"+strings.ToUpper(key)+"-")
+	if i := strings.IndexByte(rest, '-'); i >= 0 {
+		return rest[:i]
+	}
+	return rest
+}
+
+func contains(list []string, s string) bool {
+	for _, x := range list {
+		if x == s {
+			return true
+		}
+	}
+	return false
+}
+
+var naturalSplit = regexp.MustCompile(`\d+|\D+`)
+
+func naturalLess(a, b string) bool {
+	ra, rb := naturalSplit.FindAllString(a, -1), naturalSplit.FindAllString(b, -1)
+	for i := 0; i < len(ra) && i < len(rb); i++ {
+		if ra[i] == rb[i] {
+			continue
+		}
+		na, ea := strconv.Atoi(ra[i])
+		nb, eb := strconv.Atoi(rb[i])
+		if ea == nil && eb == nil {
+			return na < nb
+		}
+		return ra[i] < rb[i]
+	}
+	return len(ra) < len(rb)
 }
 
 func collect() ([]page, error) {
@@ -284,7 +425,7 @@ func writeExamplesIndex(cats []category, byCategory map[string][]page) error {
 	return os.WriteFile(filepath.Join(docsDir, "index.md"), b.Bytes(), 0o644)
 }
 
-func updateNav(cats []category, byCategory map[string][]page) error {
+func updateNav(cats []category, byCategory map[string][]page, cisPages []cisPage) error {
 	raw, err := os.ReadFile(mkdocsFile)
 	if err != nil {
 		return err
@@ -310,6 +451,13 @@ func updateNav(cats []category, byCategory map[string][]page) error {
 		fmt.Fprintf(&b, "          - examples/%s/index.md\n", c.Dir)
 		for _, p := range byCategory[c.Dir] {
 			fmt.Fprintf(&b, "          - %s: %s\n", quote(shortTitle(p)), strings.TrimPrefix(p.Target, "docs/"))
+		}
+	}
+	if len(cisPages) > 0 {
+		b.WriteString("  - CIS benchmarks:\n")
+		b.WriteString("      - cis/index.md\n")
+		for _, p := range cisPages {
+			fmt.Fprintf(&b, "      - %s: %s\n", quote(strings.TrimPrefix(p.Title, "CIS ")), strings.TrimPrefix(p.Target, "docs/"))
 		}
 	}
 	content = content[:start] + b.String() + content[end:]

@@ -14,7 +14,8 @@ checks:
     tags: [system, time]
     severity: high
     run:
-      linux: timedatectl show -p NTPSynchronized --value
+      linux: |
+        timedatectl status | awk -F': ' '/(NTP|System clock) synchronized/ {print $2}'
       macos: sntp -t 3 time.apple.com >/dev/null 2>&1 && echo yes || echo no
     expect: "== yes"
 
@@ -54,6 +55,7 @@ checks:
     tags: [system, time]
     severity: low
     run:
-      linux: timedatectl show -p Timezone --value
+      linux: |
+        timedatectl status | awk -F': ' '/Time zone/ {print $2}' | cut -d' ' -f1
       macos: readlink /etc/localtime | sed 's#.*/zoneinfo/##'
     expect: "== {{ expected_timezone }}"

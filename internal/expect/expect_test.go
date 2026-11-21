@@ -177,6 +177,8 @@ func TestCombinators(t *testing.T) {
 		{"each version", `{each: ">= 1.2"}`, Output{Stdout: "1.10\n1.2.1"}, true},
 
 		{"combined", `{all: [{each: "< 90"}, {lines: ">= 2"}, {not: empty}]}`, Output{Stdout: "1\n2"}, true},
+		{"regex sees leading space", `{some: "~ ^\\s+umask 027"}`, Output{Stdout: "x\n    umask 027\n"}, true},
+		{"comparison trims", `{each: "< 90"}`, Output{Stdout: "  10  \n 20"}, true},
 	}
 	for _, tt := range tests {
 		e := parseYAML(t, tt.expect)

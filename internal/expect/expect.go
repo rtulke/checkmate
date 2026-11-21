@@ -695,9 +695,15 @@ func parseLines(mode string, node *yaml.Node) (Expectation, error) {
 	return lc, nil
 }
 
+// matches applies all conditions to one line. Regular expressions see the
+// line as it is (so patterns like ^\s+ work), comparisons see it trimmed.
 func (l lineCheck) matches(line string, mode Mode) (bool, string, error) {
 	for _, c := range l.conds {
-		ok, msg, err := c.evalValue(line, mode)
+		value := strings.TrimSpace(line)
+		if c.op == "~" || c.op == "!~" {
+			value = strings.TrimRight(line, "\r")
+		}
+		ok, msg, err := c.evalValue(value, mode)
 		if err != nil || !ok {
 			return false, msg, err
 		}
@@ -708,7 +714,7 @@ func (l lineCheck) matches(line string, mode Mode) (bool, string, error) {
 func (l lineCheck) Eval(out Output, mode Mode) (bool, string, error) {
 	var lines []string
 	for _, line := range strings.Split(out.Stdout, "\n") {
-		if line = strings.TrimSpace(line); line != "" {
+		if strings.TrimSpace(line) != "" {
 			lines = append(lines, line)
 		}
 	}
@@ -722,7 +728,7 @@ func (l lineCheck) Eval(out Output, mode Mode) (bool, string, error) {
 		case ok:
 			matched++
 			if l.mode == "none" {
-				return false, fmt.Sprintf("line %d %s matches %s", i+1, describe(line), l.condString()), nil
+				return false, fmt.Sprintf("line %d %s matches %s", i+1, describe(strings.TrimSpace(line)), l.condString()), nil
 			}
 		case l.mode == "each":
 			return false, fmt.Sprintf("line %d: %s", i+1, msg), nil

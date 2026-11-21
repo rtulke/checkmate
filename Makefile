@@ -2,7 +2,10 @@ VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 LDFLAGS := -s -w -X main.version=$(VERSION)
 PLATFORMS := linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64
 
-.PHONY: build test lint docs docs-serve dist test-linux clean
+.PHONY: build test lint docs docs-serve dist test-linux test-cis cis-import clean
+
+CIS_BENCHMARKS := rhel7 rhel8 rhel9 rhel10 debian11 debian12 debian13 ubuntu20 ubuntu22 ubuntu24 suse15 suse16 amazon2 amazon2023
+CIS_CACHE := .cache/cis
 
 build:
 	CGO_ENABLED=0 go build -trimpath -ldflags '$(LDFLAGS)' -o bin/checkmate ./cmd/checkmate
@@ -37,5 +40,20 @@ dist:
 test-linux:
 	test/linux/run.sh
 
+# Regenerates cis/*.yml from the Ansible Lockdown audit repositories (needs gh).
+# The downloaded repositories are kept in $(CIS_CACHE).
+cis-import:
+	@for b in $(CIS_BENCHMARKS); do \
+		repo=$$(echo $$b | tr a-z A-Z)-CIS-Audit; \
+		branch=$$(gh api repos/ansible-lockdown/$$repo -q .default_branch); \
+		mkdir -p $(CIS_CACHE)/$$b; \
+		gh api repos/ansible-lockdown/$$repo/tarball/$$branch | tar xzf - -C $(CIS_CACHE)/$$b --strip-components=1; \
+		go run ./tools/cis-import -src $(CIS_CACHE)/$$b -bench $$b -out cis/$$b.yml || exit 1; \
+	done
+
+# Runs every CIS policy in a container of its platform (needs docker).
+test-cis:
+	test/linux/run-cis.sh
+
 clean:
-	rm -rf bin dist site test/linux/out
+	rm -rf bin dist site test/linux/out test/linux/out-cis

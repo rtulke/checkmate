@@ -28,6 +28,16 @@ var platforms = map[string]facts.Facts{
 	"macos":      {OS: "darwin", Distro: "macos", Version: "15.1", VersionMajor: 15},
 	"windows":    {OS: "windows", Distro: "windows", Version: "10.0.22631", VersionMajor: 10},
 	"linux-user": {OS: "linux", Distro: "debian", Version: "12", VersionMajor: 12, IsRoot: false},
+	// Targets of the CIS benchmarks in ../cis.
+	"centos7":  {OS: "linux", Distro: "centos", DistroLike: []string{"rhel", "fedora"}, Version: "7", VersionMajor: 7, IsRoot: true},
+	"rocky10":  {OS: "linux", Distro: "rocky", DistroLike: []string{"rhel", "centos", "fedora"}, Version: "10.0", VersionMajor: 10, IsRoot: true},
+	"debian11": {OS: "linux", Distro: "debian", Version: "11", VersionMajor: 11, IsRoot: true},
+	"debian13": {OS: "linux", Distro: "debian", Version: "13", VersionMajor: 13, IsRoot: true},
+	"ubuntu20": {OS: "linux", Distro: "ubuntu", DistroLike: []string{"debian"}, Version: "20.04", VersionMajor: 20, IsRoot: true},
+	"ubuntu22": {OS: "linux", Distro: "ubuntu", DistroLike: []string{"debian"}, Version: "22.04", VersionMajor: 22, IsRoot: true},
+	"sles16":   {OS: "linux", Distro: "sles", DistroLike: []string{"suse"}, Version: "16.0", VersionMajor: 16, IsRoot: true},
+	"amzn2":    {OS: "linux", Distro: "amzn", DistroLike: []string{"centos", "rhel", "fedora"}, Version: "2", VersionMajor: 2, IsRoot: true},
+	"amzn2023": {OS: "linux", Distro: "amzn", DistroLike: []string{"fedora"}, Version: "2023", VersionMajor: 2023, IsRoot: true},
 }
 
 func policyFiles(t *testing.T) []string {
@@ -48,8 +58,11 @@ func policyFiles(t *testing.T) []string {
 	if len(files) == 0 {
 		t.Fatal("no example policies found")
 	}
-	// The policy of the terminal demo (docs/demo.tape) is checked as well.
-	return append(files, "../docs/demo/demo.yml")
+	// The policy of the terminal demo (docs/demo.tape) and the generated CIS
+	// benchmarks are checked as well.
+	files = append(files, "../docs/demo/demo.yml")
+	cis, _ := filepath.Glob("../cis/*.yml")
+	return append(files, cis...)
 }
 
 // colonSpace finds single-line commands containing ": ", which YAML reads
@@ -77,8 +90,9 @@ func TestExamplesAreValid(t *testing.T) {
 			t.Errorf("%s: %v", file, err)
 			continue
 		}
-		// The demo policy is deliberately minimal; style rules apply to examples only.
-		styleRules := !strings.HasPrefix(file, "../docs/")
+		// The demo policy is deliberately minimal and the CIS policies are
+		// generated; style rules apply to hand-written examples only.
+		styleRules := !strings.HasPrefix(file, "../")
 		if styleRules && (p.Name == "" || p.Description == "") {
 			t.Errorf("%s: every example needs a name and a description", file)
 		}

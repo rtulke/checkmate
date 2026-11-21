@@ -720,7 +720,8 @@ checks:
   - id: MRH-ITSLC-TIME
     name: Time is synchronised
     tags: [itslc, full, limited]
-    run: timedatectl show -p NTPSynchronized --value
+    run: |
+      timedatectl status | awk -F': ' '/(NTP|System clock) synchronized/ {print $2}'
     expect: "== yes"
 
   - id: MRH-ITSLC-ROOT-PATH

@@ -120,7 +120,7 @@ run: find /etc/nginx ! -type l \( ! -user root -o -perm /022 \)
 `systemctl is-enabled chronyd` prints `alias` when `chronyd` is an alias of `chrony.service` (Debian). `systemctl show` resolves aliases:
 
 ```yaml
-run: echo "$(systemctl show -p ActiveState --value chronyd) $(systemctl show -p UnitFileState --value chronyd)"
+run: echo "$(systemctl show -p ActiveState chronyd | cut -d= -f2) $(systemctl show -p UnitFileState chronyd | cut -d= -f2)"
 expect: "== active enabled"
 ```
 

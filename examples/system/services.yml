@@ -54,7 +54,7 @@ checks:
     tags: [system, services]
     severity: low
     when: facts.os == "linux"
-    run: systemctl show -p UnitFileState --value ctrl-alt-del.target
+    run: systemctl show -p UnitFileState ctrl-alt-del.target | cut -d= -f2
     expect: "== masked"
     remediation: systemctl mask ctrl-alt-del.target
 

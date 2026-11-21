@@ -40,7 +40,7 @@ def main(out_dir):
     for name in sorted(os.listdir(out_dir)):
         if not name.endswith(".json"):
             continue
-        m = re.match(r"(.+?)-((?:examples|internal|docs)_.*)$", name[:-5])
+        m = re.match(r"(.+?)-((?:examples|internal|docs|cis)_.*)$", name[:-5])
         image, policy = (m.group(1), m.group(2)) if m else name[:-5].split("-", 1)
         path = os.path.join(out_dir, name)
         try:

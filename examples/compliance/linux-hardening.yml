@@ -413,7 +413,7 @@ checks:
     name: auditd is running and enabled
     tags: [hardening, audit]
     severity: high
-    run: echo "$(systemctl show -p ActiveState --value auditd) $(systemctl show -p UnitFileState --value auditd)"
+    run: echo "$(systemctl show -p ActiveState auditd | cut -d= -f2) $(systemctl show -p UnitFileState auditd | cut -d= -f2)"
     expect: "== active enabled"
 
   - id: "HRD-AUD-RULE-{{ item.id }}"

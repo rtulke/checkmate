@@ -1,6 +1,8 @@
+.DS_Store
+/.cache/
 /bin/
 /dist/
 /site/
-/test/linux/out/
-.DS_Store
+/test/linux/out-cis/
 /test/linux/out-remote/
+/test/linux/out/

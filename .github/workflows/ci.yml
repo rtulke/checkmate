@@ -28,7 +28,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           go run ./tools/gendocs
-          git diff --exit-code -- docs/examples mkdocs.yml
+          git diff --exit-code -- docs/examples docs/cis mkdocs.yml
 
   linux-examples:
     runs-on: ubuntu-latest
@@ -39,3 +39,13 @@ jobs:
           go-version-file: go.mod
       - name: Run all examples in Linux containers
         run: test/linux/run.sh
+
+  cis-benchmarks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Run every CIS policy in a container of its platform
+        run: test/linux/run-cis.sh

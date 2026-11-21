@@ -33,6 +33,7 @@ func TestRunStatuses(t *testing.T) {
 		"T-FAIL":        StatusFail,
 		"T-RC-ERROR":    StatusError,
 		"T-RC-ALLOWED":  StatusPass,
+		"T-ANY-RC":      StatusFail,
 		"T-NOTFOUND":    StatusError,
 		"T-TIMEOUT":     StatusError,
 		"T-PIPEFAIL":    StatusPass,
@@ -80,7 +81,7 @@ func TestRunReportOrderAndSummary(t *testing.T) {
 	if r.Summary.Compliant {
 		t.Error("a run with failures and errors must not be compliant")
 	}
-	if r.Summary.Failed != 1 || r.Summary.Errors != 4 {
+	if r.Summary.Failed != 2 || r.Summary.Errors != 4 {
 		t.Errorf("summary = %+v", r.Summary)
 	}
 }
@@ -163,7 +164,7 @@ func TestFailOnThresholdAndScore(t *testing.T) {
 	if got := byID["T-TIMEOUT"].Status; got != StatusError {
 		t.Errorf("errors must never be downgraded, got %s", got)
 	}
-	if r.Summary.Failed != 0 || r.Summary.Warnings != 1 {
+	if r.Summary.Failed != 0 || r.Summary.Warnings != 2 {
 		t.Errorf("summary = %+v", r.Summary)
 	}
 	if r.Summary.Compliant {

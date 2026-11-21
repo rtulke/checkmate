@@ -74,7 +74,8 @@ checks:
     tags: [platform, linux, time]
     severity: low
     when: facts.os == "linux"
-    run: timedatectl show -p Timezone --value
+    run: |
+      timedatectl status | awk -F': ' '/Time zone/ {print $2}' | cut -d' ' -f1
     expect: "== {{ expected_timezone }}"
 
   - id: LNX-OS-009
