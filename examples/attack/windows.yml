@@ -1,0 +1,361 @@
+name: MITRE ATT&CK Windows
+version: 1.0.0
+description: >
+  Checks for traces and mitigations of MITRE ATT&CK techniques on Windows:
+  persistence (Run keys, startup folders, scheduled tasks, WMI event
+  subscriptions, services, IFEO debuggers, accessibility binaries, Winlogon,
+  AppInit DLLs, LSA packages, COM hijacking, Office test, BITS jobs),
+  credential access (LSA protection, WDigest, SAM permissions) and impairing
+  defenses (firewall, event log, Defender, PowerShell logging, UAC). Every
+  check carries the technique and its tactics as tags, so `--attack-layer`
+  turns the results into an ATT&CK Navigator layer. Run in an elevated
+  PowerShell.
+
+vars:
+  # Command lines that run code from user-writable locations or through
+  # common proxy techniques.
+  attack_win_suspicious: '(?i)(\\Users\\[^\\]+\\AppData\\|\\Users\\Public\\|\\Windows\\Temp\\|\\AppData\\Local\\Temp\\|-e(nc|ncodedcommand)?\s+[A-Za-z0-9+/=]{20,}|mshta(\.exe)?\s+(https?:|javascript:|vbscript:)|regsvr32(\.exe)?\s+.*/i:https?:|rundll32(\.exe)?\s+.*(javascript:|https?:)|(iwr|irm|Invoke-WebRequest|Invoke-RestMethod|DownloadString|DownloadFile)\b)'
+  # LSA packages a Windows installation ships with.
+  attack_win_lsa_packages: [kerberos, msv1_0, schannel, wdigest, tspkg, pku2u, cloudap, negoexts, livessp, scecli, rassfm, '""']
+
+defaults:
+  when:
+    - facts.os == "windows"
+    - facts.is_root
+
+checks:
+  # ===== Persistence ===========================================================
+
+  - id: ATT-WIN-RUN-KEYS
+    name: No Run key starts a program from a user-writable folder or a download
+    description: T1547.001 Registry Run Keys / Startup Folder. Machine and current-user Run and RunOnce keys, 64 and 32 bit.
+    tags: [attack, attack-t1547.001, attack-persistence, attack-privilege-escalation, registry]
+    severity: high
+    run: |
+      $keys = 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Run', 'HKLM:\Software\Microsoft\Windows\CurrentVersion\RunOnce',
+              'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Run', 'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\RunOnce',
+              'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run', 'HKCU:\Software\Microsoft\Windows\CurrentVersion\RunOnce'
+      foreach ($k in $keys) {
+        $item = Get-Item -LiteralPath $k -ErrorAction SilentlyContinue
+        if ($null -eq $item) { continue }
+        foreach ($n in $item.GetValueNames()) {
+          $v = [string]$item.GetValue($n)
+          if ($v -match '{{ attack_win_suspicious }}') { "$k\$n = $v" }
+        }
+      }
+    expect: empty
+
+  - id: ATT-WIN-STARTUP-FOLDERS
+    name: Startup folders contain no programs or scripts
+    description: T1547.001 Registry Run Keys / Startup Folder. Shortcuts (.lnk) and desktop.ini are left out; review anything else.
+    tags: [attack, attack-t1547.001, attack-persistence, attack-privilege-escalation]
+    severity: medium
+    run: |
+      $dirs = @("$env:ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp")
+      $dirs += @(Get-ChildItem -LiteralPath "$env:SystemDrive\Users" -Directory -ErrorAction SilentlyContinue |
+        ForEach-Object { Join-Path $_.FullName 'AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup' })
+      foreach ($d in $dirs) {
+        Get-ChildItem -LiteralPath $d -File -Force -ErrorAction SilentlyContinue |
+          Where-Object { $_.Extension -ne '.lnk' -and $_.Name -ne 'desktop.ini' } | ForEach-Object { $_.FullName }
+      }
+    expect: empty
+
+  - id: ATT-WIN-SCHEDULED-TASKS
+    name: No scheduled task runs code from a user-writable folder or a download
+    description: T1053.005 Scheduled Task.
+    tags: [attack, attack-t1053.005, attack-persistence, attack-execution, attack-privilege-escalation]
+    severity: high
+    run: |
+      foreach ($t in Get-ScheduledTask -ErrorAction SilentlyContinue) {
+        foreach ($a in @($t.Actions)) {
+          $cmd = ("{0} {1}" -f $a.Execute, $a.Arguments).Trim()
+          if ($cmd -match '{{ attack_win_suspicious }}') { "$($t.TaskPath)$($t.TaskName): $cmd" }
+        }
+      }
+    expect: empty
+
+  - id: ATT-WIN-WMI-SUBSCRIPTION
+    name: No WMI event subscription runs commands or scripts
+    description: T1546.003 Windows Management Instrumentation Event Subscription. Command-line and script consumers in root\subscription.
+    tags: [attack, attack-t1546.003, attack-persistence, attack-privilege-escalation, wmi]
+    severity: critical
+    run: |
+      foreach ($class in 'CommandLineEventConsumer', 'ActiveScriptEventConsumer') {
+        Get-CimInstance -Namespace root/subscription -ClassName $class -ErrorAction SilentlyContinue |
+          ForEach-Object { "{0}: {1}{2}" -f $class, $_.Name, $(if ($_.CommandLineTemplate) { ' -> ' + $_.CommandLineTemplate } else { '' }) }
+      }
+    expect: empty
+
+  - id: ATT-WIN-SERVICE-PATHS
+    name: Service paths are quoted and not in user-writable folders
+    description: >
+      T1543.003 Windows Service and T1574.009 Path Interception by Unquoted
+      Path. Lists services with an unquoted path containing spaces, or a
+      binary in a user-writable folder.
+    tags: [attack, attack-t1543.003, attack-t1574.009, attack-persistence, attack-privilege-escalation, attack-stealth, services]
+    severity: high
+    run: |
+      foreach ($s in Get-CimInstance -ClassName Win32_Service -ErrorAction SilentlyContinue) {
+        $p = [string]$s.PathName
+        if ($p -eq '') { continue }
+        if ($p -notmatch '^\s*"' -and $p -match '^(.+?\.exe)' -and $Matches[1] -match ' ') { "$($s.Name): unquoted path $p" }
+        elseif ($p -match '{{ attack_win_suspicious }}') { "$($s.Name): $p" }
+      }
+    expect: empty
+
+  - id: ATT-WIN-IFEO
+    name: No program is redirected through Image File Execution Options
+    description: >
+      T1546.012 Image File Execution Options Injection and T1546.008
+      Accessibility Features. Debugger values and silent process exit
+      monitors start another program instead of or after the original.
+    tags: [attack, attack-t1546.012, attack-t1546.008, attack-persistence, attack-privilege-escalation, registry]
+    severity: critical
+    run: |
+      foreach ($base in 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options',
+                        'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows NT\CurrentVersion\Image File Execution Options') {
+        Get-ChildItem -LiteralPath $base -ErrorAction SilentlyContinue | ForEach-Object {
+          $d = $_.GetValue('Debugger')
+          if ($d) { "$($_.PSChildName): Debugger = $d" }
+        }
+      }
+      Get-ChildItem -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SilentProcessExit' -ErrorAction SilentlyContinue | ForEach-Object {
+        $m = $_.GetValue('MonitorProcess')
+        if ($m) { "$($_.PSChildName): MonitorProcess = $m" }
+      }
+    expect: empty
+
+  - id: ATT-WIN-ACCESSIBILITY-BINARIES
+    name: Accessibility programs are the signed originals
+    description: T1546.008 Accessibility Features. sethc, utilman, osk, Magnify, Narrator, DisplaySwitch and AtBroker must carry a valid Microsoft signature.
+    tags: [attack, attack-t1546.008, attack-persistence, attack-privilege-escalation]
+    severity: critical
+    run: |
+      foreach ($n in 'sethc.exe', 'utilman.exe', 'osk.exe', 'Magnify.exe', 'Narrator.exe', 'DisplaySwitch.exe', 'AtBroker.exe') {
+        $f = Join-Path "$env:SystemRoot\System32" $n
+        if (-not (Test-Path -LiteralPath $f)) { continue }
+        $sig = Get-AuthenticodeSignature -LiteralPath $f
+        if ($sig.Status -ne 'Valid' -or $sig.SignerCertificate.Subject -notmatch 'O=Microsoft Corporation') { "${n}: signature $($sig.Status)" }
+      }
+    expect: empty
+
+  - id: ATT-WIN-WINLOGON
+    name: Winlogon starts only Explorer and userinit
+    description: T1547.004 Winlogon Helper DLL.
+    tags: [attack, attack-t1547.004, attack-persistence, attack-privilege-escalation, registry]
+    severity: critical
+    run: |
+      $w = Get-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon'
+      if ($w.Shell -and $w.Shell.Trim() -notmatch '^(explorer\.exe)$') { "Shell = $($w.Shell)" }
+      if ($w.Userinit -and $w.Userinit.Trim().TrimEnd(',') -notmatch '^(?i)C:\\Windows\\system32\\userinit\.exe$') { "Userinit = $($w.Userinit)" }
+    expect: empty
+
+  - id: ATT-WIN-APPINIT
+    name: AppInit DLLs are not loaded
+    description: T1546.010 AppInit DLLs.
+    tags: [attack, attack-t1546.010, attack-persistence, attack-privilege-escalation, registry]
+    severity: high
+    run: |
+      foreach ($k in 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows', 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows NT\CurrentVersion\Windows') {
+        $p = Get-ItemProperty -LiteralPath $k -ErrorAction SilentlyContinue
+        if ($p -and $p.LoadAppInit_DLLs -eq 1 -and $p.AppInit_DLLs) { "${k}: $($p.AppInit_DLLs)" }
+      }
+    expect: empty
+
+  - id: ATT-WIN-LSA-PACKAGES
+    name: LSA loads only the standard security, authentication and notification packages
+    description: >
+      T1547.005 Security Support Provider and T1556.002 Password Filter DLL.
+      Packages outside attack_win_lsa_packages receive credentials; review
+      each one.
+    tags: [attack, attack-t1547.005, attack-t1556.002, attack-persistence, attack-privilege-escalation, attack-credential-access, registry]
+    severity: high
+    run: |
+      $known = @({% for p in attack_win_lsa_packages %}'{{ p }}'{{ ', ' if not loop.last }}{% endfor %})
+      $lsa = Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa'
+      foreach ($name in 'Security Packages', 'Authentication Packages', 'Notification Packages') {
+        foreach ($p in @($lsa.$name)) { if ($p -and $known -notcontains $p) { "${name}: $p" } }
+      }
+    expect: empty
+
+  - id: ATT-WIN-COM-HIJACK
+    name: No per-user COM class points to a user-writable folder
+    description: T1546.015 Component Object Model Hijacking. InprocServer32 and LocalServer32 entries under HKCU override the machine registration.
+    tags: [attack, attack-t1546.015, attack-persistence, attack-privilege-escalation, registry]
+    severity: high
+    run: |
+      Get-ChildItem -LiteralPath 'HKCU:\Software\Classes\CLSID' -ErrorAction SilentlyContinue | ForEach-Object {
+        foreach ($sub in 'InprocServer32', 'LocalServer32') {
+          $k = Get-Item -LiteralPath (Join-Path $_.PSPath $sub) -ErrorAction SilentlyContinue
+          if ($k) { $v = [string]$k.GetValue(''); if ($v -match '{{ attack_win_suspicious }}') { "$($_.PSChildName)\${sub}: $v" } }
+        }
+      }
+    expect: empty
+
+  - id: ATT-WIN-OFFICE-TEST
+    name: The Office test key is not present
+    description: T1137.002 Office Test. A DLL under Office test\Special\Perf is loaded by every Office application.
+    tags: [attack, attack-t1137.002, attack-persistence]
+    severity: high
+    run: |
+      foreach ($k in 'HKCU:\Software\Microsoft\Office test\Special\Perf', 'HKLM:\Software\Microsoft\Office test\Special\Perf') {
+        if (Test-Path -LiteralPath $k) { $k }
+      }
+    expect: empty
+
+  - id: ATT-WIN-BITS-JOBS
+    name: No BITS job downloads from outside Microsoft
+    description: T1197 BITS Jobs.
+    tags: [attack, attack-t1197, attack-persistence, attack-stealth, attack-execution]
+    severity: medium
+    only_if: Get-Command Get-BitsTransfer -ErrorAction Stop | Out-Null
+    run: |
+      Get-BitsTransfer -AllUsers -ErrorAction SilentlyContinue | ForEach-Object {
+        foreach ($f in @($_.FileList)) {
+          if ($f.RemoteName -notmatch '(?i)^https?://([a-z0-9-]+\.)*(microsoft|windowsupdate|msedge|office)\.(com|net)/') { "$($_.DisplayName): $($f.RemoteName)" }
+        }
+      }
+    expect: empty
+
+  # ===== Privilege escalation and credential access ============================
+
+  - id: ATT-WIN-UAC
+    name: User Account Control is on and asks administrators
+    description: T1548.002 Bypass User Account Control.
+    tags: [attack, attack-t1548.002, attack-privilege-escalation]
+    severity: high
+    run: |
+      $p = Get-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
+      if ($p.EnableLUA -ne 1) { "EnableLUA = $($p.EnableLUA)" }
+      if ($p.ConsentPromptBehaviorAdmin -eq 0) { 'ConsentPromptBehaviorAdmin = 0 (elevates without prompting)' }
+    expect: empty
+
+  - id: ATT-WIN-REMOTE-UAC
+    name: Local administrators do not get full rights over the network
+    description: T1550.002 Pass the Hash. LocalAccountTokenFilterPolicy = 1 lets local accounts authenticate remotely with full rights.
+    tags: [attack, attack-t1550.002, attack-lateral-movement]
+    severity: high
+    run: (Get-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System').LocalAccountTokenFilterPolicy
+    expect: "!= 1"
+
+  - id: ATT-WIN-GUEST
+    name: The Guest account is disabled
+    description: T1078.001 Default Accounts.
+    tags: [attack, attack-t1078.001, attack-persistence, attack-initial-access, accounts]
+    severity: high
+    only_if: Get-Command Get-LocalUser -ErrorAction Stop | Out-Null
+    run: |
+      $g = Get-LocalUser | Where-Object { $_.SID.Value -like '*-501' }
+      if ($g -and $g.Enabled) { "$($g.Name) is enabled" }
+    expect: empty
+
+  - id: ATT-WIN-LSA-PROTECTION
+    name: LSASS runs as a protected process
+    description: T1003.001 LSASS Memory. RunAsPPL keeps tools from reading credentials out of LSASS memory.
+    tags: [attack, attack-t1003.001, attack-credential-access]
+    severity: high
+    run: (Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa').RunAsPPL
+    expect: "in [1, 2]"
+
+  - id: ATT-WIN-WDIGEST
+    name: WDigest does not keep clear-text passwords in memory
+    description: T1003.001 LSASS Memory.
+    tags: [attack, attack-t1003.001, attack-credential-access]
+    severity: high
+    run: |
+      $v = (Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest' -ErrorAction SilentlyContinue).UseLogonCredential
+      if ($v -eq 1) { 'UseLogonCredential = 1' }
+    expect: empty
+
+  - id: ATT-WIN-SAM-ACL
+    name: Users cannot read the SAM, SYSTEM and SECURITY hives
+    description: T1003.002 Security Account Manager. Readable hives (and their shadow copies) expose password hashes (HiveNightmare).
+    tags: [attack, attack-t1003.002, attack-credential-access]
+    severity: critical
+    run: |
+      foreach ($h in 'SAM', 'SYSTEM', 'SECURITY') {
+        $acl = Get-Acl -LiteralPath "$env:SystemRoot\System32\config\$h"
+        foreach ($a in $acl.Access) {
+          $sid = $a.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value
+          if ($a.AccessControlType -eq 'Allow' -and $sid -in 'S-1-5-32-545', 'S-1-1-0', 'S-1-5-11') { "${h}: $($a.IdentityReference) $($a.FileSystemRights)" }
+        }
+      }
+    expect: empty
+
+  - id: ATT-WIN-RDP-NLA
+    name: Remote Desktop requires network level authentication
+    description: T1021.001 Remote Desktop Protocol.
+    tags: [attack, attack-t1021.001, attack-lateral-movement, rdp]
+    severity: medium
+    run: |
+      $ts = Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server'
+      $rdp = Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp'
+      if ($ts.fDenyTSConnections -eq 0 -and $rdp.UserAuthentication -ne 1) { 'RDP is enabled without NLA' }
+    expect: empty
+
+  # ===== Stealth and defense impairment ========================================
+
+  - id: ATT-WIN-TEMP-PROCESSES
+    name: No process runs from a temporary or public folder
+    description: T1036.005 Match Legitimate Resource Name or Location and T1105 Ingress Tool Transfer.
+    tags: [attack, attack-t1036.005, attack-t1105, attack-stealth, attack-command-and-control]
+    severity: medium
+    run: |
+      Get-CimInstance -ClassName Win32_Process -ErrorAction SilentlyContinue |
+        Where-Object { $_.ExecutablePath -match '(?i)(\\Windows\\Temp\\|\\AppData\\Local\\Temp\\|\\Users\\Public\\)' } |
+        ForEach-Object { "$($_.ProcessId) $($_.ExecutablePath)" }
+    expect: empty
+
+  - id: ATT-WIN-FIREWALL
+    name: Windows Firewall is on in every profile
+    description: T1686.003 Windows Host Firewall.
+    tags: [attack, attack-t1686.003, attack-defense-impairment, firewall]
+    severity: high
+    run: |
+      Get-NetFirewallProfile -PolicyStore ActiveStore | Where-Object { -not $_.Enabled } | ForEach-Object { "$($_.Name) profile is off" }
+    expect: empty
+
+  - id: ATT-WIN-EVENTLOG
+    name: The event log service runs and the Security log is enabled
+    description: T1685.001 Disable or Modify Windows Event Log and T1685.005 Clear Windows Event Logs.
+    tags: [attack, attack-t1685.001, attack-t1685.005, attack-defense-impairment, logging]
+    severity: high
+    run: |
+      $s = Get-Service -Name EventLog
+      if ($s.Status -ne 'Running') { "EventLog service is $($s.Status)" }
+      $log = Get-WinEvent -ListLog Security -ErrorAction SilentlyContinue
+      if (-not $log -or -not $log.IsEnabled) { 'Security log is disabled' }
+    expect: empty
+
+  - id: ATT-WIN-DEFENDER
+    name: Microsoft Defender real-time protection is on without broad exclusions
+    description: T1685 Disable or Modify Tools. Skipped where Defender is not installed (another product is in use).
+    tags: [attack, attack-t1685, attack-defense-impairment, malware]
+    severity: high
+    only_if: Get-Command Get-MpComputerStatus -ErrorAction Stop | Out-Null; Get-MpComputerStatus -ErrorAction Stop | Out-Null
+    run: |
+      $s = Get-MpComputerStatus
+      if (-not $s.RealTimeProtectionEnabled) { 'real-time protection is off' }
+      $p = Get-MpPreference
+      foreach ($e in @($p.ExclusionPath) + @($p.ExclusionExtension) + @($p.ExclusionProcess)) {
+        if ($e -match '^(?i)([A-Z]:\\?|\*|\.?exe|\.?dll|\.?ps1|%[^%]+%\\?)$') { "broad exclusion: $e" }
+      }
+    expect: empty
+
+  - id: ATT-WIN-POWERSHELL-LOGGING
+    name: PowerShell script block logging is on
+    description: T1059.001 PowerShell.
+    tags: [attack, attack-t1059.001, attack-execution, logging]
+    severity: medium
+    run: (Get-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging' -ErrorAction SilentlyContinue).EnableScriptBlockLogging
+    expect: "== 1"
+
+  - id: ATT-WIN-POWERSHELL-V2
+    name: The PowerShell 2.0 engine is not installed
+    description: T1059.001 PowerShell. PowerShell 2.0 bypasses script block logging and AMSI.
+    tags: [attack, attack-t1059.001, attack-execution]
+    severity: medium
+    run: |
+      $v = (Get-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Microsoft\PowerShell\1\PowerShellEngine' -ErrorAction SilentlyContinue).PowerShellVersion
+      if ($v -like '2.*') { "PowerShell engine $v is installed" }
+    expect: empty

@@ -78,3 +78,6 @@ jobs:
           ./checkmate.exe facts
           ./checkmate.exe run ${{ matrix.policy }} -q --format json --json-out report.json | Out-Null
           python test/windows/analyze.py report.json
+      - name: Detect planted ATT&CK artifacts
+        shell: pwsh
+        run: ./test/windows/attack-sim.ps1

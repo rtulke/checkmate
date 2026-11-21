@@ -1,6 +1,6 @@
 # Examples
 
-56 ready-to-use policies with 1074 checks. Every example is validated, syntax-checked for each
+57 ready-to-use policies with 1100 checks. Every example is validated, syntax-checked for each
 platform and executed on RHEL, Debian, Ubuntu, openSUSE and Alpine in the test suite, so you can copy them as a
 starting point.
 
@@ -106,6 +106,6 @@ starting point.
 
     Traces and mitigations of MITRE ATT&CK techniques, tagged with technique and tactic IDs. `--attack-layer` turns the results into an ATT&CK Navigator layer.
 
-    [MITRE ATT&CK Linux](attack/linux.md)
+    [MITRE ATT&CK Linux](attack/linux.md) · [MITRE ATT&CK Windows](attack/windows.md)
 
 </div>
