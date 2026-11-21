@@ -1,6 +1,6 @@
 # Examples
 
-55 ready-to-use policies with 1043 checks. Every example is validated, syntax-checked for each
+56 ready-to-use policies with 1074 checks. Every example is validated, syntax-checked for each
 platform and executed on RHEL, Debian, Ubuntu, openSUSE and Alpine in the test suite, so you can copy them as a
 starting point.
 
@@ -96,8 +96,16 @@ starting point.
 
     ---
 
-    Complete baselines: a broad Linux hardening baseline modelled on OpenSCAP and CIS, and a managed-RHEL baseline with a tag-based selection model.
+    Complete baselines: BSI IT-Grundschutz, Si001 of the Swiss Federal Administration, a broad Linux hardening baseline modelled on OpenSCAP and CIS, and a managed-RHEL baseline.
 
     [BSI IT-Grundschutz Linux server](compliance/bsi-grundschutz.md) · [Linux hardening baseline](compliance/linux-hardening.md) · [Managed RHEL baseline](compliance/managed-rhel.md) · [Si001 IT-Grundschutz (Swiss Federal Administration)](compliance/si001.md)
+
+- :material-target-account: **[MITRE ATT&CK](attack/index.md)**
+
+    ---
+
+    Traces and mitigations of MITRE ATT&CK techniques, tagged with technique and tactic IDs. `--attack-layer` turns the results into an ATT&CK Navigator layer.
+
+    [MITRE ATT&CK Linux](attack/linux.md)
 
 </div>

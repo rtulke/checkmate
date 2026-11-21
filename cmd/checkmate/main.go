@@ -138,6 +138,7 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	format := fs.String("format", "text", "output format on stdout: text, json or junit")
 	jsonOut := fs.String("json-out", "", "also write a JSON report to this file")
 	junitOut := fs.String("junit-out", "", "also write a JUnit XML report to this file")
+	attackOut := fs.String("attack-layer", "", "also write an ATT&CK Navigator layer of the attack-t* tagged checks to this file")
 	jobs := fs.Int("jobs", 0, "number of checks to run in parallel (default: number of CPUs)")
 	fs.IntVar(jobs, "j", 0, "shorthand for --jobs")
 	verbosity := 0
@@ -217,6 +218,12 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	}
 	if *junitOut != "" {
 		if err := writeFile(*junitOut, func(w io.Writer) error { return report.JUnit(w, r) }); err != nil {
+			fmt.Fprintln(stderr, "checkmate:", err)
+			return exitUsage
+		}
+	}
+	if *attackOut != "" {
+		if err := writeFile(*attackOut, func(w io.Writer) error { return report.AttackLayer(w, r, version) }); err != nil {
 			fmt.Fprintln(stderr, "checkmate:", err)
 			return exitUsage
 		}

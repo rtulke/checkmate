@@ -1,0 +1,712 @@
+# MITRE ATT&CK Enterprise techniques, version 20.1 (ID, tactics, name).
+# Generated from https://github.com/mitre-attack/attack-stix-data; used by the
+# tests to validate attack-t* tags. See examples/attack/NOTICE.
+#
+# (c) 2026 The MITRE Corporation. This work is reproduced and distributed with
+# the permission of The MITRE Corporation.
+T1001	command-and-control	Data Obfuscation
+T1001.001	command-and-control	Junk Data
+T1001.002	command-and-control	Steganography
+T1001.003	command-and-control	Protocol or Service Impersonation
+T1003	credential-access	OS Credential Dumping
+T1003.001	credential-access	LSASS Memory
+T1003.002	credential-access	Security Account Manager
+T1003.003	credential-access	NTDS
+T1003.004	credential-access	LSA Secrets
+T1003.005	credential-access	Cached Domain Credentials
+T1003.006	credential-access	DCSync
+T1003.007	credential-access	Proc Filesystem
+T1003.008	credential-access	/etc/passwd and /etc/shadow
+T1005	collection	Data from Local System
+T1006	stealth	Direct Volume Access
+T1007	discovery	System Service Discovery
+T1008	command-and-control	Fallback Channels
+T1010	discovery	Application Window Discovery
+T1011	exfiltration	Exfiltration Over Other Network Medium
+T1011.001	exfiltration	Exfiltration Over Bluetooth
+T1012	discovery	Query Registry
+T1014	stealth	Rootkit
+T1016	discovery	System Network Configuration Discovery
+T1016.001	discovery	Internet Connection Discovery
+T1016.002	discovery	Wi-Fi Discovery
+T1018	discovery	Remote System Discovery
+T1020	exfiltration	Automated Exfiltration
+T1020.001	exfiltration	Traffic Duplication
+T1021	lateral-movement	Remote Services
+T1021.001	lateral-movement	Remote Desktop Protocol
+T1021.002	lateral-movement	SMB/Windows Admin Shares
+T1021.003	lateral-movement	Distributed Component Object Model
+T1021.004	lateral-movement	SSH
+T1021.005	lateral-movement	VNC
+T1021.006	lateral-movement	Windows Remote Management
+T1021.007	lateral-movement	Cloud Services
+T1021.008	lateral-movement	Direct Cloud VM Connections
+T1025	collection	Data from Removable Media
+T1027	stealth	Obfuscated Files or Information
+T1027.001	stealth	Binary Padding
+T1027.002	stealth	Software Packing
+T1027.003	stealth	Steganography
+T1027.004	stealth	Compile After Delivery
+T1027.005	stealth	Indicator Removal from Tools
+T1027.006	stealth	HTML Smuggling
+T1027.007	stealth	Dynamic API Resolution
+T1027.008	stealth	Stripped Payloads
+T1027.009	stealth	Embedded Payloads
+T1027.010	stealth	Command Obfuscation
+T1027.011	stealth	Fileless Storage
+T1027.012	stealth	LNK Icon Smuggling
+T1027.013	stealth	Encrypted/Encoded File
+T1027.014	stealth	Polymorphic Code
+T1027.015	stealth	Compression
+T1027.016	stealth	Junk Code Insertion
+T1027.017	stealth	SVG Smuggling
+T1027.018	stealth	Invisible Unicode
+T1029	exfiltration	Scheduled Transfer
+T1030	exfiltration	Data Transfer Size Limits
+T1033	discovery	System Owner/User Discovery
+T1036	stealth	Masquerading
+T1036.001	stealth	Invalid Code Signature
+T1036.002	stealth	Right-to-Left Override
+T1036.003	stealth	Rename Legitimate Utilities
+T1036.004	stealth	Masquerade Task or Service
+T1036.005	stealth	Match Legitimate Resource Name or Location
+T1036.006	stealth	Space after Filename
+T1036.007	stealth	Double File Extension
+T1036.008	stealth	Masquerade File Type
+T1036.009	stealth	Break Process Trees
+T1036.010	stealth	Masquerade Account Name
+T1036.011	stealth	Overwrite Process Arguments
+T1036.012	stealth	Browser Fingerprint
+T1037	persistence,privilege-escalation	Boot or Logon Initialization Scripts
+T1037.001	persistence,privilege-escalation	Logon Script (Windows)
+T1037.002	persistence,privilege-escalation	Login Hook
+T1037.003	persistence,privilege-escalation	Network Logon Script
+T1037.004	persistence,privilege-escalation	RC Scripts
+T1037.005	persistence,privilege-escalation	Startup Items
+T1039	collection	Data from Network Shared Drive
+T1040	credential-access,discovery	Network Sniffing
+T1041	exfiltration	Exfiltration Over C2 Channel
+T1046	discovery	Network Service Discovery
+T1047	execution	Windows Management Instrumentation
+T1048	exfiltration	Exfiltration Over Alternative Protocol
+T1048.001	exfiltration	Exfiltration Over Symmetric Encrypted Non-C2 Protocol
+T1048.002	exfiltration	Exfiltration Over Asymmetric Encrypted Non-C2 Protocol
+T1048.003	exfiltration	Exfiltration Over Unencrypted Non-C2 Protocol
+T1049	discovery	System Network Connections Discovery
+T1052	exfiltration	Exfiltration Over Physical Medium
+T1052.001	exfiltration	Exfiltration over USB
+T1053	execution,persistence,privilege-escalation	Scheduled Task/Job
+T1053.002	execution,persistence,privilege-escalation	At
+T1053.003	execution,persistence,privilege-escalation	Cron
+T1053.005	execution,persistence,privilege-escalation	Scheduled Task
+T1053.006	execution,persistence,privilege-escalation	Systemd Timers
+T1053.007	execution,persistence,privilege-escalation	Container Orchestration Job
+T1055	stealth,privilege-escalation	Process Injection
+T1055.001	stealth,privilege-escalation	Dynamic-link Library Injection
+T1055.002	stealth,privilege-escalation	Portable Executable Injection
+T1055.003	stealth,privilege-escalation	Thread Execution Hijacking
+T1055.004	stealth,privilege-escalation	Asynchronous Procedure Call
+T1055.005	stealth,privilege-escalation	Thread Local Storage
+T1055.008	stealth,privilege-escalation	Ptrace System Calls
+T1055.009	stealth,privilege-escalation	Proc Memory
+T1055.011	stealth,privilege-escalation	Extra Window Memory Injection
+T1055.012	stealth,privilege-escalation	Process Hollowing
+T1055.013	stealth,privilege-escalation	Process Doppelgänging
+T1055.014	stealth,privilege-escalation	VDSO Hijacking
+T1055.015	stealth,privilege-escalation	ListPlanting
+T1056	collection,credential-access	Input Capture
+T1056.001	collection,credential-access	Keylogging
+T1056.002	collection,credential-access	GUI Input Capture
+T1056.003	collection,credential-access	Web Portal Capture
+T1056.004	collection,credential-access	Credential API Hooking
+T1057	discovery	Process Discovery
+T1059	execution	Command and Scripting Interpreter
+T1059.001	execution	PowerShell
+T1059.002	execution	AppleScript
+T1059.003	execution	Windows Command Shell
+T1059.004	execution	Unix Shell
+T1059.005	execution	Visual Basic
+T1059.006	execution	Python
+T1059.007	execution	JavaScript
+T1059.008	execution	Network Device CLI
+T1059.009	execution	Cloud API
+T1059.010	execution	AutoHotKey & AutoIT
+T1059.011	execution	Lua
+T1059.012	execution	Hypervisor CLI
+T1059.013	execution	Container CLI/API
+T1068	privilege-escalation	Exploitation for Privilege Escalation
+T1069	discovery	Permission Groups Discovery
+T1069.001	discovery	Local Groups
+T1069.002	discovery	Domain Groups
+T1069.003	discovery	Cloud Groups
+T1070	stealth	Indicator Removal
+T1070.003	stealth	Clear Command History
+T1070.004	stealth	File Deletion
+T1070.005	stealth	Network Share Connection Removal
+T1070.006	stealth	Timestomp
+T1070.007	stealth	Clear Network Connection History and Configurations
+T1070.008	stealth	Clear Mailbox Data
+T1070.009	stealth	Clear Persistence
+T1070.010	stealth	Relocate Malware
+T1071	command-and-control	Application Layer Protocol
+T1071.001	command-and-control	Web Protocols
+T1071.002	command-and-control	File Transfer Protocols
+T1071.003	command-and-control	Mail Protocols
+T1071.004	command-and-control	DNS
+T1071.005	command-and-control	Publish/Subscribe Protocols
+T1072	execution,lateral-movement	Software Deployment Tools
+T1074	collection	Data Staged
+T1074.001	collection	Local Data Staging
+T1074.002	collection	Remote Data Staging
+T1078	stealth,persistence,privilege-escalation,initial-access	Valid Accounts
+T1078.001	stealth,persistence,privilege-escalation,initial-access	Default Accounts
+T1078.002	stealth,persistence,privilege-escalation,initial-access	Domain Accounts
+T1078.003	stealth,persistence,privilege-escalation,initial-access	Local Accounts
+T1078.004	stealth,persistence,privilege-escalation,initial-access	Cloud Accounts
+T1080	lateral-movement	Taint Shared Content
+T1082	discovery	System Information Discovery
+T1083	discovery	File and Directory Discovery
+T1087	discovery	Account Discovery
+T1087.001	discovery	Local Account
+T1087.002	discovery	Domain Account
+T1087.003	discovery	Email Account
+T1087.004	discovery	Cloud Account
+T1090	command-and-control	Proxy
+T1090.001	command-and-control	Internal Proxy
+T1090.002	command-and-control	External Proxy
+T1090.003	command-and-control	Multi-hop Proxy
+T1090.004	command-and-control	Domain Fronting
+T1091	lateral-movement,initial-access	Replication Through Removable Media
+T1092	command-and-control	Communication Through Removable Media
+T1095	command-and-control	Non-Application Layer Protocol
+T1098	persistence,privilege-escalation	Account Manipulation
+T1098.001	persistence,privilege-escalation	Additional Cloud Credentials
+T1098.002	persistence,privilege-escalation	Additional Email Delegate Permissions
+T1098.003	persistence,privilege-escalation	Additional Cloud Roles
+T1098.004	persistence,privilege-escalation	SSH Authorized Keys
+T1098.005	persistence,privilege-escalation	Device Registration
+T1098.006	persistence,privilege-escalation	Additional Container Cluster Roles
+T1098.007	persistence,privilege-escalation	Additional Local or Domain Groups
+T1102	command-and-control	Web Service
+T1102.001	command-and-control	Dead Drop Resolver
+T1102.002	command-and-control	Bidirectional Communication
+T1102.003	command-and-control	One-Way Communication
+T1104	command-and-control	Multi-Stage Channels
+T1105	command-and-control	Ingress Tool Transfer
+T1106	execution	Native API
+T1110	credential-access	Brute Force
+T1110.001	credential-access	Password Guessing
+T1110.002	credential-access	Password Cracking
+T1110.003	credential-access	Password Spraying
+T1110.004	credential-access	Credential Stuffing
+T1111	credential-access	Multi-Factor Authentication Interception
+T1112	defense-impairment,persistence	Modify Registry
+T1113	collection	Screen Capture
+T1114	collection	Email Collection
+T1114.001	collection	Local Email Collection
+T1114.002	collection	Remote Email Collection
+T1114.003	collection	Email Forwarding Rule
+T1115	collection	Clipboard Data
+T1119	collection	Automated Collection
+T1120	discovery	Peripheral Device Discovery
+T1123	collection	Audio Capture
+T1124	discovery	System Time Discovery
+T1125	collection	Video Capture
+T1127	stealth,execution	Trusted Developer Utilities Proxy Execution
+T1127.001	stealth,execution	MSBuild
+T1127.002	stealth,execution	ClickOnce
+T1127.003	stealth,execution	JamPlus
+T1129	execution	Shared Modules
+T1132	command-and-control	Data Encoding
+T1132.001	command-and-control	Standard Encoding
+T1132.002	command-and-control	Non-Standard Encoding
+T1133	persistence,initial-access	External Remote Services
+T1134	stealth,privilege-escalation	Access Token Manipulation
+T1134.001	stealth,privilege-escalation	Token Impersonation/Theft
+T1134.002	stealth,privilege-escalation	Create Process with Token
+T1134.003	stealth,privilege-escalation	Make and Impersonate Token
+T1134.004	stealth,privilege-escalation	Parent PID Spoofing
+T1134.005	stealth,privilege-escalation	SID-History Injection
+T1135	discovery	Network Share Discovery
+T1136	persistence	Create Account
+T1136.001	persistence	Local Account
+T1136.002	persistence	Domain Account
+T1136.003	persistence	Cloud Account
+T1137	persistence	Office Application Startup
+T1137.001	persistence	Office Template Macros
+T1137.002	persistence	Office Test
+T1137.003	persistence	Outlook Forms
+T1137.004	persistence	Outlook Home Page
+T1137.005	persistence	Outlook Rules
+T1137.006	persistence	Add-ins
+T1140	stealth	Deobfuscate/Decode Files or Information
+T1176	persistence	Software Extensions
+T1176.001	persistence	Browser Extensions
+T1176.002	persistence	IDE Extensions
+T1185	collection	Browser Session Hijacking
+T1187	credential-access	Forced Authentication
+T1189	initial-access	Drive-by Compromise
+T1190	initial-access	Exploit Public-Facing Application
+T1195	initial-access	Supply Chain Compromise
+T1195.001	initial-access	Compromise Software Dependencies and Development Tools
+T1195.002	initial-access	Compromise Software Supply Chain
+T1195.003	initial-access	Compromise Hardware Supply Chain
+T1197	stealth,persistence,execution	BITS Jobs
+T1199	initial-access	Trusted Relationship
+T1200	initial-access	Hardware Additions
+T1201	discovery	Password Policy Discovery
+T1202	stealth	Indirect Command Execution
+T1203	execution	Exploitation for Client Execution
+T1204	execution	User Execution
+T1204.001	execution	Malicious Link
+T1204.002	execution	Malicious File
+T1204.003	execution	Malicious Image
+T1204.004	execution	Malicious Copy and Paste
+T1204.005	execution	Malicious Library
+T1205	stealth,persistence,command-and-control	Traffic Signaling
+T1205.001	stealth,persistence,command-and-control	Port Knocking
+T1205.002	stealth,persistence,command-and-control	Socket Filters
+T1207	defense-impairment	Rogue Domain Controller
+T1210	lateral-movement	Exploitation of Remote Services
+T1211	stealth	Exploitation for Stealth
+T1212	credential-access	Exploitation for Credential Access
+T1213	collection	Data from Information Repositories
+T1213.001	collection	Confluence
+T1213.002	collection	Sharepoint
+T1213.003	collection	Code Repositories
+T1213.004	collection	Customer Relationship Management Software
+T1213.005	collection	Messaging Applications
+T1213.006	collection	Databases
+T1216	stealth	System Script Proxy Execution
+T1216.001	stealth	PubPrn
+T1216.002	stealth	SyncAppvPublishingServer
+T1217	discovery	Browser Information Discovery
+T1218	stealth	System Binary Proxy Execution
+T1218.001	stealth	Compiled HTML File
+T1218.002	stealth	Control Panel
+T1218.003	stealth	CMSTP
+T1218.004	stealth	InstallUtil
+T1218.005	stealth	Mshta
+T1218.007	stealth	Msiexec
+T1218.008	stealth	Odbcconf
+T1218.009	stealth	Regsvcs/Regasm
+T1218.010	stealth	Regsvr32
+T1218.011	stealth	Rundll32
+T1218.012	stealth	Verclsid
+T1218.013	stealth	Mavinject
+T1218.014	stealth	MMC
+T1218.015	stealth	Electron Applications
+T1219	command-and-control	Remote Access Tools
+T1219.001	command-and-control	IDE Tunneling
+T1219.002	command-and-control	Remote Desktop Software
+T1219.003	command-and-control	Remote Access Hardware
+T1220	stealth	XSL Script Processing
+T1221	stealth	Template Injection
+T1222	defense-impairment	File and Directory Permissions Modification
+T1222.001	defense-impairment	Windows Permissions
+T1222.002	defense-impairment	Linux and Mac Permissions
+T1480	stealth	Execution Guardrails
+T1480.001	stealth	Environmental Keying
+T1480.002	stealth	Mutual Exclusion
+T1482	discovery	Domain Trust Discovery
+T1484	defense-impairment,privilege-escalation	Domain or Tenant Policy Modification
+T1484.001	defense-impairment,privilege-escalation	Group Policy Modification
+T1484.002	defense-impairment,privilege-escalation	Trust Modification
+T1485	impact	Data Destruction
+T1485.001	impact	Lifecycle-Triggered Deletion
+T1486	impact	Data Encrypted for Impact
+T1489	impact	Service Stop
+T1490	impact	Inhibit System Recovery
+T1491	impact	Defacement
+T1491.001	impact	Internal Defacement
+T1491.002	impact	External Defacement
+T1495	impact	Firmware Corruption
+T1496	impact	Resource Hijacking
+T1496.001	impact	Compute Hijacking
+T1496.002	impact	Bandwidth Hijacking
+T1496.003	impact	SMS Pumping
+T1496.004	impact	Cloud Service Hijacking
+T1497	stealth,discovery	Virtualization/Sandbox Evasion
+T1497.001	stealth,discovery	System Checks
+T1497.002	stealth,discovery	User Activity Based Checks
+T1497.003	stealth,discovery	Time Based Checks
+T1498	impact	Network Denial of Service
+T1498.001	impact	Direct Network Flood
+T1498.002	impact	Reflection Amplification
+T1499	impact	Endpoint Denial of Service
+T1499.001	impact	OS Exhaustion Flood
+T1499.002	impact	Service Exhaustion Flood
+T1499.003	impact	Application Exhaustion Flood
+T1499.004	impact	Application or System Exploitation
+T1505	persistence	Server Software Component
+T1505.001	persistence	SQL Stored Procedures
+T1505.002	persistence	Transport Agent
+T1505.003	persistence	Web Shell
+T1505.004	persistence	IIS Components
+T1505.005	persistence	Terminal Services DLL
+T1505.006	persistence	vSphere Installation Bundles
+T1518	discovery	Software Discovery
+T1518.001	discovery	Security Software Discovery
+T1518.002	discovery	Backup Software Discovery
+T1525	persistence	Implant Internal Image
+T1526	discovery	Cloud Service Discovery
+T1528	credential-access	Steal Application Access Token
+T1529	impact	System Shutdown/Reboot
+T1530	collection	Data from Cloud Storage
+T1531	impact	Account Access Removal
+T1534	lateral-movement	Internal Spearphishing
+T1535	stealth	Unused/Unsupported Cloud Regions
+T1537	exfiltration	Transfer Data to Cloud Account
+T1538	discovery	Cloud Service Dashboard
+T1539	credential-access	Steal Web Session Cookie
+T1542	stealth,persistence	Pre-OS Boot
+T1542.001	stealth,persistence	System Firmware
+T1542.002	stealth,persistence	Component Firmware
+T1542.003	stealth,persistence	Bootkit
+T1542.004	stealth,persistence	ROMMONkit
+T1542.005	stealth,persistence	TFTP Boot
+T1543	persistence,privilege-escalation	Create or Modify System Process
+T1543.001	persistence,privilege-escalation	Launch Agent
+T1543.002	persistence,privilege-escalation	Systemd Service
+T1543.003	persistence,privilege-escalation	Windows Service
+T1543.004	persistence,privilege-escalation	Launch Daemon
+T1543.005	persistence,privilege-escalation	Container Service
+T1546	privilege-escalation,persistence	Event Triggered Execution
+T1546.001	privilege-escalation,persistence	Change Default File Association
+T1546.002	privilege-escalation,persistence	Screensaver
+T1546.003	privilege-escalation,persistence	Windows Management Instrumentation Event Subscription
+T1546.004	privilege-escalation,persistence	Unix Shell Configuration Modification
+T1546.005	privilege-escalation,persistence	Trap
+T1546.006	privilege-escalation,persistence	LC_LOAD_DYLIB Addition
+T1546.007	privilege-escalation,persistence	Netsh Helper DLL
+T1546.008	privilege-escalation,persistence	Accessibility Features
+T1546.009	privilege-escalation,persistence	AppCert DLLs
+T1546.010	privilege-escalation,persistence	AppInit DLLs
+T1546.011	privilege-escalation,persistence	Application Shimming
+T1546.012	privilege-escalation,persistence	Image File Execution Options Injection
+T1546.013	privilege-escalation,persistence	PowerShell Profile
+T1546.014	privilege-escalation,persistence	Emond
+T1546.015	privilege-escalation,persistence	Component Object Model Hijacking
+T1546.016	privilege-escalation,persistence	Installer Packages
+T1546.017	persistence,privilege-escalation	Udev Rules
+T1546.018	persistence,privilege-escalation	Python Startup Hooks
+T1547	persistence,privilege-escalation	Boot or Logon Autostart Execution
+T1547.001	persistence,privilege-escalation	Registry Run Keys / Startup Folder
+T1547.002	persistence,privilege-escalation	Authentication Package
+T1547.003	persistence,privilege-escalation	Time Providers
+T1547.004	persistence,privilege-escalation	Winlogon Helper DLL
+T1547.005	persistence,privilege-escalation	Security Support Provider
+T1547.006	persistence,privilege-escalation	Kernel Modules and Extensions
+T1547.007	persistence,privilege-escalation	Re-opened Applications
+T1547.008	persistence,privilege-escalation	LSASS Driver
+T1547.009	persistence,privilege-escalation	Shortcut Modification
+T1547.010	persistence,privilege-escalation	Port Monitors
+T1547.012	persistence,privilege-escalation	Print Processors
+T1547.013	persistence,privilege-escalation	XDG Autostart Entries
+T1547.014	persistence,privilege-escalation	Active Setup
+T1547.015	persistence,privilege-escalation	Login Items
+T1548	privilege-escalation	Abuse Elevation Control Mechanism
+T1548.001	privilege-escalation	Setuid and Setgid
+T1548.002	privilege-escalation	Bypass User Account Control
+T1548.003	privilege-escalation	Sudo and Sudo Caching
+T1548.004	privilege-escalation	Elevated Execution with Prompt
+T1548.005	privilege-escalation	Temporary Elevated Cloud Access
+T1548.006	privilege-escalation	TCC Manipulation
+T1550	lateral-movement	Use Alternate Authentication Material
+T1550.001	lateral-movement	Application Access Token
+T1550.002	lateral-movement	Pass the Hash
+T1550.003	lateral-movement	Pass the Ticket
+T1550.004	lateral-movement	Web Session Cookie
+T1552	credential-access	Unsecured Credentials
+T1552.001	credential-access	Credentials In Files
+T1552.002	credential-access	Credentials in Registry
+T1552.003	credential-access	Shell History
+T1552.004	credential-access	Private Keys
+T1552.005	credential-access	Cloud Instance Metadata API
+T1552.006	credential-access	Group Policy Preferences
+T1552.007	credential-access	Container API
+T1552.008	credential-access	Chat Messages
+T1553	defense-impairment	Subvert Trust Controls
+T1553.001	defense-impairment	Gatekeeper Bypass
+T1553.002	defense-impairment	Code Signing
+T1553.003	defense-impairment	SIP and Trust Provider Hijacking
+T1553.004	defense-impairment	Install Root Certificate
+T1553.005	defense-impairment	Mark-of-the-Web Bypass
+T1553.006	defense-impairment	Code Signing Policy Modification
+T1554	persistence	Compromise Host Software Binary
+T1555	credential-access	Credentials from Password Stores
+T1555.001	credential-access	Keychain
+T1555.002	credential-access	Securityd Memory
+T1555.003	credential-access	Credentials from Web Browsers
+T1555.004	credential-access	Windows Credential Manager
+T1555.005	credential-access	Password Managers
+T1555.006	credential-access	Cloud Secrets Management Stores
+T1556	defense-impairment,persistence,credential-access	Modify Authentication Process
+T1556.001	defense-impairment,persistence,credential-access	Domain Controller Authentication
+T1556.002	defense-impairment,persistence,credential-access	Password Filter DLL
+T1556.003	defense-impairment,persistence,credential-access	Pluggable Authentication Modules
+T1556.004	defense-impairment,persistence,credential-access	Network Device Authentication
+T1556.005	defense-impairment,persistence,credential-access	Reversible Encryption
+T1556.006	defense-impairment,persistence,credential-access	Multi-Factor Authentication
+T1556.007	defense-impairment,persistence,credential-access	Hybrid Identity
+T1556.008	defense-impairment,persistence,credential-access	Network Provider DLL
+T1556.009	defense-impairment,persistence,credential-access	Conditional Access Policies
+T1557	credential-access,collection	Adversary-in-the-Middle
+T1557.001	credential-access,collection	Name Resolution Poisoning and SMB Relay
+T1557.002	credential-access,collection	ARP Cache Poisoning
+T1557.003	credential-access,collection	DHCP Spoofing
+T1557.004	credential-access,collection	Evil Twin
+T1558	credential-access	Steal or Forge Kerberos Tickets
+T1558.001	credential-access	Golden Ticket
+T1558.002	credential-access	Silver Ticket
+T1558.003	credential-access	Kerberoasting
+T1558.004	credential-access	AS-REP Roasting
+T1558.005	credential-access	Ccache Files
+T1559	execution	Inter-Process Communication
+T1559.001	execution	Component Object Model
+T1559.002	execution	Dynamic Data Exchange
+T1559.003	execution	XPC Services
+T1560	collection	Archive Collected Data
+T1560.001	collection	Archive via Utility
+T1560.002	collection	Archive via Library
+T1560.003	collection	Archive via Custom Method
+T1561	impact	Disk Wipe
+T1561.001	impact	Disk Content Wipe
+T1561.002	impact	Disk Structure Wipe
+T1563	lateral-movement	Remote Service Session Hijacking
+T1563.001	lateral-movement	SSH Hijacking
+T1563.002	lateral-movement	RDP Hijacking
+T1564	stealth	Hide Artifacts
+T1564.001	stealth	Hidden Files and Directories
+T1564.002	stealth	Hidden Users
+T1564.003	stealth	Hidden Window
+T1564.004	stealth	NTFS File Attributes
+T1564.005	stealth	Hidden File System
+T1564.006	stealth	Run Virtual Instance
+T1564.007	stealth	VBA Stomping
+T1564.008	stealth	Email Hiding Rules
+T1564.009	stealth	Resource Forking
+T1564.010	stealth	Process Argument Spoofing
+T1564.011	stealth	Ignore Process Interrupts
+T1564.012	stealth	File/Path Exclusions
+T1564.013	stealth	Bind Mounts
+T1564.014	stealth	Extended Attributes
+T1565	impact	Data Manipulation
+T1565.001	impact	Stored Data Manipulation
+T1565.002	impact	Transmitted Data Manipulation
+T1565.003	impact	Runtime Data Manipulation
+T1566	initial-access	Phishing
+T1566.001	initial-access	Spearphishing Attachment
+T1566.002	initial-access	Spearphishing Link
+T1566.003	initial-access	Spearphishing via Service
+T1566.004	initial-access	Spearphishing Voice
+T1567	exfiltration	Exfiltration Over Web Service
+T1567.001	exfiltration	Exfiltration to Code Repository
+T1567.002	exfiltration	Exfiltration to Cloud Storage
+T1567.003	exfiltration	Exfiltration to Text Storage Sites
+T1567.004	exfiltration	Exfiltration Over Webhook
+T1568	command-and-control	Dynamic Resolution
+T1568.001	command-and-control	Fast Flux DNS
+T1568.002	command-and-control	Domain Generation Algorithms
+T1568.003	command-and-control	DNS Calculation
+T1569	execution	System Services
+T1569.001	execution	Launchctl
+T1569.002	execution	Service Execution
+T1569.003	execution	Systemctl
+T1570	lateral-movement	Lateral Tool Transfer
+T1571	command-and-control	Non-Standard Port
+T1572	command-and-control	Protocol Tunneling
+T1573	command-and-control	Encrypted Channel
+T1573.001	command-and-control	Symmetric Cryptography
+T1573.002	command-and-control	Asymmetric Cryptography
+T1574	stealth,execution	Hijack Execution Flow
+T1574.001	stealth,execution	DLL
+T1574.004	stealth,execution	Dylib Hijacking
+T1574.005	stealth,execution	Executable Installer File Permissions Weakness
+T1574.006	stealth,execution	Dynamic Linker Hijacking
+T1574.007	stealth,execution	Path Interception by PATH Environment Variable
+T1574.008	stealth,execution	Path Interception by Search Order Hijacking
+T1574.009	stealth,execution	Path Interception by Unquoted Path
+T1574.010	stealth,execution	Services File Permissions Weakness
+T1574.011	stealth,execution	Services Registry Permissions Weakness
+T1574.012	stealth,execution	COR_PROFILER
+T1574.013	stealth,execution	KernelCallbackTable
+T1574.014	stealth,execution	AppDomainManager
+T1578	defense-impairment	Modify Cloud Compute Infrastructure
+T1578.001	defense-impairment	Create Snapshot
+T1578.002	defense-impairment	Create Cloud Instance
+T1578.003	defense-impairment	Delete Cloud Instance
+T1578.004	defense-impairment	Revert Cloud Instance
+T1578.005	defense-impairment	Modify Cloud Compute Configurations
+T1580	discovery	Cloud Infrastructure Discovery
+T1583	resource-development	Acquire Infrastructure
+T1583.001	resource-development	Domains
+T1583.002	resource-development	DNS Server
+T1583.003	resource-development	Virtual Private Server
+T1583.004	resource-development	Server
+T1583.005	resource-development	Botnet
+T1583.006	resource-development	Web Services
+T1583.007	resource-development	Serverless
+T1583.008	resource-development	Malvertising
+T1584	resource-development	Compromise Infrastructure
+T1584.001	resource-development	Domains
+T1584.002	resource-development	DNS Server
+T1584.003	resource-development	Virtual Private Server
+T1584.004	resource-development	Server
+T1584.005	resource-development	Botnet
+T1584.006	resource-development	Web Services
+T1584.007	resource-development	Serverless
+T1584.008	resource-development	Network Devices
+T1585	resource-development	Establish Accounts
+T1585.001	resource-development	Social Media Accounts
+T1585.002	resource-development	Email Accounts
+T1585.003	resource-development	Cloud Accounts
+T1586	resource-development	Compromise Accounts
+T1586.001	resource-development	Social Media Accounts
+T1586.002	resource-development	Email Accounts
+T1586.003	resource-development	Cloud Accounts
+T1587	resource-development	Develop Capabilities
+T1587.001	resource-development	Malware
+T1587.002	resource-development	Code Signing Certificates
+T1587.003	resource-development	Digital Certificates
+T1587.004	resource-development	Exploits
+T1588	resource-development	Obtain Capabilities
+T1588.001	resource-development	Malware
+T1588.002	resource-development	Tool
+T1588.003	resource-development	Code Signing Certificates
+T1588.004	resource-development	Digital Certificates
+T1588.005	resource-development	Exploits
+T1588.006	resource-development	Vulnerabilities
+T1588.007	resource-development	Artificial Intelligence
+T1589	reconnaissance	Gather Victim Identity Information
+T1589.001	reconnaissance	Credentials
+T1589.002	reconnaissance	Email Addresses
+T1589.003	reconnaissance	Employee Names
+T1590	reconnaissance	Gather Victim Network Information
+T1590.001	reconnaissance	Domain Properties
+T1590.002	reconnaissance	DNS
+T1590.003	reconnaissance	Network Trust Dependencies
+T1590.004	reconnaissance	Network Topology
+T1590.005	reconnaissance	IP Addresses
+T1590.006	reconnaissance	Network Security Appliances
+T1591	reconnaissance	Gather Victim Org Information
+T1591.001	reconnaissance	Determine Physical Locations
+T1591.002	reconnaissance	Business Relationships
+T1591.003	reconnaissance	Identify Business Tempo
+T1591.004	reconnaissance	Identify Roles
+T1592	reconnaissance	Gather Victim Host Information
+T1592.001	reconnaissance	Hardware
+T1592.002	reconnaissance	Software
+T1592.003	reconnaissance	Firmware
+T1592.004	reconnaissance	Client Configurations
+T1593	reconnaissance	Search Open Websites/Domains
+T1593.001	reconnaissance	Social Media
+T1593.002	reconnaissance	Search Engines
+T1593.003	reconnaissance	Code Repositories
+T1594	reconnaissance	Search Victim-Owned Websites
+T1595	reconnaissance	Active Scanning
+T1595.001	reconnaissance	Scanning IP Blocks
+T1595.002	reconnaissance	Vulnerability Scanning
+T1595.003	reconnaissance	Wordlist Scanning
+T1596	reconnaissance	Search Open Technical Databases
+T1596.001	reconnaissance	DNS/Passive DNS
+T1596.002	reconnaissance	WHOIS
+T1596.003	reconnaissance	Digital Certificates
+T1596.004	reconnaissance	CDNs
+T1596.005	reconnaissance	Scan Databases
+T1597	reconnaissance	Search Closed Sources
+T1597.001	reconnaissance	Threat Intel Vendors
+T1597.002	reconnaissance	Purchase Technical Data
+T1598	reconnaissance	Phishing for Information
+T1598.001	reconnaissance	Spearphishing Service
+T1598.002	reconnaissance	Spearphishing Attachment
+T1598.003	reconnaissance	Spearphishing Link
+T1598.004	reconnaissance	Spearphishing Voice
+T1599	defense-impairment	Network Boundary Bridging
+T1599.001	defense-impairment	Network Address Translation Traversal
+T1600	defense-impairment	Weaken Encryption
+T1600.001	defense-impairment	Reduce Key Space
+T1600.002	defense-impairment	Disable Crypto Hardware
+T1601	defense-impairment	Modify System Image
+T1601.001	defense-impairment	Patch System Image
+T1601.002	defense-impairment	Downgrade System Image
+T1602	collection	Data from Configuration Repository
+T1602.001	collection	SNMP (MIB Dump)
+T1602.002	collection	Network Device Configuration Dump
+T1606	credential-access	Forge Web Credentials
+T1606.001	credential-access	Web Cookies
+T1606.002	credential-access	SAML Tokens
+T1608	resource-development	Stage Capabilities
+T1608.001	resource-development	Upload Malware
+T1608.002	resource-development	Upload Tool
+T1608.003	resource-development	Install Digital Certificate
+T1608.004	resource-development	Drive-by Target
+T1608.005	resource-development	Link Target
+T1608.006	resource-development	SEO Poisoning
+T1608.007	resource-development	AI Result Poisoning
+T1609	execution	Container Administration Command
+T1610	execution	Deploy Container
+T1611	privilege-escalation	Escape to Host
+T1612	stealth	Build Image on Host
+T1613	discovery	Container and Resource Discovery
+T1614	discovery	System Location Discovery
+T1614.001	discovery	System Language Discovery
+T1615	discovery	Group Policy Discovery
+T1619	discovery	Cloud Storage Object Discovery
+T1620	stealth	Reflective Code Loading
+T1621	credential-access	Multi-Factor Authentication Request Generation
+T1622	stealth,discovery	Debugger Evasion
+T1647	defense-impairment	Plist File Modification
+T1648	execution	Serverless Execution
+T1649	credential-access	Steal or Forge Authentication Certificates
+T1650	resource-development	Acquire Access
+T1651	execution	Cloud Administration Command
+T1652	discovery	Device Driver Discovery
+T1653	persistence	Power Settings
+T1654	discovery	Log Enumeration
+T1657	impact	Financial Theft
+T1659	initial-access,command-and-control	Content Injection
+T1665	command-and-control	Hide Infrastructure
+T1666	defense-impairment	Modify Cloud Resource Hierarchy
+T1667	impact	Email Bombing
+T1668	persistence	Exclusive Control
+T1669	initial-access	Wi-Fi Networks
+T1671	persistence	Cloud Application Integration
+T1673	discovery	Virtual Machine Discovery
+T1674	execution	Input Injection
+T1675	execution	ESXi Administration Command
+T1677	execution	Poisoned Pipeline Execution
+T1678	stealth	Delay Execution
+T1679	stealth	Selective Exclusion
+T1680	discovery	Local Storage Discovery
+T1681	reconnaissance	Search Threat Vendor Data
+T1682	reconnaissance	Query Public AI Services
+T1683	resource-development	Generate Content
+T1683.001	resource-development	Written Content
+T1683.002	resource-development	Audio-Visual Content
+T1684	stealth	Social Engineering
+T1684.001	stealth	Impersonation
+T1684.002	stealth	Email Spoofing
+T1685	defense-impairment	Disable or Modify Tools
+T1685.001	defense-impairment	Disable or Modify Windows Event Log
+T1685.002	defense-impairment	Disable or Modify Cloud Log
+T1685.003	defense-impairment	Modify or Spoof Tool UI
+T1685.004	defense-impairment	Disable or Modify Linux Audit System Log
+T1685.005	defense-impairment	Clear Windows Event Logs
+T1685.006	defense-impairment	Clear Linux or Mac System Logs
+T1685.007	defense-impairment	Impair Autonomous Defenses
+T1686	defense-impairment	Disable or Modify System Firewall
+T1686.001	defense-impairment	Cloud Firewall
+T1686.002	defense-impairment	Network Device Firewall
+T1686.003	defense-impairment	Windows Host Firewall
+T1687	defense-impairment	Exploitation for Defense Impairment
+T1688	defense-impairment	Safe Mode Boot
+T1689	defense-impairment	Downgrade Attack
+T1690	defense-impairment	Prevent Command History Logging
+T1696	stealth	Anti-Automation Evasion
+T1696.001	stealth	Automate CAPTCHA Completion
+T1696.002	stealth	Avoid CAPTCHA
+T1697	credential-access	Steal Application Specific Passwords
+T1698	execution	Indirect Prompt Injection
+T1699	execution	Direct Prompt Injection
+T1700	exfiltration	AI-Enabled Exfiltration

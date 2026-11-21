@@ -11,6 +11,7 @@ deviations go into a [waiver file](reference/waivers.md).
 | [BSI IT-Grundschutz](examples/compliance/bsi-grundschutz.md) | Linux servers (SYS.1.1, SYS.1.3) | `examples/compliance/bsi-grundschutz.yml` | `bsi-basis`, `bsi-standard`, `bsi-hoch` |
 | [Si001 IT-Grundschutz Bund (CH)](examples/compliance/si001.md) | Linux servers and clients, macOS and Windows clients | `examples/compliance/si001.yml` | `-e si001_schutzbedarf=erhoeht`, `-e si001_rolle=client` |
 | NIST SP 800-53 / 800-171, CMMC | macOS (via mSCP), Linux (via STIG) | `cis/macos*.yml`, `stig/*.yml` | `nist-800-53r5-moderate`, `nist-800-171`, `cmmc-level-2`, … |
+| [MITRE ATT&CK](examples/attack/index.md) | Linux | `examples/attack/*.yml` | `attack-t1053.003`, `attack-persistence`, … and `--attack-layer` |
 | [Linux hardening](examples/compliance/linux-hardening.md) | Linux | `examples/compliance/linux-hardening.yml` | `hardening` |
 
 ```bash
@@ -53,6 +54,33 @@ Si001 gives concrete values for passwords (T7: at least 10 characters, three
 character classes, history of 10, lockout after 5 attempts) and clients
 (S5.2: screen lock after 15 minutes); the other checks are a technical
 interpretation of its principles. All limits are variables.
+
+## MITRE ATT&CK
+
+ATT&CK is not a configuration benchmark but a knowledge base of attacker
+techniques. checkmate uses it in two ways:
+
+- **Policies** in `examples/attack/` check for traces of techniques
+  (planted cron jobs, preloaded libraries, SUID files in `/tmp`, a second UID 0
+  account, web shells, processes running from memory or `/tmp`, ...) and for
+  their mitigations (audit, firewall, persistent logs). Every check is tagged
+  with its technique and tactics, e.g. `attack-t1053.003` and
+  `attack-persistence`; a test validates every tag against the ATT&CK data.
+- **`--attack-layer FILE`** writes an [ATT&CK Navigator](https://mitre-attack.github.io/attack-navigator/)
+  layer for any policy with `attack-t*` tags. Each technique is colored by the
+  worst result of its checks (failed, warning, waived, passed) and carries the
+  failing check IDs as comment. Open it in the Navigator with *Open Existing
+  Layer*.
+
+```bash
+sudo checkmate run examples/attack/linux.yml --attack-layer attack.json
+sudo checkmate run examples/attack/linux.yml --tags attack-persistence -v
+```
+
+An automatic mapping of all CIS and STIG checks through NIST 800-53 was
+evaluated and left out: generic controls such as CM-6 map to more than 300
+techniques each, which would tag every hardening check with hundreds of
+techniques.
 
 ## Deviations and exceptions
 

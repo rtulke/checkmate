@@ -24,6 +24,7 @@ Flags may come before or after the policy file.
 | `--format FORMAT` | Output on stdout: `text` (default), `json`, `junit`. |
 | `--json-out FILE` | Also write a JSON report to a file. |
 | `--junit-out FILE` | Also write a JUnit XML report to a file. |
+| `--attack-layer FILE` | Also write an [ATT&CK Navigator](../standards.md#mitre-attck) layer of the checks tagged `attack-t*`. |
 | `-j`, `--jobs N` | Checks to run in parallel. Default: number of CPUs. |
 | `-v`, `--verbose` | More output, repeatable (`-v -v` = `-vv`). See [Output levels](#output-levels). |
 | `-vv` | Details of failed, warned and errored checks. |

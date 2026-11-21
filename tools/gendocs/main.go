@@ -52,7 +52,8 @@ var categories = []category{
 	{"applications", "Applications", "Docker, Kubernetes, nginx, Apache, PHP and web content, PostgreSQL, MySQL, MongoDB, Redis and web endpoints."},
 	{"cloud", "Cloud", "Cloud instances on AWS, Azure and Google Cloud: metadata service, agents and stored credentials."},
 	{"validation", "Server validation", "Describe the expected state of a server role and validate it, in the style of goss and serverspec."},
-	{"compliance", "Compliance baselines", "Complete baselines: a broad Linux hardening baseline modelled on OpenSCAP and CIS, and a managed-RHEL baseline with a tag-based selection model."},
+	{"compliance", "Compliance baselines", "Complete baselines: BSI IT-Grundschutz, Si001 of the Swiss Federal Administration, a broad Linux hardening baseline modelled on OpenSCAP and CIS, and a managed-RHEL baseline."},
+	{"attack", "MITRE ATT&CK", "Traces and mitigations of MITRE ATT&CK techniques, tagged with technique and tactic IDs. `--attack-layer` turns the results into an ATT&CK Navigator layer."},
 }
 
 type policyDoc struct {
@@ -594,6 +595,7 @@ func categoryIcon(dir string) string {
 		"remote":          ":material-remote-desktop:",
 		"applications":    ":material-application-cog:",
 		"compliance":      ":material-shield-check:",
+		"attack":          ":material-target-account:",
 		"cloud":           ":material-cloud-check:",
 		"validation":      ":material-clipboard-check:",
 	}

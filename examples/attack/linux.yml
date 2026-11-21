@@ -1,0 +1,378 @@
+name: MITRE ATT&CK Linux
+version: 1.0.0
+description: >
+  Checks for traces and mitigations of MITRE ATT&CK techniques on Linux:
+  persistence (cron, systemd, shell profiles, rc scripts, udev, PAM, SSH keys,
+  kernel modules), privilege escalation (SUID files, sudo, PATH, container
+  escape), credential access (shadow file, private keys, credential files)
+  and impairing defenses (preloaded libraries, disabled history, audit,
+  firewall, logs). Every check carries the technique and its tactics as tags
+  (attack-t1053.003, attack-persistence), so `--attack-layer` turns the
+  results into an ATT&CK Navigator layer. The trace checks only report what
+  practically never appears on a clean system; known exceptions go into the
+  variables or a waiver file.
+
+vars:
+  # Command lines that download and run code, open reverse shells or run
+  # programs from world-writable directories.
+  attack_suspicious: '(curl|wget)[^|;]*\|[[:space:]]*(sudo[[:space:]]+)?(ba|da|z)?sh|/dev/(tcp|udp)/|base64[[:space:]]+(-d|--decode)|nc[[:space:]].*-e[[:space:]]|(^|[[:space:]"=])(/tmp|/var/tmp|/dev/shm)/'
+  # Shell configuration files of the system and of root.
+  attack_shell_files: /etc/profile /etc/profile.d/*.sh /etc/bash.bashrc /etc/bashrc /etc/zsh/zshrc /etc/zshrc /etc/environment /root/.bashrc /root/.bash_profile /root/.profile /root/.zshrc
+  # Out-of-tree or unsigned kernel modules that are expected (DKMS, ZFS, GPU).
+  attack_allowed_modules: [zfs, spl, nvidia, nvidia_drm, nvidia_modeset, nvidia_uvm, vboxdrv, vboxnetflt, vboxnetadp, wireguard]
+
+defaults:
+  when:
+    - facts.os == "linux"
+    - facts.is_root
+
+checks:
+  # ===== Persistence ===========================================================
+
+  - id: ATT-LNX-CRON-PERMS
+    name: Cron configuration is owned by root and not writable by others
+    description: T1053.003 Cron. Writable cron files let any user schedule commands as root.
+    tags: [attack, attack-t1053.003, attack-persistence, attack-privilege-escalation, cron]
+    severity: high
+    run: |
+      find -H /etc/crontab /etc/cron.d /etc/cron.hourly /etc/cron.daily /etc/cron.weekly /etc/cron.monthly /etc/anacrontab \
+        \( ! -user root -o -perm /022 \) -print 2>/dev/null || true
+    expect: empty
+
+  - id: ATT-LNX-CRON-SUSPICIOUS
+    name: No cron job downloads code, opens a shell or runs from /tmp
+    description: T1053.003 Cron. Lists cron lines matching attack_suspicious in system and user crontabs.
+    tags: [attack, attack-t1053.003, attack-persistence, attack-execution, cron]
+    severity: high
+    run: |
+      for f in /etc/crontab /etc/cron.d/* /var/spool/cron/* /var/spool/cron/crontabs/* /etc/anacrontab; do
+        [ -f "$f" ] || continue
+        grep -HEn '{{ attack_suspicious }}' "$f" | grep -vE '^[^:]+:[0-9]+:[[:space:]]*#' || true
+      done
+    expect: empty
+
+  - id: ATT-LNX-SYSTEMD-SUSPICIOUS
+    name: No systemd unit or timer runs code from /tmp or downloads it
+    description: T1543.002 Systemd Service and T1053.006 Systemd Timers. Checks the Exec lines of units in /etc, /run and the user unit directories.
+    tags: [attack, attack-t1543.002, attack-t1053.006, attack-persistence, attack-privilege-escalation, systemd]
+    severity: high
+    run: |
+      for d in /etc/systemd/system /etc/systemd/user /run/systemd/system /root/.config/systemd/user /home/*/.config/systemd/user; do
+        [ -d "$d" ] || continue
+        grep -rHE '^[[:space:]]*Exec[A-Za-z]*=' "$d" 2>/dev/null | grep -E '{{ attack_suspicious }}' || true
+      done
+    expect: empty
+
+  - id: ATT-LNX-USER-UNITS
+    name: Users have no own systemd units
+    description: T1543.002 Systemd Service. User units start with the session and are a quiet persistence spot; review each one.
+    tags: [attack, attack-t1543.002, attack-persistence, attack-privilege-escalation, systemd]
+    severity: info
+    run: find /root/.config/systemd/user /home/*/.config/systemd/user -type f \( -name '*.service' -o -name '*.timer' \) 2>/dev/null || true
+    expect: empty
+
+  - id: ATT-LNX-SHELL-PROFILE
+    name: Shell start-up files contain no download, reverse shell or preload
+    description: T1546.004 Unix Shell Configuration Modification. Lists suspicious lines in system-wide and root shell files.
+    tags: [attack, attack-t1546.004, attack-persistence, attack-privilege-escalation]
+    severity: high
+    run: |
+      for f in {{ attack_shell_files }} /home/*/.bashrc /home/*/.profile /home/*/.bash_profile /home/*/.zshrc; do
+        [ -f "$f" ] || continue
+        grep -HEn '{{ attack_suspicious }}|LD_PRELOAD=' "$f" | grep -vE '^[^:]+:[0-9]+:[[:space:]]*#' || true
+      done
+    expect: empty
+
+  - id: ATT-LNX-RC-LOCAL
+    name: rc.local starts nothing
+    description: T1037.004 RC Scripts. An executable rc.local with commands runs them as root at every boot.
+    tags: [attack, attack-t1037.004, attack-persistence, attack-privilege-escalation]
+    severity: medium
+    run: |
+      for f in /etc/rc.local /etc/rc.d/rc.local; do
+        if [ -f "$f" ] && [ -x "$f" ]; then
+          grep -vE '^[[:space:]]*(#|$|exit[[:space:]]+0)' "$f" | sed "s|^|$f: |" || true
+        fi
+      done
+    expect: empty
+
+  - id: ATT-LNX-UDEV
+    name: No udev rule runs programs from /tmp or downloads code
+    description: T1546.017 Udev Rules.
+    tags: [attack, attack-t1546.017, attack-persistence, attack-privilege-escalation]
+    severity: high
+    run: grep -rHE 'RUN\+?=' /etc/udev/rules.d /run/udev/rules.d 2>/dev/null | grep -E '{{ attack_suspicious }}' || true
+    expect: empty
+
+  - id: ATT-LNX-XDG-AUTOSTART
+    name: No desktop autostart entry runs code from /tmp or downloads it
+    description: T1547.013 XDG Autostart Entries.
+    tags: [attack, attack-t1547.013, attack-persistence, attack-privilege-escalation]
+    severity: high
+    run: grep -sHE '^Exec=' /etc/xdg/autostart/*.desktop /root/.config/autostart/*.desktop /home/*/.config/autostart/*.desktop | grep -E '{{ attack_suspicious }}' || true
+    expect: empty
+
+  - id: ATT-LNX-AT-JOBS
+    name: No at jobs are queued
+    description: T1053.002 At. Review every queued job.
+    tags: [attack, attack-t1053.002, attack-persistence, attack-execution]
+    severity: info
+    only_if: command -v atq
+    run: atq 2>/dev/null || true
+    expect: empty
+
+  - id: ATT-LNX-AUTHKEYS-PERMS
+    name: authorized_keys files are writable only by their owner
+    description: T1098.004 SSH Authorized Keys. A writable key file lets others add their own key.
+    tags: [attack, attack-t1098.004, attack-persistence, attack-privilege-escalation, ssh]
+    severity: high
+    run: find /root/.ssh /home/*/.ssh -name 'authorized_keys*' \( -perm /022 -o -type l \) -print 2>/dev/null || true
+    expect: empty
+
+  - id: ATT-LNX-PAM-UNPACKAGED
+    name: Every PAM module belongs to a package
+    description: T1556.003 Pluggable Authentication Modules. A PAM module that no package installed is a common backdoor.
+    tags: [attack, attack-t1556.003, attack-persistence, attack-credential-access, attack-defense-impairment, pam]
+    severity: high
+    run:
+      rhel,suse: |
+        { find /lib/security /lib64/security /usr/lib/security /usr/lib64/security /lib/*/security /usr/lib/*/security -maxdepth 1 -type f -name '*.so' 2>/dev/null || true; } | sort -u |
+          while read -r f; do rpm -qf "$f" >/dev/null 2>&1 || echo "$f"; done
+      debian: |
+        { find /lib/security /lib64/security /usr/lib/security /usr/lib64/security /lib/*/security /usr/lib/*/security -maxdepth 1 -type f -name '*.so' 2>/dev/null || true; } | sort -u |
+          while read -r f; do
+          alt=$(echo "$f" | sed -e 's#^/usr/\(s*bin\|lib[^/]*\)/#/\1/#')
+          [ "$alt" = "$f" ] && alt=$(echo "$f" | sed -e 's#^/\(s*bin\|lib[^/]*\)/#/usr/\1/#')
+          dpkg -S "$f" >/dev/null 2>&1 || dpkg -S "$alt" >/dev/null 2>&1 || echo "$f"
+        done
+      alpine: |
+        { find /lib/security /lib64/security /usr/lib/security /usr/lib64/security /lib/*/security /usr/lib/*/security -maxdepth 1 -type f -name '*.so' 2>/dev/null || true; } | sort -u |
+          while read -r f; do apk info --who-owns "$f" 2>/dev/null | grep -q "is owned by" || echo "$f"; done
+    expect: empty
+
+  - id: ATT-LNX-PAM-EXEC
+    name: PAM runs no external programs
+    description: T1556.003 Pluggable Authentication Modules. pam_exec lines and modules outside the system directories receive passwords; review each one.
+    tags: [attack, attack-t1556.003, attack-persistence, attack-credential-access, attack-defense-impairment, pam]
+    severity: medium
+    run: grep -rHE '^[^#]*(pam_exec\.so|[[:space:]]/(tmp|var/tmp|dev/shm|home)/)' /etc/pam.d 2>/dev/null || true
+    expect: empty
+
+  - id: ATT-LNX-KERNEL-MODULES
+    name: Only signed in-tree kernel modules are loaded
+    description: >
+      T1547.006 Kernel Modules and Extensions. Lists loaded modules the kernel
+      marks as out-of-tree (O) or unsigned (E), except attack_allowed_modules.
+    tags: [attack, attack-t1547.006, attack-persistence, attack-privilege-escalation, kernel]
+    severity: medium
+    run: |
+      awk -v allowed="{{ attack_allowed_modules | join(' ') }}" '
+        BEGIN {n = split(allowed, a, " "); for (i = 1; i <= n; i++) ok[a[i]] = 1}
+        $NF ~ /^\(.*[OE].*\)$/ && !($1 in ok) {print $1 " " $NF}' /proc/modules
+    expect: empty
+
+  - id: ATT-LNX-UID0
+    name: root is the only account with UID 0
+    description: T1136.001 Local Account and T1078.003 Local Accounts. A second UID 0 account is a backdoor to root.
+    tags: [attack, attack-t1136.001, attack-t1078.003, attack-persistence, attack-privilege-escalation, accounts]
+    severity: critical
+    run: |
+      awk -F: '$3 == 0 && $1 != "root" {print $1}' /etc/passwd
+    expect: empty
+
+  - id: ATT-LNX-WEBSHELL
+    name: Web roots contain no typical web shell code
+    description: T1505.003 Web Shell. Searches PHP, JSP and ASP files below the usual web roots.
+    tags: [attack, attack-t1505.003, attack-persistence, web]
+    severity: high
+    only_if: test -d /var/www || test -d /srv/www || test -d /usr/share/nginx/html
+    run: |
+      { find /var/www /srv/www /usr/share/nginx/html -type f \( -name '*.php*' -o -name '*.phtml' -o -name '*.jsp' -o -name '*.asp*' \) 2>/dev/null || true; } |
+        while read -r f; do
+          if grep -qE '(eval|assert)[[:space:]]*\([[:space:]]*(base64_decode|gzinflate|str_rot13)|(system|passthru|shell_exec|exec|popen)[[:space:]]*\([[:space:]]*\$_(GET|POST|REQUEST|COOKIE)|Runtime\.getRuntime\(\)\.exec\(request' "$f"; then echo "$f"; fi
+        done
+    expect: empty
+
+  # ===== Privilege escalation ==================================================
+
+  - id: ATT-LNX-SUID-WRITABLE-DIRS
+    name: No SUID or SGID file lies in /tmp, /var/tmp, /dev/shm or /home
+    description: T1548.001 Setuid and Setgid.
+    tags: [attack, attack-t1548.001, attack-privilege-escalation]
+    severity: critical
+    run: find /tmp /var/tmp /dev/shm /home -xdev -type f -perm /6000 -print 2>/dev/null || true
+    expect: empty
+
+  - id: ATT-LNX-SUID-UNPACKAGED
+    name: Every SUID and SGID program belongs to a package
+    description: T1548.001 Setuid and Setgid. Lists set-ID programs on the root file system that no package installed.
+    tags: [attack, attack-t1548.001, attack-privilege-escalation]
+    severity: high
+    run:
+      rhel,suse: |
+        find / -xdev -type f -perm /6000 2>/dev/null |
+          while read -r f; do rpm -qf "$f" >/dev/null 2>&1 || echo "$f"; done
+      debian: |
+        find / -xdev -type f -perm /6000 2>/dev/null |
+          while read -r f; do
+          alt=$(echo "$f" | sed -e 's#^/usr/\(s*bin\|lib[^/]*\)/#/\1/#')
+          [ "$alt" = "$f" ] && alt=$(echo "$f" | sed -e 's#^/\(s*bin\|lib[^/]*\)/#/usr/\1/#')
+          dpkg -S "$f" >/dev/null 2>&1 || dpkg -S "$alt" >/dev/null 2>&1 || echo "$f"
+        done
+      alpine: |
+        find / -xdev -type f -perm /6000 2>/dev/null |
+          while read -r f; do apk info --who-owns "$f" 2>/dev/null | grep -q "is owned by" || echo "$f"; done
+    expect: empty
+
+  - id: ATT-LNX-SUDO-NOPASSWD
+    name: sudo always asks for a password
+    description: T1548.003 Sudo and Sudo Caching.
+    tags: [attack, attack-t1548.003, attack-privilege-escalation, sudo]
+    severity: medium
+    only_if: test -e /etc/sudoers
+    run: grep -rhiE '^[^#]*(NOPASSWD|!authenticate)' /etc/sudoers /etc/sudoers.d 2>/dev/null || true
+    expect: empty
+
+  - id: ATT-LNX-PATH
+    name: The PATH contains no relative or writable directories
+    description: T1574.007 Path Interception by PATH Environment Variable. Checks the PATH checkmate runs with (the PATH of root, e.g. sudo secure_path).
+    tags: [attack, attack-t1574.007, attack-stealth, attack-execution]
+    severity: high
+    run: |
+      echo "$PATH" | tr ':' '\n' | while read -r d; do
+        case "$d" in ''|.|./*|[!/]*) echo "relative entry '$d'"; continue ;; esac
+        if [ -d "$d" ] && find -H "$d" -maxdepth 0 -perm /022 | grep -q .; then echo "$d is writable by group or others"; fi
+      done
+    expect: empty
+
+  - id: ATT-LNX-DOCKER-SOCKET
+    name: The Docker socket is not writable by all users
+    description: T1611 Escape to Host. Write access to the Docker socket equals root on the host.
+    tags: [attack, attack-t1611, attack-privilege-escalation, containers]
+    severity: critical
+    only_if: test -S /var/run/docker.sock
+    run: find -H /var/run/docker.sock -perm /002 -print
+    expect: empty
+
+  # ===== Credential access =====================================================
+
+  - id: ATT-LNX-SHADOW
+    name: /etc/shadow is readable only by root and group shadow
+    description: T1003.008 /etc/passwd and /etc/shadow.
+    tags: [attack, attack-t1003.008, attack-credential-access]
+    severity: critical
+    run: find -H /etc/shadow /etc/gshadow -perm /0137 -printf '%m %p\n' 2>/dev/null || true
+    expect: empty
+
+  - id: ATT-LNX-PRIVATE-KEYS
+    name: Private SSH keys are readable only by their owner
+    description: T1552.004 Private Keys.
+    tags: [attack, attack-t1552.004, attack-credential-access, ssh]
+    severity: high
+    run: |
+      find /root/.ssh /home/*/.ssh -type f -name 'id_*' ! -name '*.pub' -perm /077 -print 2>/dev/null || true
+      find /etc/ssh -maxdepth 1 -type f -name 'ssh_host_*_key' -perm /037 -print 2>/dev/null || true
+    expect: empty
+
+  - id: ATT-LNX-CREDENTIAL-FILES
+    name: Credential files are readable only by their owner
+    description: T1552.001 Credentials In Files. .netrc, .pgpass, .my.cnf and .git-credentials of root and users.
+    tags: [attack, attack-t1552.001, attack-credential-access]
+    severity: high
+    run: |
+      find /root /home -maxdepth 2 -type f \( -name .netrc -o -name .pgpass -o -name .my.cnf -o -name .git-credentials \) -perm /077 -print 2>/dev/null || true
+    expect: empty
+
+  # ===== Stealth and defense impairment ========================================
+
+  - id: ATT-LNX-LD-PRELOAD
+    name: No library is preloaded into every program
+    description: T1574.006 Dynamic Linker Hijacking. /etc/ld.so.preload and LD_PRELOAD in /etc/environment are used by user-mode rootkits.
+    tags: [attack, attack-t1574.006, attack-stealth, attack-execution]
+    severity: critical
+    run: |
+      if [ -f /etc/ld.so.preload ]; then grep -vE '^[[:space:]]*(#|$)' /etc/ld.so.preload | sed 's|^|/etc/ld.so.preload: |' || true; fi
+      grep -sH '^[[:space:]]*LD_PRELOAD' /etc/environment || true
+    expect: empty
+
+  - id: ATT-LNX-HISTORY
+    name: Shell history is not disabled
+    description: T1070.003 Clear Command History. History redirected to /dev/null or switched off in shell files.
+    tags: [attack, attack-t1070.003, attack-stealth]
+    severity: medium
+    run: |
+      for f in {{ attack_shell_files }} /home/*/.bashrc /home/*/.profile /home/*/.bash_profile /home/*/.zshrc; do
+        [ -f "$f" ] || continue
+        grep -HEn '^[^#]*(HISTFILE=/dev/null|unset[[:space:]]+HISTFILE|HISTSIZE=0|HISTFILESIZE=0|set[[:space:]]+\+o[[:space:]]+history)' "$f" || true
+      done
+      find /root /home -maxdepth 2 -name '.*_history' -type l -print 2>/dev/null || true
+    expect: empty
+
+  - id: ATT-LNX-HIDDEN-EXECUTABLES
+    name: No hidden executables lie in /tmp, /var/tmp or /dev/shm
+    description: T1564.001 Hidden Files and Directories.
+    tags: [attack, attack-t1564.001, attack-stealth]
+    severity: high
+    run: find /tmp /var/tmp /dev/shm -xdev -type f -name '.*' -perm /111 -print 2>/dev/null || true
+    expect: empty
+
+  - id: ATT-LNX-FILELESS
+    name: No process runs from memory or from a world-writable directory
+    description: >
+      T1620 Reflective Code Loading and T1105 Ingress Tool Transfer. Lists
+      processes whose program is a memfd (fileless) or lies in /tmp, /var/tmp
+      or /dev/shm.
+    tags: [attack, attack-t1620, attack-t1105, attack-stealth, attack-command-and-control]
+    severity: high
+    run: |
+      for p in /proc/[0-9]*; do
+        exe=$(readlink "$p/exe" 2>/dev/null) || continue
+        case "$exe" in /memfd:*|/tmp/*|/var/tmp/*|/dev/shm/*) echo "pid ${p#/proc/}: $exe" ;; esac
+      done
+    expect: empty
+
+  - id: ATT-LNX-AUDITD
+    name: The audit daemon is running
+    description: T1685.004 Disable or Modify Linux Audit System Log.
+    tags: [attack, attack-t1685.004, attack-defense-impairment, audit]
+    severity: high
+    only_if: command -v systemctl && test -d /run/systemd/system
+    run: systemctl show -p ActiveState auditd | cut -d= -f2
+    expect: "== active"
+
+  - id: ATT-LNX-AUDIT-IMMUTABLE
+    name: Audit rules are locked until reboot
+    description: T1685.004 Disable or Modify Linux Audit System Log. With -e 2 an attacker with root cannot delete audit rules without a reboot.
+    tags: [attack, attack-t1685.004, attack-defense-impairment, audit]
+    severity: medium
+    only_if: auditctl -s >/dev/null 2>&1
+    run: auditctl -s | awk '$1 == "enabled" {print $2}'
+    expect: "== 2"
+
+  - id: ATT-LNX-FIREWALL
+    name: A host firewall is active
+    description: T1686 Disable or Modify System Firewall.
+    tags: [attack, attack-t1686, attack-defense-impairment, firewall]
+    severity: medium
+    run: |
+      if command -v firewall-cmd >/dev/null && firewall-cmd --state >/dev/null 2>&1; then echo firewalld; exit 0; fi
+      if command -v ufw >/dev/null && ufw status 2>/dev/null | grep -q '^Status: active'; then echo ufw; exit 0; fi
+      if command -v nft >/dev/null && [ "$(nft list ruleset 2>/dev/null | grep -cE '^[[:space:]]+(ip|tcp|udp|ct|iif|meta|drop|reject|accept)')" -gt 0 ]; then echo nftables; exit 0; fi
+      if command -v iptables >/dev/null && [ "$(iptables -S 2>/dev/null | grep -cvE '^-P [A-Z]+ ACCEPT$')" -gt 0 ]; then echo iptables; exit 0; fi
+      echo none
+    expect: "!= none"
+
+  - id: ATT-LNX-PERSISTENT-LOGS
+    name: System logs are written to disk
+    description: T1685.006 Clear Linux or Mac System Logs. A running syslog daemon or a persistent journal keeps the evidence.
+    tags: [attack, attack-t1685.006, attack-defense-impairment, logging]
+    severity: medium
+    run: |
+      for s in rsyslog syslog-ng; do
+        if command -v systemctl >/dev/null && [ "$(systemctl show -p ActiveState "$s" 2>/dev/null | cut -d= -f2)" = active ]; then echo "$s"; exit 0; fi
+      done
+      storage=$({ cat /etc/systemd/journald.conf /etc/systemd/journald.conf.d/*.conf 2>/dev/null || true; } |
+        awk -F= '$1 == "Storage" {v = $2} END {print v}')
+      if [ "$storage" = persistent ] || { [ "${storage:-auto}" = auto ] && [ -d /var/log/journal ]; }; then echo journald; exit 0; fi
+      echo none
+    expect: "!= none"

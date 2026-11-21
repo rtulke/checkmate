@@ -1,6 +1,6 @@
 # Compliance baselines
 
-Complete baselines: a broad Linux hardening baseline modelled on OpenSCAP and CIS, and a managed-RHEL baseline with a tag-based selection model.
+Complete baselines: BSI IT-Grundschutz, Si001 of the Swiss Federal Administration, a broad Linux hardening baseline modelled on OpenSCAP and CIS, and a managed-RHEL baseline.
 
 | Example | Description | Checks |
 |---|---|---|
