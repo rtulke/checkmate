@@ -179,6 +179,7 @@ nav:
           - "Server validation (goss style)": examples/validation/server-validation.md
       - "Compliance baselines":
           - examples/compliance/index.md
+          - "BSI IT-Grundschutz Linux server": examples/compliance/bsi-grundschutz.md
           - "Linux hardening baseline": examples/compliance/linux-hardening.md
           - "Managed RHEL baseline": examples/compliance/managed-rhel.md
           - "Si001 IT-Grundschutz (Swiss Federal Administration)": examples/compliance/si001.md
