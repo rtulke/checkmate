@@ -23,11 +23,43 @@ Flags may come before or after the policy file.
 | `--json-out FILE` | Also write a JSON report to a file. |
 | `--junit-out FILE` | Also write a JUnit XML report to a file. |
 | `-j`, `--jobs N` | Checks to run in parallel. Default: number of CPUs. |
-| `-v`, `--verbose` | Show command, exit code, stdout, stderr and remediation of failed checks below the result line. Without `-v`, every check is a single line whose reason is shortened to the terminal width (`COLUMNS` overrides the width). |
+| `-v`, `--verbose` | More output, repeatable (`-v -v` = `-vv`). See [Output levels](#output-levels). |
+| `-vv` | Details of failed, warned and errored checks. |
+| `-vvv`, `--debug` | Debug details of every check, facts and loaded files. |
 | `-q`, `--quiet` | Show only failed checks and the summary. |
 | `--color WHEN` | `auto` (default: on a terminal), `always`, `never`. `NO_COLOR` is honored. |
 | `--no-color` | Same as `--color never`. |
 | `--allow-insecure-policy` | Load policy files writable by other users while running as root. |
+
+### Output levels
+
+| Level | Shows |
+|---|---|
+| default | one line per check: status, ID, name |
+| `-v` | plus severity and the reason of every failed, warned, errored or skipped check |
+| `-vv` | plus, below each problem: command, exit code, stdout, stderr, remediation and where the check is defined |
+| `-vvv`, `--debug` | for **every** check: severity, tags, `when`, `only_if`, expectation, command, exit code, shell, duration and output; before the results: facts, platform keys and all loaded policy files |
+
+Up to `-v`, every check stays on a single line; long reasons are shortened to the terminal width (`COLUMNS` overrides the detected width). `-q` hides passed and skipped checks at every level.
+
+```console
+$ checkmate run demo.yml
+FAIL   SSH-ROOT     Root login over SSH is disabled
+PASS   SSH-CIPHERS  No weak SSH ciphers
+
+$ checkmate run demo.yml -v
+FAIL   SSH-ROOT     Root login over SSH is disabled  [critical]  expected stdout == "no", got "yes"
+PASS   SSH-CIPHERS  No weak SSH ciphers
+
+$ checkmate run demo.yml -vv
+FAIL   SSH-ROOT     Root login over SSH is disabled  [critical]  expected stdout == "no", got "yes"
+       command: awk '$1 == "PermitRootLogin" {print $2}' /etc/ssh/sshd_config
+       exit code: 0
+       stdout: yes
+       fix: Set PermitRootLogin no in /etc/ssh/sshd_config
+       defined at: /etc/checkmate/demo.yml:7
+PASS   SSH-CIPHERS  No weak SSH ciphers
+```
 
 ### Examples
 
@@ -38,8 +70,11 @@ checkmate run baseline.yml
 # Only compliance checks for fully managed servers
 checkmate run baseline.yml --tags compliance+full
 
-# Only SSH checks, with details on failures
-checkmate run baseline.yml --id 'SSH-*' -v
+# Only SSH checks, with commands and output of failures
+checkmate run baseline.yml --id 'SSH-*' -vv
+
+# Everything about one check, for debugging a policy
+checkmate run baseline.yml --id SSH-ROOT --debug
 
 # Fail only on high and critical findings, everything else is a warning
 checkmate run baseline.yml --fail-on high

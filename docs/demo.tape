@@ -42,27 +42,33 @@ Hide
 Type "clear" Enter
 Show
 Type "checkmate run demo.yml" Sleep 300ms Enter
-Sleep 7s
+Sleep 5s
+
+Hide
+Type "clear" Enter
+Show
+Type "checkmate run demo.yml -v" Sleep 300ms Enter
+Sleep 6s
 
 Hide
 Type "clear" Enter
 Show
 Type "sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /tmp/checkmate-demo/sshd_config" Sleep 300ms Enter
 Sleep 1s
-Type "checkmate run demo.yml --fail-on high" Sleep 300ms Enter
-Sleep 7s
+Type "checkmate run demo.yml -v --fail-on high" Sleep 300ms Enter
+Sleep 6s
 
 Hide
 Type "clear" Enter
 Show
-Type "checkmate list -v demo.yml --id 'SVC-*'" Sleep 300ms Enter
+Type "checkmate run demo.yml -vv --id DISK" Sleep 300ms Enter
 Sleep 5s
 
 Hide
 Type "clear" Enter
 Show
 Type "checkmate run demo.yml --format json | jq .summary" Sleep 300ms Enter
-Sleep 6s
+Sleep 5s
 
 # --- cleanup, not shown -----------------------------------------------------
 Hide

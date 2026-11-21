@@ -53,13 +53,17 @@ Every check has three essential parts:
 
 ## Make it fail
 
-Change `">= 500"` to `">= 999999"` and run again:
+Change `">= 500"` to `">= 999999"` and run again. By default, every check is one line with status, ID and name; `-v` adds the severity and the reason:
 
-```text
+```console
+$ checkmate run first.yml
+FAIL   FIRST-002  At least 500 MB free in /tmp
+
+$ checkmate run first.yml -v
 FAIL   FIRST-002  At least 500 MB free in /tmp  [medium]  expected stdout >= "999999", got "48211"
 ```
 
-Every check stays on one line; the reason is shortened to the width of the terminal if necessary. Add `-v` to see the command, its exit code and output, and the remediation.
+`-vv` also shows the command, its exit code and output, and the remediation; `-vvv` (or `--debug`) shows everything checkmate knows about every check. See [Output levels](../reference/cli.md#output-levels).
 
 The exit code is now `1`, so `checkmate run first.yml && echo ok` would not print `ok`.
 

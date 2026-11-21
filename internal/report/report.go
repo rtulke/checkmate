@@ -14,11 +14,13 @@ import (
 
 // TextOptions control the text output.
 type TextOptions struct {
-	Color   bool
-	Verbose bool // show command and output for failed and errored checks
-	Quiet   bool // show only failed and errored checks
-	Version string
-	Width   int // terminal width; reasons are shortened to fit (0 = no limit)
+	Color bool
+	// Verbosity: 0 = status, ID and name; 1 = plus severity and reason;
+	// 2 = plus details of problems; 3 = debug details of every check.
+	Verbosity int
+	Quiet     bool // show only failed and errored checks
+	Version   string
+	Width     int // terminal width; reasons are shortened to fit (0 = no limit)
 }
 
 const (
@@ -55,6 +57,10 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 	}
 	fmt.Fprintf(w, "%s %s · %s · %s\n\n", paint(colorBold, "checkmate"), opts.Version, title, host)
 
+	if opts.Verbosity >= 3 {
+		writeDebugHeader(w, r, paint)
+	}
+
 	idWidth, nameWidth, sevWidth := 0, 0, 0
 	for _, res := range r.Results {
 		if !opts.Quiet || isProblem(res.Status) {
@@ -66,9 +72,10 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 		}
 	}
 
-	hasDetails := false
+	problems := false
 	for _, res := range r.Results {
 		problem := isProblem(res.Status)
+		problems = problems || problem
 		if opts.Quiet && !problem {
 			continue
 		}
@@ -77,14 +84,13 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 		// Build the line twice: plain to measure it, colored to print it.
 		plain := fmt.Sprintf("%-5s  %-*s  ", res.Status, idWidth, res.ID)
 		colored := paint(color, fmt.Sprintf("%-5s", res.Status)) + fmt.Sprintf("  %-*s  ", idWidth, res.ID)
-		name := res.Name
 		reason := oneLine(res.Message)
-		if reason == "" {
-			plain += name
-			colored += name
+		if opts.Verbosity == 0 || reason == "" {
+			plain += res.Name
+			colored += res.Name
 		} else {
-			plain += padRight(name, nameWidth) + "  "
-			colored += padRight(name, nameWidth) + "  "
+			plain += padRight(res.Name, nameWidth) + "  "
+			colored += padRight(res.Name, nameWidth) + "  "
 			if sevWidth > 0 {
 				sev := ""
 				if problem && res.Severity != "" {
@@ -95,7 +101,7 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 			}
 			// Keep every result on one line: shorten the reason to the
 			// terminal width instead of letting the terminal wrap it.
-			if opts.Width > 0 {
+			if opts.Width > 0 && opts.Verbosity < 3 {
 				if room := opts.Width - runeLen(plain); room < runeLen(reason) {
 					reason = truncate(reason, room)
 				}
@@ -108,38 +114,12 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 		}
 		fmt.Fprintln(w, strings.TrimRight(colored, " "))
 
-		if !problem {
-			continue
+		switch {
+		case opts.Verbosity >= 3:
+			writeDetails(w, res, paint, true)
+		case opts.Verbosity == 2 && problem:
+			writeDetails(w, res, paint, false)
 		}
-		if res.Remediation != "" || res.Command != "" {
-			hasDetails = true
-		}
-		if !opts.Verbose {
-			continue
-		}
-		indent := strings.Repeat(" ", 7)
-		if res.Message != "" && oneLine(res.Message) != reason {
-			fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorDim, "message:"), indentBlock(res.Message, indent+"  "))
-		}
-		if res.Command != "" {
-			fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorDim, "command:"), indentBlock(res.Command, indent+"  "))
-		}
-		if res.RC != nil {
-			fmt.Fprintf(w, "%s%s %d\n", indent, paint(colorDim, "exit code:"), *res.RC)
-		}
-		if s := strings.TrimSpace(res.Stdout); s != "" {
-			fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorDim, "stdout:"), indentBlock(s, indent+"  "))
-		}
-		if s := strings.TrimSpace(res.Stderr); s != "" {
-			fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorDim, "stderr:"), indentBlock(s, indent+"  "))
-		}
-		if res.Remediation != "" {
-			fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorBlue, "fix:"), indentBlock(res.Remediation, indent+"     "))
-		}
-		if res.Reference != "" {
-			fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorBlue, "see:"), res.Reference)
-		}
-		fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorDim, "defined at:"), res.Location)
 	}
 
 	s := r.Summary
@@ -178,10 +158,82 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 		verdict = paint(colorBold+colorRed, "NOT COMPLIANT")
 	}
 	fmt.Fprintf(w, "Result %s %s\n", verdict, paint(colorDim, fmt.Sprintf("(failures of severity %s and above count; errors always count)", s.FailOn)))
-	if hasDetails && !opts.Verbose {
-		fmt.Fprintln(w, paint(colorDim, "Run with -v to see commands, output and remediation."))
+	if problems {
+		switch opts.Verbosity {
+		case 0:
+			fmt.Fprintln(w, paint(colorDim, "Run with -v for reasons, -vv for commands and remediation."))
+		case 1:
+			fmt.Fprintln(w, paint(colorDim, "Run with -vv for commands, output and remediation."))
+		}
 	}
 	return nil
+}
+
+// writeDetails prints the indented detail block below a result line. With
+// debug set, it also shows conditions, shell and timing.
+func writeDetails(w io.Writer, res engine.Result, paint func(string, string) string, debug bool) {
+	indent := strings.Repeat(" ", 7)
+	field := func(label, value string) {
+		if strings.TrimSpace(value) == "" {
+			return
+		}
+		fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorDim, label+":"), indentBlock(strings.TrimRight(value, "\n"), indent+strings.Repeat(" ", len(label)+2)))
+	}
+	if debug {
+		field("severity", res.Severity)
+		field("tags", strings.Join(res.Tags, ", "))
+		if len(res.When) > 0 {
+			field("when", strings.Join(res.When, " and "))
+		}
+		field("only_if", res.OnlyIf)
+		field("expected", res.Expected)
+	}
+	if res.Message != "" && (debug || runeLen(oneLine(res.Message)) > 60 || strings.Contains(res.Message, "\n")) {
+		field("message", res.Message)
+	}
+	field("command", res.Command)
+	if res.RC != nil {
+		field("exit code", fmt.Sprint(*res.RC))
+	}
+	if debug {
+		field("shell", res.Shell)
+		field("duration", (time.Duration(res.DurationMS) * time.Millisecond).String())
+	}
+	field("stdout", strings.TrimSpace(res.Stdout))
+	field("stderr", strings.TrimSpace(res.Stderr))
+	if res.Remediation != "" {
+		fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorBlue, "fix:"), indentBlock(res.Remediation, indent+"     "))
+	}
+	if res.Reference != "" {
+		fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorBlue, "see:"), res.Reference)
+	}
+	field("defined at", res.Location)
+}
+
+// writeDebugHeader prints facts and the loaded files (-vvv).
+func writeDebugHeader(w io.Writer, r *engine.Report, paint func(string, string) string) {
+	f := r.Facts
+	line := func(label, value string) {
+		fmt.Fprintf(w, "%s %s\n", paint(colorDim, fmt.Sprintf("%-14s", label+":")), value)
+	}
+	line("os", fmt.Sprintf("%s/%s", f.OS, f.Arch))
+	distro := strings.TrimSpace(f.Distro + " " + f.Version)
+	if len(f.DistroLike) > 0 {
+		distro += " (like " + strings.Join(f.DistroLike, ", ") + ")"
+	}
+	line("distro", distro)
+	line("kernel", f.Kernel)
+	line("root", fmt.Sprint(f.IsRoot))
+	line("platform keys", strings.Join(f.PlatformKeys(), " > "))
+	line("fail on", r.Summary.FailOn)
+	for i, file := range r.PolicyFiles {
+		label := ""
+		if i == 0 {
+			label = "files"
+		}
+		fmt.Fprintf(w, "%s %s\n", paint(colorDim, fmt.Sprintf("%-14s", label+map[bool]string{true: ":", false: " "}[i == 0])), file)
+	}
+	fmt.Fprintln(w)
 }
 
 func isProblem(s engine.Status) bool {

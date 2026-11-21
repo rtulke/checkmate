@@ -140,8 +140,12 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	junitOut := fs.String("junit-out", "", "also write a JUnit XML report to this file")
 	jobs := fs.Int("jobs", 0, "number of checks to run in parallel (default: number of CPUs)")
 	fs.IntVar(jobs, "j", 0, "shorthand for --jobs")
-	verbose := fs.Bool("verbose", false, "show command and output of failed checks")
-	fs.BoolVar(verbose, "v", false, "shorthand for --verbose")
+	verbosity := 0
+	fs.Var(countFlag{&verbosity, 1}, "v", "more output, repeatable: -v reasons and severity, -vv details of problems, -vvv debug")
+	fs.Var(countFlag{&verbosity, 1}, "verbose", "same as -v")
+	fs.Var(countFlag{&verbosity, 2}, "vv", "same as -v -v: commands, output and remediation of problems")
+	fs.Var(countFlag{&verbosity, 3}, "vvv", "same as -v -v -v: debug details of every check, facts and loaded files")
+	fs.Var(countFlag{&verbosity, 3}, "debug", "same as -vvv")
 	quiet := fs.Bool("quiet", false, "show only failed checks and the summary")
 	fs.BoolVar(quiet, "q", false, "shorthand for --quiet")
 	color := fs.String("color", "auto", "colored output: auto, always or never")
@@ -209,11 +213,11 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 		err = report.JUnit(stdout, r)
 	default:
 		err = report.Text(stdout, r, report.TextOptions{
-			Color:   !*noColor && (*color == "always" || (*color == "auto" && useColor(stdout))),
-			Verbose: *verbose,
-			Quiet:   *quiet,
-			Version: version,
-			Width:   terminalWidth(stdout),
+			Color:     !*noColor && (*color == "always" || (*color == "auto" && useColor(stdout))),
+			Verbosity: minInt(verbosity, 3),
+			Quiet:     *quiet,
+			Version:   version,
+			Width:     terminalWidth(stdout),
 		})
 	}
 	if err != nil {
@@ -441,4 +445,36 @@ func (m *multiFlag) String() string { return strings.Join(*m, ",") }
 func (m *multiFlag) Set(v string) error {
 	*m = append(*m, v)
 	return nil
+}
+
+// countFlag is a boolean flag that adds step to a counter each time it is
+// given, so that -v -v equals -vv.
+type countFlag struct {
+	n    *int
+	step int
+}
+
+func (c countFlag) String() string   { return "" }
+func (c countFlag) IsBoolFlag() bool { return true }
+
+func (c countFlag) Set(s string) error {
+	switch s {
+	case "", "true":
+		*c.n += c.step
+	case "false":
+	default:
+		v, err := strconv.Atoi(s)
+		if err != nil {
+			return fmt.Errorf("expected a number, got %q", s)
+		}
+		*c.n = v
+	}
+	return nil
+}
+
+func minInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

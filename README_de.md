@@ -18,7 +18,7 @@
 ```
 
 ```console
-$ checkmate run baseline.yml
+$ checkmate run baseline.yml -v
 PASS   SSH-001   Root login over SSH is disabled
 FAIL   FS-001    /tmp has at least 500 MB free    [high]  expected stdout >= "500", got "312"
 
@@ -51,6 +51,7 @@ go install github.com/rtulke/checkmate/cmd/checkmate@latest
 checkmate run examples/getting-started.yml       # eine Policy ausführen
 checkmate list -v examples/system/ssh.yml         # die Kommandos für diesen Host anzeigen
 checkmate validate my-policy.yml                  # eine Policy prüfen, ohne sie auszuführen
+checkmate run baseline.yml -v                     # mit Schweregrad und Gründen (-vv Details, -vvv Debug)
 checkmate run baseline.yml --tags ssh --fail-on high --junit-out junit.xml
 ```
 

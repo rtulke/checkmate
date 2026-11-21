@@ -37,6 +37,8 @@ type Result struct {
 	Status      Status   `json:"status"`
 	Message     string   `json:"message,omitempty"`
 	Expected    string   `json:"expected,omitempty"`
+	When        []string `json:"when,omitempty"`
+	OnlyIf      string   `json:"only_if,omitempty"`
 	Command     string   `json:"command,omitempty"`
 	Shell       string   `json:"shell,omitempty"`
 	RC          *int     `json:"rc,omitempty"`
@@ -67,6 +69,7 @@ type Report struct {
 	Policy        string      `json:"policy"`
 	PolicyVersion string      `json:"policy_version,omitempty"`
 	PolicyPath    string      `json:"policy_path"`
+	PolicyFiles   []string    `json:"policy_files,omitempty"`
 	Facts         facts.Facts `json:"facts"`
 	Started       time.Time   `json:"started"`
 	DurationMS    int64       `json:"duration_ms"`
@@ -151,6 +154,7 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 		Policy:        p.Name,
 		PolicyVersion: p.Version,
 		PolicyPath:    p.Path,
+		PolicyFiles:   p.Files,
 		Facts:         opts.Facts,
 		Started:       started,
 		DurationMS:    time.Since(started).Milliseconds(),
@@ -170,6 +174,7 @@ func runCheck(ctx context.Context, p *policy.Policy, c *policy.Check, platformKe
 		Tags:        c.Tags,
 		Severity:    c.Severity,
 		Expected:    c.Expect.String(),
+		When:        c.When,
 		Remediation: c.Remediation,
 		Reference:   c.Reference,
 		Location:    c.Source.Location(),
@@ -209,6 +214,7 @@ func runCheck(ctx context.Context, p *policy.Policy, c *policy.Check, platformKe
 		if !ok {
 			return withStatus(res, StatusNA, notApplicableMessage(c, c.OnlyIf, platformKeys))
 		}
+		res.OnlyIf = guard
 		out, err := execute(ctx, p, c, guard)
 		if err != nil {
 			return withStatus(res, StatusError, "only_if: "+err.Error())
