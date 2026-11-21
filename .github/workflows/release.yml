@@ -1,25 +1,194 @@
 name: Release
 
+# build+verify run on every push/PR to main so packaging breakage is caught
+# early; tags (vX.Y.Z) publish a release, pushes to main a rolling "latest"
+# prerelease.
+#
+# checkmate is a static Go binary without runtime dependencies, so a single
+# .deb and a single .rpm per architecture serve every distribution. Instead of
+# building per distribution, every package is installed and run on every
+# supported distribution (verify-deb / verify-rpm), for amd64 and arm64 on
+# native runners.
 on:
   push:
-    tags: ["v*"]
-
-permissions:
-  contents: write
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0   # git describe for the version
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
       - run: go test ./...
-      - run: make dist VERSION=${GITHUB_REF_NAME}
-      - name: Publish release
+      - name: Build packages and binaries
+        run: |
+          make packages
+          make dist VERSION=$(packaging/version.sh)
+          rm -f dist/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: dist/
+          if-no-files-found: error
+
+  verify-deb:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        id: [debian12, debian13, ubuntu2404, ubuntu2604]
+        arch: [amd64, arm64]
+        include:
+          - { id: debian12,   image: debian:12-slim, policy: cis/debian12.yml }
+          - { id: debian13,   image: debian:13-slim, policy: cis/debian13.yml }
+          - { id: ubuntu2404, image: ubuntu:24.04,   policy: cis/ubuntu24.yml }
+          - { id: ubuntu2604, image: ubuntu:26.04,   policy: cis/ubuntu26.yml }
+          - { arch: amd64, runner: ubuntu-latest }
+          - { arch: arm64, runner: ubuntu-24.04-arm }
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: dist
+      - name: Install and run the package the way an end user would
+        run: |
+          docker run --rm -v "$PWD:/work:ro" ${{ matrix.image }} \
+            sh -c "/work/packaging/test-install.sh /work/$(ls dist/*_${{ matrix.arch }}.deb) ${{ matrix.policy }}"
+
+  verify-rpm:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        id: [fedora43, fedora44, el9, el10, leap160, tumbleweed]
+        arch: [amd64, arm64]
+        include:
+          - { id: fedora43,   image: fedora:43,           policy: examples/platforms/linux.yml }
+          - { id: fedora44,   image: fedora:44,           policy: examples/platforms/linux.yml }
+          # AlmaLinux stands in for the EL family (RHEL, Rocky, Alma, Oracle).
+          - { id: el9,        image: almalinux:9,         policy: cis/rhel9.yml }
+          - { id: el10,       image: almalinux:10,        policy: cis/rhel10.yml }
+          - { id: leap160,    image: opensuse/leap:16.0,  policy: cis/suse16.yml }
+          - { id: tumbleweed, image: opensuse/tumbleweed, policy: examples/platforms/linux.yml }
+          - { arch: amd64, rpmarch: x86_64,  runner: ubuntu-latest }
+          - { arch: arm64, rpmarch: aarch64, runner: ubuntu-24.04-arm }
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: dist
+      - name: Install and run the package the way an end user would
+        run: |
+          docker run --rm -v "$PWD:/work:ro" ${{ matrix.image }} \
+            sh -c "/work/packaging/test-install.sh /work/$(ls dist/*.${{ matrix.rpmarch }}.rpm) ${{ matrix.policy }}"
+
+  homebrew:
+    # Installs the formula from this repository with Homebrew on macOS: the
+    # stable version once the formula has one, --HEAD before.
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install with Homebrew and run the formula test
+        run: |
+          brew tap rtulke/checkmate "$GITHUB_WORKSPACE"
+          if grep -q '^  url ' Formula/checkmate.rb; then
+            brew install --build-from-source rtulke/checkmate/checkmate
+          else
+            brew install --HEAD rtulke/checkmate/checkmate
+          fi
+          brew test rtulke/checkmate/checkmate
+          checkmate version
+          man -w checkmate checkmate-policy
+          checkmate validate "$(brew --prefix)/share/checkmate/cis/macos15.yml"
+
+  release:
+    needs: [verify-deb, verify-rpm, homebrew]
+    if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: artifacts
+
+      - name: Determine release identity
+        id: rel
+        run: |
+          PKGS="one .deb and one .rpm per architecture (amd64, arm64), installed and run on Debian 12/13, Ubuntu 24.04/26.04, Fedora 43/44, EL 9/10 and openSUSE Leap 16.0/Tumbleweed; static binaries for Linux, macOS and Windows; Homebrew: brew install rtulke/checkmate/checkmate; see SHA256SUMS"
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            echo "tag=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+            echo "title=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+            echo "latest=true" >> "$GITHUB_OUTPUT"
+            echo "notes=checkmate $GITHUB_REF_NAME - $PKGS" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=latest" >> "$GITHUB_OUTPUT"
+            echo "title=checkmate (main, rolling build)" >> "$GITHUB_OUTPUT"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+            echo "latest=false" >> "$GITHUB_OUTPUT"
+            echo "notes=Rolling build of main@${GITHUB_SHA::7} - not a stable release. $PKGS" >> "$GITHUB_OUTPUT"
+          fi
+
+      # The minisign signature over SHA256SUMS is what users can verify; it is
+      # made only when the repository has a MINISIGN_SECRET_KEY secret.
+      - name: Checksums and signature
+        env:
+          MINISIGN_SECRET_KEY: ${{ secrets.MINISIGN_SECRET_KEY }}
+        run: |
+          cd artifacts
+          sha256sum * > SHA256SUMS
+          if [ -n "$MINISIGN_SECRET_KEY" ]; then
+            sudo apt-get install -y -qq minisign >/dev/null
+            printf '%s\n' "$MINISIGN_SECRET_KEY" > /tmp/minisign.key
+            minisign -S -s /tmp/minisign.key -m SHA256SUMS \
+              -t "checkmate ${{ steps.rel.outputs.tag }} ${GITHUB_SHA::7}" -x SHA256SUMS.minisig </dev/null
+            rm -f /tmp/minisign.key
+            if [ -f "$GITHUB_WORKSPACE/minisign.pub" ]; then
+              minisign -V -p "$GITHUB_WORKSPACE/minisign.pub" -m SHA256SUMS -x SHA256SUMS.minisig
+            fi
+          fi
+
+      - name: Create or update the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" dist/* --title "$GITHUB_REF_NAME" --generate-notes
+        run: |
+          cd artifacts
+          TAG="${{ steps.rel.outputs.tag }}"
+          PRERELEASE_FLAG=""
+          [[ "${{ steps.rel.outputs.prerelease }}" == "true" ]] && PRERELEASE_FLAG="--prerelease"
+          if [[ "$TAG" == "latest" ]]; then
+            gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag || true
+          fi
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" \
+            --title "${{ steps.rel.outputs.title }}" --notes "${{ steps.rel.outputs.notes }}" \
+            --latest=${{ steps.rel.outputs.latest }} $PRERELEASE_FLAG * \
+          || { gh release upload "$TAG" * --repo "$GITHUB_REPOSITORY" --clobber \
+               && gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --latest=${{ steps.rel.outputs.latest }}; }
+
+      # On a tag, point the Homebrew formula at the new source archive.
+      - name: Update the Homebrew formula
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          url="https://github.com/$GITHUB_REPOSITORY/archive/refs/tags/$GITHUB_REF_NAME.tar.gz"
+          sha=$(curl -fsSL "$url" | sha256sum | cut -d' ' -f1)
+          git fetch origin main && git checkout main
+          python3 packaging/update-formula.py Formula/checkmate.rb "$url" "$sha"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Update the Homebrew formula to $GITHUB_REF_NAME [skip ci]"
+          git push origin main

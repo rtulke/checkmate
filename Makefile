@@ -1,8 +1,11 @@
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
+PKG_VERSION ?= $(shell packaging/version.sh)
+MAN_DATE ?= $(shell git log -1 --format=%cs 2>/dev/null || date +%Y-%m-%d)
+NFPM := go run github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.48.0
 LDFLAGS := -s -w -X main.version=$(VERSION)
 PLATFORMS := linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64
 
-.PHONY: build test lint docs docs-serve dist test-linux test-cis cis-import stig-import clean
+.PHONY: build test lint docs docs-serve dist man packages test-linux test-cis cis-import stig-import clean
 
 CIS_BENCHMARKS := rhel7 rhel8 rhel9 rhel10 debian11 debian12 debian13 ubuntu18 ubuntu20 ubuntu22 ubuntu24 ubuntu26 suse15 suse16 amazon2 amazon2023 amazon2027
 CIS_WINDOWS := win11:Windows-11 win2019:Windows-2019 win2022:Windows-2022 win2025:Windows-2025
@@ -37,6 +40,28 @@ dist:
 			-o dist/checkmate-$$os-$$arch$$ext ./cmd/checkmate || exit 1; \
 	done
 	@cd dist && (sha256sum checkmate-* 2>/dev/null || shasum -a 256 checkmate-*) > SHA256SUMS
+
+# Man pages with version and date filled in, compressed for packaging.
+man:
+	@mkdir -p build/package/man
+	@for f in packaging/man/*.[0-9]; do \
+		sed -e 's/@VERSION@/$(PKG_VERSION)/' -e 's/@DATE@/$(MAN_DATE)/' $$f | gzip -9 -n > build/package/man/$$(basename $$f).gz; \
+	done
+
+# .deb and .rpm packages for linux/amd64 and linux/arm64 in dist/ (static
+# binaries, so nothing is distribution specific).
+packages: man
+	@rm -rf build/package/share && mkdir -p build/package/share dist
+	@cp -R cis stig examples build/package/share/
+	@find build/package/share -name '*.go' -delete
+	@for arch in amd64 arm64; do \
+		CGO_ENABLED=0 GOOS=linux GOARCH=$$arch go build -trimpath -ldflags '-s -w -X main.version=$(PKG_VERSION)' \
+			-o build/package/checkmate ./cmd/checkmate || exit 1; \
+		for fmt in deb rpm; do \
+			ARCH=$$arch VERSION=$(PKG_VERSION) $(NFPM) package --config packaging/nfpm.yaml --packager $$fmt --target dist/ || exit 1; \
+		done; \
+	done
+	@ls -l dist/*.deb dist/*.rpm
 
 # Runs all examples in Linux containers (needs docker).
 test-linux:
@@ -84,4 +109,4 @@ test-cis:
 	test/linux/cis-apache.sh
 
 clean:
-	rm -rf bin dist site test/linux/out test/linux/out-cis
+	rm -rf bin build dist site test/linux/out test/linux/out-cis

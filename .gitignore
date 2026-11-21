@@ -1,6 +1,7 @@
 .DS_Store
 /.cache/
 /bin/
+/build/
 /dist/
 /site/
 /test/linux/out-cis/

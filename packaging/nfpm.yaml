@@ -1,0 +1,53 @@
+# Package description for nfpm (https://nfpm.goreleaser.com), used by
+# `make packages`. checkmate is a static binary without runtime dependencies,
+# so one .deb and one .rpm per architecture serve every distribution; the
+# release workflow installs each of them on every supported distribution.
+name: checkmate
+arch: ${ARCH}
+platform: linux
+version: ${VERSION}
+release: 1
+section: admin
+priority: optional
+maintainer: Robert Tulke <rtulke@users.noreply.github.com>
+vendor: checkmate
+homepage: https://github.com/rtulke/checkmate
+license: Apache-2.0
+description: |
+  Command-based compliance checks for Linux, macOS and Windows.
+  checkmate checks a host against YAML policies whose checks run commands
+  and compare exit codes and output with expectations. Ships policies for
+  the CIS Benchmarks, DISA STIGs, BSI IT-Grundschutz, Si001 and MITRE ATT&CK.
+
+contents:
+  - src: build/package/checkmate
+    dst: /usr/bin/checkmate
+    file_info: { mode: 0755 }
+  - src: build/package/man/checkmate.1.gz
+    dst: /usr/share/man/man1/checkmate.1.gz
+    file_info: { mode: 0644 }
+  - src: build/package/man/checkmate-policy.5.gz
+    dst: /usr/share/man/man5/checkmate-policy.5.gz
+    file_info: { mode: 0644 }
+  - src: build/package/share/
+    dst: /usr/share/checkmate/
+    type: tree
+  - src: README.md
+    dst: /usr/share/doc/checkmate/README.md
+    file_info: { mode: 0644 }
+  - src: LICENSE
+    dst: /usr/share/doc/checkmate/LICENSE
+    file_info: { mode: 0644 }
+    packager: deb
+  - src: LICENSE
+    dst: /usr/share/licenses/checkmate/LICENSE
+    file_info: { mode: 0644 }
+    packager: rpm
+
+rpm:
+  group: Applications/System
+  summary: Command-based compliance checks
+  compression: zstd
+
+deb:
+  compression: xz

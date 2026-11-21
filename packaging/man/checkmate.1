@@ -1,0 +1,297 @@
+.TH CHECKMATE 1 "@DATE@" "checkmate @VERSION@" "User Commands"
+.SH NAME
+checkmate \- command-based compliance checks for Linux, macOS and Windows
+.SH SYNOPSIS
+.B checkmate run
+.RI [ options ]
+.I policy.yml
+.br
+.B checkmate validate
+.RI [ options ]
+.I policy.yml
+.br
+.B checkmate list
+.RI [ options ]
+.I policy.yml
+.br
+.B checkmate facts
+.br
+.B checkmate version
+.SH DESCRIPTION
+.B checkmate
+checks a host against a policy: a YAML file of checks, each of which runs a
+command and compares its exit code and output with an expectation.
+Policies are templated with Jinja2, can select commands per platform, and
+include other policy files.
+Results are printed as text, JSON or JUnit XML, together with a weighted
+compliance score.
+.PP
+checkmate ships policies for the CIS Benchmarks (Linux distributions,
+Windows, macOS, PostgreSQL, Apache httpd), DISA STIGs, BSI IT-Grundschutz,
+Si001 of the Swiss Federal Administration and MITRE ATT&CK, plus examples
+for systems, files, networks, hardware and applications.
+The format of policy files is described in
+.BR checkmate-policy (5).
+.SH COMMANDS
+.TP
+.B run
+Run the selected checks and report the results.
+The exit status tells whether the host is compliant.
+.TP
+.B validate
+Load and expand a policy and report errors without running any check.
+.TP
+.B list
+List the selected checks; with
+.B \-v
+also the command each check would run on this host.
+.TP
+.B facts
+Print the facts gathered for this host as JSON (operating system,
+distribution, version, architecture, privileges, platform keys).
+.TP
+.B version
+Print the version.
+.SH OPTIONS
+Options may be given before or after the policy file.
+Single and double dashes are equivalent.
+.SS Selecting checks (run, list)
+.TP
+.BI \-t ", " \-\-tags " expr"
+Select checks by tags.
+A comma means
+.IR or ,
+a plus sign means
+.IR and :
+.B compliance+full,quality
+selects checks tagged both compliance and full, or tagged quality.
+.TP
+.BI \-\-skip\-tags " expr"
+Exclude checks by tags, same syntax as
+.BR \-\-tags .
+.TP
+.BI \-\-id " patterns"
+Select checks by ID, comma-separated glob patterns, e.g.
+.BR 'CIS-RHEL9-5.*,SSH-001' .
+.SS Variables (run, validate, list)
+.TP
+.BI \-e ", " \-\-extra\-var " key=value"
+Set a variable; repeatable.
+Extra variables override the variables of the policy.
+Values are parsed as YAML, so
+.B \-e ports='[22, 443]'
+passes a list.
+.TP
+.B \-\-allow\-insecure\-policy
+Load policy and waiver files even if users other than root can modify
+them while checkmate runs as root.
+Without this option such files are refused.
+.SS Results (run)
+.TP
+.BI \-\-fail\-on " severity"
+Lowest severity whose failures make the run non-compliant:
+.BR info ", " low ", " medium ", " high " or " critical .
+Failures below it are reported as warnings.
+Default: the policy's
+.BR defaults.fail_on ,
+else
+.BR low .
+Errors always count.
+.TP
+.BI \-\-waivers " file"
+Read accepted deviations from
+.IR file ;
+repeatable.
+Waived checks that fail are reported as WAIVED with their reason and do not
+make the run non-compliant.
+Files named later take precedence.
+See
+.BR checkmate-policy (5).
+.TP
+.B \-\-ignore\-waivers
+Report every result as if no waiver existed.
+.TP
+.BI \-j ", " \-\-jobs " n"
+Number of checks run in parallel.
+Default: the number of CPUs.
+.SS Output (run)
+.TP
+.BI \-\-format " format"
+Output on standard output:
+.B text
+(default),
+.B json
+or
+.BR junit .
+.TP
+.BI \-\-json\-out " file"
+Also write a JSON report to
+.IR file .
+.TP
+.BI \-\-junit\-out " file"
+Also write a JUnit XML report to
+.IR file .
+.TP
+.BI \-\-attack\-layer " file"
+Also write an ATT&CK Navigator layer for the checks tagged with ATT&CK
+techniques
+.RB ( attack\-t1053.003 ).
+Each technique is colored by the worst result of its checks.
+.TP
+.BR \-v ", " \-\-verbose
+Show the severity and the reason of every result on one line.
+Repeatable:
+.B \-vv
+adds commands, output and remediation of failed checks,
+.B \-vvv
+(or
+.BR \-\-debug )
+adds debug details of every check, the facts and the loaded files.
+.TP
+.BR \-q ", " \-\-quiet
+Show only failed checks and the summary.
+.TP
+.BI \-\-color " when"
+Colored output:
+.B auto
+(default, on a terminal),
+.B always
+or
+.BR never .
+.TP
+.B \-\-no\-color
+Same as
+.BR "\-\-color never" .
+.SH RESULTS
+.TP
+.B PASS
+The expectation holds.
+.TP
+.B FAIL
+The expectation does not hold and the severity is at or above the
+threshold.
+.TP
+.B WARN
+The expectation does not hold, but the severity is below the threshold
+(or
+.BR info ).
+.TP
+.B ERROR
+The check could not be evaluated: timeout, command not found, unexpected
+exit code, invalid definition.
+Errors always count as non-compliant.
+.TP
+.B WAIVED
+The check failed, warned or errored, but a waiver accepts it.
+.TP
+.B SKIP
+Excluded by
+.B when
+or
+.BR only_if .
+.TP
+.B N/A
+No command variant for this platform.
+.SH EXIT STATUS
+.TP
+.B 0
+Compliant: no FAIL and no ERROR.
+.TP
+.B 1
+Not compliant: at least one FAIL or ERROR.
+.TP
+.B 2
+Usage error, invalid policy or waiver file, no checks selected, or no check
+evaluated (all skipped or not applicable).
+.SH ENVIRONMENT
+.TP
+.B NO_COLOR
+Disables colored output when set.
+.TP
+.B COLUMNS
+Width used to shorten result lines when standard output is not a terminal.
+.PP
+Commands run with the environment of checkmate plus the policy's
+.B env
+settings.
+On POSIX systems they run with
+.B LC_ALL=C
+under
+.B bash \-o pipefail
+(or
+.BR sh ),
+on Windows under PowerShell with
+.BR "$ErrorActionPreference = 'Stop'" .
+.SH FILES
+.TP
+.I /usr/share/checkmate/cis/
+CIS Benchmark policies, one per platform.
+.TP
+.I /usr/share/checkmate/stig/
+DISA STIG policies.
+.TP
+.I /usr/share/checkmate/examples/
+Example policies, including the BSI IT-Grundschutz, Si001 and MITRE ATT&CK
+policies under
+.I compliance/
+and
+.IR attack/ .
+.PP
+With Homebrew the policies are installed below
+.IR "$(brew \-\-prefix)/share/checkmate/" .
+.SH EXAMPLES
+Run the CIS Level 1 server profile on a RHEL 9 host:
+.PP
+.RS
+.nf
+sudo checkmate run /usr/share/checkmate/cis/rhel9.yml \-\-tags cis\-level1\-server
+.fi
+.RE
+.PP
+Show only failures of severity high and above, with details:
+.PP
+.RS
+.nf
+sudo checkmate run baseline.yml \-\-fail\-on high \-q \-vv
+.fi
+.RE
+.PP
+Write JSON and JUnit reports for a CI pipeline:
+.PP
+.RS
+.nf
+checkmate run baseline.yml \-\-json\-out report.json \-\-junit\-out junit.xml
+.fi
+.RE
+.PP
+Accept documented deviations, and check the raw state for an audit:
+.PP
+.RS
+.nf
+sudo checkmate run /usr/share/checkmate/cis/debian12.yml \-\-waivers /etc/checkmate/waivers.yml
+sudo checkmate run /usr/share/checkmate/cis/debian12.yml \-\-ignore\-waivers
+.fi
+.RE
+.PP
+Look for traces of ATT&CK techniques and open the result in the ATT&CK
+Navigator:
+.PP
+.RS
+.nf
+sudo checkmate run /usr/share/checkmate/examples/attack/linux.yml \-\-attack\-layer attack.json
+.fi
+.RE
+.PP
+Show which commands a policy would run on this host:
+.PP
+.RS
+.nf
+checkmate list \-v /usr/share/checkmate/examples/system/ssh.yml
+.fi
+.RE
+.SH SEE ALSO
+.BR checkmate-policy (5)
+.PP
+Documentation: https://rtulke.github.io/checkmate/
+.SH BUGS
+Report bugs at https://github.com/rtulke/checkmate/issues.

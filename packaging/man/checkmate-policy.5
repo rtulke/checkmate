@@ -1,0 +1,299 @@
+.TH CHECKMATE-POLICY 5 "@DATE@" "checkmate @VERSION@" "File Formats"
+.SH NAME
+checkmate-policy \- policy and waiver files of checkmate
+.SH SYNOPSIS
+.nf
+name: Baseline
+version: 1.0.0
+include: [common.yml]
+vars: { min_uid: 1000 }
+defaults: { timeout: 30s, fail_on: medium }
+snippets: { ... }
+checks:
+  \- id: SSH\-001
+    name: Root login over SSH is disabled
+    run: sshd \-T | awk '$1 == "permitrootlogin" {print $2}'
+    expect: "== no"
+waivers: [ ... ]
+.fi
+.SH DESCRIPTION
+A policy is a YAML file.
+Every check runs a command and compares its exit code, standard output or
+standard error with an expectation.
+Strings in a policy are Jinja2 templates with the variables and the facts
+of the host; see
+.B TEMPLATING
+below.
+.SH TOP-LEVEL KEYS
+.TP
+.B name
+Title of the policy, shown in reports.
+.TP
+.B version
+Version of the policy.
+.TP
+.B description
+Free text.
+.TP
+.B include
+List of policy files (relative to this file) whose checks, variables,
+snippets and waivers are added.
+Included files load first; values of the including file override theirs.
+Include cycles are errors.
+.TP
+.B vars
+Variables, available in templates.
+Variables given with
+.B \-e
+on the command line override them.
+.TP
+.B vars_files
+List of YAML files with more variables.
+.TP
+.B env
+Environment variables for every command.
+.TP
+.B defaults
+Defaults for the checks of this file:
+.B timeout
+(Go duration, default 30s),
+.B severity
+(default medium),
+.B fail_on
+(default low),
+.B shell
+and
+.B when
+(conditions added to every check of this file only).
+.TP
+.B snippets
+Named commands, referenced from checks with
+.BR "{ use: name, arg: value }" .
+A snippet may have platform variants and uses
+.B "{{ arg }}"
+or
+.BR "{{ args.key }}" .
+.TP
+.B checks
+The list of checks.
+.TP
+.B waivers
+Accepted deviations; see
+.BR WAIVERS .
+.SH CHECK KEYS
+.TP
+.B id
+Unique identifier without spaces; required.
+Inside a loop it must contain a template such as
+.BR "PKG\-{{ item }}" .
+.TP
+.B name
+Human-readable title; defaults to the id.
+.TP
+.B description
+Free text, included in JSON reports.
+.TP
+.B tags
+List of tags for
+.B \-\-tags
+and
+.BR \-\-skip\-tags .
+.TP
+.B severity
+.BR info ", " low ", " medium ", " high " or " critical .
+Decides whether a failure counts (see
+.B \-\-fail\-on
+in
+.BR checkmate (1))
+and its weight in the score (0, 1, 3, 7, 10).
+.TP
+.B when
+A Jinja2 expression or a list of expressions that must all be true, e.g.
+.BR "facts.distro == \(dqdebian\(dq" .
+Otherwise the check is skipped.
+.TP
+.B only_if
+A command; the check is skipped if it exits non-zero.
+.TP
+.B loop
+A list, a mapping (items with
+.B key
+and
+.BR value )
+or a template that evaluates to a list.
+The check is expanded once per item, available as
+.BR item .
+.TP
+.B run
+The command; required.
+A string, a mapping of platform variants, or a snippet reference.
+.TP
+.B expect
+The expectation; required.
+See
+.BR EXPECT .
+.TP
+.B as
+How values are compared:
+.B auto
+(default),
+.BR number ,
+.B version
+or
+.BR string .
+.TP
+.B allow_rc
+Exit codes accepted when
+.B expect
+looks at the output; default
+.BR [0] .
+.B any
+accepts every exit code except 126 and 127.
+.TP
+.B timeout
+Go duration, e.g. 500ms, 30s, 5m.
+.TP
+.B shell
+.BR bash ", " sh ", " zsh ", " pwsh ", " powershell " or " cmd .
+.TP
+.B remediation
+How to fix a failure; printed below failed checks.
+.TP
+.B reference
+A link to background documentation.
+.SH PLATFORM VARIANTS
+.B run
+and
+.B only_if
+may map platform keys to commands.
+checkmate uses the first key that matches the host, in the order of its
+platform keys: the distribution
+.RB ( rhel ", " rocky ", " debian ", " ubuntu ", " sles ", " macos ", " windows ,
+\&...), the distributions it is like, the operating system
+.RB ( linux ", " darwin ", " windows ),
+.B unix
+for every non-Windows system, and
+.BR default .
+A key may list several platforms separated by commas, e.g.
+.BR "rhel,suse:" .
+Without a matching variant the check is N/A.
+.SH EXPECT
+An expectation is evaluated against the exit code and the output.
+Comparisons use standard output, trimmed; regular expressions are RE2 with
+multi-line mode.
+.TP
+.BR true ", " false
+The exit code is 0, or is not 0.
+.TP
+.BI "== " value ", != " value
+Equal, not equal.
+.TP
+.BI "> " n ", >= " n ", < " n ", <= " n ", !> " n ", !< " n
+Numeric comparison, or version comparison with
+.BR "as: version" .
+.TP
+.BI "~ " regex ", !~ " regex
+Matches, does not match.
+.TP
+.BI "in [" a ", " b "], !in [" a ", " b ]
+Is one of, is none of the values.
+.TP
+.BR empty ", " !empty
+No output, some output.
+.TP
+.BI "{ rc: " condition " }"
+A condition on the exit code, e.g.
+.BR "{ rc: \(dqin [0, 100]\(dq }" .
+.TP
+.BI "{ stderr: " condition " }, { lines: " condition " }"
+A condition on standard error, or on the number of output lines.
+.TP
+.BI "[ " a ", " b " ]"
+A list: all conditions must hold.
+.TP
+.BI "{ any: [ " a ", " b " ] }, { not: " condition " }"
+At least one holds; the condition does not hold.
+.TP
+.BI "{ each: " c " }, { some: " c " }, { none: " c " }"
+Every line, at least one line, no line satisfies
+.IR c .
+Regular expressions see the untrimmed line.
+.TP
+.BI "{ if: " c ", then: " a ", else: " b " }"
+A conditional expectation.
+.SH TEMPLATING
+Strings are rendered with Jinja2 (gonja) in strict mode: an undefined
+variable is an error.
+Available are the variables of the policy, the extra variables, the loop
+item and
+.BR facts :
+.BR facts.os ", " facts.arch ", " facts.hostname ", " facts.distro ,
+.BR facts.distro_like ", " facts.distro_name ", " facts.version ,
+.BR facts.version_major ", " facts.kernel " and " facts.is_root
+(effective UID 0; on Windows: running elevated).
+.PP
+Comments use
+.B "{## ##}"
+instead of
+.BR "{# #}" ,
+so that shell code such as
+.B "${#array}"
+stays intact.
+.B "{% raw %}"
+protects text that contains template syntax.
+.SH WAIVERS
+A waiver accepts the failure of checks for a documented reason.
+Waivers are listed under
+.B waivers
+in a policy, or in a waiver file passed with
+.BR \-\-waivers ,
+which contains only
+.B include
+and
+.BR waivers :
+.PP
+.RS
+.nf
+include: [common.yml]
+waivers:
+  \- id: SSH\-PORT
+    reason: Port 2222 by decision of the network team
+    until: 2027\-06\-30
+    when: facts.hostname == "web01"
+  \- id: [CIS\-RHEL9\-1.1.2.*]
+    reason: /tmp is a tmpfs managed by systemd
+    skip: true
+.fi
+.RE
+.TP
+.B id
+Check ID or glob pattern, or a list of them; required.
+.TP
+.B reason
+Why the deviation is accepted; required and shown in every report.
+.TP
+.B until
+Last day the waiver applies (YYYY-MM-DD).
+Afterwards the check counts again and the report shows a notice.
+.TP
+.B when
+Conditions like those of a check; the waiver applies only if all hold.
+.TP
+.B skip
+.B true
+does not run the check at all.
+.PP
+The first matching waiver wins.
+A file comes before the files it includes, a later
+.B \-\-waivers
+file before an earlier one, and
+.B \-\-waivers
+files before the waivers of the policy.
+.SH SECURITY
+When checkmate runs as root it refuses policy and waiver files that other
+users can modify, because their commands run as root and their waivers can
+hide findings.
+.SH SEE ALSO
+.BR checkmate (1)
+.PP
+Reference documentation: https://rtulke.github.io/checkmate/reference/
