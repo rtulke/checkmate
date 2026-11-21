@@ -32,7 +32,9 @@ checks:
     expect: "== yes"
   - id: W-SKIP
     name: must not run
-    run: touch "$MARKER"
+    run:
+      windows: New-Item -ItemType File -Path $env:MARKER | Out-Null
+      default: touch "$MARKER"
     expect: true
   - id: W-EXPIRED
     name: waiver expired
