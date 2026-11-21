@@ -107,6 +107,14 @@ installed=$(rpm -q --qf '%{INSTALLTIME}' "kernel-$(uname -r)" 2>/dev/null) ||
 run: getent ahosts example.com | sed -n 1p      # not: | head -1
 ```
 
+### find -perm and symbolic links
+
+Symbolic links always have mode 777, so `find /etc/nginx -perm /022` reports every link in `sites-enabled/`. Skip them with `! -type l`, or restrict the search to `-type f` and `-type d`:
+
+```yaml
+run: find /etc/nginx ! -type l \( ! -user root -o -perm /022 \)
+```
+
 ### Pipelines
 
 Commands run with `pipefail`: a failure anywhere in a pipeline sets the exit code. This catches broken commands but also means that `grep` without a match in the middle of a pipeline fails it. Add the exit code to `allow_rc` when that is expected.

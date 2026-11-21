@@ -7,7 +7,7 @@ A broad server hardening baseline for current Linux distributions, structured li
 - :material-file-code: **Policy file**  
   [`examples/compliance/linux-hardening.yml`](https://github.com/rtulke/checkmate/blob/main/examples/compliance/linux-hardening.yml)
 - :material-format-list-checks: **Checks**  
-  227 from 67 definitions, 14 with loops
+  324 from 113 definitions, 22 with loops
 - :material-monitor: **Platforms**  
   alpine, debian, linux, rhel, suse
 
@@ -257,6 +257,103 @@ checkmate run examples/compliance/linux-hardening.yml -e name=value
 | `HRD-MNT-AIDE` | A file integrity checker is installed and scheduled | <span class="sev sev-medium">medium</span> | hardening, maintenance, integrity |
 | `HRD-MNT-GPGCHECK` | Package signatures are checked for every repository | <span class="sev sev-high">high</span> | hardening, maintenance, packages |
 | `HRD-MNT-UPDATES` | No security updates are pending | <span class="sev sev-high">high</span> | hardening, maintenance, updates |
+| `HRD-AUD-PRIVILEGED` | Every SUID/SGID program is covered by an audit rule | <span class="sev sev-medium">medium</span> | hardening, audit |
+| `HRD-AUD-RULE-ACL` | Audit rules cover ACL changes | <span class="sev sev-medium">medium</span> | hardening, audit |
+| `HRD-AUD-RULE-SELINUX-TOOLS` | Audit rules cover SELinux management commands | <span class="sev sev-medium">medium</span> | hardening, audit |
+| `HRD-AUD-RULE-USERMOD` | Audit rules cover account management commands | <span class="sev sev-medium">medium</span> | hardening, audit |
+| `HRD-AUD-RULE-SUDO-LOG` | Audit rules cover the sudo log | <span class="sev sev-medium">medium</span> | hardening, audit |
+| `HRD-AUD-RULE-CRON` | Audit rules cover changes to cron configuration | <span class="sev sev-medium">medium</span> | hardening, audit |
+| `HRD-AUD-RULE-SSHD-CONFIG` | Audit rules cover changes to the sshd configuration | <span class="sev sev-medium">medium</span> | hardening, audit |
+| `HRD-AUD-KEEP-action_mail_acct` | auditd.conf: action_mail_acct == root | <span class="sev sev-low">low</span> | hardening, audit |
+| `HRD-AUD-KEEP-flush` | auditd.conf: flush ~ (?i)^(incremental_async\|data\|sync)$ | <span class="sev sev-low">low</span> | hardening, audit |
+| `HRD-AUD-KEEP-local_events` | auditd.conf: local_events ~ (?i)^yes$ | <span class="sev sev-low">low</span> | hardening, audit |
+| `HRD-AUD-KEEP-log_group` | auditd.conf: log_group ~ ^(root\|0)$ | <span class="sev sev-low">low</span> | hardening, audit |
+| `HRD-AUD-KEEP-max_log_file` | auditd.conf: max_log_file >= 8 | <span class="sev sev-low">low</span> | hardening, audit |
+| `HRD-AUD-KEEP-num_logs` | auditd.conf: num_logs >= 5 | <span class="sev sev-low">low</span> | hardening, audit |
+| `HRD-AUD-KEEP-write_logs` | auditd.conf: write_logs ~ (?i)^yes$ | <span class="sev sev-low">low</span> | hardening, audit |
+| `HRD-AUD-LOG-PERMS` | Audit logs are only accessible by root | <span class="sev sev-high">high</span> | hardening, audit, permissions |
+| `HRD-AUD-CONF-PERMS` | Audit configuration is only writable by root | <span class="sev sev-medium">medium</span> | hardening, audit, permissions |
+| `HRD-AUD-TOOL-auditctl` | Audit tool auditctl is owned by root and not writable by others | <span class="sev sev-low">low</span> | hardening, audit, permissions |
+| `HRD-AUD-TOOL-auditd` | Audit tool auditd is owned by root and not writable by others | <span class="sev sev-low">low</span> | hardening, audit, permissions |
+| `HRD-AUD-TOOL-ausearch` | Audit tool ausearch is owned by root and not writable by others | <span class="sev sev-low">low</span> | hardening, audit, permissions |
+| `HRD-AUD-TOOL-aureport` | Audit tool aureport is owned by root and not writable by others | <span class="sev sev-low">low</span> | hardening, audit, permissions |
+| `HRD-AUD-TOOL-autrace` | Audit tool autrace is owned by root and not writable by others | <span class="sev sev-low">low</span> | hardening, audit, permissions |
+| `HRD-AUD-TOOL-augenrules` | Audit tool augenrules is owned by root and not writable by others | <span class="sev sev-low">low</span> | hardening, audit, permissions |
+| `HRD-KCFG-CONFIG_BUG_ON_DATA_CORRUPTION` | Kernel built with CONFIG_BUG_ON_DATA_CORRUPTION=y | <span class="sev sev-low">low</span> | hardening, kernel, kernel-config |
+| `HRD-KCFG-CONFIG_COMPAT_BRK` | Kernel built with CONFIG_COMPAT_BRK=n | <span class="sev sev-low">low</span> | hardening, kernel, kernel-config |
+| `HRD-KCFG-CONFIG_DEVMEM` | Kernel built with CONFIG_DEVMEM=n | <span class="sev sev-low">low</span> | hardening, kernel, kernel-config |
+| `HRD-KCFG-CONFIG_FORTIFY_SOURCE` | Kernel built with CONFIG_FORTIFY_SOURCE=y | <span class="sev sev-low">low</span> | hardening, kernel, kernel-config |
+| `HRD-KCFG-CONFIG_HARDENED_USERCOPY` | Kernel built with CONFIG_HARDENED_USERCOPY=y | <span class="sev sev-low">low</span> | hardening, kernel, kernel-config |
+| `HRD-KCFG-CONFIG_LEGACY_PTYS` | Kernel built with CONFIG_LEGACY_PTYS=n | <span class="sev sev-low">low</span> | hardening, kernel, kernel-config |
+| `HRD-KCFG-CONFIG_MODULE_SIG` | Kernel built with CONFIG_MODULE_SIG=y | <span class="sev sev-low">low</span> | hardening, kernel, kernel-config |
+| `HRD-KCFG-CONFIG_PROC_KCORE` | Kernel built with CONFIG_PROC_KCORE=n | <span class="sev sev-low">low</span> | hardening, kernel, kernel-config |
+| `HRD-KCFG-CONFIG_RANDOMIZE_BASE` | Kernel built with CONFIG_RANDOMIZE_BASE=y | <span class="sev sev-low">low</span> | hardening, kernel, kernel-config |
+| `HRD-KCFG-CONFIG_SCHED_STACK_END_CHECK` | Kernel built with CONFIG_SCHED_STACK_END_CHECK=y | <span class="sev sev-low">low</span> | hardening, kernel, kernel-config |
+| `HRD-KCFG-CONFIG_SECCOMP` | Kernel built with CONFIG_SECCOMP=y | <span class="sev sev-low">low</span> | hardening, kernel, kernel-config |
+| `HRD-KCFG-CONFIG_SECCOMP_FILTER` | Kernel built with CONFIG_SECCOMP_FILTER=y | <span class="sev sev-low">low</span> | hardening, kernel, kernel-config |
+| `HRD-KCFG-CONFIG_SECURITY_YAMA` | Kernel built with CONFIG_SECURITY_YAMA=y | <span class="sev sev-low">low</span> | hardening, kernel, kernel-config |
+| `HRD-KCFG-CONFIG_STACKPROTECTOR_STRONG` | Kernel built with CONFIG_STACKPROTECTOR_STRONG=y | <span class="sev sev-low">low</span> | hardening, kernel, kernel-config |
+| `HRD-KCFG-CONFIG_STRICT_KERNEL_RWX` | Kernel built with CONFIG_STRICT_KERNEL_RWX=y | <span class="sev sev-low">low</span> | hardening, kernel, kernel-config |
+| `HRD-KCFG-CONFIG_STRICT_MODULE_RWX` | Kernel built with CONFIG_STRICT_MODULE_RWX=y | <span class="sev sev-low">low</span> | hardening, kernel, kernel-config |
+| `HRD-KRN-CPU-VULNERABILITIES` | The kernel mitigates all known CPU vulnerabilities | <span class="sev sev-high">high</span> | hardening, kernel |
+| `HRD-KRN-NX` | The CPU's no-execute (NX) protection is active | <span class="sev sev-medium">medium</span> | hardening, kernel |
+| `HRD-BOOTPARAM-init_on_free-1` | Kernel command line contains init_on_free=1 | <span class="sev sev-low">low</span> | hardening, kernel, boot |
+| `HRD-BOOTPARAM-page_alloc.shuffle-1` | Kernel command line contains page_alloc.shuffle=1 | <span class="sev sev-low">low</span> | hardening, kernel, boot |
+| `HRD-BOOTPARAM-slab_nomerge` | Kernel command line contains slab_nomerge | <span class="sev sev-low">low</span> | hardening, kernel, boot |
+| `HRD-BOOTPARAM-vsyscall-none` | Kernel command line contains vsyscall=none | <span class="sev sev-low">low</span> | hardening, kernel, boot |
+| `HRD-BOOTPARAM-pti-on` | Kernel command line contains pti=on | <span class="sev sev-low">low</span> | hardening, kernel, boot |
+| `HRD-KRN-STRICT-kernel.kexec_load_disabled` | kernel.kexec_load_disabled == 1 (strict, may affect kdump or containers) | <span class="sev sev-low">low</span> | hardening, kernel, sysctl, strict |
+| `HRD-KRN-STRICT-user.max_user_namespaces` | user.max_user_namespaces == 0 (strict, may affect kdump or containers) | <span class="sev sev-low">low</span> | hardening, kernel, sysctl, strict |
+| `HRD-PAM-NULLOK` | PAM does not accept empty passwords (no nullok) | <span class="sev sev-high">high</span> | hardening, authentication, pam |
+| `HRD-PAM-FAILLOCK-ROOT` | Failed logins also lock the root account | <span class="sev sev-low">low</span> | hardening, authentication, pam |
+| `HRD-PAM-FAIL-INTERVAL` | Failed logins are counted over at least 15 minutes | <span class="sev sev-low">low</span> | hardening, authentication, pam |
+| `HRD-PWQ-ROOT` | Password quality rules apply to root as well | <span class="sev sev-low">low</span> | hardening, authentication, passwords |
+| `HRD-PWQ-RETRY` | Password changes allow at most 3 retries | <span class="sev sev-low">low</span> | hardening, authentication, passwords |
+| `HRD-PAM-HASH-ROUNDS` | pam_unix hashes passwords with at least 5000 rounds | <span class="sev sev-low">low</span> | hardening, authentication, passwords |
+| `HRD-ACC-SYSTEM-SHELL` | System accounts have no login shell | <span class="sev sev-medium">medium</span> | hardening, accounts |
+| `HRD-ACC-HOME-MODE` | Home directories are mode 750 or stricter | <span class="sev sev-medium">medium</span> | hardening, accounts, permissions |
+| `HRD-ACC-SHELL-UMASK` | Every umask set in shell start files is 027 or stricter | <span class="sev sev-low">low</span> | hardening, accounts |
+| `HRD-ACC-BANNER-OSINFO` | Login banners do not reveal the operating system | <span class="sev sev-low">low</span> | hardening, accounts, banners |
+| `HRD-ACC-BANNER-PRESENT` | A login banner is configured | <span class="sev sev-low">low</span> | hardening, accounts, banners |
+| `HRD-SUDO-INCLUDES` | sudo only includes the standard drop-in directory | <span class="sev sev-medium">medium</span> | hardening, access, sudo |
+| `HRD-SUDO-REAUTH` | sudo does not ask for the target user's or root's password | <span class="sev sev-low">low</span> | hardening, access, sudo |
+| `HRD-SUDO-VISIBLEPW` | sudo never echoes passwords | <span class="sev sev-low">low</span> | hardening, access, sudo |
+| `HRD-PERM-BINARIES` | System programs are owned by root and not writable by others | <span class="sev sev-high">high</span> | hardening, permissions |
+| `HRD-PERM-LIBRARIES` | System libraries are owned by root and not writable by others | <span class="sev sev-high">high</span> | hardening, permissions |
+| `HRD-PERM-SSH-PUBKEYS` | Public SSH host keys are not writable by others | <span class="sev sev-low">low</span> | hardening, permissions, ssh |
+| `HRD-PERM-VAR-LOG` | /var/log is owned by root and not writable by others | <span class="sev sev-medium">medium</span> | hardening, permissions, logging |
+| `HRD-PERM-KEYTABS` | Kerberos keytabs are only readable by their owner | <span class="sev sev-high">high</span> | hardening, permissions, kerberos |
+| `HRD-SEBOOL-deny_execmem` | SELinux boolean deny_execmem is on | <span class="sev sev-low">low</span> | hardening, mac, selinux |
+| `HRD-SEBOOL-ftpd_anon_write` | SELinux boolean ftpd_anon_write is off | <span class="sev sev-low">low</span> | hardening, mac, selinux |
+| `HRD-SEBOOL-httpd_enable_homedirs` | SELinux boolean httpd_enable_homedirs is off | <span class="sev sev-low">low</span> | hardening, mac, selinux |
+| `HRD-SEBOOL-httpd_execmem` | SELinux boolean httpd_execmem is off | <span class="sev sev-low">low</span> | hardening, mac, selinux |
+| `HRD-SEBOOL-mount_anyfile` | SELinux boolean mount_anyfile is off | <span class="sev sev-low">low</span> | hardening, mac, selinux |
+| `HRD-SEBOOL-polyinstantiation_enabled` | SELinux boolean polyinstantiation_enabled is on | <span class="sev sev-low">low</span> | hardening, mac, selinux |
+| `HRD-SEBOOL-selinuxuser_execmod` | SELinux boolean selinuxuser_execmod is off | <span class="sev sev-low">low</span> | hardening, mac, selinux |
+| `HRD-SEBOOL-selinuxuser_execstack` | SELinux boolean selinuxuser_execstack is off | <span class="sev sev-low">low</span> | hardening, mac, selinux |
+| `HRD-SEBOOL-ssh_sysadm_login` | SELinux boolean ssh_sysadm_login is off | <span class="sev sev-low">low</span> | hardening, mac, selinux |
+| `HRD-SEBOOL-tftp_anon_write` | SELinux boolean tftp_anon_write is off | <span class="sev sev-low">low</span> | hardening, mac, selinux |
+| `HRD-LOG-RSYSLOG-NO-REMOTE-INPUT` | rsyslog does not accept remote messages | <span class="sev sev-medium">medium</span> | hardening, logging |
+| `HRD-LOG-RSYSLOG-FILEMODE` | rsyslog creates log files with mode 0640 or stricter | <span class="sev sev-low">low</span> | hardening, logging, permissions |
+| `HRD-LOG-JOURNAL-FORWARD` | journald forwards to rsyslog when rsyslog is used | <span class="sev sev-low">low</span> | hardening, logging |
+| `HRD-SVC-POSTFIX-LOCAL` | Postfix only listens on loopback | <span class="sev sev-medium">medium</span> | hardening, services, mail |
+| `HRD-SVC-NFS-EXPORTS` | NFS exports neither disable root squashing nor allow insecure ports | <span class="sev sev-high">high</span> | hardening, services, nfs |
+| `HRD-SVC-SSSD-TLS` | SSSD verifies LDAP server certificates | <span class="sev sev-high">high</span> | hardening, services, sssd |
+| `HRD-SVC-CHRONY-USER` | chronyd runs as an unprivileged user | <span class="sev sev-low">low</span> | hardening, services, time |
+| `HRD-SVC-CHRONY-CMDPORT` | chronyd does not accept commands from the network | <span class="sev sev-low">low</span> | hardening, services, time |
+| `HRD-SVC-VSFTPD-ANON` | vsftpd does not allow anonymous logins | <span class="sev sev-high">high</span> | hardening, services, ftp |
+| `HRD-SVC-USBGUARD` | USBGuard controls USB devices | <span class="sev sev-low">low</span> | hardening, services, usb |
+| `HRD-SW-UNWANTED-prelink` | prelink is not installed | <span class="sev sev-low">low</span> | hardening, packages |
+| `HRD-SW-UNWANTED-mcstrans` | mcstrans is not installed | <span class="sev sev-low">low</span> | hardening, packages |
+| `HRD-SW-UNWANTED-setroubleshoot` | setroubleshoot is not installed | <span class="sev sev-low">low</span> | hardening, packages |
+| `HRD-SW-UNWANTED-xorg-x11-server-Xorg` | xorg-x11-server-Xorg is not installed | <span class="sev sev-low">low</span> | hardening, packages |
+| `HRD-SW-UNWANTED-xserver-xorg-core` | xserver-xorg-core is not installed | <span class="sev sev-low">low</span> | hardening, packages |
+| `HRD-SW-UNWANTED-gdm` | gdm is not installed | <span class="sev sev-low">low</span> | hardening, packages |
+| `HRD-SW-UNWANTED-gdm3` | gdm3 is not installed | <span class="sev sev-low">low</span> | hardening, packages |
+| `HRD-SW-REQUIRED` | Packages a hardened server needs are installed | <span class="sev sev-medium">medium</span> | hardening, packages |
+| `HRD-SW-LOCALPKG-GPG` | Locally installed packages are signature-checked | <span class="sev sev-low">low</span> | hardening, maintenance, packages |
+| `HRD-SW-AIDE-ACLS` | AIDE also checks ACLs and extended attributes | <span class="sev sev-low">low</span> | hardening, maintenance, integrity |
+| `HRD-SW-FIPS` | The kernel runs in FIPS mode (informational) | <span class="sev sev-info">info</span> | hardening, crypto |
 
 ## Policy
 
@@ -411,6 +508,78 @@ vars:
     ciphers: "!~ (cbc|arcfour|3des|blowfish)"
     macs: "!~ (md5|-96|umac-64[@-]|hmac-sha1($|,|-etm))"
     kexalgorithms: "!~ (group1-|group14-sha1|group-exchange-sha1)"
+
+  # --- additional rules (coverage of OpenSCAP / Wazuh topics) -------------------
+  # Kernel build options that should be enabled (checked in /boot/config-*).
+  kernel_config:
+    CONFIG_STRICT_KERNEL_RWX: y
+    CONFIG_STRICT_MODULE_RWX: y
+    CONFIG_STACKPROTECTOR_STRONG: y
+    CONFIG_FORTIFY_SOURCE: y
+    CONFIG_RANDOMIZE_BASE: y
+    CONFIG_HARDENED_USERCOPY: y
+    CONFIG_SECCOMP: y
+    CONFIG_SECCOMP_FILTER: y
+    CONFIG_SECURITY_YAMA: y
+    CONFIG_MODULE_SIG: y
+    CONFIG_BUG_ON_DATA_CORRUPTION: y
+    CONFIG_SCHED_STACK_END_CHECK: y
+    CONFIG_DEVMEM: n
+    CONFIG_LEGACY_PTYS: n
+    CONFIG_COMPAT_BRK: n
+    CONFIG_PROC_KCORE: n
+
+  # Optional, stricter kernel settings with side effects (kdump, containers).
+  sysctl_kernel_strict:
+    kernel.kexec_load_disabled: "== 1"
+    user.max_user_namespaces: "== 0"
+
+  # Kernel command line options (x86-only ones are marked).
+  boot_parameters:
+    - { option: init_on_free=1, arch: any }
+    - { option: page_alloc.shuffle=1, arch: any }
+    - { option: slab_nomerge, arch: any }
+    - { option: vsyscall=none, arch: amd64 }
+    - { option: pti=on, arch: amd64 }
+
+  # auditd data retention and behaviour
+  auditd_retention:
+    num_logs: ">= 5"
+    max_log_file: ">= 8"
+    write_logs: "~ (?i)^yes$"
+    local_events: "~ (?i)^yes$"
+    log_group: "~ ^(root|0)$"
+    flush: "~ (?i)^(incremental_async|data|sync)$"
+    action_mail_acct: "== root"
+
+  audit_tools: [auditctl, auditd, ausearch, aureport, autrace, augenrules]
+
+  # Additional audit rule topics.
+  audit_rules_extra:
+    - { id: ACL, name: ACL changes, pattern: "(setfacl|chacl)" }
+    - { id: SELINUX-TOOLS, name: SELinux management commands, pattern: "(chcon|semanage|setsebool|setfiles|restorecon)" }
+    - { id: USERMOD, name: account management commands, pattern: "(usermod|useradd|userdel|groupmod|chage|passwd)" }
+    - { id: SUDO-LOG, name: the sudo log, pattern: "/var/log/sudo" }
+    - { id: CRON, name: changes to cron configuration, pattern: "(/etc/cron|/var/spool/cron)" }
+    - { id: SSHD-CONFIG, name: changes to the sshd configuration, pattern: "/etc/ssh/sshd_config" }
+
+  # SELinux booleans and the value they should have.
+  selinux_booleans:
+    selinuxuser_execstack: "off"
+    selinuxuser_execmod: "off"
+    ssh_sysadm_login: "off"
+    deny_execmem: "on"
+    httpd_enable_homedirs: "off"
+    httpd_execmem: "off"
+    ftpd_anon_write: "off"
+    tftp_anon_write: "off"
+    mount_anyfile: "off"
+    polyinstantiation_enabled: "on"
+
+  # Packages that should not be on a server.
+  unwanted_packages: [prelink, mcstrans, setroubleshoot, xorg-x11-server-Xorg, xserver-xorg-core, gdm, gdm3]
+  # Packages a hardened server needs.
+  required_packages: [sudo, audit, auditd, chrony, aide, rsyslog]
 
 snippets:
   pkg_installed:
@@ -1035,4 +1204,430 @@ checks:
       debian: apt-get -s -o Debug::NoLocking=1 upgrade 2>/dev/null | grep -E '^Inst .*[Ss]ecurity'
     allow_rc: [0, 1]
     expect: { lines: "== 0" }
+
+  # ===== 14. Additional rules (topics from OpenSCAP and Wazuh) ===================
+  # --- auditing ---------------------------------------------------------------------
+  - id: HRD-AUD-PRIVILEGED
+    name: Every SUID/SGID program is covered by an audit rule
+    tags: [hardening, audit]
+    when: facts.is_root
+    timeout: 10m
+    # Prints every privileged program without a matching "-F path=" rule.
+    run: |
+      rules=$(auditctl -l 2>/dev/null)
+      find / -xdev -type f \( -perm -4000 -o -perm -2000 \) 2>/dev/null | sort |
+        while read -r f; do
+          case "$rules" in *"path=$f "*|*"path=$f") ;; *) echo "$f" ;; esac
+        done
+    allow_rc: [0, 1]
+    expect: empty
+    remediation: Generate rules with e.g. `find / -xdev -perm -4000 -type f | awk '{print "-a always,exit -F path=" $1 " -F perm=x -F auid>=1000 -F auid!=unset -k privileged"}'`.
+
+  - id: "HRD-AUD-RULE-{{ item.id }}"
+    name: "Audit rules cover {{ item.name }}"
+    tags: [hardening, audit]
+    when: facts.is_root
+    loop: "{{ audit_rules_extra }}"
+    run: auditctl -l
+    expect: "~ {{ item.pattern }}"
+
+  - id: "HRD-AUD-KEEP-{{ item.key }}"
+    name: "auditd.conf: {{ item.key }} {{ item.value }}"
+    tags: [hardening, audit]
+    severity: low
+    loop: "{{ auditd_retention }}"
+    run: { use: conf_value, args: { files: /etc/audit/auditd.conf, key: "{{ item.key }}" } }
+    expect: ["!empty", "{{ item.value }}"]
+
+  - id: HRD-AUD-LOG-PERMS
+    name: Audit logs are only accessible by root
+    tags: [hardening, audit, permissions]
+    severity: high
+    only_if: test -d /var/log/audit
+    run: find /var/log/audit \( -type d -perm /027 -o -type f -perm /137 -o ! -user root \) 2>/dev/null
+    allow_rc: [0, 1]
+    expect: empty
+
+  - id: HRD-AUD-CONF-PERMS
+    name: Audit configuration is only writable by root
+    tags: [hardening, audit, permissions]
+    only_if: test -d /etc/audit
+    run: find /etc/audit -type f \( -perm /137 -o ! -user root \) 2>/dev/null
+    allow_rc: [0, 1]
+    expect: empty
+
+  - id: "HRD-AUD-TOOL-{{ item }}"
+    name: "Audit tool {{ item }} is owned by root and not writable by others"
+    tags: [hardening, audit, permissions]
+    severity: low
+    loop: "{{ audit_tools }}"
+    only_if: command -v {{ item }}
+    run: find "$(command -v {{ item }})" \( -perm /022 -o ! -user root \)
+    expect: empty
+
+  # --- kernel ---------------------------------------------------------------------
+  - id: "HRD-KCFG-{{ item.key }}"
+    name: "Kernel built with {{ item.key }}={{ item.value }}"
+    tags: [hardening, kernel, kernel-config]
+    severity: low
+    loop: "{{ kernel_config }}"
+    only_if: test -r /boot/config-$(uname -r)
+    # Options that are not set appear as "# CONFIG_X is not set".
+    run: |
+      v=$(grep -E '^(# )?{{ item.key }}[= ]' /boot/config-$(uname -r) | sed -n 1p)
+      case "$v" in
+        "{{ item.key }}="*) echo "${v#*=}" ;;
+        *"is not set") echo n ;;
+        *) echo missing ;;
+      esac
+    expect: "{{ 'in [n, missing]' if item.value == 'n' else '== ' ~ item.value }}"
+
+  - id: HRD-KRN-CPU-VULNERABILITIES
+    name: The kernel mitigates all known CPU vulnerabilities
+    tags: [hardening, kernel]
+    severity: high
+    only_if: test -d /sys/devices/system/cpu/vulnerabilities
+    run: grep -H . /sys/devices/system/cpu/vulnerabilities/* 2>/dev/null
+    allow_rc: [0, 1, 2]
+    expect: { none: "~ :Vulnerable" }
+
+  - id: HRD-KRN-NX
+    name: The CPU's no-execute (NX) protection is active
+    tags: [hardening, kernel]
+    when: facts.arch == "amd64"
+    run: grep -m1 -ow nx /proc/cpuinfo
+    allow_rc: [0, 1]
+    expect: "== nx"
+
+  - id: "HRD-BOOTPARAM-{{ item.option | replace('=', '-') }}"
+    name: "Kernel command line contains {{ item.option }}"
+    tags: [hardening, kernel, boot]
+    severity: low
+    when: item.arch == "any" or item.arch == facts.arch
+    loop: "{{ boot_parameters }}"
+    run: cat /proc/cmdline
+    expect: "~ (^| ){{ item.option }}( |$)"
+
+  - id: "HRD-KRN-STRICT-{{ item.key }}"
+    name: "{{ item.key }} {{ item.value }} (strict, may affect kdump or containers)"
+    tags: [hardening, kernel, sysctl, strict]
+    severity: low
+    loop: "{{ sysctl_kernel_strict }}"
+    only_if: test -e /proc/sys/{{ item.key | replace('.', '/') }}
+    run: sysctl -n {{ item.key }}
+    expect: "{{ item.value }}"
+
+  # --- PAM ------------------------------------------------------------------------
+  - id: HRD-PAM-NULLOK
+    name: PAM does not accept empty passwords (no nullok)
+    tags: [hardening, authentication, pam]
+    severity: high
+    run: cat /etc/pam.d/* 2>/dev/null
+    allow_rc: [0, 1]
+    expect: { none: "~ ^[^#]*pam_unix\\.so.*[[:space:]]nullok" }
+
+  - id: HRD-PAM-FAILLOCK-ROOT
+    name: Failed logins also lock the root account
+    tags: [hardening, authentication, pam]
+    severity: low
+    run: cat /etc/security/faillock.conf 2>/dev/null
+    allow_rc: [0, 1]
+    expect: { some: "~ ^[[:space:]]*even_deny_root" }
+
+  - id: HRD-PAM-FAIL-INTERVAL
+    name: Failed logins are counted over at least 15 minutes
+    tags: [hardening, authentication, pam]
+    severity: low
+    run: { use: conf_value, args: { files: /etc/security/faillock.conf, key: fail_interval } }
+    expect: ["!empty", ">= 900"]
+
+  - id: HRD-PWQ-ROOT
+    name: Password quality rules apply to root as well
+    tags: [hardening, authentication, passwords]
+    severity: low
+    run: cat /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf 2>/dev/null
+    allow_rc: [0, 1]
+    expect: { some: "~ ^[[:space:]]*enforce_for_root" }
+
+  - id: HRD-PWQ-RETRY
+    name: Password changes allow at most 3 retries
+    tags: [hardening, authentication, passwords]
+    severity: low
+    run: { use: conf_value, args: { files: "/etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf", key: retry } }
+    expect: ["!empty", "<= 3"]
+
+  - id: HRD-PAM-HASH-ROUNDS
+    name: pam_unix hashes passwords with at least 5000 rounds
+    tags: [hardening, authentication, passwords]
+    severity: low
+    run: |
+      cat /etc/pam.d/system-auth /etc/pam.d/password-auth /etc/pam.d/common-password 2>/dev/null |
+        grep -E '^[[:space:]]*password[[:space:]].*pam_unix\.so' | grep -oE 'rounds=[0-9]+' | cut -d= -f2 | sort -n | sed -n 1p
+    allow_rc: [0, 1]
+    expect: ["!empty", ">= 5000"]
+
+  # --- accounts and sessions --------------------------------------------------------
+  - id: HRD-ACC-SYSTEM-SHELL
+    name: System accounts have no login shell
+    tags: [hardening, accounts]
+    run: |
+      awk -F: -v min={{ uid_min }} '$3 < min && $1 !~ /^(root|sync|shutdown|halt)$/ && $7 !~ /(nologin|false)$/ {print $1 " " $7}' /etc/passwd
+    expect: empty
+
+  - id: HRD-ACC-HOME-MODE
+    name: Home directories are mode 750 or stricter
+    tags: [hardening, accounts, permissions]
+    run: |
+      awk -F: -v min={{ uid_min }} '$3 >= min && $3 != 65534 {print $6}' /etc/passwd |
+        while read -r home; do
+          if [ -d "$home" ]; then find "$home" -maxdepth 0 -perm /027; fi
+        done
+    expect: empty
+
+  - id: HRD-ACC-SHELL-UMASK
+    name: Every umask set in shell start files is 027 or stricter
+    tags: [hardening, accounts]
+    severity: low
+    run: |
+      cat /etc/profile /etc/profile.d/*.sh /etc/bashrc /etc/bash.bashrc /etc/csh.cshrc 2>/dev/null |
+        grep -oE '^[[:space:]]*umask[[:space:]]+[0-7]+' | awk '{print $2}'
+    allow_rc: [0, 1]
+    as: string
+    expect: ["!empty", { each: "in ['027', '077', '0027', '0077']" }]
+
+  - id: HRD-ACC-BANNER-OSINFO
+    name: Login banners do not reveal the operating system
+    tags: [hardening, accounts, banners]
+    severity: low
+    run: cat /etc/issue /etc/issue.net /etc/motd 2>/dev/null
+    allow_rc: [0, 1]
+    expect: { none: "~ (\\\\[mrsv]|(?i)(ubuntu|debian|red hat|rocky|alma|suse|centos|kernel))" }
+
+  - id: HRD-ACC-BANNER-PRESENT
+    name: A login banner is configured
+    tags: [hardening, accounts, banners]
+    severity: low
+    run: cat /etc/issue.net /etc/issue 2>/dev/null
+    allow_rc: [0, 1]
+    expect: { lines: ">= 1" }
+
+  # --- sudo -------------------------------------------------------------------------
+  - id: HRD-SUDO-INCLUDES
+    name: sudo only includes the standard drop-in directory
+    tags: [hardening, access, sudo]
+    when: facts.is_root
+    run: cat /etc/sudoers 2>/dev/null | grep -E '^[#@]include'
+    allow_rc: [0, 1]
+    expect: { each: "~ ^[#@]includedir[[:space:]]+/etc/sudoers\\.d$" }
+
+  - id: HRD-SUDO-REAUTH
+    name: sudo does not ask for the target user's or root's password
+    tags: [hardening, access, sudo]
+    severity: low
+    when: facts.is_root
+    run: cat /etc/sudoers /etc/sudoers.d/* 2>/dev/null
+    allow_rc: [0, 1]
+    expect: { none: "~ ^[[:space:]]*Defaults.*[[:space:],](targetpw|rootpw|runaspw)([[:space:],]|$)" }
+
+  - id: HRD-SUDO-VISIBLEPW
+    name: sudo never echoes passwords
+    tags: [hardening, access, sudo]
+    severity: low
+    when: facts.is_root
+    run: cat /etc/sudoers /etc/sudoers.d/* 2>/dev/null
+    allow_rc: [0, 1]
+    expect: { none: "~ ^[[:space:]]*Defaults.*[[:space:],]visiblepw" }
+
+  # --- file permissions -------------------------------------------------------------
+  - id: HRD-PERM-BINARIES
+    name: System programs are owned by root and not writable by others
+    tags: [hardening, permissions]
+    severity: high
+    timeout: 5m
+    run: |
+      find /bin/ /sbin/ /usr/bin/ /usr/sbin/ /usr/local/bin/ /usr/local/sbin/ /usr/libexec/ \
+        -xdev \( -type f -o -type d \) \( -perm /022 -o ! -user root \) 2>/dev/null
+    allow_rc: [0, 1]
+    expect: empty
+
+  - id: HRD-PERM-LIBRARIES
+    name: System libraries are owned by root and not writable by others
+    tags: [hardening, permissions]
+    severity: high
+    timeout: 5m
+    run: |
+      find /lib/ /lib64/ /usr/lib/ /usr/lib64/ -xdev \( -type f -o -type d \) \( -perm /022 -o ! -user root \) 2>/dev/null
+    allow_rc: [0, 1]
+    expect: empty
+
+  - id: HRD-PERM-SSH-PUBKEYS
+    name: Public SSH host keys are not writable by others
+    tags: [hardening, permissions, ssh]
+    severity: low
+    run: find /etc/ssh -name 'ssh_host_*_key.pub' \( -perm /133 -o ! -user root \) 2>/dev/null
+    allow_rc: [0, 1]
+    expect: empty
+
+  - id: HRD-PERM-VAR-LOG
+    name: /var/log is owned by root and not writable by others
+    tags: [hardening, permissions, logging]
+    run: find /var/log -maxdepth 0 \( -perm /022 -o ! -user root \)
+    expect: empty
+
+  - id: HRD-PERM-KEYTABS
+    name: Kerberos keytabs are only readable by their owner
+    tags: [hardening, permissions, kerberos]
+    severity: high
+    run: find /etc /var/kerberos -name '*.keytab' -perm /077 2>/dev/null
+    allow_rc: [0, 1]
+    expect: empty
+
+  # --- SELinux ----------------------------------------------------------------------
+  - id: "HRD-SEBOOL-{{ item.key }}"
+    name: "SELinux boolean {{ item.key }} is {{ item.value }}"
+    tags: [hardening, mac, selinux]
+    severity: low
+    loop: "{{ selinux_booleans }}"
+    only_if: command -v getsebool && selinuxenabled
+    run: getsebool {{ item.key }} 2>/dev/null | awk '{print $3}'
+    allow_rc: [0, 1]
+    # Booleans that do not exist on this policy version are fine.
+    expect: { any: ["== {{ item.value }}", empty] }
+
+  # --- logging ----------------------------------------------------------------------
+  - id: HRD-LOG-RSYSLOG-NO-REMOTE-INPUT
+    name: rsyslog does not accept remote messages
+    tags: [hardening, logging]
+    only_if: test -f /etc/rsyslog.conf
+    run: cat /etc/rsyslog.conf /etc/rsyslog.d/*.conf 2>/dev/null
+    allow_rc: [0, 1]
+    expect: { none: "~ ^[[:space:]]*(\\$ModLoad[[:space:]]+im(tcp|udp)|module\\(load=\"im(tcp|udp)\")" }
+
+  - id: HRD-LOG-RSYSLOG-FILEMODE
+    name: rsyslog creates log files with mode 0640 or stricter
+    tags: [hardening, logging, permissions]
+    severity: low
+    only_if: test -f /etc/rsyslog.conf
+    run: |
+      cat /etc/rsyslog.conf /etc/rsyslog.d/*.conf 2>/dev/null | grep -oE '^[[:space:]]*\$FileCreateMode[[:space:]]+[0-7]+' | awk '{print $2}'
+    allow_rc: [0, 1]
+    as: string
+    expect: ["!empty", { each: "in ['0640', '0600', '0400', '0440']" }]
+
+  - id: HRD-LOG-JOURNAL-FORWARD
+    name: journald forwards to rsyslog when rsyslog is used
+    tags: [hardening, logging]
+    severity: low
+    only_if: systemctl is-active --quiet rsyslog
+    run: { use: conf_value, args: { files: "/etc/systemd/journald.conf /etc/systemd/journald.conf.d/*.conf", key: ForwardToSyslog } }
+    expect: "== yes"
+
+  # --- services -----------------------------------------------------------------------
+  - id: HRD-SVC-POSTFIX-LOCAL
+    name: Postfix only listens on loopback
+    tags: [hardening, services, mail]
+    only_if: command -v postconf
+    run: postconf -h inet_interfaces
+    expect: "in [loopback-only, localhost, 127.0.0.1, '127.0.0.1, [::1]']"
+
+  - id: HRD-SVC-NFS-EXPORTS
+    name: NFS exports neither disable root squashing nor allow insecure ports
+    tags: [hardening, services, nfs]
+    severity: high
+    only_if: test -s /etc/exports || test -d /etc/exports.d
+    run: cat /etc/exports /etc/exports.d/*.exports 2>/dev/null | grep -v '^[[:space:]]*#'
+    allow_rc: [0, 1]
+    expect: { none: "~ (no_root_squash|[(,]insecure[),])" }
+
+  - id: HRD-SVC-SSSD-TLS
+    name: SSSD verifies LDAP server certificates
+    tags: [hardening, services, sssd]
+    severity: high
+    only_if: test -f /etc/sssd/sssd.conf
+    run: cat /etc/sssd/sssd.conf /etc/sssd/conf.d/*.conf 2>/dev/null
+    allow_rc: [0, 1]
+    expect: { none: "~ (?i)^[[:space:]]*ldap_tls_reqcert[[:space:]]*=[[:space:]]*(never|allow)" }
+
+  - id: HRD-SVC-CHRONY-USER
+    name: chronyd runs as an unprivileged user
+    tags: [hardening, services, time]
+    severity: low
+    only_if: pgrep -x chronyd >/dev/null
+    run: ps -o user= -p "$(pgrep -x chronyd | sed -n 1p)"
+    expect: "in [chrony, _chrony, ntp]"
+
+  - id: HRD-SVC-CHRONY-CMDPORT
+    name: chronyd does not accept commands from the network
+    tags: [hardening, services, time]
+    severity: low
+    only_if: command -v ss && pgrep -x chronyd >/dev/null
+    run: ss -Hlnu 'sport = :323' | awk '{print $4}'
+    expect: { each: "~ ^(127\\.0\\.0\\.1|\\[::1\\]):323$" }
+
+  - id: HRD-SVC-VSFTPD-ANON
+    name: vsftpd does not allow anonymous logins
+    tags: [hardening, services, ftp]
+    severity: high
+    only_if: test -f /etc/vsftpd.conf || test -f /etc/vsftpd/vsftpd.conf
+    run: cat /etc/vsftpd.conf /etc/vsftpd/vsftpd.conf 2>/dev/null
+    allow_rc: [0, 1]
+    expect: { none: "~ (?i)^[[:space:]]*anonymous_enable=yes" }
+
+  - id: HRD-SVC-USBGUARD
+    name: USBGuard controls USB devices
+    tags: [hardening, services, usb]
+    severity: low
+    only_if: command -v systemctl
+    run: systemctl is-active usbguard 2>/dev/null
+    allow_rc: [0, 1, 3, 4]
+    expect: "== active"
+
+  # --- software ---------------------------------------------------------------------
+  - id: "HRD-SW-UNWANTED-{{ item }}"
+    name: "{{ item }} is not installed"
+    tags: [hardening, packages]
+    severity: low
+    loop: "{{ unwanted_packages }}"
+    run: { use: pkg_installed, arg: "{{ item }}" }
+    expect: false
+
+  - id: HRD-SW-REQUIRED
+    name: Packages a hardened server needs are installed
+    tags: [hardening, packages]
+    run: |
+      for p in {{ required_packages | join(' ') }}; do
+        if rpm -q --quiet "$p" 2>/dev/null || dpkg-query -W -f='${Status}' "$p" 2>/dev/null | grep -q 'install ok installed' || apk info -e "$p" >/dev/null 2>&1; then echo "$p"; fi
+      done
+    allow_rc: [0, 1]
+    # audit (RPM) and auditd (Debian) are the same software.
+    expect:
+      all:
+        - { some: "== sudo" }
+        - { some: "in [audit, auditd]" }
+        - { some: "== chrony" }
+        - { some: "== aide" }
+
+  - id: HRD-SW-LOCALPKG-GPG
+    name: Locally installed packages are signature-checked
+    tags: [hardening, maintenance, packages]
+    severity: low
+    only_if: test -f /etc/dnf/dnf.conf
+    run: { use: conf_value, args: { files: /etc/dnf/dnf.conf, key: localpkg_gpgcheck } }
+    expect: "~ (?i)^(1|true|yes)$"
+
+  - id: HRD-SW-AIDE-ACLS
+    name: AIDE also checks ACLs and extended attributes
+    tags: [hardening, maintenance, integrity]
+    severity: low
+    only_if: test -f /etc/aide.conf || test -f /etc/aide/aide.conf
+    run: cat /etc/aide.conf /etc/aide/aide.conf 2>/dev/null | grep -vE '^[[:space:]]*#'
+    allow_rc: [0, 1]
+    expect: [{ some: "~ \\bacl\\b" }, { some: "~ \\bxattrs\\b" }]
+
+  - id: HRD-SW-FIPS
+    name: The kernel runs in FIPS mode (informational)
+    tags: [hardening, crypto]
+    severity: info
+    run: cat /proc/sys/crypto/fips_enabled 2>/dev/null || echo 0
+    expect: "== 1"
 ```

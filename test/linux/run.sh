@@ -20,7 +20,7 @@ GOOS=linux GOARCH=$goarch CGO_ENABLED=0 go build -o bin/checkmate-linux ./cmd/ch
 
 images=("$@")
 if [ ${#images[@]} -eq 0 ]; then
-  images=(rocky9 rocky8 debian12 ubuntu24 leap15 alpine)
+  images=(rocky9 rocky8 debian12 ubuntu24 leap15 alpine apps-debian apps-rocky9)
 fi
 
 for image in "${images[@]}"; do

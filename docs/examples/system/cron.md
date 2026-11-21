@@ -72,7 +72,7 @@ checks:
     when: facts.os == "linux"
     run: |
       find /etc/crontab /etc/cron.d /etc/cron.hourly /etc/cron.daily /etc/cron.weekly /etc/cron.monthly \
-        \( ! -user root -o -perm /go+w \) 2>/dev/null
+        ! -type l \( ! -user root -o -perm /go+w \) 2>/dev/null
     allow_rc: [0, 1]
     expect: empty
 

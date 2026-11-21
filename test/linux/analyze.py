@@ -27,7 +27,9 @@ BENIGN = re.compile(
     r"System has not been booted with systemd|Failed to connect to bus|"
     r"No such file or directory|command not found|Permission denied|"
     r"Operation not permitted|not found or not executable|"
-    r"Could not open .*sys/kernel|Read-only file system",
+    r"Could not open .*sys/kernel|Read-only file system|"
+    # Findings reported by configuration test tools (apachectl, nginx -t).
+    r"AH0[0-9]{4}:|nginx: \[emerg\]",
     re.IGNORECASE,
 )
 
@@ -38,7 +40,8 @@ def main(out_dir):
     for name in sorted(os.listdir(out_dir)):
         if not name.endswith(".json"):
             continue
-        image, policy = name[:-5].split("-", 1)
+        m = re.match(r"(.+?)-((?:examples|internal|docs)_.*)$", name[:-5])
+        image, policy = (m.group(1), m.group(2)) if m else name[:-5].split("-", 1)
         path = os.path.join(out_dir, name)
         try:
             with open(path) as fh:

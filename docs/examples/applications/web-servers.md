@@ -89,6 +89,7 @@ checks:
     only_if: command -v apachectl
     # apachectl prints "Syntax OK" on stderr.
     run: apachectl configtest
+    allow_rc: [0, 1]
     expect: { stderr: "~ Syntax OK" }
 
   - id: APACHE-002

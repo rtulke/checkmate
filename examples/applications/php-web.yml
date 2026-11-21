@@ -1,0 +1,129 @@
+name: PHP and web content
+version: 1.0.0
+description: >
+  PHP runtime settings and a scan of web directories for signs of
+  compromise: web shells, obfuscated eval code, unusual file names and
+  modified .htaccess files. PHP values come from the PHP binary itself
+  (`php -r ini_get(...)`), so every included ini file is taken into account.
+
+vars:
+  web_roots: [/var/www, /srv/www, /usr/share/nginx/html]
+  dangerous_functions: [exec, passthru, shell_exec, system, proc_open, popen, pcntl_exec]
+
+snippets:
+  # Prints the effective value of a php.ini setting.
+  php_ini: php -r 'echo var_export(ini_get("{{ arg }}"), true), PHP_EOL;' | tr -d "'"
+
+defaults:
+  when: facts.os == "linux"
+
+checks:
+  - id: "PHP-INI-{{ item.key | upper | replace('.', '-') }}"
+    name: "PHP {{ item.key }} is {{ item.label }}"
+    tags: [applications, php]
+    only_if: command -v php
+    loop:
+      - { key: expose_php, label: "off", expect: "in ['', '0', 'off', 'false']" }
+      - { key: allow_url_fopen, label: "off", expect: "in ['', '0', 'off', 'false']" }
+      - { key: allow_url_include, label: "off", expect: "in ['', '0', 'off', 'false']" }
+      - { key: display_errors, label: "off", expect: "in ['', '0', 'off', 'false', 'stderr']" }
+      - { key: log_errors, label: "on", expect: "in ['1', 'on', 'true']" }
+      - { key: session.cookie_httponly, label: "on", expect: "in ['1', 'on', 'true']" }
+      - { key: session.cookie_secure, label: "on", expect: "in ['1', 'on', 'true']" }
+      - { key: session.use_strict_mode, label: "on", expect: "in ['1', 'on', 'true']" }
+      - { key: open_basedir, label: "set", expect: "!empty" }
+    run: { use: php_ini, arg: "{{ item.key }}" }
+    as: string
+    expect: "{{ item.expect }}"
+
+  - id: PHP-DISABLE-FUNCTIONS
+    name: Dangerous PHP functions are disabled
+    tags: [applications, php]
+    severity: high
+    only_if: command -v php
+    # Prints every dangerous function that is not in disable_functions.
+    run: |
+      disabled=$(php -r 'echo ini_get("disable_functions");' | tr -d ' ')
+      for f in {{ dangerous_functions | join(' ') }}; do
+        case ",$disabled," in *",$f,"*) ;; *) echo "$f" ;; esac
+      done
+    expect: empty
+
+  - id: PHP-VERSION
+    name: PHP 8.1 or newer
+    tags: [applications, php, updates]
+    severity: high
+    only_if: command -v php
+    run: php -r 'echo PHP_VERSION, PHP_EOL;'
+    as: version
+    expect: ">= 8.1"
+
+  # --- web content -----------------------------------------------------------
+  - id: WEB-WEBSHELL-EVAL
+    name: No obfuscated eval code in web directories
+    tags: [applications, web, malware]
+    severity: critical
+    timeout: 10m
+    run: |
+      for d in {{ web_roots | join(' ') }}; do
+        if [ -d "$d" ]; then
+          grep -rlE --include='*.php' --include='*.phtml' --include='*.inc' \
+            'eval[[:space:]]*\([[:space:]]*(base64_decode|gzinflate|str_rot13|gzuncompress|\$_(POST|GET|REQUEST|COOKIE))' "$d"
+        fi
+      done
+    allow_rc: [0, 1]
+    expect: empty
+    remediation: Treat the host as compromised and investigate the listed files.
+
+  - id: WEB-SUSPICIOUS-NAMES
+    name: No unusual file names in web directories
+    tags: [applications, web, malware]
+    severity: high
+    run: |
+      for d in {{ web_roots | join(' ') }}; do
+        if [ -d "$d" ]; then
+          find "$d" \( -name '...' -o -name '.yop' -o -name '.shell' -o -name 'id' -o -name '.ssh' \
+            -o -iname '*c99*.php' -o -iname '*r57*.php' -o -iname '*wso*.php' -o -name '*.php.suspected' \) 2>/dev/null
+        fi
+      done
+    allow_rc: [0, 1]
+    expect: empty
+
+  - id: WEB-HTACCESS-APPEND
+    name: No .htaccess file injects code into every request
+    tags: [applications, web, malware]
+    severity: critical
+    run: |
+      for d in {{ web_roots | join(' ') }}; do
+        if [ -d "$d" ]; then
+          find "$d" -name .htaccess -exec grep -liE 'php_value[[:space:]]+auto_(prepend|append)_file' {} + 2>/dev/null
+        fi
+      done
+    allow_rc: [0, 1]
+    expect: empty
+
+  - id: WEB-EXECUTABLE-UPLOADS
+    name: Upload directories contain no PHP files
+    tags: [applications, web, malware]
+    severity: high
+    run: |
+      for d in {{ web_roots | join(' ') }}; do
+        if [ -d "$d" ]; then
+          find "$d" -type d \( -name uploads -o -name upload -o -name files \) -exec find {} -type f -iname '*.php*' \; 2>/dev/null
+        fi
+      done
+    allow_rc: [0, 1]
+    expect: empty
+
+  - id: WEB-WRITABLE
+    name: Web content is not writable by the web server user
+    tags: [applications, web, permissions]
+    severity: low
+    run: |
+      for d in {{ web_roots | join(' ') }}; do
+        if [ -d "$d" ]; then
+          find "$d" -maxdepth 2 \( -user www-data -o -user nginx -o -user apache \) -perm -u+w ! -path '*/uploads*' 2>/dev/null
+        fi
+      done
+    allow_rc: [0, 1]
+    expect: empty

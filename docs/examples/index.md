@@ -1,6 +1,6 @@
 # Examples
 
-49 ready-to-use policies with 770 checks. Every example is validated, syntax-checked for each
+53 ready-to-use policies with 955 checks. Every example is validated, syntax-checked for each
 platform and executed on RHEL, Debian, Ubuntu, openSUSE and Alpine in the test suite, so you can copy them as a
 starting point.
 
@@ -72,9 +72,9 @@ starting point.
 
     ---
 
-    Docker, Kubernetes, web servers, PostgreSQL, MySQL, Redis and web endpoints.
+    Docker, Kubernetes, nginx, Apache, PHP and web content, PostgreSQL, MySQL, MongoDB, Redis and web endpoints.
 
-    [Docker](applications/docker.md) · [Kubernetes cluster](applications/kubernetes.md) · [MySQL and MariaDB](applications/mysql.md) · [PostgreSQL](applications/postgresql.md) · [Redis](applications/redis.md) · [Web endpoints](applications/web-endpoints.md) · [nginx and Apache httpd](applications/web-servers.md)
+    [Apache httpd in depth](applications/apache.md) · [Docker](applications/docker.md) · [Kubernetes cluster](applications/kubernetes.md) · [MongoDB](applications/mongodb.md) · [MySQL and MariaDB](applications/mysql.md) · [nginx in depth](applications/nginx.md) · [PHP and web content](applications/php-web.md) · [PostgreSQL](applications/postgresql.md) · [Redis](applications/redis.md) · [Web endpoints](applications/web-endpoints.md) · [nginx and Apache httpd](applications/web-servers.md)
 
 - :material-cloud-check: **[Cloud](cloud/index.md)**
 

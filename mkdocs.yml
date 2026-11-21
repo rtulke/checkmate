@@ -155,9 +155,13 @@ nav:
           - "Linux hosts over SSH": examples/remote/linux-over-ssh.md
       - "Applications":
           - examples/applications/index.md
+          - "Apache httpd in depth": examples/applications/apache.md
           - "Docker": examples/applications/docker.md
           - "Kubernetes cluster": examples/applications/kubernetes.md
+          - "MongoDB": examples/applications/mongodb.md
           - "MySQL and MariaDB": examples/applications/mysql.md
+          - "nginx in depth": examples/applications/nginx.md
+          - "PHP and web content": examples/applications/php-web.md
           - "PostgreSQL": examples/applications/postgresql.md
           - "Redis": examples/applications/redis.md
           - "Web endpoints": examples/applications/web-endpoints.md
