@@ -12,9 +12,9 @@ converters and run `make cis-import`.
 |---|---|
 | `rhel7.yml` – `rhel10.yml` | Red Hat Enterprise Linux 7–10 and rebuilds (Rocky, Alma, Oracle, CentOS) |
 | `debian11.yml` – `debian13.yml` | Debian 11–13 |
-| `ubuntu20.yml` – `ubuntu26.yml` | Ubuntu 20.04, 22.04, 24.04, 26.04 LTS |
+| `ubuntu18.yml` – `ubuntu26.yml` | Ubuntu 18.04, 20.04, 22.04, 24.04, 26.04 LTS |
 | `suse15.yml`, `suse16.yml` | SUSE Linux Enterprise / openSUSE Leap 15 and 16 |
-| `amazon2.yml`, `amazon2023.yml` | Amazon Linux 2 and 2023 |
+| `amazon2.yml`, `amazon2023.yml`, `amazon2027.yml` | Amazon Linux 2, 2023 and 2027 |
 | `macos14.yml`, `macos15.yml`, `macos26.yml` | Apple macOS 14 Sonoma, 15 Sequoia, 26 Tahoe (run with `sudo`) |
 | `postgresql.yml` | PostgreSQL 12 and later, written by hand (run with `sudo`) |
 | `apache.yml` | Apache HTTP Server 2.4 on RHEL-like systems and Debian/Ubuntu, written by hand (run with `sudo`) |

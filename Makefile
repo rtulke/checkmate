@@ -2,9 +2,10 @@ VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 LDFLAGS := -s -w -X main.version=$(VERSION)
 PLATFORMS := linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64
 
-.PHONY: build test lint docs docs-serve dist test-linux test-cis cis-import clean
+.PHONY: build test lint docs docs-serve dist test-linux test-cis cis-import stig-import clean
 
-CIS_BENCHMARKS := rhel7 rhel8 rhel9 rhel10 debian11 debian12 debian13 ubuntu20 ubuntu22 ubuntu24 ubuntu26 suse15 suse16 amazon2 amazon2023
+CIS_BENCHMARKS := rhel7 rhel8 rhel9 rhel10 debian11 debian12 debian13 ubuntu18 ubuntu20 ubuntu22 ubuntu24 ubuntu26 suse15 suse16 amazon2 amazon2023 amazon2027
+STIG_BENCHMARKS := rhel7 rhel8 rhel9 rhel10 ubuntu22 ubuntu24 amazon2023
 CIS_CACHE := .cache/cis
 
 build:
@@ -56,6 +57,16 @@ cis-import:
 		mkdir -p $(CIS_CACHE)/mscp-$$branch; \
 		gh api repos/usnistgov/macos_security/tarball/$$branch | tar xzf - -C $(CIS_CACHE)/mscp-$$branch --strip-components=1; \
 		go run ./tools/mscp-import -src $(CIS_CACHE)/mscp-$$branch -macos $$major -out cis/macos$$major.yml || exit 1; \
+	done
+
+# Regenerates stig/*.yml from the Ansible Lockdown STIG audit repositories (needs gh).
+stig-import:
+	@for b in $(STIG_BENCHMARKS); do \
+		repo=$$(echo $$b | tr a-z A-Z)-STIG-Audit; \
+		branch=$$(gh api repos/ansible-lockdown/$$repo -q .default_branch); \
+		mkdir -p $(CIS_CACHE)/$$b-stig; \
+		gh api repos/ansible-lockdown/$$repo/tarball/$$branch | tar xzf - -C $(CIS_CACHE)/$$b-stig --strip-components=1; \
+		go run ./tools/cis-import -src $(CIS_CACHE)/$$b-stig -bench $$b-stig -out stig/$$b.yml || exit 1; \
 	done
 
 # Runs every CIS policy in a container of its platform (needs docker).

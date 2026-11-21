@@ -1,6 +1,6 @@
 # CIS benchmarks
 
-Automated checks for the CIS benchmarks of 15 Linux platforms, macOS, PostgreSQL and Apache httpd. The Linux policies are generated
+Automated checks for the CIS benchmarks of 17 Linux platforms, macOS, PostgreSQL and Apache httpd. The Linux policies are generated
 from the goss audit content of [Ansible Lockdown](https://github.com/ansible-lockdown) (MIT license), the macOS
 policies from the [macOS Security Compliance Project](https://github.com/usnistgov/macos_security) (CC BY 4.0).
 The recommendation number is part of the ID. The policies contain no benchmark text.
@@ -9,6 +9,7 @@ The recommendation number is part of the ID. The policies contain no benchmark t
 |---|---|---|---|---|
 | [CIS Amazon Linux 2](amazon2.md) | 276 | 221 | 55 | 502 |
 | [CIS Amazon Linux 2023](amazon2023.md) | 239 | 177 | 62 | 402 |
+| [CIS Amazon Linux 2027](amazon2027.md) | 309 | 215 | 94 | 491 |
 | [CIS Apache HTTP Server 2.4](apache.md) | 70 | 49 | 20 | 70 |
 | [CIS Debian 11](debian11.md) | 284 | 226 | 58 | 489 |
 | [CIS Debian 12](debian12.md) | 290 | 233 | 57 | 501 |
@@ -23,11 +24,12 @@ The recommendation number is part of the ID. The policies contain no benchmark t
 | [CIS Red Hat Enterprise Linux 10](rhel10.md) | 316 | 240 | 76 | 563 |
 | [CIS SUSE Linux Enterprise 15](suse15.md) | 267 | 207 | 60 | 447 |
 | [CIS SUSE Linux Enterprise 16](suse16.md) | 324 | 246 | 78 | 514 |
+| [CIS Ubuntu 18.04 LTS](ubuntu18.md) | 229 | 200 | 29 | 379 |
 | [CIS Ubuntu 20.04 LTS](ubuntu20.md) | 293 | 238 | 55 | 554 |
 | [CIS Ubuntu 22.04 LTS](ubuntu22.md) | 280 | 225 | 55 | 500 |
 | [CIS Ubuntu 24.04 LTS](ubuntu24.md) | 308 | 242 | 66 | 562 |
 | [CIS Ubuntu 26.04 LTS](ubuntu26.md) | 332 | 257 | 75 | 555 |
-| **Total** | **4694** | | | **7952** |
+| **Total** | **5232** | | | **8822** |
 
 ## Selecting profiles
 

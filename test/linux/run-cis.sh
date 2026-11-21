@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# Runs every generated CIS benchmark in a container of its target platform
-# and reports broken commands (see analyze.py).
+# Runs every generated CIS benchmark and DISA STIG in a container of its
+# target platform and reports broken commands (see analyze.py).
 #
 #   test/linux/run-cis.sh [benchmark ...]      default: all
+#
+# A benchmark is a CIS key (rhel9) or a STIG key (rhel9-stig).
 set -euo pipefail
 
 cd "$(dirname "$0")/../.."
@@ -20,6 +22,7 @@ image_for() {
     ubuntu20) echo ubuntu:20.04 ;;   ubuntu22) echo ubuntu:22.04 ;;   ubuntu24) echo ubuntu:24.04 ;;   ubuntu26) echo ubuntu:26.04 ;;
     suse15) echo opensuse/leap:15.6 ;; suse16) echo opensuse/leap:16.0 ;;
     amazon2) echo amazonlinux:2 ;;   amazon2023) echo amazonlinux:2023 ;;
+    ubuntu18) echo ubuntu:18.04 ;;   amazon2027) echo amazonlinux:2023 ;;
     *) echo "unknown benchmark $1" >&2; return 1 ;;
   esac
 }
@@ -30,15 +33,20 @@ GOOS=linux GOARCH=$goarch CGO_ENABLED=0 go build -o bin/checkmate-linux ./cmd/ch
 
 benches=("$@")
 if [ ${#benches[@]} -eq 0 ]; then
-  benches=(rhel7 rhel8 rhel9 rhel10 debian11 debian12 debian13 ubuntu20 ubuntu22 ubuntu24 ubuntu26 suse15 suse16 amazon2 amazon2023)
+  benches=(rhel7 rhel8 rhel9 rhel10 debian11 debian12 debian13 ubuntu18 ubuntu20 ubuntu22 ubuntu24 ubuntu26
+    suse15 suse16 amazon2 amazon2023
+    rhel7-stig rhel8-stig rhel9-stig rhel10-stig ubuntu22-stig ubuntu24-stig amazon2023-stig)
 fi
 
 for b in "${benches[@]}"; do
-  image=$(image_for "$b")
+  platform=${b%-stig}
+  dir=cis
+  [ "$platform" != "$b" ] && dir=stig
+  image=$(image_for "$platform")
   echo "== $b ($image)"
   docker run --rm -v "$root:/src:ro" -w /src "$image" \
-    /src/bin/checkmate-linux run --allow-insecure-policy --format json "cis/$b.yml" \
-    > "$out/$b-cis_$b.json" 2>"$out/$b-cis_$b.err" || true
+    /src/bin/checkmate-linux run --allow-insecure-policy --format json "$dir/$platform.yml" \
+    > "$out/$platform-${dir}_$platform.json" 2>"$out/$platform-${dir}_$platform.err" || true
 done
 
 python3 test/linux/analyze.py "$out"

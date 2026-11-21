@@ -124,7 +124,11 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	return updateNav(cats, byCategory, cisPages)
+	stigPages, err := writeSTIGPages()
+	if err != nil {
+		return err
+	}
+	return updateNav(cats, byCategory, cisPages, stigPages)
 }
 
 // cisPage is a generated page for one CIS benchmark policy.
@@ -221,7 +225,7 @@ func writeCISPages() ([]cisPage, error) {
 
 	var idx bytes.Buffer
 	idx.WriteString("# CIS benchmarks\n\n")
-	idx.WriteString("Automated checks for the CIS benchmarks of 15 Linux platforms, macOS, PostgreSQL and Apache httpd. The Linux policies are generated\n")
+	idx.WriteString("Automated checks for the CIS benchmarks of 17 Linux platforms, macOS, PostgreSQL and Apache httpd. The Linux policies are generated\n")
 	idx.WriteString("from the goss audit content of [Ansible Lockdown](https://github.com/ansible-lockdown) (MIT license), the macOS\n")
 	idx.WriteString("policies from the [macOS Security Compliance Project](https://github.com/usnistgov/macos_security) (CC BY 4.0).\n")
 	idx.WriteString("The recommendation number is part of the ID. The policies contain no benchmark text.\n\n")
@@ -451,7 +455,7 @@ func writeExamplesIndex(cats []category, byCategory map[string][]page) error {
 	return os.WriteFile(filepath.Join(docsDir, "index.md"), b.Bytes(), 0o644)
 }
 
-func updateNav(cats []category, byCategory map[string][]page, cisPages []cisPage) error {
+func updateNav(cats []category, byCategory map[string][]page, cisPages, stigPages []cisPage) error {
 	raw, err := os.ReadFile(mkdocsFile)
 	if err != nil {
 		return err
@@ -484,6 +488,13 @@ func updateNav(cats []category, byCategory map[string][]page, cisPages []cisPage
 		b.WriteString("      - cis/index.md\n")
 		for _, p := range cisPages {
 			fmt.Fprintf(&b, "      - %s: %s\n", quote(strings.TrimPrefix(p.Title, "CIS ")), strings.TrimPrefix(p.Target, "docs/"))
+		}
+	}
+	if len(stigPages) > 0 {
+		b.WriteString("  - DISA STIG:\n")
+		b.WriteString("      - stig/index.md\n")
+		for _, p := range stigPages {
+			fmt.Fprintf(&b, "      - %s: %s\n", quote(strings.TrimPrefix(p.Title, "DISA STIG ")), strings.TrimPrefix(p.Target, "docs/"))
 		}
 	}
 	content = content[:start] + b.String() + content[end:]
@@ -614,4 +625,87 @@ func countPages(byCategory map[string][]page) int {
 		n += len(ps)
 	}
 	return n
+}
+
+// writeSTIGPages documents the generated DISA STIG policies in stig/.
+func writeSTIGPages() ([]cisPage, error) {
+	files, _ := filepath.Glob("stig/*.yml")
+	sort.Slice(files, func(i, j int) bool { return naturalLess(files[i], files[j]) })
+	dir := "docs/stig"
+	if err := os.RemoveAll(dir); err != nil {
+		return nil, err
+	}
+	if len(files) == 0 {
+		return nil, nil
+	}
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return nil, err
+	}
+	var pages []cisPage
+	for _, f := range files {
+		p, err := policy.Load(f, policy.LoadOptions{AllowInsecure: true})
+		if err != nil {
+			return nil, err
+		}
+		checks, errs := policy.Expand(p, docFacts, nil)
+		if len(errs) > 0 {
+			return nil, errs[0]
+		}
+		key := strings.TrimSuffix(filepath.Base(f), ".yml")
+		sp := cisPage{Key: key, Title: p.Name, Target: filepath.Join(dir, key+".md"), Checks: len(checks), Levels: map[string]int{}}
+		rules := map[string]string{}
+		var b bytes.Buffer
+		fmt.Fprintf(&b, "# %s\n\n%s\n\n", p.Name, strings.TrimSpace(p.Description))
+		fmt.Fprintf(&b, "**Policy:** [`%s`](%s/blob/main/%s) · **STIG version:** %s\n\n", f, repoURL, f, p.Version)
+		fmt.Fprintf(&b, "```bash\nsudo checkmate run %s --tags stig-cat-1\nsudo checkmate run %s -v\n```\n\n", f, f)
+		fmt.Fprintf(&b, "| ID | Rule | CAT | Severity |\n|---|---|---|---|\n")
+		for _, c := range checks {
+			cat := ""
+			for _, t := range c.Tags {
+				if strings.HasPrefix(t, "stig-cat-") {
+					cat = strings.Repeat("I", int(t[len(t)-1]-'0'))
+				}
+			}
+			rules[stigRule(c.ID)] = cat
+			fmt.Fprintf(&b, "| `%s` | %s | %s | %s |\n", c.ID, escapeTable(c.Name), cat, severityBadge(c.Severity))
+		}
+		sp.Rules = len(rules)
+		for _, cat := range rules {
+			sp.Levels[cat]++
+		}
+		if err := os.WriteFile(sp.Target, b.Bytes(), 0o644); err != nil {
+			return nil, err
+		}
+		pages = append(pages, sp)
+	}
+	var idx bytes.Buffer
+	idx.WriteString("# DISA STIG\n\n")
+	idx.WriteString("Automated checks for the Security Technical Implementation Guides of the US Defense Information Systems\n")
+	idx.WriteString("Agency, generated from the goss audit content of [Ansible Lockdown](https://github.com/ansible-lockdown)\n")
+	idx.WriteString("(MIT license). STIGs implement NIST SP 800-53 controls; each check names its STIG ID, vulnerability ID, CCI\n")
+	idx.WriteString("and NIST control in the description. Rule titles are taken from the STIG.\n\n")
+	idx.WriteString("| STIG | Rules | CAT I | CAT II | CAT III | Checks |\n|---|---|---|---|---|---|\n")
+	tr, tc := 0, 0
+	for _, p := range pages {
+		fmt.Fprintf(&idx, "| [%s](%s.md) | %d | %d | %d | %d | %d |\n", strings.TrimPrefix(p.Title, "DISA STIG "), p.Key, p.Rules, p.Levels["I"], p.Levels["II"], p.Levels["III"], p.Checks)
+		tr += p.Rules
+		tc += p.Checks
+	}
+	fmt.Fprintf(&idx, "| **Total** | **%d** | | | | **%d** |\n\n", tr, tc)
+	idx.WriteString("## Selecting categories\n\n| Tag | Selects | Severity |\n|---|---|---|\n")
+	idx.WriteString("| `stig-cat-1` | CAT I: direct loss of confidentiality, integrity or availability | high |\n")
+	idx.WriteString("| `stig-cat-2` | CAT II: potential for loss | medium |\n")
+	idx.WriteString("| `stig-cat-3` | CAT III: degrades measures | low |\n")
+	idx.WriteString("| `stig-rhel9`, `stig-ubuntu24`, … | one STIG | |\n\n")
+	idx.WriteString("```bash\nsudo checkmate run stig/rhel9.yml --tags stig-cat-1\nsudo checkmate run stig/ubuntu24.yml --fail-on high -v\n```\n")
+	return pages, os.WriteFile(filepath.Join(dir, "index.md"), idx.Bytes(), 0o644)
+}
+
+// stigRule extracts the STIG ID (e.g. RHEL-09-212015) from a check ID.
+func stigRule(id string) string {
+	parts := strings.SplitN(strings.TrimPrefix(id, "STIG-"), "-", 4)
+	if len(parts) < 3 {
+		return id
+	}
+	return strings.Join(parts[:3], "-")
 }

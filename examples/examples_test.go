@@ -39,6 +39,8 @@ var platforms = map[string]facts.Facts{
 	"sles16":   {OS: "linux", Distro: "sles", DistroLike: []string{"suse"}, Version: "16.0", VersionMajor: 16, IsRoot: true},
 	"amzn2":    {OS: "linux", Distro: "amzn", DistroLike: []string{"centos", "rhel", "fedora"}, Version: "2", VersionMajor: 2, IsRoot: true},
 	"amzn2023": {OS: "linux", Distro: "amzn", DistroLike: []string{"fedora"}, Version: "2023", VersionMajor: 2023, IsRoot: true},
+	"amzn2027": {OS: "linux", Distro: "amzn", DistroLike: []string{"fedora"}, Version: "2027", VersionMajor: 2027, IsRoot: true},
+	"ubuntu18": {OS: "linux", Distro: "ubuntu", DistroLike: []string{"debian"}, Version: "18.04", VersionMajor: 18, IsRoot: true},
 }
 
 func policyFiles(t *testing.T) []string {
@@ -63,7 +65,8 @@ func policyFiles(t *testing.T) []string {
 	// benchmarks are checked as well.
 	files = append(files, "../docs/demo/demo.yml")
 	cis, _ := filepath.Glob("../cis/*.yml")
-	return append(files, cis...)
+	stig, _ := filepath.Glob("../stig/*.yml")
+	return append(append(files, cis...), stig...)
 }
 
 // colonSpace finds single-line commands containing ": ", which YAML reads
