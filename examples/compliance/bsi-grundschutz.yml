@@ -88,9 +88,12 @@ checks:
     when: facts.is_root
     only_if: command -v modprobe
     loop: "{{ bsi_disabled_modules }}"
-    run: modprobe -n -v {{ item }} 2>&1
-    allow_rc: [0, 1]
-    expect: { any: ["~ install( {{ item }})? /(usr/)?bin/(true|false)", "~ (?i)not found"] }
+    run:
+      # BusyBox modprobe has no -n; read the configuration instead.
+      alpine: grep -rhE '^(install|blacklist)[[:space:]]+{{ item }}([[:space:]]|$)' /etc/modprobe.d /lib/modprobe.d 2>/dev/null
+      linux: modprobe -n -v {{ item }} 2>&1
+    allow_rc: [0, 1, 2]
+    expect: { any: ["~ install( {{ item }})? /(usr/)?bin/(true|false)", "~ (?i)not found", "~ ^blacklist"] }
     remediation: "printf 'install {{ item }} /bin/false\\nblacklist {{ item }}\\n' > /etc/modprobe.d/{{ item }}.conf"
 
   - id: "BSI-SYS.1.1.A6-SERVICE-{{ item | upper }}"
