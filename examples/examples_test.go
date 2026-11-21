@@ -1,0 +1,135 @@
+//go:build !windows
+
+// Package examples verifies that every example policy is valid and that
+// every command it renders is syntactically valid shell code on every
+// platform it targets.
+package examples
+
+import (
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+	"testing"
+
+	"github.com/rtulke/checkmate/internal/facts"
+	"github.com/rtulke/checkmate/internal/policy"
+)
+
+// platforms simulates the hosts the examples are written for.
+var platforms = map[string]facts.Facts{
+	"rocky9":     {OS: "linux", Distro: "rocky", DistroLike: []string{"rhel", "centos", "fedora"}, Version: "9.4", VersionMajor: 9, IsRoot: true},
+	"rhel8":      {OS: "linux", Distro: "rhel", DistroLike: []string{"fedora"}, Version: "8.10", VersionMajor: 8, IsRoot: true},
+	"debian12":   {OS: "linux", Distro: "debian", Version: "12", VersionMajor: 12, IsRoot: true},
+	"ubuntu24":   {OS: "linux", Distro: "ubuntu", DistroLike: []string{"debian"}, Version: "24.04", VersionMajor: 24, IsRoot: true},
+	"sles15":     {OS: "linux", Distro: "sles", DistroLike: []string{"suse"}, Version: "15.6", VersionMajor: 15, IsRoot: true},
+	"alpine":     {OS: "linux", Distro: "alpine", Version: "3.20.0", VersionMajor: 3, IsRoot: true},
+	"macos":      {OS: "darwin", Distro: "macos", Version: "15.1", VersionMajor: 15},
+	"windows":    {OS: "windows", Distro: "windows", Version: "10.0.22631", VersionMajor: 10},
+	"linux-user": {OS: "linux", Distro: "debian", Version: "12", VersionMajor: 12, IsRoot: false},
+}
+
+func policyFiles(t *testing.T) []string {
+	t.Helper()
+	var files []string
+	err := filepath.WalkDir(".", func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !d.IsDir() && strings.HasSuffix(path, ".yml") && !strings.Contains(path, "vars/") {
+			files = append(files, path)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(files) == 0 {
+		t.Fatal("no example policies found")
+	}
+	return files
+}
+
+func TestExamplesAreValid(t *testing.T) {
+	for _, file := range policyFiles(t) {
+		p, err := policy.Load(file, policy.LoadOptions{AllowInsecure: true})
+		if err != nil {
+			t.Errorf("%s: %v", file, err)
+			continue
+		}
+		if p.Name == "" || p.Description == "" {
+			t.Errorf("%s: every example needs a name and a description", file)
+		}
+		for name, f := range platforms {
+			checks, errs := policy.Expand(p, f, nil)
+			for _, e := range errs {
+				t.Errorf("[%s] %v", name, e)
+			}
+			if len(checks) == 0 && len(errs) == 0 {
+				t.Errorf("[%s] %s: no checks", name, file)
+			}
+			for _, c := range checks {
+				if c.Name == c.ID {
+					t.Errorf("%s: check %s needs a descriptive name", file, c.ID)
+				}
+				if len(c.Tags) == 0 {
+					t.Errorf("%s: check %s needs tags", file, c.ID)
+				}
+			}
+		}
+	}
+}
+
+// TestExampleCommandsParse renders every command for every platform and
+// checks the result with `bash -n` (or `pwsh` parsing is skipped).
+func TestExampleCommandsParse(t *testing.T) {
+	if _, err := exec.LookPath("bash"); err != nil {
+		t.Skip("bash not available")
+	}
+	checked := 0
+	for _, file := range policyFiles(t) {
+		p, err := policy.Load(file, policy.LoadOptions{AllowInsecure: true})
+		if err != nil {
+			t.Errorf("%s: %v", file, err)
+			continue
+		}
+		for name, f := range platforms {
+			if f.OS == "windows" {
+				continue // PowerShell syntax is not checked here
+			}
+			checks, _ := policy.Expand(p, f, nil)
+			for _, c := range checks {
+				if c.Shell != "" && c.Shell != "bash" && c.Shell != "sh" {
+					continue
+				}
+				applies, _, err := c.Applies()
+				if err != nil {
+					t.Errorf("[%s] %s %s: %v", name, file, c.ID, err)
+					continue
+				}
+				if !applies {
+					continue
+				}
+				for label, spec := range map[string]policy.CommandSpec{"run": c.Run, "only_if": c.OnlyIf} {
+					if spec.IsZero() {
+						continue
+					}
+					cmd, ok, err := c.Command(spec, f.PlatformKeys())
+					if err != nil {
+						t.Errorf("[%s] %s %s %s: %v", name, file, c.ID, label, err)
+						continue
+					}
+					if !ok {
+						continue
+					}
+					out, err := exec.Command("bash", "-n", "-c", cmd).CombinedOutput()
+					if err != nil {
+						t.Errorf("[%s] %s %s %s: bash syntax error: %s\n%s", name, file, c.ID, label, strings.TrimSpace(string(out)), cmd)
+					}
+					checked++
+				}
+			}
+		}
+	}
+	t.Logf("checked %d rendered commands", checked)
+}

@@ -1,0 +1,110 @@
+# PAM, password quality and account lockout
+
+Account lockout with pam_faillock, password quality with pam_pwquality and integrity of the PAM packages.
+
+<div class="grid cards" markdown>
+
+- :material-file-code: **Policy file**  
+  [`examples/system/pam.yml`](https://github.com/rtulke/checkmate/blob/main/examples/system/pam.yml)
+- :material-format-list-checks: **Checks**  
+  5 from 5 definitions
+- :material-monitor: **Platforms**  
+  debian, linux, rhel, suse
+
+</div>
+
+## Run it
+
+```bash
+# Show what would run on this host
+checkmate list -v examples/system/pam.yml
+
+# Run the checks
+checkmate run examples/system/pam.yml
+
+# Override a variable from the command line
+checkmate run examples/system/pam.yml -e name=value
+```
+
+## Checks
+
+| ID | Check | Severity | Tags |
+|---|---|---|---|
+| `PAM-001` | Account lockout (faillock) is enabled | <span class="sev sev-high">high</span> | system, pam |
+| `PAM-002` | Accounts lock after at most 5 failures | <span class="sev sev-high">high</span> | system, pam |
+| `PAM-003` | Passwords have at least 12 characters | <span class="sev sev-medium">medium</span> | system, pam, passwords |
+| `PAM-004` | Passwords must differ from the user name and dictionary words | <span class="sev sev-low">low</span> | system, pam, passwords |
+| `PAM-005` | PAM packages are unmodified | <span class="sev sev-high">high</span> | system, pam, integrity |
+
+## Policy
+
+```yaml title="examples/system/pam.yml" linenums="1"
+name: PAM, password quality and account lockout
+version: 1.0.0
+description: >
+  Account lockout with pam_faillock, password quality with pam_pwquality
+  and integrity of the PAM packages.
+
+vars:
+  max_failed_logins: 5
+  min_password_length: 12
+
+checks:
+  - id: PAM-001
+    name: Account lockout (faillock) is enabled
+    tags: [system, pam]
+    severity: high
+    run:
+      rhel: authselect current
+      debian: grep -h pam_faillock.so /etc/pam.d/common-auth
+      suse: grep -h pam_faillock.so /etc/pam.d/common-auth
+    # authselect exits 2 without a profile; grep exits 1 without a match.
+    allow_rc: [0, 1, 2]
+    expect: "~ (with-faillock|pam_faillock\\.so)"
+
+  - id: PAM-002
+    name: "Accounts lock after at most {{ max_failed_logins }} failures"
+    tags: [system, pam]
+    severity: high
+    when: facts.os == "linux"
+    run: |
+      cat /etc/security/faillock.conf 2>/dev/null |
+        awk -F= '/^[[:space:]]*deny[[:space:]]*=/ {gsub(/[[:space:]]/, "", $2); print $2}'
+    allow_rc: [0, 1]
+    expect: ["!empty", "<= {{ max_failed_logins }}", "> 0"]
+    remediation: "Set `deny = {{ max_failed_logins }}` in /etc/security/faillock.conf."
+
+  - id: PAM-003
+    name: "Passwords have at least {{ min_password_length }} characters"
+    tags: [system, pam, passwords]
+    when: facts.os == "linux"
+    # cat tolerates a missing drop-in directory; the last setting wins.
+    run: |
+      cat /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf 2>/dev/null |
+        awk -F= '/^[[:space:]]*minlen[[:space:]]*=/ {gsub(/[[:space:]]/, "", $2); print $2}' | tail -1
+    allow_rc: [0, 1]
+    expect: ["!empty", ">= {{ min_password_length }}"]
+
+  - id: PAM-004
+    name: Passwords must differ from the user name and dictionary words
+    tags: [system, pam, passwords]
+    severity: low
+    when: facts.os == "linux"
+    run: |
+      cat /etc/security/pwquality.conf 2>/dev/null | awk -F= '/^[[:space:]]*dictcheck[[:space:]]*=/ {gsub(/[[:space:]]/, "", $2); print $2}'
+    # Not set means the default (enabled).
+    allow_rc: [0, 1]
+    expect: "in [1, '']"
+    as: string
+
+  - id: PAM-005
+    name: PAM packages are unmodified
+    tags: [system, pam, integrity]
+    severity: high
+    run:
+      rhel: rpm -V pam | awk '$1 != "missing" && $2 != "c"'
+      suse: rpm -V pam | awk '$1 != "missing" && $2 != "c"'
+      debian: debsums -c libpam-modules libpam-modules-bin libpam-runtime
+    allow_rc: [0, 1, 2]
+    expect: empty
+```

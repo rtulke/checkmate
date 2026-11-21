@@ -1,0 +1,121 @@
+name: macOS
+version: 1.0.0
+description: >
+  Security baseline for macOS workstations. Most checks work without root;
+  checks that need it are guarded with `when: facts.is_root`.
+
+vars:
+  min_macos: "14.0"
+  max_display_sleep_minutes: 15
+
+checks:
+  - id: MAC-001
+    name: "macOS {{ min_macos }} or newer"
+    tags: [platform, macos, updates]
+    severity: high
+    when: facts.os == "darwin"
+    run: sw_vers -productVersion
+    as: version
+    expect: ">= {{ min_macos }}"
+
+  - id: MAC-002
+    name: FileVault disk encryption is on
+    tags: [platform, macos, encryption]
+    severity: critical
+    when: facts.os == "darwin"
+    run: fdesetup status
+    expect: "~ ^FileVault is On"
+    remediation: System Settings → Privacy & Security → FileVault
+
+  - id: MAC-003
+    name: System Integrity Protection is enabled
+    tags: [platform, macos]
+    severity: critical
+    when: facts.os == "darwin"
+    run: csrutil status
+    expect: "~ status: enabled"
+
+  - id: MAC-004
+    name: Gatekeeper is enabled
+    tags: [platform, macos]
+    severity: high
+    when: facts.os == "darwin"
+    run: spctl --status
+    expect: "== assessments enabled"
+
+  - id: MAC-005
+    name: Application firewall is enabled
+    tags: [platform, macos, firewall]
+    severity: high
+    when: facts.os == "darwin"
+    run: /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate
+    expect: "~ enabled"
+    remediation: sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
+
+  - id: MAC-006
+    name: Firewall stealth mode is on
+    tags: [platform, macos, firewall]
+    severity: low
+    when: facts.os == "darwin"
+    run: /usr/libexec/ApplicationFirewall/socketfilterfw --getstealthmode
+    expect: "~ (?i)stealth mode is on"
+
+  - id: MAC-007
+    name: Automatic update checks are on
+    tags: [platform, macos, updates]
+    when: facts.os == "darwin"
+    run: softwareupdate --schedule
+    expect: "~ turned on"
+
+  - id: MAC-008
+    name: Critical security updates install automatically
+    tags: [platform, macos, updates]
+    when: facts.os == "darwin"
+    run: defaults read /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall
+    expect: "== 1"
+
+  - id: MAC-009
+    name: Screen lock is not disabled
+    tags: [platform, macos, screenlock]
+    when: facts.os == "darwin"
+    # sysadminctl writes its answer to stderr, prefixed with a timestamp.
+    run: sysadminctl -screenLock status
+    expect: { stderr: "!~ screenLock is off" }
+
+  - id: MAC-010
+    name: "Display sleeps after at most {{ max_display_sleep_minutes }} minutes"
+    tags: [platform, macos, screenlock]
+    severity: low
+    when: facts.os == "darwin"
+    run: |
+      pmset -g | awk '$1 == "displaysleep" {print $2}'
+    expect: ["!empty", "<= {{ max_display_sleep_minutes }}", "> 0"]
+
+  - id: MAC-011
+    name: Guest account is disabled
+    tags: [platform, macos, users]
+    when: facts.os == "darwin"
+    run: defaults read /Library/Preferences/com.apple.loginwindow GuestEnabled
+    expect: "== 0"
+
+  - id: "MAC-SVC-{{ item.id }}"
+    name: "{{ item.label }} is disabled"
+    tags: [platform, macos, services]
+    when: facts.os == "darwin"
+    loop:
+      - { id: SSH, label: Remote Login (SSH), service: com.openssh.sshd }
+      - { id: SCREENSHARING, label: Screen Sharing, service: com.apple.screensharing }
+      - { id: SMB, label: File Sharing (SMB), service: com.apple.smbd }
+    run: |
+      launchctl print-disabled system | grep -F '"{{ item.service }}"'
+    allow_rc: [0, 1]
+    # Not listed means launchd uses the default, which is "disabled".
+    expect: { any: [empty, "~ => (disabled|true)"] }
+
+  - id: MAC-012
+    name: Internal disk reports a healthy SMART status
+    tags: [platform, macos, hardware]
+    when: facts.os == "darwin"
+    run: |
+      diskutil info disk0 | awk -F: '/SMART Status/ {gsub(/^[[:space:]]+/, "", $2); print $2}'
+    expect: "in [Verified, Not Supported]"

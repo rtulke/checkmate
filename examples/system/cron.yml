@@ -1,0 +1,75 @@
+name: cron and systemd timers
+version: 1.0.0
+description: >
+  Permissions of cron files, access control, an allowlist for root's
+  crontab and for scheduled jobs in /etc/cron.d and systemd timers.
+
+vars:
+  allowed_cron_d: [0hourly, raid-check, sysstat, e2scrub_all, php]
+  # SHA-256 of root's crontab without comments and blank lines.
+  # The first entry is the checksum of an empty crontab.
+  trusted_root_crontab:
+    - e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  allowed_timers:
+    - dnf-makecache.timer
+    - fstrim.timer
+    - logrotate.timer
+    - systemd-tmpfiles-clean.timer
+    - unbound-anchor.timer
+    - apt-daily.timer
+    - apt-daily-upgrade.timer
+    - man-db.timer
+    - e2scrub_all.timer
+    - motd-news.timer
+    - dpkg-db-backup.timer
+
+checks:
+  - id: CRON-001
+    name: cron files are owned by root and not writable by others
+    tags: [system, cron, files]
+    severity: high
+    when: facts.os == "linux"
+    run: |
+      find /etc/crontab /etc/cron.d /etc/cron.hourly /etc/cron.daily /etc/cron.weekly /etc/cron.monthly \
+        \( ! -user root -o -perm /go+w \) 2>/dev/null
+    allow_rc: [0, 1]
+    expect: empty
+
+  - id: CRON-002
+    name: Access to crontab is controlled by cron.allow
+    tags: [system, cron]
+    severity: low
+    when: facts.os == "linux"
+    run: test -f /etc/cron.allow && test ! -f /etc/cron.deny
+    expect: true
+
+  - id: CRON-003
+    name: root's crontab matches an approved version
+    tags: [system, cron, integrity]
+    severity: high
+    when: facts.is_root
+    # `crontab -l` fails when there is no crontab; that is treated as empty.
+    run: |
+      { crontab -l -u root 2>/dev/null || true; } | grep -Ev '^[[:space:]]*(#|$)' | (sha256sum 2>/dev/null || shasum -a 256) | cut -d' ' -f1
+    allow_rc: [0, 1]
+    expect: "in {{ trusted_root_crontab }}"
+
+  - id: CRON-004
+    name: Only approved jobs in /etc/cron.d
+    tags: [system, cron]
+    when: facts.os == "linux"
+    run: |
+      ls -1 /etc/cron.d 2>/dev/null | grep -vxF {% for f in allowed_cron_d %}-e {{ f }} {% endfor %}
+    allow_rc: [0, 1]
+    expect: empty
+
+  - id: CRON-005
+    name: Only approved systemd timers are enabled
+    tags: [system, cron, services]
+    severity: low
+    when: facts.os == "linux"
+    run: |
+      systemctl list-unit-files --type=timer --state=enabled --no-legend 2>/dev/null | awk '{print $1}' |
+        grep -vxF {% for t in allowed_timers %}-e {{ t }} {% endfor %}
+    allow_rc: [0, 1]
+    expect: empty

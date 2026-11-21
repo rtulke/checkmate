@@ -1,0 +1,87 @@
+name: Linux (generic)
+version: 1.0.0
+description: >
+  Distribution-independent health and hygiene checks for any systemd-based
+  Linux system. Platform variants pick the right command for RHEL, Debian
+  and SUSE families where tools differ.
+
+vars:
+  max_uptime_days: 180
+  expected_timezone: UTC
+  min_kernel: "4.18"
+
+checks:
+  - id: LNX-OS-001
+    name: /etc/os-release is present
+    tags: [platform, linux]
+    severity: low
+    when: facts.os == "linux"
+    run: test -r /etc/os-release
+    expect: true
+
+  - id: LNX-OS-002
+    name: "Kernel is {{ min_kernel }} or newer"
+    tags: [platform, linux, kernel]
+    when: facts.os == "linux"
+    run: uname -r | cut -d- -f1
+    as: version
+    expect: ">= {{ min_kernel }}"
+
+  - id: LNX-OS-003
+    name: systemd is the init system
+    tags: [platform, linux]
+    severity: low
+    when: facts.os == "linux"
+    run: cat /proc/1/comm
+    expect: "== systemd"
+
+  - id: LNX-OS-004
+    name: No failed systemd units
+    tags: [platform, linux, services]
+    when: facts.os == "linux"
+    run: systemctl list-units --state=failed --no-legend --plain
+    expect: empty
+    remediation: Inspect with `systemctl --failed` and `journalctl -u <unit>`.
+
+  - id: LNX-OS-005
+    name: No reboot pending
+    tags: [platform, linux, updates]
+    run:
+      rhel: needs-restarting -r >/dev/null
+      debian: test ! -f /var/run/reboot-required
+      suse: zypper needs-rebooting >/dev/null
+    expect: true
+    remediation: Schedule a reboot to activate the updated kernel and libraries.
+
+  - id: LNX-OS-006
+    name: "Uptime is below {{ max_uptime_days }} days"
+    tags: [platform, linux]
+    severity: low
+    when: facts.os == "linux"
+    run: awk '{print int($1 / 86400)}' /proc/uptime
+    expect: "< {{ max_uptime_days }}"
+    remediation: Long uptimes usually mean missed kernel updates.
+
+  - id: LNX-OS-007
+    name: The FQDN resolves
+    tags: [platform, linux, dns]
+    when: facts.os == "linux"
+    run: getent hosts "$(hostname -f)"
+    expect: "!empty"
+
+  - id: LNX-OS-008
+    name: "Timezone is {{ expected_timezone }}"
+    tags: [platform, linux, time]
+    severity: low
+    when: facts.os == "linux"
+    run: timedatectl show -p Timezone --value
+    expect: "== {{ expected_timezone }}"
+
+  - id: LNX-OS-009
+    name: Load average is below the number of CPUs
+    tags: [platform, linux, performance]
+    severity: low
+    when: facts.os == "linux"
+    run: |
+      awk -v cpus="$(nproc)" '{print ($1 <= cpus) ? "ok" : "high: " $1}' /proc/loadavg
+    expect: "== ok"

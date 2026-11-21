@@ -1,0 +1,96 @@
+name: Cisco IOS / IOS-XE switches and routers
+version: 1.0.0
+description: >
+  Remote checks of Cisco IOS devices over SSH, run from a management host.
+  Every check loops over the device inventory, so one definition creates a
+  check per device. Authentication uses SSH keys (BatchMode, no prompts).
+
+vars:
+  ios_devices: [sw-core-01.example.net, sw-access-01.example.net]
+  ios_user: audit
+
+snippets:
+  # Runs one IOS exec command on the device {{ arg }}.
+  ios: >-
+    ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=yes
+    {{ ios_user }}@{{ arg }} '{{ args.cmd }}'
+
+checks:
+  - id: "IOS-PWENC-{{ item }}"
+    name: "{{ item }}: passwords are stored encrypted"
+    tags: [network-devices, cisco]
+    severity: high
+    loop: "{{ ios_devices }}"
+    run: { use: ios, arg: "{{ item }}", args: { cmd: "show running-config | include ^service password-encryption" } }
+    expect: "== service password-encryption"
+
+  - id: "IOS-SECRET-{{ item }}"
+    name: "{{ item }}: enable secret instead of enable password"
+    tags: [network-devices, cisco]
+    severity: high
+    loop: "{{ ios_devices }}"
+    run: { use: ios, arg: "{{ item }}", args: { cmd: "show running-config | include ^enable" } }
+    expect: ["~ ^enable secret", "!~ ^enable password"]
+
+  - id: "IOS-SSHV2-{{ item }}"
+    name: "{{ item }}: only SSH version 2 is enabled"
+    tags: [network-devices, cisco, ssh]
+    severity: high
+    loop: "{{ ios_devices }}"
+    run: { use: ios, arg: "{{ item }}", args: { cmd: "show ip ssh" } }
+    expect: "~ SSH Enabled - version 2\\.0"
+
+  - id: "IOS-NOTELNET-{{ item }}"
+    name: "{{ item }}: VTY lines do not accept telnet"
+    tags: [network-devices, cisco]
+    severity: critical
+    loop: "{{ ios_devices }}"
+    run: { use: ios, arg: "{{ item }}", args: { cmd: "show running-config | section line vty" } }
+    expect: ["~ transport input ssh", "!~ transport input .*(telnet|all)"]
+
+  - id: "IOS-TIMEOUT-{{ item }}"
+    name: "{{ item }}: VTY sessions time out"
+    tags: [network-devices, cisco]
+    loop: "{{ ios_devices }}"
+    run: { use: ios, arg: "{{ item }}", args: { cmd: "show running-config | section line vty" } }
+    expect: ["~ exec-timeout", "!~ exec-timeout 0 0"]
+
+  - id: "IOS-HTTP-{{ item }}"
+    name: "{{ item }}: the plain HTTP server is disabled"
+    tags: [network-devices, cisco]
+    severity: high
+    loop: "{{ ios_devices }}"
+    run: { use: ios, arg: "{{ item }}", args: { cmd: "show running-config | include ^ip http" } }
+    expect: "!~ ^ip http server"
+
+  - id: "IOS-SNMP-{{ item }}"
+    name: "{{ item }}: no default SNMP communities"
+    tags: [network-devices, cisco, snmp]
+    severity: critical
+    loop: "{{ ios_devices }}"
+    run: { use: ios, arg: "{{ item }}", args: { cmd: "show running-config | include ^snmp-server community" } }
+    expect: "!~ community (public|private)( |$)"
+
+  - id: "IOS-NTP-{{ item }}"
+    name: "{{ item }}: NTP is synchronised"
+    tags: [network-devices, cisco, time]
+    loop: "{{ ios_devices }}"
+    run: { use: ios, arg: "{{ item }}", args: { cmd: "show ntp status" } }
+    expect: "~ Clock is synchronized"
+
+  - id: "IOS-LOG-{{ item }}"
+    name: "{{ item }}: logs are sent to a syslog server"
+    tags: [network-devices, cisco, logging]
+    loop: "{{ ios_devices }}"
+    run: { use: ios, arg: "{{ item }}", args: { cmd: "show running-config | include ^logging host" } }
+    expect: "!empty"
+
+  - id: "IOS-VERSION-{{ item }}"
+    name: "{{ item }}: runs IOS-XE 17.9 or newer"
+    tags: [network-devices, cisco, firmware]
+    loop: "{{ ios_devices }}"
+    run: >-
+      ssh -o BatchMode=yes -o ConnectTimeout=5 {{ ios_user }}@{{ item }} 'show version'
+      | sed -nE 's/.*Version ([0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/p' | head -1
+    as: version
+    expect: ">= 17.9"

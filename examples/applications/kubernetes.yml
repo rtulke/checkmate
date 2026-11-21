@@ -1,0 +1,86 @@
+name: Kubernetes cluster
+version: 1.0.0
+description: >
+  Cluster-wide checks with kubectl and jq from an admin workstation or a
+  CI job: node health, failing pods, privileged workloads, cluster-admin
+  bindings and the API server version.
+
+vars:
+  min_kubernetes: "1.29"
+  allowed_cluster_admins: ["Group:system:masters", "User:kubernetes-admin"]
+
+checks:
+  - id: K8S-001
+    name: All nodes are Ready
+    tags: [applications, kubernetes]
+    severity: critical
+    only_if: kubectl version --request-timeout=5s >/dev/null 2>&1
+    run: |
+      kubectl get nodes --no-headers | awk '$2 != "Ready" {print $1 " " $2}'
+    expect: empty
+
+  - id: K8S-002
+    name: No pod is crash-looping or failing to pull its image
+    tags: [applications, kubernetes]
+    severity: high
+    only_if: kubectl version --request-timeout=5s >/dev/null 2>&1
+    run: |
+      kubectl get pods -A --no-headers | awk '$4 ~ /CrashLoopBackOff|ImagePullBackOff|ErrImagePull|Error/ {print $1 "/" $2 " " $4}'
+    expect: empty
+
+  - id: K8S-003
+    name: No privileged containers
+    tags: [applications, kubernetes]
+    severity: critical
+    only_if: kubectl version --request-timeout=5s >/dev/null 2>&1
+    run: |
+      kubectl get pods -A -o json | jq -r '
+        .items[]
+        | select(.metadata.namespace | test("^kube-") | not)
+        | select(any(.spec.containers[]; .securityContext.privileged == true))
+        | .metadata.namespace + "/" + .metadata.name'
+    expect: empty
+
+  - id: K8S-004
+    name: No pods share the host PID or network namespace
+    tags: [applications, kubernetes]
+    severity: high
+    only_if: kubectl version --request-timeout=5s >/dev/null 2>&1
+    run: |
+      kubectl get pods -A -o json | jq -r '
+        .items[]
+        | select(.metadata.namespace | test("^kube-") | not)
+        | select(.spec.hostPID == true or .spec.hostNetwork == true)
+        | .metadata.namespace + "/" + .metadata.name'
+    expect: empty
+
+  - id: K8S-005
+    name: Only approved subjects are cluster-admin
+    tags: [applications, kubernetes, rbac]
+    severity: critical
+    only_if: kubectl version --request-timeout=5s >/dev/null 2>&1
+    run: |
+      kubectl get clusterrolebindings -o json |
+        jq -r '.items[] | select(.roleRef.name == "cluster-admin") | .subjects[]? | .kind + ":" + .name' |
+        sort -u | grep -vxF {% for s in allowed_cluster_admins %}-e '{{ s }}' {% endfor %}
+    allow_rc: [0, 1]
+    expect: empty
+
+  - id: K8S-006
+    name: Nothing but the API service runs in the default namespace
+    tags: [applications, kubernetes]
+    severity: low
+    only_if: kubectl version --request-timeout=5s >/dev/null 2>&1
+    run: |
+      kubectl get all -n default --no-headers 2>/dev/null | grep -v '^service/kubernetes '
+    allow_rc: [0, 1]
+    expect: empty
+
+  - id: K8S-007
+    name: "API server is version {{ min_kubernetes }} or newer"
+    tags: [applications, kubernetes, updates]
+    only_if: kubectl version --request-timeout=5s >/dev/null 2>&1
+    run: |
+      kubectl version -o json | jq -r '.serverVersion.gitVersion | ltrimstr("v") | split("-")[0]'
+    as: version
+    expect: ">= {{ min_kubernetes }}"

@@ -1,0 +1,56 @@
+name: Listening ports and reachability
+version: 1.0.0
+description: >
+  Only approved ports may listen, sensitive services must not listen on all
+  interfaces, and required remote endpoints must be reachable.
+
+vars:
+  allowed_ports: [22, 53, 123, 323]
+  local_only_ports: [3306, 5432, 6379, 11211, 27017]
+  required_endpoints:
+    - { host: 1.1.1.1, port: 53 }
+    - { host: github.com, port: 443 }
+
+checks:
+  - id: PORT-001
+    name: Only approved TCP and UDP ports are listening
+    tags: [network, ports]
+    severity: high
+    run:
+      linux: |
+        ss -Hlntu | awk '{print $5}' | sed -E 's/.*:([0-9]+)$/\1/' | sort -nu |
+          grep -vxF {% for p in allowed_ports %}-e {{ p }} {% endfor %}
+      macos: |
+        lsof -nP -iTCP -sTCP:LISTEN 2>/dev/null | awk 'NR > 1 {print $9}' | sed -E 's/.*:([0-9]+)$/\1/' | sort -nu |
+          grep -vxF {% for p in allowed_ports %}-e {{ p }} {% endfor %}
+    allow_rc: [0, 1]
+    expect: empty
+    remediation: Stop or firewall the services listening on the listed ports.
+
+  - id: "PORT-LOCAL-{{ item }}"
+    name: "Port {{ item }} only listens on loopback"
+    tags: [network, ports]
+    severity: high
+    when: facts.os == "linux"
+    loop: "{{ local_only_ports }}"
+    # Local addresses like 0.0.0.0:5432, *:5432 or [::]:5432 mean "all interfaces".
+    run: |
+      ss -Hlnt "sport = :{{ item }}" | awk '{print $4}'
+    expect: "!~ ^(0\\.0\\.0\\.0|\\*|\\[::\\]):"
+
+  - id: PORT-002
+    name: SSH is listening
+    tags: [network, ports, ssh]
+    run:
+      linux: ss -Hlnt 'sport = :22'
+      macos: lsof -nP -iTCP:22 -sTCP:LISTEN
+    allow_rc: [0, 1]
+    expect: "!empty"
+
+  - id: "PORT-REACH-{{ item.host }}-{{ item.port }}"
+    name: "{{ item.host }}:{{ item.port }} is reachable"
+    tags: [network, ports, reachability]
+    loop: "{{ required_endpoints }}"
+    run: nc -z -w 3 {{ item.host }} {{ item.port }}
+    timeout: 10s
+    expect: true

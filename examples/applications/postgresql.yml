@@ -1,0 +1,71 @@
+name: PostgreSQL
+version: 1.0.0
+description: >
+  Server availability and security settings, queried with SQL through a
+  snippet. checkmate runs as root and switches to the postgres user.
+
+vars:
+  min_server_version_num: 140000
+  allowed_superusers: [postgres]
+
+snippets:
+  # Runs the SQL in {{ arg }} and prints the bare result.
+  psql: sudo -u postgres psql -X -A -t -c "{{ arg }}"
+
+checks:
+  - id: PG-001
+    name: PostgreSQL accepts connections
+    tags: [applications, postgresql]
+    severity: critical
+    only_if: command -v pg_isready
+    run: pg_isready -q
+    expect: true
+
+  - id: PG-002
+    name: "Server is PostgreSQL {{ (min_server_version_num / 10000) | int }} or newer"
+    tags: [applications, postgresql, updates]
+    only_if: command -v pg_isready && pg_isready -q
+    run: { use: psql, arg: SHOW server_version_num }
+    expect: ">= {{ min_server_version_num }}"
+
+  - id: "PG-SET-{{ item.key }}"
+    name: "{{ item.key }} is {{ item.value }}"
+    tags: [applications, postgresql]
+    severity: high
+    only_if: command -v pg_isready && pg_isready -q
+    loop:
+      ssl: "on"
+      password_encryption: scram-sha-256
+      log_connections: "on"
+      log_disconnections: "on"
+    run: { use: psql, arg: "SHOW {{ item.key }}" }
+    expect: "== {{ item.value }}"
+
+  - id: PG-003
+    name: Only approved roles are superusers
+    tags: [applications, postgresql]
+    severity: critical
+    only_if: command -v pg_isready && pg_isready -q
+    run: |
+      sudo -u postgres psql -X -A -t -c "SELECT rolname FROM pg_roles WHERE rolsuper" |
+        grep -vxF {% for r in allowed_superusers %}-e {{ r }} {% endfor %}
+    allow_rc: [0, 1]
+    expect: empty
+
+  - id: PG-004
+    name: pg_hba.conf does not use trust authentication
+    tags: [applications, postgresql]
+    severity: critical
+    only_if: command -v pg_isready && pg_isready -q
+    run: |
+      hba=$(sudo -u postgres psql -X -A -t -c "SHOW hba_file")
+      grep -E '^[[:space:]]*(local|host)' "$hba" | awk '$NF == "trust" {print}'
+    allow_rc: [0, 1]
+    expect: empty
+
+  - id: PG-005
+    name: PostgreSQL does not listen on all interfaces
+    tags: [applications, postgresql, network]
+    only_if: command -v pg_isready && pg_isready -q
+    run: { use: psql, arg: SHOW listen_addresses }
+    expect: "!~ ^(\\*|0\\.0\\.0\\.0)"

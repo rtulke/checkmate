@@ -1,0 +1,90 @@
+# Site-specific values for managed-rhel.yml. Replace the example values
+# with your own; everything here is data, the checks stay unchanged.
+
+doc_base_url: https://docs.example.net/managed-os/technical-description.html
+min_rhel_major: 8
+max_kernel_age_days: 90
+
+# Satellite servers or capsules a host may be registered to.
+satellite_hosts: [satellite.example.net, capsule-1.example.net, capsule-2.example.net]
+
+# Puppet servers a host may point to.
+puppet_servers: [puppet.example.net, puppet-1.example.net, puppet-2.example.net]
+
+# Red Hat release keys (see https://access.redhat.com/security/team/key).
+# Add the key IDs of your own repositories and, on rebuilds, of the
+# distribution (e.g. Rocky Linux or AlmaLinux release keys).
+trusted_gpg_key_ids: [199e2f91fd431d51, 5326810137017186]
+
+# Packages that must never be excluded from updates.
+critical_packages:
+  [coreutils, dracut, firewalld, grub2, iptables, kernel, openssl, pam, passwd,
+   puppet, sudo, systemd, glibc, openssh, checkmate]
+
+forbidden_av_packages: [avg, CAV_LINUX, esets, f-prot, kav4fs, sav-protect, mcafee-ens, drweb]
+
+required_agents:
+  - { label: Endpoint protection agent, package: ds_agent, service: ds_agent }
+  - { label: Monitoring agent, package: epops-agent, service: epops-agent }
+  - { label: Log forwarder, package: splunkforwarder, service: SplunkForwarder }
+
+# Storage layout of the OS volume group.
+os_vg: vrhvg
+allowed_vg_pattern: "(vrhvg|datavg[0-9]*)"
+allowed_os_lvs:
+  [deepsecuritylv, homelv, logaudlv, optlv, slashlv, optsplunkforwarderlv,
+   swaplv01, tmplv, usrloclv, varlv, varloglv, vmwarelv]
+
+allowed_fstypes:
+  [ext4, xfs, swap, tmpfs, devtmpfs, proc, sysfs, cgroup2, devpts, mqueue, securityfs,
+   debugfs, tracefs, pstore, bpf, hugetlbfs, configfs, fusectl, autofs, binfmt_misc,
+   rpc_pipefs, nfs, nfs4, cifs, efivarfs, selinuxfs, nsfs, fuse.vmware-vmblock]
+
+# Directories allowed directly below these paths (others must be mount points).
+allowed_fs_content:
+  /: [afs, bin, boot, dev, etc, home, lib, lib64, media, mnt, opt, proc, root, run, sbin, srv, sys, tmp, usr, var, lost+found]
+  /opt: [rh, puppetlabs, splunkforwarder, ds_agent, vmware, lost+found]
+
+min_free_mb:
+  /: 1024
+  /opt: 50
+  /tmp: 500
+  /var/log: 200
+  /var/log/audit: 100
+  /boot: 100
+
+accounts_with_gid_zero: [sync, shutdown, halt, operator]
+reserved_gid: 20001
+max_local_id: 99999999
+ad_group_prefix: dl_example-access
+
+trusted_root_keys:
+  - "SHA256:REPLACE_WITH_YOUR_KEY_FINGERPRINT"
+
+# Executables that may run as root without belonging to a package.
+trusted_root_binaries: [/usr/sbin/checkmate, /opt/ds_agent/ds_agent]
+
+# Expected sshd -T values; each value is a complete condition.
+sshd_expected:
+  port: "== 22"
+  permitrootlogin: "in [no, prohibit-password, without-password]"
+  strictmodes: "== yes"
+  permitemptypasswords: "== no"
+  banner: "== /etc/issue"
+  syslogfacility: "== AUTHPRIV"
+  usepam: "== yes"
+  printlastlog: "== yes"
+  ciphers: "!~ (cbc|arcfour|3des)"
+  macs: "!~ (md5|-96)"
+
+itslc_sysctl:
+  net.ipv4.tcp_syncookies: 1
+  net.ipv4.icmp_echo_ignore_broadcasts: 1
+  net.ipv4.conf.default.accept_redirects: 0
+  net.ipv4.conf.all.accept_redirects: 0
+  net.ipv4.conf.all.send_redirects: 0
+  net.ipv4.conf.all.log_martians: 1
+  net.ipv4.ip_forward: 0
+
+# SHA-256 of the approved /etc/issue.
+issue_sha256: REPLACE_WITH_SHA256_OF_YOUR_ISSUE_FILE

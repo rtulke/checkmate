@@ -1,0 +1,115 @@
+# nginx and Apache httpd
+
+Configuration syntax, version disclosure, directory listings and TLS protocols for nginx and Apache. `nginx -T` and `apachectl -S` print the effective configuration including all included files.
+
+<div class="grid cards" markdown>
+
+- :material-file-code: **Policy file**  
+  [`examples/applications/web-servers.yml`](https://github.com/rtulke/checkmate/blob/main/examples/applications/web-servers.yml)
+- :material-format-list-checks: **Checks**  
+  7 from 7 definitions
+- :material-monitor: **Platforms**  
+  debian, rhel, suse
+
+</div>
+
+## Run it
+
+```bash
+# Show what would run on this host
+checkmate list -v examples/applications/web-servers.yml
+
+# Run the checks
+checkmate run examples/applications/web-servers.yml
+```
+
+## Checks
+
+| ID | Check | Severity | Tags |
+|---|---|---|---|
+| `NGINX-001` | nginx configuration is valid | <span class="sev sev-high">high</span> | applications, nginx |
+| `NGINX-002` | nginx hides its version | <span class="sev sev-medium">medium</span> | applications, nginx |
+| `NGINX-003` | nginx does not list directories | <span class="sev sev-medium">medium</span> | applications, nginx |
+| `NGINX-004` | nginx offers only TLS 1.2 and 1.3 | <span class="sev sev-high">high</span> | applications, nginx, tls |
+| `APACHE-001` | Apache configuration is valid | <span class="sev sev-high">high</span> | applications, apache |
+| `APACHE-002` | Apache reveals neither version nor OS | <span class="sev sev-medium">medium</span> | applications, apache |
+| `APACHE-003` | TRACE is disabled | <span class="sev sev-medium">medium</span> | applications, apache |
+
+## Policy
+
+```yaml title="examples/applications/web-servers.yml" linenums="1"
+name: nginx and Apache httpd
+version: 1.0.0
+description: >
+  Configuration syntax, version disclosure, directory listings and TLS
+  protocols for nginx and Apache. `nginx -T` and `apachectl -S` print the
+  effective configuration including all included files.
+
+checks:
+  - id: NGINX-001
+    name: nginx configuration is valid
+    tags: [applications, nginx]
+    severity: high
+    only_if: command -v nginx
+    run: nginx -t 2>&1
+    expect: "~ syntax is ok"
+
+  - id: NGINX-002
+    name: nginx hides its version
+    tags: [applications, nginx]
+    only_if: command -v nginx
+    run: |
+      nginx -T 2>/dev/null | grep -E '^[[:space:]]*server_tokens[[:space:]]+off;'
+    allow_rc: [0, 1]
+    expect: { lines: ">= 1" }
+
+  - id: NGINX-003
+    name: nginx does not list directories
+    tags: [applications, nginx]
+    only_if: command -v nginx
+    run: |
+      nginx -T 2>/dev/null | grep -E '^[[:space:]]*autoindex[[:space:]]+on;'
+    allow_rc: [0, 1]
+    expect: empty
+
+  - id: NGINX-004
+    name: nginx offers only TLS 1.2 and 1.3
+    tags: [applications, nginx, tls]
+    severity: high
+    only_if: command -v nginx
+    run: |
+      nginx -T 2>/dev/null | grep -E '^[[:space:]]*ssl_protocols'
+    allow_rc: [0, 1]
+    expect: "!~ TLSv1(\\.1)?[ ;]"
+
+  - id: APACHE-001
+    name: Apache configuration is valid
+    tags: [applications, apache]
+    severity: high
+    only_if: command -v apachectl
+    # apachectl prints "Syntax OK" on stderr.
+    run: apachectl configtest
+    expect: { stderr: "~ Syntax OK" }
+
+  - id: APACHE-002
+    name: Apache reveals neither version nor OS
+    tags: [applications, apache]
+    only_if: command -v apachectl
+    run:
+      rhel: grep -rhiE '^[[:space:]]*ServerTokens' /etc/httpd/ | tail -1
+      debian: grep -rhiE '^[[:space:]]*ServerTokens' /etc/apache2/ | tail -1
+      suse: grep -rhiE '^[[:space:]]*ServerTokens' /etc/apache2/ | tail -1
+    allow_rc: [0, 1]
+    expect: "~ (?i)ServerTokens[[:space:]]+Prod"
+
+  - id: APACHE-003
+    name: TRACE is disabled
+    tags: [applications, apache]
+    only_if: command -v apachectl
+    run:
+      rhel: grep -rhiE '^[[:space:]]*TraceEnable' /etc/httpd/ | tail -1
+      debian: grep -rhiE '^[[:space:]]*TraceEnable' /etc/apache2/ | tail -1
+      suse: grep -rhiE '^[[:space:]]*TraceEnable' /etc/apache2/ | tail -1
+    allow_rc: [0, 1]
+    expect: "~ (?i)TraceEnable[[:space:]]+Off"
+```

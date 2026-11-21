@@ -1,0 +1,4 @@
+# Approved sudoers files, one line per file as printed by:
+#   sha256sum /etc/sudoers /etc/sudoers.d/<file>
+# Example (replace with your own checksums):
+0000000000000000000000000000000000000000000000000000000000000000  /etc/sudoers

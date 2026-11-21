@@ -1,0 +1,194 @@
+# Every check here must PASS. Each one sends a tricky construct through
+# YAML parsing, Jinja2 rendering and the shell, and compares the exact
+# result. Only portable POSIX tools are used (works with BWK awk, mawk,
+# gawk, BSD and GNU sed/grep).
+name: escape torture test
+vars:
+  word: hello
+  path_with_space: "/tmp/dir with space"
+  ports: [22, 443]
+  sysctl:
+    a.b: 1
+checks:
+  - id: E-AWK-FIELDS
+    name: awk field references survive templating
+    run: |
+      echo "a b c" | awk '{print $3 $1}'
+    expect: "== ca"
+
+  - id: E-AWK-FS-COLON
+    name: awk with a colon field separator in a block scalar
+    run: |
+      echo "root:x:0:0" | awk -F: '$3 == 0 {print $1}'
+    expect: "== root"
+
+  - id: E-AWK-FS-COLON-QUOTED
+    name: awk with a colon field separator in a double-quoted scalar
+    run: "echo 'root:x:0:0' | awk -F: '$3 == 0 {print $1}'"
+    expect: "== root"
+
+  - id: E-AWK-CLASS
+    name: POSIX character classes in awk regex
+    run: |
+      printf 'key \t = value\n' | awk -F= '/^key[[:space:]]*=/ {gsub(/[[:space:]]/, "", $2); print $2}'
+    expect: "== value"
+
+  - id: E-AWK-TERNARY
+    name: awk ternary and variables from the shell
+    run: |
+      awk -v n="3" 'BEGIN {print (n > 2) ? "big" : "small"}'
+    expect: "== big"
+
+  - id: E-AWK-DOLLAR-NF
+    name: awk $NF and string concatenation
+    run: |
+      echo "x y z" | awk '{print $NF "/" NF}'
+    expect: "== z/3"
+
+  - id: E-SED-BACKREF
+    name: sed -E with capture groups and backreferences
+    run: |
+      echo "0.0.0.0:8080" | sed -E 's/.*:([0-9]+)$/\1/'
+    expect: "== 8080"
+
+  - id: E-SED-SLASHES
+    name: sed with an alternative delimiter
+    run: |
+      echo "/usr/local/bin" | sed 's#/usr/local#/opt#'
+    expect: "== /opt/bin"
+
+  - id: E-GREP-ESCAPED-DOT
+    name: grep -E with escaped dots and anchors
+    run: |
+      printf '127.0.0.1 localhost\n127x0x0x1 nope\n' | grep -cE '^127\.0\.0\.1[[:space:]]+localhost$'
+    expect: "== 1"
+
+  - id: E-GREP-NOMATCH
+    name: grep without a match exits 1, accepted via allow_rc
+    run: |
+      printf 'a\nb\n' | grep -x c
+    allow_rc: [0, 1]
+    expect: empty
+
+  - id: E-GREP-FIXED-LIST
+    name: grep -vxF with a Jinja2 for loop builds an allowlist
+    run: |
+      printf '22\n80\n443\n' | grep -vxF {% for p in ports %}-e {{ p }} {% endfor %}
+    allow_rc: [0, 1]
+    expect: "== 80"
+
+  - id: E-BASH-ARRAY-LEN
+    name: bash ${#array[@]} is not a Jinja2 comment
+    run: |
+      arr=(a b c); echo "${#arr[@]}"
+    expect: "== 3"
+
+  - id: E-BASH-PARAM-EXPANSION
+    name: bash parameter expansion with braces
+    run: |
+      v="file.tar.gz"; echo "${v%%.*} ${v#*.} ${v:-default}"
+    expect: "== file tar.gz file.tar.gz"
+
+  - id: E-BASH-ARITH
+    name: arithmetic expansion
+    run: echo $(( (7 * 6) / 2 ))
+    expect: "== 21"
+
+  - id: E-BASH-BRACE-GROUP
+    name: brace groups and || true
+    run: |
+      { false || true; } && echo ok
+    expect: "== ok"
+
+  - id: E-BASH-SUBSHELL-QUOTES
+    name: nested command substitution and quotes
+    run: |
+      echo "$(printf '%s' "$(echo 'inner "quoted"')")"
+    expect: "== inner \"quoted\""
+
+  - id: E-BASH-HEREDOC
+    name: heredoc inside a block scalar
+    run: |
+      cat <<'EOF' | wc -l | tr -d ' '
+      line one
+      line two
+      EOF
+    expect: "== 2"
+
+  - id: E-PRINTF-PERCENT
+    name: printf and curl-style %{...} placeholders are untouched
+    run: |
+      echo 'x|%{http_code}|%s|%d'
+    expect: "== x|%{http_code}|%s|%d"
+
+  - id: E-JINJA-RAW
+    name: Go templates (docker/kubectl --format) via raw blocks
+    run: |
+      echo '{% raw %}{{ .State.Status }}{% endraw %}'
+    expect: "== {{ '{{' }} .State.Status }}"
+
+  - id: E-JINJA-VAR-QUOTED
+    name: variables with spaces must be quoted in the shell
+    run: |
+      printf '%s' "{{ path_with_space }}"
+    expect: "== /tmp/dir with space"
+
+  - id: E-JINJA-FILTER
+    name: Jinja2 filters
+    run: echo "{{ word | upper }} {{ ports | join(',') }}"
+    expect: "== HELLO 22,443"
+
+  - id: E-JINJA-DOTTED-LOOP-KEY
+    name: loop keys containing dots
+    loop: "{{ sysctl }}"
+    run: echo "{{ item.key }}={{ item.value }}"
+    expect: "== a.b=1"
+
+  - id: E-REGEX-EXPECT-BACKSLASH
+    name: backslashes in an expect regex (double-quoted YAML)
+    run: echo "v1.2.3"
+    expect: "~ ^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+
+  - id: E-REGEX-EXPECT-SINGLE-QUOTED
+    name: backslashes in an expect regex (single-quoted YAML)
+    run: echo "v1.2.3"
+    expect: '~ ^v\d+\.\d+\.\d+$'
+
+  - id: E-EXPECT-COLON-SPACE
+    name: 'expected values containing ": "'
+    run: 'echo "Status: active"'
+    expect: "== Status: active"
+
+  - id: E-EXPECT-LIST-WITH-SPACES
+    name: in-list values containing spaces
+    run: echo "640 root shadow"
+    expect: "in [644 root root, 640 root shadow]"
+
+  - id: E-EXPECT-LIST-FROM-JINJA
+    name: in-list rendered from a Jinja2 list variable
+    run: echo 443
+    expect: "in {{ ports }}"
+
+  - id: E-MULTILINE-REGEX
+    name: regex anchors work per line (multiline mode)
+    run: |
+      printf 'Port 22\nPermitRootLogin no\n'
+    expect: "~ ^PermitRootLogin no$"
+
+  - id: E-PIPEFAIL
+    name: a failing command inside a pipeline is detected
+    run: |
+      false | cat
+    expect: false
+
+  - id: E-STDERR
+    name: stderr can be asserted separately
+    run: |
+      echo "Syntax OK" >&2
+    expect: { stderr: "== Syntax OK", stdout: empty }
+
+  - id: E-TAB-AND-UNICODE
+    name: tabs and unicode survive
+    run: |
+      printf 'grüezi\tmiteinand\n' | cut -f2
+    expect: "== miteinand"

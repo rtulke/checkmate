@@ -1,0 +1,5 @@
+/bin/
+/dist/
+/site/
+/test/linux/out/
+.DS_Store

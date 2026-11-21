@@ -1,0 +1,88 @@
+name: engine test
+include: [inc/base.yml]
+vars:
+  answer: 42
+defaults:
+  timeout: 5s
+snippets:
+  echo_arg: echo {{ arg }}
+  only_freebsd:
+    freebsd: echo bsd
+checks:
+  - id: T-PASS
+    name: passing check
+    tags: [a, b]
+    run: echo hello
+    expect: "== hello"
+  - id: T-FAIL
+    name: failing check
+    tags: [a]
+    run: echo 312
+    expect: ">= 500"
+    remediation: free some space
+  - id: T-RC-ERROR
+    name: failing command with value expectation
+    run: echo partial; exit 3
+    expect: "== partial"
+  - id: T-RC-ALLOWED
+    name: allowed exit code
+    run: echo partial; exit 1
+    allow_rc: [0, 1]
+    expect: "== partial"
+  - id: T-NOTFOUND
+    name: missing command
+    run: this-command-does-not-exist-anywhere
+    expect: false
+  - id: T-TIMEOUT
+    name: timeout
+    timeout: 200ms
+    run: sleep 5
+    expect: true
+  - id: T-PIPEFAIL
+    name: pipefail catches errors inside pipelines
+    run: false | cat
+    expect: false
+  - id: T-NA
+    name: no variant for this platform
+    run:
+      plan9: echo hi
+    expect: true
+  - id: T-NA-SNIPPET
+    name: snippet without variant for this platform
+    run: { use: only_freebsd }
+    expect: true
+  - id: T-SKIP-WHEN
+    name: skipped by when
+    when: answer == 0
+    run: echo x
+    expect: true
+  - id: T-SKIP-ONLYIF
+    name: skipped by only_if
+    only_if: "false"
+    run: echo x
+    expect: true
+  - id: T-SNIPPET
+    name: snippet with argument
+    run: { use: echo_arg, arg: "{{ answer }}" }
+    expect: "== 42"
+  - id: "T-LOOP-{{ item.key }}"
+    name: loop over mapping
+    tags: [loop]
+    loop:
+      one: 1
+      two: 2
+    run: echo {{ item.value }}
+    expect: "== {{ item.value }}"
+  - id: T-POLICY-DIR
+    name: commands run in the policy directory
+    run: test -f engine.yml
+    expect: true
+  - id: T-ENV-LOCALE
+    name: locale is forced to C
+    run: echo "$LC_ALL"
+    expect: "== C"
+  - id: T-BAD-WHEN
+    name: invalid when expression is an error
+    when: undefined_variable == 1
+    run: echo x
+    expect: true

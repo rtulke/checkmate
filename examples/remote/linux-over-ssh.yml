@@ -1,0 +1,72 @@
+name: Linux hosts over SSH
+version: 1.0.0
+description: >
+  Check many Linux servers from one management host without installing
+  anything on them. The remote command is passed through a snippet; the
+  heredoc keeps quoting simple even for awk programs.
+
+vars:
+  hosts: [web-01.example.net, web-02.example.net, db-01.example.net]
+  ssh_user: audit
+
+snippets:
+  # Runs the script given in args.script on host {{ arg }} with sudo.
+  remote: |
+    ssh -o BatchMode=yes -o ConnectTimeout=5 {{ ssh_user }}@{{ arg }} sudo -n bash -s <<'REMOTE'
+    {{ args.script }}
+    REMOTE
+
+checks:
+  - id: "REMOTE-ROOTLOGIN-{{ item }}"
+    name: "{{ item }}: root login over SSH is disabled"
+    tags: [remote, ssh]
+    severity: high
+    loop: "{{ hosts }}"
+    run:
+      use: remote
+      arg: "{{ item }}"
+      args:
+        script: sshd -T | awk '$1 == "permitrootlogin" {print $2}'
+    expect: "== no"
+
+  - id: "REMOTE-UPDATES-{{ item }}"
+    name: "{{ item }}: no security updates pending"
+    tags: [remote, updates]
+    severity: high
+    loop: "{{ hosts }}"
+    timeout: 3m
+    run:
+      use: remote
+      arg: "{{ item }}"
+      args:
+        script: |
+          if command -v dnf >/dev/null; then
+            dnf -q updateinfo list --security --available 2>/dev/null | wc -l
+          else
+            apt-get -s upgrade 2>/dev/null | grep -c '^Inst .*[Ss]ecurity' || true
+          fi
+    expect: "== 0"
+
+  - id: "REMOTE-DISK-{{ item }}"
+    name: "{{ item }}: root filesystem below 90% usage"
+    tags: [remote, disk]
+    loop: "{{ hosts }}"
+    run:
+      use: remote
+      arg: "{{ item }}"
+      args:
+        script: df -P / | awk 'NR == 2 {sub(/%/, "", $5); print $5}'
+    expect: "< 90"
+
+  - id: "REMOTE-UID0-{{ item }}"
+    name: "{{ item }}: root is the only UID 0 account"
+    tags: [remote, users]
+    severity: critical
+    loop: "{{ hosts }}"
+    run:
+      use: remote
+      arg: "{{ item }}"
+      args:
+        script: |
+          awk -F: '$3 == 0 {print $1}' /etc/passwd
+    expect: "== root"

@@ -1,0 +1,68 @@
+name: systemd services
+version: 1.0.0
+description: >
+  Required services must run, unwanted services must be neither active nor
+  enabled, and the system must boot into a non-graphical target.
+
+vars:
+  required_services: [chronyd, auditd, rsyslog]
+  forbidden_services:
+    - telnet.socket
+    - rsh.socket
+    - rlogin.socket
+    - tftp.socket
+    - vsftpd
+    - xinetd
+    - avahi-daemon
+    - cups
+    - nfs-server
+    - rpcbind
+    - snmpd
+    - squid
+    - named
+
+checks:
+  - id: "SVC-REQ-{{ item }}"
+    name: "{{ item }} is running"
+    tags: [system, services]
+    when: facts.os == "linux"
+    loop: "{{ required_services }}"
+    run: systemctl is-active {{ item }}
+    allow_rc: [0, 3, 4]
+    expect: "== active"
+
+  - id: "SVC-FORBIDDEN-{{ item }}"
+    name: "{{ item }} is neither running nor enabled"
+    tags: [system, services]
+    when: facts.os == "linux"
+    loop: "{{ forbidden_services }}"
+    # Both commands fail for unknown units, which is fine.
+    run: systemctl is-active --quiet {{ item }} || systemctl is-enabled --quiet {{ item }}
+    expect: false
+    remediation: "systemctl disable --now {{ item }}"
+
+  - id: SVC-001
+    name: The default target is not graphical
+    tags: [system, services]
+    severity: low
+    when: facts.os == "linux"
+    run: systemctl get-default
+    expect: "== multi-user.target"
+
+  - id: SVC-002
+    name: Ctrl-Alt-Del reboot is masked
+    tags: [system, services]
+    severity: low
+    when: facts.os == "linux"
+    # is-enabled prints "masked" and exits 1 for masked units.
+    run: systemctl is-enabled ctrl-alt-del.target
+    allow_rc: [0, 1]
+    expect: "== masked"
+    remediation: systemctl mask ctrl-alt-del.target
+
+  - id: SVC-003
+    name: No failed units
+    tags: [system, services]
+    when: facts.os == "linux"
+    run: systemctl list-units --state=failed --no-legend --plain
+    expect: empty

@@ -1,0 +1,26 @@
+/* Severity badges used in the generated example tables. */
+.sev {
+  display: inline-block;
+  padding: 0 .45em;
+  border-radius: .25em;
+  font-size: .75em;
+  font-weight: 600;
+  line-height: 1.6;
+  color: #fff;
+  white-space: nowrap;
+}
+.sev-info     { background: #78909c; }
+.sev-low      { background: #0097a7; }
+.sev-medium   { background: #f9a825; color: #222; }
+.sev-high     { background: #e53935; }
+.sev-critical { background: #8e0000; }
+
+/* Status labels in prose. */
+.st { font-family: var(--md-code-font-family); font-weight: 700; }
+.st-pass  { color: #2e7d32; }
+.st-fail  { color: #c62828; }
+.st-warn  { color: #f9a825; }
+.st-error { color: #ad1457; }
+.st-skip, .st-na { color: #78909c; }
+
+.md-typeset table:not([class]) td code { white-space: nowrap; }

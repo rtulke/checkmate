@@ -1,0 +1,121 @@
+# CPU and memory
+
+Sizing and health of CPU and memory on Linux, macOS and Windows: minimum resources, available memory, swap usage, load and out-of-memory events.
+
+<div class="grid cards" markdown>
+
+- :material-file-code: **Policy file**  
+  [`examples/hardware/cpu-memory.yml`](https://github.com/rtulke/checkmate/blob/main/examples/hardware/cpu-memory.yml)
+- :material-format-list-checks: **Checks**  
+  7 from 7 definitions
+- :material-monitor: **Platforms**  
+  linux, macos, windows
+
+</div>
+
+## Run it
+
+```bash
+# Show what would run on this host
+checkmate list -v examples/hardware/cpu-memory.yml
+
+# Run the checks
+checkmate run examples/hardware/cpu-memory.yml
+
+# Override a variable from the command line
+checkmate run examples/hardware/cpu-memory.yml -e name=value
+```
+
+## Checks
+
+| ID | Check | Severity | Tags |
+|---|---|---|---|
+| `HW-CPU-001` | At least 2 CPUs | <span class="sev sev-medium">medium</span> | hardware, cpu |
+| `HW-MEM-001` | At least 4 GB memory | <span class="sev sev-medium">medium</span> | hardware, memory |
+| `HW-MEM-002` | At least 10% memory available | <span class="sev sev-medium">medium</span> | hardware, memory |
+| `HW-MEM-003` | Swap usage is below 50% | <span class="sev sev-medium">medium</span> | hardware, memory |
+| `HW-MEM-004` | No out-of-memory kills in the last 24 hours | <span class="sev sev-medium">medium</span> | hardware, memory |
+| `HW-CPU-002` | The 15-minute load is below the number of CPUs | <span class="sev sev-low">low</span> | hardware, cpu, performance |
+| `HW-CPU-003` | The CPU supports AES instructions | <span class="sev sev-info">info</span> | hardware, cpu, crypto |
+
+## Policy
+
+```yaml title="examples/hardware/cpu-memory.yml" linenums="1"
+name: CPU and memory
+version: 1.0.0
+description: >
+  Sizing and health of CPU and memory on Linux, macOS and Windows: minimum
+  resources, available memory, swap usage, load and out-of-memory events.
+
+vars:
+  min_cpus: 2
+  min_memory_gb: 4
+  min_available_percent: 10
+  max_swap_used_percent: 50
+
+checks:
+  - id: HW-CPU-001
+    name: "At least {{ min_cpus }} CPUs"
+    tags: [hardware, cpu]
+    run:
+      linux: nproc
+      macos: sysctl -n hw.ncpu
+      windows: (Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors
+    expect: ">= {{ min_cpus }}"
+
+  - id: HW-MEM-001
+    name: "At least {{ min_memory_gb }} GB memory"
+    tags: [hardware, memory]
+    run:
+      linux: |
+        awk '/^MemTotal:/ {printf "%.0f\n", $2 / 1048576}' /proc/meminfo
+      macos: echo $(( $(sysctl -n hw.memsize) / 1073741824 ))
+      windows: '[math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB)'
+    expect: ">= {{ min_memory_gb }}"
+
+  - id: HW-MEM-002
+    name: "At least {{ min_available_percent }}% memory available"
+    tags: [hardware, memory]
+    when: facts.os == "linux"
+    run: |
+      awk '/^MemTotal:/ {t = $2} /^MemAvailable:/ {a = $2} END {print int(a * 100 / t)}' /proc/meminfo
+    expect: ">= {{ min_available_percent }}"
+
+  - id: HW-MEM-003
+    name: "Swap usage is below {{ max_swap_used_percent }}%"
+    tags: [hardware, memory]
+    when: facts.os == "linux"
+    run: |
+      awk '/^SwapTotal:/ {t = $2} /^SwapFree:/ {f = $2} END {print (t > 0) ? int((t - f) * 100 / t) : 0}' /proc/meminfo
+    expect: "< {{ max_swap_used_percent }}"
+
+  - id: HW-MEM-004
+    name: No out-of-memory kills in the last 24 hours
+    tags: [hardware, memory]
+    when: facts.os == "linux" and facts.is_root
+    only_if: command -v journalctl
+    run: |
+      journalctl -k --since "24 hours ago" --no-pager 2>/dev/null | grep -ci 'out of memory'
+    allow_rc: [0, 1]
+    expect: "== 0"
+
+  - id: HW-CPU-002
+    name: The 15-minute load is below the number of CPUs
+    tags: [hardware, cpu, performance]
+    severity: low
+    run:
+      linux: |
+        awk -v cpus="$(nproc)" '{print ($3 < cpus) ? "ok" : "overloaded: " $3}' /proc/loadavg
+      macos: |
+        sysctl -n vm.loadavg | awk -v cpus="$(sysctl -n hw.ncpu)" '{print ($4 < cpus) ? "ok" : "overloaded: " $4}'
+    expect: "== ok"
+
+  - id: HW-CPU-003
+    name: The CPU supports AES instructions
+    tags: [hardware, cpu, crypto]
+    severity: info
+    when: facts.os == "linux"
+    run: grep -m1 -owE 'aes' /proc/cpuinfo
+    allow_rc: [0, 1]
+    expect: "== aes"
+```

@@ -1,0 +1,60 @@
+name: Web endpoints
+version: 1.0.0
+description: >
+  Black-box checks of websites and APIs with curl: status codes, HTTPS
+  redirects, security headers, response time and version disclosure.
+  curl's -w placeholders such as %{http_code} are not Jinja2 syntax and
+  need no escaping.
+
+vars:
+  urls: [https://example.com]
+  http_hosts: [example.com]
+  max_response_seconds: 2
+  security_headers: [strict-transport-security, x-content-type-options, content-security-policy]
+
+checks:
+  - id: "WEB-STATUS-{{ item | replace('https://', '') | replace('/', '_') }}"
+    name: "{{ item }} answers with HTTP 200"
+    tags: [applications, web]
+    severity: high
+    loop: "{{ urls }}"
+    timeout: 20s
+    run: curl -s -o /dev/null --max-time 15 -w '%{http_code}' {{ item }}
+    expect: "== 200"
+
+  - id: "WEB-REDIRECT-{{ item }}"
+    name: "http://{{ item }} redirects to HTTPS"
+    tags: [applications, web, tls]
+    loop: "{{ http_hosts }}"
+    timeout: 20s
+    run: curl -s -o /dev/null --max-time 15 -w '%{http_code} %{redirect_url}' http://{{ item }}/
+    expect: "~ ^30[178] https://"
+
+  - id: "WEB-TIME-{{ item | replace('https://', '') | replace('/', '_') }}"
+    name: "{{ item }} responds within {{ max_response_seconds }} seconds"
+    tags: [applications, web, performance]
+    severity: low
+    loop: "{{ urls }}"
+    timeout: 20s
+    run: curl -s -o /dev/null --max-time 15 -w '%{time_total}' {{ item }}
+    expect: "< {{ max_response_seconds }}"
+
+  - id: "WEB-HEADER-{{ item }}"
+    name: "Security header {{ item }} is set"
+    tags: [applications, web]
+    loop: "{{ security_headers }}"
+    timeout: 20s
+    run: |
+      curl -s -D - -o /dev/null --max-time 15 {{ urls[0] }} | tr -d '\r' | grep -i '^{{ item }}:'
+    allow_rc: [0, 1]
+    expect: "!empty"
+
+  - id: WEB-SERVER-VERSION
+    name: The Server header does not reveal a version
+    tags: [applications, web]
+    severity: low
+    timeout: 20s
+    run: |
+      curl -s -D - -o /dev/null --max-time 15 {{ urls[0] }} | tr -d '\r' | grep -i '^server:'
+    allow_rc: [0, 1]
+    expect: "!~ [0-9]+\\.[0-9]+"

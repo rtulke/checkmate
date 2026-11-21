@@ -1,0 +1,6 @@
+checks:
+  - id: T-INCLUDED
+    name: check from an included file
+    tags: [included]
+    run: echo included
+    expect: "== included"
