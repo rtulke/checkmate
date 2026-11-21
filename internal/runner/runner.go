@@ -137,8 +137,12 @@ func shellArgv(shell, command string) ([]string, error) {
 	case "sh":
 		return []string{"sh", "-c", command}, nil
 	case "pwsh", "powershell":
-		script := "$ErrorActionPreference = 'Stop'\n" + command +
-			"\nif ($LASTEXITCODE) { exit $LASTEXITCODE }"
+		// The command runs in a script block, so that a return in it still
+		// reaches the exit handling. A script that completes exits 0, even if
+		// a silenced error left $? false; terminating errors exit 1 and the
+		// exit code of a failed native command is passed on.
+		script := "$ErrorActionPreference = 'Stop'\n& {\n" + command +
+			"\n}\nif ($LASTEXITCODE) { exit $LASTEXITCODE }\nexit 0"
 		return []string{shell, "-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script}, nil
 	case "cmd":
 		return []string{"cmd", "/D", "/S", "/C", command}, nil

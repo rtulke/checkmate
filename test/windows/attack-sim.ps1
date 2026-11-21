@@ -14,6 +14,7 @@ $errors = @($before.results | Where-Object { $_.status -eq 'ERROR' })
 
 # --- plant ------------------------------------------------------------------
 $payload = "$env:LOCALAPPDATA\Temp\updater.exe"
+New-Item -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -Force -ErrorAction SilentlyContinue | Out-Null
 New-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -Name Updater -Value $payload -Force | Out-Null
 $ifeo = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\sethc.exe'
 New-Item -Path $ifeo -Force | Out-Null
@@ -28,15 +29,21 @@ New-Service -Name CheckmateSim -BinaryPathName 'C:\Program Files\Checkmate Sim\s
 $after = Run-Policy 'attack-after.json'
 $errors += @($after.results | Where-Object { $_.status -eq 'ERROR' })
 
-$expected = 'ATT-WIN-RUN-KEYS', 'ATT-WIN-IFEO', 'ATT-WIN-WMI-SUBSCRIPTION', 'ATT-WIN-SCHEDULED-TASKS',
-            'ATT-WIN-OFFICE-TEST', 'ATT-WIN-WINLOGON', 'ATT-WIN-SERVICE-PATHS'
+# Each planted artifact and a marker that must appear in the finding.
+$expected = [ordered]@{
+    'ATT-WIN-RUN-KEYS'         = 'Updater'
+    'ATT-WIN-IFEO'             = 'sethc.exe'
+    'ATT-WIN-WMI-SUBSCRIPTION' = 'checkmate-sim'
+    'ATT-WIN-SCHEDULED-TASKS'  = 'CheckmateSim'
+    'ATT-WIN-OFFICE-TEST'      = 'Office test'
+    'ATT-WIN-WINLOGON'         = 'shell.exe'
+    'ATT-WIN-SERVICE-PATHS'    = 'CheckmateSim'
+}
 $status = 0
-foreach ($id in $expected) {
+foreach ($id in $expected.Keys) {
     $r = $after.results | Where-Object { $_.id -eq $id }
-    $was = ($before.results | Where-Object { $_.id -eq $id }).status
-    if ($r.status -ne 'FAIL') { Write-Output "NOT FOUND $id ($($r.status)): $($r.message)"; $status = 1 }
-    elseif ($was -ne 'PASS') { Write-Output "$id already $was before planting: $(($before.results | Where-Object { $_.id -eq $id }).message)"; $status = 1 }
-    else { Write-Output "found     $id" }
+    if ($r.status -eq 'FAIL' -and "$($r.stdout)" -like "*$($expected[$id])*") { Write-Output "found     $id" }
+    else { Write-Output "NOT FOUND $id ($($r.status)): $($r.message)"; $status = 1 }
 }
 foreach ($e in $errors) { Write-Output "ERROR     $($e.id): $($e.message) $($e.stderr)"; $status = 1 }
 Write-Output ("before: {0}" -f (($before.results | Group-Object status | ForEach-Object { "$($_.Name)=$($_.Count)" }) -join ' '))
