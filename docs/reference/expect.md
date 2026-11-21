@@ -5,9 +5,9 @@
 ## Exit code
 
 ```yaml
-expect: true        # exit code is 0
-expect: false       # exit code is not 0
-expect: { rc: "in [0, 100]" }   # explicit comparison
+expect: true                   # exit code is 0
+expect: false                  # exit code is not 0
+expect: { rc: "in [0, 100]" }  # explicit comparison
 ```
 
 ## Comparing the output

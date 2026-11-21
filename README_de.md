@@ -48,10 +48,10 @@ go install github.com/rtulke/checkmate/cmd/checkmate@latest
 ## Schnellstart
 
 ```bash
-checkmate run examples/getting-started.yml       # eine Policy ausführen
-checkmate list -v examples/system/ssh.yml         # die Kommandos für diesen Host anzeigen
-checkmate validate my-policy.yml                  # eine Policy prüfen, ohne sie auszuführen
-checkmate run baseline.yml -v                     # mit Schweregrad und Gründen (-vv Details, -vvv Debug)
+checkmate run examples/getting-started.yml  # eine Policy ausführen
+checkmate list -v examples/system/ssh.yml   # die Kommandos für diesen Host anzeigen
+checkmate validate my-policy.yml            # eine Policy prüfen, ohne sie auszuführen
+checkmate run baseline.yml -v               # mit Schweregrad und Gründen (-vv Details, -vvv Debug)
 checkmate run baseline.yml --tags ssh --fail-on high --junit-out junit.xml
 ```
 
@@ -147,13 +147,13 @@ Jedes Beispiel wird für jede Plattform validiert und syntaktisch geprüft. In d
 ## Entwicklung
 
 ```bash
-make build        # bin/checkmate
-make test         # Unit-Tests, Validierung der Beispiele, Escape-Tests
-make lint         # gofmt und go vet
-make test-linux   # alle Beispiele in Linux-Containern ausführen (docker)
-make docs-serve   # Dokumentation unter http://127.0.0.1:8000 (mkdocs-material)
+make build          # bin/checkmate
+make test           # Unit-Tests, Validierung der Beispiele, Escape-Tests
+make lint           # gofmt und go vet
+make test-linux     # alle Beispiele in Linux-Containern ausführen (docker)
+make docs-serve     # Dokumentation unter http://127.0.0.1:8000 (mkdocs-material)
 vhs docs/demo.tape  # Terminal-Demo neu aufnehmen (vhs, docker)
-make dist         # Binaries für Linux, macOS und Windows
+make dist           # Binaries für Linux, macOS und Windows
 ```
 
 Der Aufbau des Projekts:

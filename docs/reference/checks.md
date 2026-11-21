@@ -1,18 +1,18 @@
 # Check keys
 
 ```yaml
-- id: SSH-CIPHERS                     # required, unique, no spaces
-  name: sshd offers no weak ciphers   # shown in reports (defaults to id)
+- id: SSH-CIPHERS                                  # required, unique, no spaces
+  name: sshd offers no weak ciphers                # shown in reports (defaults to id)
   description: Longer text for reports.
-  tags: [system, ssh, crypto]         # for --tags / --skip-tags
-  severity: high                      # info, low, medium, high, critical
-  when: facts.is_root                 # Jinja2 expression
-  only_if: command -v sshd            # command; skip if it fails
-  loop: [a, b, c]                     # expand into one check per item
-  run: sshd -T | awk '$1 == "ciphers" {print $2}'   # required
-  expect: "!~ (cbc|arcfour)"          # required
-  as: auto                            # auto, number, version, string
-  allow_rc: [0]                       # accepted exit codes for output checks
+  tags: [system, ssh, crypto]                      # for --tags / --skip-tags
+  severity: high                                   # info, low, medium, high, critical
+  when: facts.is_root                              # Jinja2 expression
+  only_if: command -v sshd                         # command; skip if it fails
+  loop: [a, b, c]                                  # expand into one check per item
+  run: sshd -T | awk '$1 == "ciphers" {print $2}'  # required
+  expect: "!~ (cbc|arcfour)"                       # required
+  as: auto                                         # auto, number, version, string
+  allow_rc: [0]                                    # accepted exit codes for output checks
   timeout: 30s
   shell: bash
   remediation: Remove weak ciphers from sshd_config.
