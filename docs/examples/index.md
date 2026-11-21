@@ -1,6 +1,6 @@
 # Examples
 
-58 ready-to-use policies with 1118 checks. Every example is validated, syntax-checked for each
+66 ready-to-use policies with 1193 checks. Every example is validated, syntax-checked for each
 platform and executed on RHEL, Debian, Ubuntu, openSUSE and Alpine in the test suite, so you can copy them as a
 starting point.
 
@@ -83,6 +83,14 @@ starting point.
     Cloud instances on AWS, Azure and Google Cloud: metadata service, agents and stored credentials.
 
     [Cloud instances](cloud/instance-metadata.md)
+
+- :material-server-network: **[Linux services](services/index.md)**
+
+    ---
+
+    Common Linux network services: Postfix, NFS, FTP (vsftpd, ProFTPD), BIND, DHCP (Kea, ISC dhcpd), Dovecot, Samba and OpenLDAP. Checks of a service are skipped when it is not installed.
+
+    [BIND DNS server](services/bind.md) · [DHCP servers (Kea, ISC dhcpd)](services/dhcp.md) · [Dovecot](services/dovecot.md) · [FTP servers (vsftpd, ProFTPD)](services/ftps.md) · [NFS server](services/nfs.md) · [OpenLDAP](services/openldap.md) · [Postfix](services/postfix.md) · [Samba](services/samba.md)
 
 - :material-clipboard-check: **[Server validation](validation/index.md)**
 

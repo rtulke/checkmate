@@ -175,6 +175,16 @@ nav:
       - "Cloud":
           - examples/cloud/index.md
           - "Cloud instances": examples/cloud/instance-metadata.md
+      - "Linux services":
+          - examples/services/index.md
+          - "BIND DNS server": examples/services/bind.md
+          - "DHCP servers (Kea, ISC dhcpd)": examples/services/dhcp.md
+          - "Dovecot": examples/services/dovecot.md
+          - "FTP servers (vsftpd, ProFTPD)": examples/services/ftps.md
+          - "NFS server": examples/services/nfs.md
+          - "OpenLDAP": examples/services/openldap.md
+          - "Postfix": examples/services/postfix.md
+          - "Samba": examples/services/samba.md
       - "Server validation":
           - examples/validation/index.md
           - "Server validation (goss style)": examples/validation/server-validation.md

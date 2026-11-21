@@ -55,6 +55,8 @@ jobs:
         run: test/linux/cis-apache.sh
       - name: Detect planted ATT&CK artifacts
         run: test/linux/attack-sim.sh
+      - name: Run the service policies against real and hardened services
+        run: test/linux/services.sh
 
   windows-cis:
     strategy:

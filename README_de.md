@@ -4,7 +4,7 @@
 [![Release](https://github.com/rtulke/checkmate/actions/workflows/release.yml/badge.svg)](https://github.com/rtulke/checkmate/actions/workflows/release.yml)
 [![Docs](https://img.shields.io/badge/docs-rtulke.github.io%2Fcheckmate-3f51b5)](https://rtulke.github.io/checkmate/)
 
-**Compliance-Checks als Kommandos.** Jeder Check ist ein Shell-Kommando und eine Bedingung an dessen Ergebnis, geschrieben in YAML. checkmate läuft auf Linux, macOS und Windows, prüft Netzwerkgeräte und entfernte Server von einem Management-Host aus und bringt fast **15.000 Checks** für CIS Benchmarks, DISA STIGs, BSI IT-Grundschutz, Si001 und MITRE ATT&CK mit.
+**Compliance-Checks als Kommandos.** Jeder Check ist ein Shell-Kommando und eine Bedingung an dessen Ergebnis, geschrieben in YAML. checkmate läuft auf Linux, macOS und Windows, prüft Netzwerkgeräte und entfernte Server von einem Management-Host aus und bringt mehr als **15.000 Checks** für CIS Benchmarks, DISA STIGs, BSI IT-Grundschutz, Si001 und MITRE ATT&CK mit.
 
 [English version](README.md) · [Dokumentation](https://rtulke.github.io/checkmate/) · [Sicherheitsstandards](https://rtulke.github.io/checkmate/standards/) · [Beispiele](https://rtulke.github.io/checkmate/examples/)
 
@@ -148,7 +148,7 @@ Siehe [Waivers](https://rtulke.github.io/checkmate/reference/waivers/).
 
 ## Beispiele
 
-58 getestete Policies mit 1.118 Checks, gegliedert wie die Dokumentation:
+66 getestete Policies mit 1.193 Checks, gegliedert wie die Dokumentation:
 
 | Kategorie | Policies | Checks | Inhalt |
 |---|---:|---:|---|
@@ -161,6 +161,7 @@ Siehe [Waivers](https://rtulke.github.io/checkmate/reference/waivers/).
 | [Netzwerkgeräte](examples/network-devices) | 4 | 42 | Cisco IOS, Juniper Junos, Arista EOS, SNMP |
 | [Entfernte Hosts](examples/remote) | 1 | 12 | Linux-Server über SSH |
 | [Anwendungen](examples/applications) | 11 | 145 | Docker, Kubernetes, nginx, Apache, PHP, PostgreSQL, MySQL, Redis, MongoDB, Web-Endpunkte |
+| [Linux-Dienste](examples/services) | 8 | 75 | Postfix, NFS, FTP (vsftpd, ProFTPD), BIND, DHCP (Kea, ISC dhcpd), Dovecot, Samba, OpenLDAP |
 | [Cloud](examples/cloud) | 1 | 9 | Instanzen in AWS, Azure und Google Cloud: Metadatendienst, Agenten, Zugangsdaten |
 | [Server-Validierung](examples/validation) | 1 | 19 | Validierung einer Server-Rolle im Stil von goss: Benutzer, Pakete, Ports, Dateien, HTTP |
 | [Compliance](examples/compliance) | 4 | 491 | BSI IT-Grundschutz, Si001, eine umfassende Linux-Hardening-Baseline nach dem Vorbild von OpenSCAP und CIS, eine Managed-RHEL-Baseline |
@@ -170,7 +171,7 @@ Siehe [Waivers](https://rtulke.github.io/checkmate/reference/waivers/).
 
 | | Läuft auf | Getestet in der CI |
 |---|---|---|
-| Linux | jeder Distribution mit POSIX-Shell (bash oder sh, auch BusyBox) | Beispiele auf Rocky Linux 8/9, Debian 12, Ubuntu 24.04, openSUSE Leap 15, Alpine; CIS- und STIG-Policies auf 16 Distributionen in Containern; gehärtete PostgreSQL- und Apache-Server; gepflanzte ATT&CK-Artefakte |
+| Linux | jeder Distribution mit POSIX-Shell (bash oder sh, auch BusyBox) | Beispiele auf Rocky Linux 8/9, Debian 12, Ubuntu 24.04, openSUSE Leap 15, Alpine; CIS- und STIG-Policies auf 16 Distributionen in Containern; gehärtete PostgreSQL- und Apache-Server; Postfix, NFS, vsftpd, BIND, Kea, Dovecot, Samba und OpenLDAP in Standard- und gehärteter Konfiguration; gepflanzte ATT&CK-Artefakte |
 | Windows | Windows 10/11, Windows Server ab 2016 (PowerShell 5.1 oder 7) | CIS- und ATT&CK-Policies auf echtem Windows Server 2022 und 2025; jedes PowerShell-Kommando durch den PowerShell-Parser |
 | macOS | macOS ab 13 | Unit-Tests und Homebrew-Installation auf macOS-Runnern |
 | Netzwerkgeräte, entfernte Server | über SSH oder SNMP von einem Management-Host | Syntax jedes Kommandos |
