@@ -140,9 +140,14 @@ Nearly 50 tested policies with over 750 checks, organized like the documentation
 | [Applications](examples/applications) | Docker, Kubernetes, nginx/Apache, PostgreSQL, MySQL, Redis, web endpoints |
 | [Cloud](examples/cloud) | AWS, Azure and Google Cloud instances: metadata service, agents, credentials |
 | [Server validation](examples/validation) | goss-style validation of a server role: users, packages, ports, files, HTTP |
-| [Compliance](examples/compliance) | a broad Linux hardening baseline modelled on OpenSCAP and CIS, and a managed-RHEL baseline |
+| [Compliance](examples/compliance) | BSI IT-Grundschutz (SYS.1.1, SYS.1.3), Si001 IT-Grundschutz of the Swiss Federal Administration, a broad Linux hardening baseline modelled on OpenSCAP and CIS, a managed-RHEL baseline |
 
 Every example is validated and syntax-checked for each platform, and executed on Rocky Linux 8/9, Debian 12, Ubuntu 24.04, openSUSE Leap and Alpine in CI.
+
+Security standards ready to run: [CIS Benchmarks](cis/) for 17 Linux
+distributions, macOS, PostgreSQL and Apache, [DISA STIGs](stig/), BSI
+IT-Grundschutz and Si001 (Switzerland). See the
+[overview](https://rtulke.github.io/checkmate/standards/).
 
 ## Development
 
