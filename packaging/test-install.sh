@@ -13,14 +13,14 @@ policy=$2
 case "$pkg" in
   *.deb)
     apt-get update -qq
-    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "$pkg" >/dev/null
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "$pkg" >/tmp/install.log 2>&1 || { cat /tmp/install.log; exit 1; }
     files=$(dpkg -L checkmate)
     ;;
   *.rpm)
     if command -v zypper >/dev/null; then
-      zypper --non-interactive install --allow-unsigned-rpm "$pkg" >/dev/null
+      zypper --non-interactive install --allow-unsigned-rpm "$pkg" >/tmp/install.log 2>&1 || { cat /tmp/install.log; exit 1; }
     else
-      dnf install -y -q "$pkg" >/dev/null
+      dnf install -y -q "$pkg" >/tmp/install.log 2>&1 || { cat /tmp/install.log; exit 1; }
     fi
     files=$(rpm -ql checkmate)
     ;;
