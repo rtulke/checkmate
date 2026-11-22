@@ -94,7 +94,7 @@ a { color: var(--accent); }
     <div class="score {{.ScoreCls}}">{{.Score}}</div>
     <div class="bar {{.ScoreCls}}"><span class="score {{.ScoreCls}}" style="width:{{if ge .ScoreNum 0.0}}{{.ScoreNum}}{{else}}0{{end}}%"></span></div>
     <div class="verdict {{.VerdictCl}}">{{.Verdict}}</div>
-    <div class="sub">{{.Total}} checks{{if .Multi}} on {{len .Hosts}} hosts{{end}}</div>
+    <div class="sub">{{.Total}} checks{{if .Multi}} · {{.Scope}}{{end}}</div>
   </div>
   <div class="panel">
     <div class="sub" style="margin-bottom:8px">Results <span style="font-size:12px">(click to filter)</span></div>

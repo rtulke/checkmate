@@ -41,6 +41,7 @@ type htmlView struct {
 	Waivers   []htmlWaiver
 	Notices   []string
 	Total     int
+	Scope     string
 }
 
 type htmlCount struct {
@@ -126,6 +127,7 @@ func htmlData(rs []*engine.Report, o Options) htmlView {
 		ScoreCls:  scoreClass(s.Score),
 		Labels:    labels,
 		Total:     s.Total,
+		Scope:     scope(rs),
 	}
 	v.Verdict, v.VerdictCl = verdict(s)
 	if len(rs) == 1 {
@@ -136,7 +138,7 @@ func htmlData(rs []*engine.Report, o Options) htmlView {
 		}
 		v.Subtitle += " · " + r.Started.Format("2006-01-02 15:04")
 	} else {
-		v.Subtitle = fmt.Sprintf("%d reports", len(rs))
+		v.Subtitle = scope(rs)
 	}
 	v.Counts = []htmlCount{
 		{"passed", "PASS", "pass", s.Passed}, {"failed", "FAIL", "fail", s.Failed},

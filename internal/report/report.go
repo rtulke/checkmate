@@ -525,7 +525,7 @@ func TextOverview(w io.Writer, rs []*engine.Report, opts TextOptions) error {
 		}
 	}
 	s := aggregate(rs)
-	fmt.Fprintf(w, "\n%d hosts · %d checks · %d passed · %d failed · %d warnings · %d errors · %d waived · score %s\n",
-		len(rs), s.Total, s.Passed, s.Failed, s.Warnings, s.Errors, s.Waived, scoreText(s.Score))
+	fmt.Fprintf(w, "\n%s · %d checks · %d passed · %d failed · %d warnings · %d errors · %d waived · score %s\n",
+		scope(rs), s.Total, s.Passed, s.Failed, s.Warnings, s.Errors, s.Waived, scoreText(s.Score))
 	return nil
 }

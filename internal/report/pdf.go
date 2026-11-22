@@ -115,7 +115,7 @@ func writePDF(w io.Writer, rs []*engine.Report, o Options) error {
 	d.Text(pdfMargin, l.y+10, pdf.HelveticaBold, 9, pdfAccent, "CHECKMATE COMPLIANCE REPORT")
 	l.y += 18
 	l.paragraph(pdfMargin, l.width, pdf.HelveticaBold, 20, pdfText, title)
-	sub := fmt.Sprintf("%d reports", len(rs))
+	sub := scope(rs)
 	if len(rs) == 1 {
 		r := rs[0]
 		sub = strings.TrimSpace(r.Facts.Hostname + " · " + r.Facts.DistroName)
@@ -154,7 +154,7 @@ func writePDF(w io.Writer, rs []*engine.Report, o Options) error {
 	}
 	l.y += panelH + 6
 	l.paragraph(pdfMargin, l.width, pdf.Helvetica, 8, pdfMuted, fmt.Sprintf("%d checks%s. Failures of severity %s and above make a host non-compliant; errors always do.",
-		s.Total, map[bool]string{true: fmt.Sprintf(" on %d hosts", len(rs)), false: ""}[len(rs) > 1], firstNonEmpty(s.FailOn, rs[0].Summary.FailOn, "low")))
+		s.Total, map[bool]string{true: " · " + scope(rs), false: ""}[len(rs) > 1], firstNonEmpty(s.FailOn, rs[0].Summary.FailOn, "low")))
 
 	// Hosts.
 	l.heading(map[bool]string{true: "Hosts", false: "Host"}[len(rs) > 1])

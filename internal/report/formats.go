@@ -220,6 +220,24 @@ func documentTitle(rs []*engine.Report) string {
 	return fmt.Sprintf("%d policies", len(order))
 }
 
+// scope describes a set of reports, e.g. "3 hosts" or "2 reports from 1 host".
+func scope(rs []*engine.Report) string {
+	hosts := map[string]bool{}
+	for _, r := range rs {
+		hosts[r.Facts.Hostname] = true
+	}
+	plural := func(n int, word string) string {
+		if n == 1 {
+			return fmt.Sprintf("1 %s", word)
+		}
+		return fmt.Sprintf("%d %ss", n, word)
+	}
+	if len(hosts) == len(rs) {
+		return plural(len(hosts), "host")
+	}
+	return plural(len(rs), "report") + " from " + plural(len(hosts), "host")
+}
+
 // checkRow is one check across several reports.
 type checkRow struct {
 	ID       string

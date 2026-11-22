@@ -255,3 +255,13 @@ func TestHostLabelsDisambiguate(t *testing.T) {
 	}
 	_ = facts.Facts{}
 }
+
+func TestScope(t *testing.T) {
+	a, b := hostileReport("web"), hostileReport("web")
+	if got := scope([]*engine.Report{a, b}); got != "2 reports from 1 host" {
+		t.Errorf("got %q", got)
+	}
+	if got := scope([]*engine.Report{a, hostileReport("db")}); got != "2 hosts" {
+		t.Errorf("got %q", got)
+	}
+}
