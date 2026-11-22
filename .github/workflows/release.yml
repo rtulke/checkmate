@@ -112,6 +112,16 @@ jobs:
           checkmate version
           man -w checkmate checkmate-policy
           checkmate validate "$(brew --prefix)/share/checkmate/cis/macos15.yml"
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: As root, load the policies installed by Homebrew
+        # They belong to the admin user, like a Homebrew binary; a binary of
+        # that user built from this commit must accept them as root without
+        # --allow-insecure-policy.
+        run: |
+          go build -o checkmate ./cmd/checkmate
+          sudo ./checkmate validate "$(brew --prefix)/share/checkmate/cis/macos15.yml"
 
   release:
     needs: [verify-deb, verify-rpm, homebrew]

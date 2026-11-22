@@ -33,7 +33,7 @@ Flags may come before or after the policy file.
 | `-q`, `--quiet` | Show only failed checks and the summary. |
 | `--color WHEN` | `auto` (default: on a terminal), `always`, `never`. `NO_COLOR` is honored. |
 | `--no-color` | Same as `--color never`. |
-| `--allow-insecure-policy` | Load policy files writable by other users while running as root. |
+| `--allow-insecure-policy` | Load policy and waiver files as root that are owned by another user or writable by others. See [Running as root](../getting-started/installation.md#running-as-root). |
 
 ### Output levels
 
@@ -137,7 +137,7 @@ Compares two JSON reports or two policies, recognised by the file extension. See
 | `--format FORMAT` | `text` (default) or `json`. |
 | `--color WHEN` | `auto`, `always`, `never`. |
 | `-e`, `--extra-var KEY=VALUE` | Variables for expanding policies. |
-| `--allow-insecure-policy` | Load policy files writable by other users while running as root. |
+| `--allow-insecure-policy` | Load policy and waiver files as root that are owned by another user or writable by others. See [Running as root](../getting-started/installation.md#running-as-root). |
 
 Exit codes: `0` no differences, `1` differences, `2` error.
 

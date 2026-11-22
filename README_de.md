@@ -45,7 +45,7 @@ Die meisten Compliance-Werkzeuge brauchen für jede Art von Prüfung ein Plugin 
 |---|---|
 | Debian, Ubuntu | `sudo apt install ./checkmate_<version>-1_<arch>.deb` |
 | Fedora, RHEL/Rocky/Alma/Oracle, openSUSE | `sudo dnf install ./checkmate-<version>-1.<arch>.rpm` (`zypper install` unter openSUSE) |
-| Homebrew (macOS, Linux) | `brew install rtulke/checkmate/checkmate` |
+| Homebrew (macOS, Linux) | `brew tap rtulke/checkmate https://github.com/rtulke/checkmate && brew install checkmate` |
 | Binary (Linux, macOS, Windows) | Download von den [Releases](https://github.com/rtulke/checkmate/releases) |
 | Go | `go install github.com/rtulke/checkmate/cmd/checkmate@latest` |
 

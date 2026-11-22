@@ -118,9 +118,11 @@ Values are parsed as YAML, so
 passes a list.
 .TP
 .B \-\-allow\-insecure\-policy
-Load policy and waiver files even if users other than root can modify
-them while checkmate runs as root.
-Without this option such files are refused.
+Load policy and waiver files as root even if another user could modify
+them.
+Without this option, checkmate running as root accepts only files that
+are not group- or world-writable and are owned by root or by the owner of
+the checkmate executable (the admin user with Homebrew).
 .SS Results (run)
 .TP
 .BI \-\-fail\-on " severity"

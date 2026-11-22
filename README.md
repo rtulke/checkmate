@@ -45,7 +45,7 @@ Most compliance tools need a plugin or module for every kind of check. checkmate
 |---|---|
 | Debian, Ubuntu | `sudo apt install ./checkmate_<version>-1_<arch>.deb` |
 | Fedora, RHEL/Rocky/Alma/Oracle, openSUSE | `sudo dnf install ./checkmate-<version>-1.<arch>.rpm` (`zypper install` on openSUSE) |
-| Homebrew (macOS, Linux) | `brew install rtulke/checkmate/checkmate` |
+| Homebrew (macOS, Linux) | `brew tap rtulke/checkmate https://github.com/rtulke/checkmate && brew install checkmate` |
 | Binary (Linux, macOS, Windows) | download from the [releases](https://github.com/rtulke/checkmate/releases) |
 | Go | `go install github.com/rtulke/checkmate/cmd/checkmate@latest` |
 

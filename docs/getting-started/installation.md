@@ -46,12 +46,19 @@ Every release also ships `SHA256SUMS`, to check the downloads with
 ## Homebrew (macOS, Linux)
 
 ```bash
-brew install rtulke/checkmate/checkmate
+brew tap rtulke/checkmate https://github.com/rtulke/checkmate
+brew install checkmate
 ```
 
-This installs the binary, the man pages and the policies below
-`$(brew --prefix)/share/checkmate/`. `brew install --HEAD rtulke/checkmate/checkmate`
-builds the main branch.
+The formula lives in this repository, so the tap needs its URL once;
+`brew upgrade checkmate` then follows new releases. This installs the
+binary, the man pages and the policies below
+`$(brew --prefix)/share/checkmate/`. `brew install --HEAD checkmate` builds
+the main branch.
+
+```bash
+sudo checkmate run "$(brew --prefix)/share/checkmate/cis/macos15.yml" --tags cis-level-1
+```
 
 ## Download a binary
 
@@ -109,10 +116,11 @@ and by Homebrew; in a source checkout they are in `packaging/man/`.
 
 Many system checks need root, for example to read `/etc/shadow` or run `sshd -T`. Checks that need it are usually guarded with `when: facts.is_root`, so running without root simply skips them.
 
-When checkmate runs as root it refuses policy files that are writable by other users, because a policy is code that runs as root:
+When checkmate runs as root it refuses policy and waiver files that another user could have changed, because a policy is code that runs as root. A file is accepted if it is not group- or world-writable and is owned by root **or by the owner of the checkmate executable**. The second case covers Homebrew, where the binary and the installed policies belong to the admin user: whoever owns the binary can change what runs as root anyway. With a package install (binary owned by root) only root-owned files are accepted.
 
 ```text
 checkmate: /opt/policies/base.yml: refusing to load a group- or world-writable policy file as root
+checkmate: /home/alice/p.yml: refusing to load a policy file as root that is owned neither by root nor by the owner of the checkmate executable
 ```
 
-Fix the permissions (`chown root:root`, `chmod 644`) or, for testing only, pass `--allow-insecure-policy`.
+Fix the ownership and permissions (`chown root:root`, `chmod 644`) or, for a one-off run of a file you trust, pass `--allow-insecure-policy`.
