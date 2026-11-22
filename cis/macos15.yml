@@ -112,7 +112,7 @@ checks:
     expect: "== true"
     reference: "https://github.com/usnistgov/macos_security/blob/sequoia/rules/system_settings/system_settings_critical_update_install_enforce.yaml"
   - id: "CIS-MACOS15-1.7-os_software_update_deferral"
-    name: "Ensure Software Update Deferment Is Less Than or Equal to $ODV Days"
+    name: "Ensure Software Update Deferment Is Less Than or Equal to 30 Days"
     description: "CIS Apple macOS 15 benchmark recommendation 1.7 (level 1); mSCP rule os_software_update_deferral. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
     tags: [cis, cis-macos15, cis-section-1, cis-level-1, cis-level-2]
     severity: medium
@@ -356,6 +356,7 @@ checks:
     tags: [cis, cis-macos15, cis-section-2, cis-level-1, cis-level-2, nist-800-53r5-low, nist-800-53r5-moderate, nist-800-53r5-high, nist-800-171, cmmc-level-2, cmmc-level-1, disa-stig]
     severity: medium
     run: |
+      CURRENT_USER=$(/usr/bin/defaults read /Library/Preferences/com.apple.loginwindow lastUserName)
       /usr/bin/sudo -u "$CURRENT_USER" /usr/bin/defaults -currentHost read com.apple.Bluetooth PrefKeyServicesEnabled
     allow_rc: any
     expect: "in [false, 0]"
@@ -649,6 +650,7 @@ checks:
     tags: [cis, cis-macos15, cis-section-2, cis-level-2, cmmc-level-2]
     severity: low
     run: |
+      CURRENT_USER=$(/usr/bin/defaults read /Library/Preferences/com.apple.loginwindow lastUserName)
       bl_corner="$(/usr/bin/defaults read /Users/"$CURRENT_USER"/Library/Preferences/com.apple.dock wvous-bl-corner 2>/dev/null)"
       tl_corner="$(/usr/bin/defaults read /Users/"$CURRENT_USER"/Library/Preferences/com.apple.dock wvous-tl-corner 2>/dev/null)"
       tr_corner="$(/usr/bin/defaults read /Users/"$CURRENT_USER"/Library/Preferences/com.apple.dock wvous-tr-corner 2>/dev/null)"
@@ -944,7 +946,7 @@ checks:
     expect: "== 1"
     reference: "https://github.com/usnistgov/macos_security/blob/sequoia/rules/audit/audit_flags_lo_configure.yaml"
   - id: "CIS-MACOS15-3.3-os_install_log_retention_configure"
-    name: "Configure Install.log Retention to $ODV"
+    name: "Configure Install.log Retention to 365"
     description: "CIS Apple macOS 15 benchmark recommendation 3.3 (level 1); mSCP rule os_install_log_retention_configure. NIST SP 800-53 Rev. 5: AU-11, AU-4. DISA STIG: APPL-15-004050."
     tags: [cis, cis-macos15, cis-section-3, cis-level-1, cis-level-2, cmmc-level-2, disa-stig]
     severity: medium
@@ -954,7 +956,7 @@ checks:
     expect: "== Yes"
     reference: "https://github.com/usnistgov/macos_security/blob/sequoia/rules/os/os_install_log_retention_configure.yaml"
   - id: "CIS-MACOS15-3.4-audit_retention_configure"
-    name: "Configure Audit Retention to $ODV"
+    name: "Configure Audit Retention to 60d OR 5G"
     description: "CIS Apple macOS 15 benchmark recommendation 3.4 (level 1); mSCP rule audit_retention_configure. NIST SP 800-53 Rev. 5: AU-11, AU-4. DISA STIG: APPL-15-001029."
     tags: [cis, cis-macos15, cis-section-3, cis-level-1, cis-level-2, nist-800-171, nist-800-53r5-low, nist-800-53r5-moderate, nist-800-53r5-high, cmmc-level-2, disa-stig]
     severity: low
@@ -1203,7 +1205,7 @@ checks:
     expect: "== 0"
     reference: "https://github.com/usnistgov/macos_security/blob/sequoia/rules/os/os_world_writable_library_folder_configure.yaml"
   - id: "CIS-MACOS15-5.2.1-pwpolicy_account_lockout_enforce"
-    name: "Limit Consecutive Failed Login Attempts to $ODV"
+    name: "Limit Consecutive Failed Login Attempts to 5"
     description: "CIS Apple macOS 15 benchmark recommendation 5.2.1 (level 1); mSCP rule pwpolicy_account_lockout_enforce. NIST SP 800-53 Rev. 5: AC-7. DISA STIG: APPL-15-000022."
     tags: [cis, cis-macos15, cis-section-5, cis-level-1, cis-level-2, nist-800-171, nist-800-53r5-low, nist-800-53r5-moderate, nist-800-53r5-high, cmmc-level-2, disa-stig]
     severity: medium
@@ -1213,7 +1215,7 @@ checks:
     expect: "== pass"
     reference: "https://github.com/usnistgov/macos_security/blob/sequoia/rules/pwpolicy/pwpolicy_account_lockout_enforce.yaml"
   - id: "CIS-MACOS15-5.2.1-pwpolicy_account_lockout_timeout_enforce"
-    name: "Set Account Lockout Time to $ODV Minutes"
+    name: "Set Account Lockout Time to 15 Minutes"
     description: "CIS Apple macOS 15 benchmark recommendation 5.2.1 (level 1); mSCP rule pwpolicy_account_lockout_timeout_enforce. NIST SP 800-53 Rev. 5: AC-7. DISA STIG: APPL-15-000060."
     tags: [cis, cis-macos15, cis-section-5, cis-level-1, cis-level-2, nist-800-171, nist-800-53r5-low, nist-800-53r5-moderate, nist-800-53r5-high, cmmc-level-2, disa-stig]
     severity: medium
@@ -1223,7 +1225,7 @@ checks:
     expect: "== pass"
     reference: "https://github.com/usnistgov/macos_security/blob/sequoia/rules/pwpolicy/pwpolicy_account_lockout_timeout_enforce.yaml"
   - id: "CIS-MACOS15-5.2.2-pwpolicy_minimum_length_enforce"
-    name: "Require a Minimum Password Length of $ODV Characters"
+    name: "Require a Minimum Password Length of 15 Characters"
     description: "CIS Apple macOS 15 benchmark recommendation 5.2.2 (level 1); mSCP rule pwpolicy_minimum_length_enforce. NIST SP 800-53 Rev. 5: IA-5(1). DISA STIG: APPL-15-003010."
     tags: [cis, cis-macos15, cis-section-5, cis-level-1, cis-level-2, nist-800-171, nist-800-53r5-low, nist-800-53r5-moderate, nist-800-53r5-high, cmmc-level-2, disa-stig]
     severity: medium
@@ -1263,7 +1265,7 @@ checks:
     expect: "== true"
     reference: "https://github.com/usnistgov/macos_security/blob/sequoia/rules/pwpolicy/pwpolicy_custom_regex_enforce.yaml"
   - id: "CIS-MACOS15-5.2.7-pwpolicy_max_lifetime_enforce"
-    name: "Restrict Maximum Password Lifetime to $ODV Days"
+    name: "Restrict Maximum Password Lifetime to 365 Days"
     description: "CIS Apple macOS 15 benchmark recommendation 5.2.7 (level 1); mSCP rule pwpolicy_max_lifetime_enforce. NIST SP 800-53 Rev. 5: IA-5. DISA STIG: APPL-15-003008."
     tags: [cis, cis-macos15, cis-section-5, cis-level-1, cis-level-2, cmmc-level-2, disa-stig]
     severity: medium
@@ -1273,7 +1275,7 @@ checks:
     expect: "== pass"
     reference: "https://github.com/usnistgov/macos_security/blob/sequoia/rules/pwpolicy/pwpolicy_max_lifetime_enforce.yaml"
   - id: "CIS-MACOS15-5.2.8-pwpolicy_history_enforce"
-    name: "Prohibit Password Reuse for a Minimum of $ODV Generations"
+    name: "Prohibit Password Reuse for a Minimum of 15 Generations"
     description: "CIS Apple macOS 15 benchmark recommendation 5.2.8 (level 1); mSCP rule pwpolicy_history_enforce. NIST SP 800-53 Rev. 5: IA-5(1). DISA STIG: APPL-15-003009."
     tags: [cis, cis-macos15, cis-section-5, cis-level-1, cis-level-2, nist-800-171, nist-800-53r5-low, nist-800-53r5-moderate, nist-800-53r5-high, cmmc-level-2]
     severity: medium
@@ -1283,7 +1285,7 @@ checks:
     expect: "== pass"
     reference: "https://github.com/usnistgov/macos_security/blob/sequoia/rules/pwpolicy/pwpolicy_history_enforce.yaml"
   - id: "CIS-MACOS15-5.4-os_sudo_timeout_configure"
-    name: "Configure Sudo Timeout Period to $ODV"
+    name: "Configure Sudo Timeout Period to 0"
     description: "CIS Apple macOS 15 benchmark recommendation 5.4 (level 1); mSCP rule os_sudo_timeout_configure. NIST SP 800-53 Rev. 5: N/A. DISA STIG: APPL-15-004022."
     tags: [cis, cis-macos15, cis-section-5, cis-level-1, cis-level-2, nist-800-53r5-low, nist-800-53r5-moderate, nist-800-53r5-high, disa-stig]
     severity: medium
@@ -1380,6 +1382,7 @@ checks:
     tags: [cis, cis-macos15, cis-section-6, cis-level-1, cis-level-2]
     severity: medium
     run: |
+      CURRENT_USER=$(/usr/bin/defaults read /Library/Preferences/com.apple.loginwindow lastUserName)
       /usr/bin/sudo -u "$CURRENT_USER" /usr/bin/defaults read .GlobalPreferences AppleShowAllExtensions 2>/dev/null
     allow_rc: any
     expect: "in [true, 1]"

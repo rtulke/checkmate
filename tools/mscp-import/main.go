@@ -124,6 +124,12 @@ func convert(src, version, out string) (int, int, error) {
 		}
 		odv := odvValue(r.ODV, level)
 		check := strings.TrimRight(strings.ReplaceAll(r.Check, "$ODV", odv), "\n")
+		// mSCP runs every check inside a script that defines CURRENT_USER
+		// first; a checkmate check runs alone, so it defines it itself
+		// (same command as mSCP's generate_guidance.py).
+		if strings.Contains(check, "CURRENT_USER") && !strings.Contains(check, "CURRENT_USER=") {
+			check = currentUserLine + "\n" + check
+		}
 		if err := zshSyntax(check); err != nil {
 			fmt.Fprintf(os.Stderr, "  skipped %s: invalid shell syntax: %v\n", r.ID, err)
 			skipped++
@@ -138,7 +144,7 @@ func convert(src, version, out string) (int, int, error) {
 		var e bytes.Buffer
 		id := "CIS-MACOS" + version + "-" + cisID + "-" + r.ID
 		fmt.Fprintf(&e, "  - id: %s\n", jsonString(id))
-		fmt.Fprintf(&e, "    name: %s\n", jsonString(strings.TrimSpace(r.Title)))
+		fmt.Fprintf(&e, "    name: %s\n", jsonString(strings.TrimSpace(strings.ReplaceAll(r.Title, "$ODV", odv))))
 		fmt.Fprintf(&e, "    description: %s\n", jsonString(description(version, cisID, level, r)))
 		fmt.Fprintf(&e, "    tags: [%s]\n", strings.Join(tags(version, cisID, level, r.Tags), ", "))
 		fmt.Fprintf(&e, "    severity: %s\n", severity(r.Severity, level))
@@ -190,6 +196,9 @@ func automated(r rule) bool {
 	}
 	return true
 }
+
+// currentUserLine is how mSCP determines the user whose settings are checked.
+const currentUserLine = `CURRENT_USER=$(/usr/bin/defaults read /Library/Preferences/com.apple.loginwindow lastUserName)`
 
 func odvValue(odv map[string]any, level int) string {
 	if odv == nil {
