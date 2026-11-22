@@ -67,6 +67,7 @@ func WriteReportText(w io.Writer, d ReportDiff, paint Painter) {
 		}
 		section("New problems", red, "+", h.Regressions, true)
 		section("Fixed", green, "-", h.Fixed, true)
+		section("Waived", cyan, "=", h.Waived, true)
 		section("Changed", yellow, "~", h.Changed, true)
 		section("Added checks", cyan, ">", h.Added, false)
 		section("Removed checks", cyan, "<", h.Removed, false)

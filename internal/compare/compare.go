@@ -32,6 +32,7 @@ type HostDiff struct {
 	NewScore    float64        `json:"new_score"`
 	Regressions []StatusChange `json:"regressions"` // new problems
 	Fixed       []StatusChange `json:"fixed"`       // problems that are gone
+	Waived      []StatusChange `json:"waived"`      // problems now accepted by a waiver
 	Changed     []StatusChange `json:"changed"`     // other status changes
 	Added       []StatusChange `json:"added"`       // checks only in the new report
 	Removed     []StatusChange `json:"removed"`     // checks only in the old report
@@ -39,7 +40,7 @@ type HostDiff struct {
 
 // Empty reports whether nothing changed.
 func (h HostDiff) Empty() bool {
-	return len(h.Regressions)+len(h.Fixed)+len(h.Changed)+len(h.Added)+len(h.Removed) == 0 && h.OldScore == h.NewScore
+	return len(h.Regressions)+len(h.Fixed)+len(h.Waived)+len(h.Changed)+len(h.Added)+len(h.Removed) == 0 && h.OldScore == h.NewScore
 }
 
 // ReportDiff is the comparison of two sets of reports.
@@ -137,6 +138,8 @@ func compareReports(old, new *engine.Report) HostDiff {
 		case o.Status == n.Status:
 		case isProblem(n.Status) && !isProblem(o.Status):
 			h.Regressions = append(h.Regressions, c)
+		case n.Status == engine.StatusWaived:
+			h.Waived = append(h.Waived, c)
 		case isProblem(o.Status) && !isProblem(n.Status):
 			h.Fixed = append(h.Fixed, c)
 		default:
@@ -156,6 +159,7 @@ func compareReports(old, new *engine.Report) HostDiff {
 	}
 	bySeverity(h.Regressions)
 	bySeverity(h.Fixed)
+	bySeverity(h.Waived)
 	return h
 }
 

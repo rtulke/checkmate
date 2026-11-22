@@ -56,7 +56,7 @@ func cmdDiff(args []string, stdout, stderr io.Writer) int {
 	fs.Usage = func() {
 		fmt.Fprintln(stderr, `Usage: checkmate diff [flags] <old> <new>
 
-Compares two JSON reports (new problems, fixed checks, other status
+Compares two JSON reports (new problems, fixed checks, newly waived checks, other status
 changes, added and removed checks, score) or two policies (added, removed
 and changed checks, field by field). The kind is taken from the file
 extension: .json for reports, .yml/.yaml for policies.

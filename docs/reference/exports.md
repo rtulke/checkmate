@@ -91,7 +91,8 @@ Fixed (1)
 ```
 
 - **Reports:** new problems (a check that now fails, warns or errors), fixed
-  checks, other status changes, added and removed checks and the score. Two
+  checks, checks newly accepted by a waiver (listed apart from the fixed
+  ones), other status changes, added and removed checks and the score. Two
   single reports are compared directly, even from two different hosts ("why
   does web02 differ from web01?"); merged reports are paired by host and
   policy.

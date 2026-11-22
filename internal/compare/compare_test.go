@@ -24,8 +24,10 @@ func res(id string, s engine.Status) engine.Result {
 func TestReportDiffClassifies(t *testing.T) {
 	old := rep("a", 80, res("same", engine.StatusPass), res("broke", engine.StatusPass),
 		res("fixed", engine.StatusFail), res("other", engine.StatusFail), res("gone", engine.StatusPass))
+	old.Results = append(old.Results, res("accepted", engine.StatusFail))
 	cur := rep("a", 70, res("same", engine.StatusPass), res("broke", engine.StatusError),
-		res("fixed", engine.StatusWaived), res("other", engine.StatusWarn), res("new", engine.StatusFail))
+		res("fixed", engine.StatusPass), res("other", engine.StatusWarn), res("new", engine.StatusFail),
+		res("accepted", engine.StatusWaived))
 	d := Reports([]*engine.Report{old}, []*engine.Report{cur})
 	h := d.Hosts[0]
 	ids := func(list []StatusChange) string {
@@ -35,7 +37,7 @@ func TestReportDiffClassifies(t *testing.T) {
 		}
 		return strings.Join(s, ",")
 	}
-	if ids(h.Regressions) != "broke" || ids(h.Fixed) != "fixed" || ids(h.Changed) != "other" ||
+	if ids(h.Regressions) != "broke" || ids(h.Fixed) != "fixed" || ids(h.Waived) != "accepted" || ids(h.Changed) != "other" ||
 		ids(h.Added) != "new" || ids(h.Removed) != "gone" {
 		t.Errorf("unexpected classification: %+v", h)
 	}
