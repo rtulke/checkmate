@@ -7,7 +7,7 @@ description: >
   AppInit DLLs, LSA packages, COM hijacking, Office test, BITS jobs),
   credential access (LSA protection, WDigest, SAM permissions) and impairing
   defenses (firewall, event log, Defender, PowerShell logging, UAC). Every
-  check carries the technique and its tactics as tags, so `--attack-layer`
+  check carries the technique and its tactics as tags, so `--export attack`
   turns the results into an ATT&CK Navigator layer. Run in an elevated
   PowerShell.
 

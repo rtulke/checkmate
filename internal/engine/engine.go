@@ -3,6 +3,8 @@ package engine
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"runtime"
 	"sort"
@@ -81,6 +83,9 @@ type Summary struct {
 
 // Report is the outcome of a policy run.
 type Report struct {
+	Tool          string      `json:"tool"`              // always "checkmate"
+	Version       string      `json:"version,omitempty"` // checkmate version that made the report
+	RunID         string      `json:"run_id,omitempty"`  // random ID that ties all outputs of one run together
 	Policy        string      `json:"policy"`
 	PolicyVersion string      `json:"policy_version,omitempty"`
 	PolicyPath    string      `json:"policy_path"`
@@ -210,6 +215,8 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 	results = append(results, checkResults...)
 
 	report := &Report{
+		Tool:          "checkmate",
+		RunID:         newRunID(),
 		Policy:        p.Name,
 		PolicyVersion: p.Version,
 		PolicyPath:    p.Path,
@@ -219,7 +226,7 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 		DurationMS:    time.Since(started).Milliseconds(),
 		Results:       results,
 	}
-	report.Summary = summarize(results)
+	report.Summary = Summarize(results)
 	report.Summary.FailOn = failOn
 	for n := range notices {
 		report.Notices = append(report.Notices, n)
@@ -400,7 +407,18 @@ func oneLine(s string) string {
 	return s
 }
 
-func summarize(results []Result) Summary {
+// newRunID returns a random 16 hex digit identifier.
+func newRunID() string {
+	var b [8]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		return fmt.Sprintf("%016x", time.Now().UnixNano())
+	}
+	return hex.EncodeToString(b[:])
+}
+
+// Summarize counts results by status and computes the compliance score.
+// FailOn is left empty.
+func Summarize(results []Result) Summary {
 	s := Summary{Total: len(results)}
 	for _, r := range results {
 		switch r.Status {

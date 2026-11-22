@@ -1,6 +1,6 @@
 # MITRE ATT&CK
 
-Traces and mitigations of MITRE ATT&CK techniques, tagged with technique and tactic IDs. `--attack-layer` turns the results into an ATT&CK Navigator layer.
+Traces and mitigations of MITRE ATT&CK techniques, tagged with technique and tactic IDs. `--export attack` turns the results into an ATT&CK Navigator layer.
 
 | Example | Description | Checks |
 |---|---|---|

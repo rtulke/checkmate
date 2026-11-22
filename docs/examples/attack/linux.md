@@ -1,6 +1,6 @@
 # MITRE ATT&CK Linux
 
-Checks for traces and mitigations of MITRE ATT&CK techniques on Linux: persistence (cron, systemd, shell profiles, rc scripts, udev, PAM, SSH keys, kernel modules), privilege escalation (SUID files, sudo, PATH, container escape), credential access (shadow file, private keys, credential files) and impairing defenses (preloaded libraries, disabled history, audit, firewall, logs). Every check carries the technique and its tactics as tags (attack-t1053.003, attack-persistence), so `--attack-layer` turns the results into an ATT&CK Navigator layer. The trace checks only report what practically never appears on a clean system; known exceptions go into the variables or a waiver file.
+Checks for traces and mitigations of MITRE ATT&CK techniques on Linux: persistence (cron, systemd, shell profiles, rc scripts, udev, PAM, SSH keys, kernel modules), privilege escalation (SUID files, sudo, PATH, container escape), credential access (shadow file, private keys, credential files) and impairing defenses (preloaded libraries, disabled history, audit, firewall, logs). Every check carries the technique and its tactics as tags (attack-t1053.003, attack-persistence), so `--export attack` turns the results into an ATT&CK Navigator layer. The trace checks only report what practically never appears on a clean system; known exceptions go into the variables or a waiver file.
 
 <div class="grid cards" markdown>
 
@@ -74,7 +74,7 @@ description: >
   escape), credential access (shadow file, private keys, credential files)
   and impairing defenses (preloaded libraries, disabled history, audit,
   firewall, logs). Every check carries the technique and its tactics as tags
-  (attack-t1053.003, attack-persistence), so `--attack-layer` turns the
+  (attack-t1053.003, attack-persistence), so `--export attack` turns the
   results into an ATT&CK Navigator layer. The trace checks only report what
   practically never appears on a clean system; known exceptions go into the
   variables or a waiver file.

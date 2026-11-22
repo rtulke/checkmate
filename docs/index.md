@@ -54,7 +54,7 @@ hide:
 
     ---
 
-    Colored terminal output, JSON for dashboards and JUnit XML for CI pipelines.
+    HTML and PDF for auditors, CSV, JSON Lines and syslog for SIEMs, Prometheus metrics, JUnit for CI, XCCDF/ARF for SCAP tools. Merge the reports of many hosts and [diff](reference/exports.md#checkmate-diff) runs or policies. See [Reports and exports](reference/exports.md).
 
 </div>
 

@@ -112,7 +112,7 @@ starting point.
 
     ---
 
-    Traces and mitigations of MITRE ATT&CK techniques, tagged with technique and tactic IDs. `--attack-layer` turns the results into an ATT&CK Navigator layer.
+    Traces and mitigations of MITRE ATT&CK techniques, tagged with technique and tactic IDs. `--export attack` turns the results into an ATT&CK Navigator layer.
 
     [MITRE ATT&CK Linux](attack/linux.md) · [MITRE ATT&CK macOS](attack/macos.md) · [MITRE ATT&CK Windows](attack/windows.md)
 

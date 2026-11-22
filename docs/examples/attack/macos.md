@@ -1,6 +1,6 @@
 # MITRE ATT&CK macOS
 
-Checks for traces and mitigations of MITRE ATT&CK techniques on macOS: persistence (launch agents and daemons, emond, login hooks, shell profiles, cron, SSH keys), stealth (preloaded libraries, hidden users and files, processes from temporary folders) and impairing defenses (Gatekeeper, System Integrity Protection, firewall, Guest account, remote access). Every check carries the technique and its tactics as tags, so `--attack-layer` turns the results into an ATT&CK Navigator layer. Most checks run as any user; run with sudo to include the root-only checks.
+Checks for traces and mitigations of MITRE ATT&CK techniques on macOS: persistence (launch agents and daemons, emond, login hooks, shell profiles, cron, SSH keys), stealth (preloaded libraries, hidden users and files, processes from temporary folders) and impairing defenses (Gatekeeper, System Integrity Protection, firewall, Guest account, remote access). Every check carries the technique and its tactics as tags, so `--export attack` turns the results into an ATT&CK Navigator layer. Most checks run as any user; run with sudo to include the root-only checks.
 
 <div class="grid cards" markdown>
 
@@ -61,7 +61,7 @@ description: >
   files, processes from temporary folders) and impairing defenses
   (Gatekeeper, System Integrity Protection, firewall, Guest account, remote
   access). Every check carries the technique and its tactics as tags, so
-  `--attack-layer` turns the results into an ATT&CK Navigator layer. Most
+  `--export attack` turns the results into an ATT&CK Navigator layer. Most
   checks run as any user; run with sudo to include the root-only checks.
 
 vars:

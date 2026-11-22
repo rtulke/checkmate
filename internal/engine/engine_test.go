@@ -183,11 +183,11 @@ func TestScore(t *testing.T) {
 		{Status: StatusPass, Severity: "info"},     // does not count
 		{Status: StatusSkip, Severity: "high"},     // does not count
 	}
-	s := summarize(results)
+	s := Summarize(results)
 	if s.Score != 71.4 {
 		t.Errorf("score = %v, want 71.4", s.Score)
 	}
-	empty := summarize([]Result{{Status: StatusSkip}, {Status: StatusNA}})
+	empty := Summarize([]Result{{Status: StatusSkip}, {Status: StatusNA}})
 	if empty.Score != -1 || empty.Compliant || empty.Evaluated != 0 {
 		t.Errorf("a run without evaluated checks must not be compliant: %+v", empty)
 	}

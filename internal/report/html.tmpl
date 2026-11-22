@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="checkmate {{.Version}}">
+<title>{{.Title}} · checkmate</title>
+<style>
+:root {
+  --bg: #f6f7f9; --panel: #fff; --text: #1d232b; --muted: #5f6b7a; --line: #e1e5ea; --code: #f1f3f6;
+  --pass: #2e7d32; --fail: #c62828; --warn: #b7791f; --error: #ad1457; --waived: #00838f; --skip: #78909c;
+  --info: #78909c; --low: #0097a7; --medium: #f9a825; --high: #e53935; --critical: #8e0000; --accent: #3949ab;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12161c; --panel: #1b2129; --text: #e3e8ee; --muted: #9aa6b4; --line: #2c343f; --code: #232a33;
+    --pass: #66bb6a; --fail: #ef5350; --warn: #ffca28; --error: #f06292; --waived: #4dd0e1; --skip: #90a4ae; --accent: #8c9eff;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+main { max-width: 1280px; margin: 0 auto; padding: 24px 16px 48px; }
+header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px 24px; margin-bottom: 20px; }
+h1 { margin: 0; font-size: 24px; line-height: 1.25; }
+h2 { font-size: 16px; margin: 28px 0 10px; }
+.sub, .meta { color: var(--muted); }
+.meta { font-size: 12px; text-align: right; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+.cards { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(260px, 2fr) minmax(220px, 1fr); gap: 16px; }
+@media (max-width: 860px) { .cards { grid-template-columns: 1fr; } }
+.score { font-size: 40px; font-weight: 700; line-height: 1.1; }
+.score.good { color: var(--pass); } .score.fair { color: var(--warn); } .score.poor { color: var(--fail); } .score.none { color: var(--skip); }
+.bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; margin: 10px 0; }
+.bar > span { display: block; height: 100%; background: currentColor; }
+.verdict { display: inline-block; font-weight: 700; letter-spacing: .02em; }
+.counts { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.count { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; cursor: pointer; background: none; color: inherit; font: inherit; text-align: left; }
+.count:hover, .count.on { border-color: currentColor; }
+.count b { display: block; font-size: 20px; }
+.count span { font-size: 12px; color: var(--muted); }
+.sevrow { display: grid; grid-template-columns: 64px 1fr 32px; align-items: center; gap: 8px; font-size: 12px; margin: 4px 0; }
+.sevrow .bar { margin: 0; }
+.pass { color: var(--pass); } .fail { color: var(--fail); } .warn { color: var(--warn); } .error { color: var(--error); }
+.waived { color: var(--waived); } .skip, .na, .none { color: var(--skip); }
+.st { font: 700 12px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
+.sev { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; color: #fff; white-space: nowrap; }
+.sev-info { background: var(--info); } .sev-low { background: var(--low); } .sev-medium { background: var(--medium); color: #222; }
+.sev-high { background: var(--high); } .sev-critical { background: var(--critical); }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.scroll { overflow-x: auto; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+.filters input, .filters select { font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; }
+.filters input { flex: 1 1 240px; }
+.filters label { display: flex; gap: 6px; align-items: center; color: var(--muted); }
+#shown { color: var(--muted); font-size: 12px; margin-left: auto; }
+code, pre { font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+td.id code { white-space: nowrap; }
+pre { background: var(--code); padding: 8px 10px; border-radius: 6px; margin: 4px 0 8px; white-space: pre-wrap; word-break: break-word; max-height: 320px; overflow: auto; }
+details summary { cursor: pointer; }
+details[open] summary { margin-bottom: 8px; }
+.detail { border-left: 3px solid var(--line); padding: 2px 0 2px 12px; margin: 8px 0; }
+.detail h4 { margin: 0 0 4px; font-size: 13px; }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; margin: 0; }
+dt { color: var(--muted); font-size: 12px; padding-top: 2px; }
+dd { margin: 0; word-break: break-word; }
+.notice { border-left: 3px solid var(--warn); padding: 6px 12px; margin: 6px 0; background: var(--panel); }
+.tags { color: var(--muted); font-size: 11px; }
+footer { margin-top: 32px; color: var(--muted); font-size: 12px; text-align: center; }
+a { color: var(--accent); }
+@media print {
+  body { background: #fff; color: #000; }
+  .filters, .count { cursor: default; }
+  .filters { display: none; }
+  details:not([open]) .detail { display: none; }
+  tr { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div>
+    <h1>{{.Title}}</h1>
+    <div class="sub">{{.Subtitle}}</div>
+  </div>
+  <div class="meta">checkmate {{.Version}}<br>generated {{.Generated}}</div>
+</header>
+
+<section class="cards">
+  <div class="panel">
+    <div class="sub">Compliance score</div>
+    <div class="score {{.ScoreCls}}">{{.Score}}</div>
+    <div class="bar {{.ScoreCls}}"><span class="score {{.ScoreCls}}" style="width:{{if ge .ScoreNum 0.0}}{{.ScoreNum}}{{else}}0{{end}}%"></span></div>
+    <div class="verdict {{.VerdictCl}}">{{.Verdict}}</div>
+    <div class="sub">{{.Total}} checks{{if .Multi}} on {{len .Hosts}} hosts{{end}}</div>
+  </div>
+  <div class="panel">
+    <div class="sub" style="margin-bottom:8px">Results <span style="font-size:12px">(click to filter)</span></div>
+    <div class="counts">
+      {{range .Counts}}<button class="count {{.Class}}" data-filter="{{.Status}}" type="button"><b>{{.N}}</b><span>{{.Label}}</span></button>
+      {{end}}
+    </div>
+  </div>
+  <div class="panel">
+    <div class="sub" style="margin-bottom:8px">Failures and errors by severity</div>
+    {{range .BySev}}<div class="sevrow"><span class="sev sev-{{.Severity}}">{{.Severity}}</span><div class="bar"><span style="width:{{.Pct}}%;background:var(--{{.Severity}})"></span></div><b>{{.N}}</b></div>
+    {{end}}
+  </div>
+</section>
+
+{{if .Notices}}<h2>Notices</h2>
+{{range .Notices}}<div class="notice">{{.}}</div>
+{{end}}{{end}}
+
+<h2>{{if .Multi}}Hosts{{else}}Host{{end}}</h2>
+<div class="panel scroll">
+<table>
+  <thead><tr><th>Host</th><th>System</th><th>Policy</th><th>Started</th><th>Duration</th><th>Score</th><th class="pass">Pass</th><th class="fail">Fail</th><th class="warn">Warn</th><th class="error">Error</th><th class="waived">Waived</th><th>Result</th></tr></thead>
+  <tbody>
+  {{range .Hosts}}<tr><td><b>{{.Label}}</b></td><td>{{.Distro}}<div class="tags">{{.Kernel}} {{.Arch}}</div></td><td>{{.Policy}}</td><td>{{.Started}}</td><td>{{.Duration}}</td>
+    <td class="score {{.ScoreCls}}" style="font-size:14px">{{.Score}}</td><td>{{.Summary.Passed}}</td><td>{{.Summary.Failed}}</td><td>{{.Summary.Warnings}}</td><td>{{.Summary.Errors}}</td><td>{{.Summary.Waived}}</td>
+    <td><span class="verdict {{.VerdictCl}}" style="font-size:12px">{{.Verdict}}</span></td></tr>
+  {{end}}
+  </tbody>
+</table>
+</div>
+
+<h2>Checks</h2>
+<div class="filters">
+  <input id="q" type="search" placeholder="Filter by ID, name or tag" aria-label="Filter">
+  <select id="status" aria-label="Status">
+    <option value="">all statuses</option>
+    <option value="PROBLEM">problems (fail, warn, error)</option>
+    <option>FAIL</option><option>ERROR</option><option>WARN</option><option>WAIVED</option><option>PASS</option><option>SKIP</option><option>N/A</option>
+  </select>
+  <select id="sev" aria-label="Severity">
+    <option value="">all severities</option>
+    <option>critical</option><option>high</option><option>medium</option><option>low</option><option>info</option>
+  </select>
+  <label><input id="open" type="checkbox"> expand</label>
+  <span id="shown"></span>
+</div>
+<div class="panel scroll">
+<table id="checks">
+  <thead><tr>{{if .Multi}}{{range .Labels}}<th title="{{.}}">{{.}}</th>{{end}}{{else}}<th>Status</th>{{end}}<th>Severity</th><th>ID</th><th>Check</th></tr></thead>
+  <tbody>
+  {{range .Rows}}<tr data-status="{{.Statuses}}" data-sev="{{.Severity}}" data-q="{{.Search}}">
+    {{range .Cells}}<td class="st {{.Class}}">{{.Status}}</td>{{end}}
+    <td>{{if .Severity}}<span class="sev sev-{{.Severity}}">{{.Severity}}</span>{{end}}</td>
+    <td class="id"><code>{{.ID}}</code></td>
+    <td><details><summary>{{.Name}}</summary>
+      {{if .Tags}}<div class="tags">{{.Tags}}</div>{{end}}
+      {{range .Details}}<div class="detail">
+        {{if $.Multi}}<h4>{{.Host}} <span class="st {{.Class}}">{{.Status}}</span></h4>{{end}}
+        <dl>
+          {{if .Description}}<dt>Description</dt><dd>{{.Description}}</dd>{{end}}
+          {{if .Message}}<dt>Reason</dt><dd>{{.Message}}</dd>{{end}}
+          {{if .Waiver}}<dt>Waiver</dt><dd>{{.Waiver.Reason}}{{if .Waiver.Until}} (until {{.Waiver.Until}}){{end}} · {{.Origin}} · <code>{{.Waiver.Source}}</code></dd>{{end}}
+          {{if .Expected}}<dt>Expected</dt><dd>{{.Expected}}</dd>{{end}}
+          {{if .OnlyIf}}<dt>Only if</dt><dd><pre>{{.OnlyIf}}</pre></dd>{{end}}
+          {{if .Command}}<dt>Command</dt><dd><pre>{{.Command}}</pre></dd>{{end}}
+          {{if .RC}}<dt>Exit code</dt><dd>{{.RC}}{{if .Shell}} <span class="tags">({{.Shell}}, {{.Duration}})</span>{{end}}</dd>{{end}}
+          {{if .Stdout}}<dt>Output</dt><dd><pre>{{.Stdout}}</pre></dd>{{end}}
+          {{if .Stderr}}<dt>Errors</dt><dd><pre>{{.Stderr}}</pre></dd>{{end}}
+          {{if .Remediation}}<dt>Remediation</dt><dd><pre>{{.Remediation}}</pre></dd>{{end}}
+          {{if .Reference}}<dt>Reference</dt><dd>{{if .RefLink}}<a href="{{.Reference}}" rel="noopener noreferrer">{{.Reference}}</a>{{else}}{{.Reference}}{{end}}</dd>{{end}}
+          <dt>Defined in</dt><dd><code>{{.Location}}</code></dd>
+        </dl>
+      </div>{{end}}
+    </details></td>
+  </tr>
+  {{end}}
+  </tbody>
+</table>
+</div>
+
+{{if .Waivers}}<h2>Waivers</h2>
+<div class="panel scroll">
+<table>
+  <thead><tr>{{if .Multi}}<th>Host</th>{{end}}<th>ID</th><th>Check</th><th>Reason</th><th>Until</th><th>Without waiver</th><th>Source</th></tr></thead>
+  <tbody>
+  {{range .Waivers}}<tr>{{if $.Multi}}<td>{{.Host}}</td>{{end}}<td><code>{{.ID}}</code></td><td>{{.Name}}</td><td>{{.Reason}}</td><td>{{.Until}}</td><td class="st">{{.Origin}}</td><td><code>{{.Source}}</code></td></tr>
+  {{end}}
+  </tbody>
+</table>
+</div>{{end}}
+
+<footer>checkmate {{.Version}} · https://github.com/rtulke/checkmate</footer>
+</main>
+<script>
+(function () {
+  var rows = Array.prototype.slice.call(document.querySelectorAll('#checks tbody tr'));
+  var q = document.getElementById('q'), st = document.getElementById('status'), sev = document.getElementById('sev');
+  var open = document.getElementById('open'), shown = document.getElementById('shown');
+  function apply() {
+    var text = q.value.trim().toLowerCase(), s = st.value, v = sev.value, n = 0;
+    rows.forEach(function (r) {
+      var ok = (!text || r.dataset.q.indexOf(text) >= 0) &&
+               (!s || (' ' + r.dataset.status).indexOf(' ' + s + ' ') >= 0) &&
+               (!v || r.dataset.sev === v);
+      r.style.display = ok ? '' : 'none';
+      if (ok) n++;
+    });
+    shown.textContent = n + ' of ' + rows.length + ' checks';
+    document.querySelectorAll('.count').forEach(function (b) { b.classList.toggle('on', b.dataset.filter === s); });
+  }
+  q.addEventListener('input', apply); st.addEventListener('change', apply); sev.addEventListener('change', apply);
+  open.addEventListener('change', function () {
+    rows.forEach(function (r) { if (r.style.display !== 'none') { var d = r.querySelector('details'); if (d) d.open = open.checked; } });
+  });
+  document.querySelectorAll('.count').forEach(function (b) {
+    b.addEventListener('click', function () { st.value = st.value === b.dataset.filter ? '' : b.dataset.filter; apply(); });
+  });
+  apply();
+})();
+</script>
+</body>
+</html>

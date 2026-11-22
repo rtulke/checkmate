@@ -11,7 +11,7 @@ deviations go into a [waiver file](reference/waivers.md).
 | [BSI IT-Grundschutz](examples/compliance/bsi-grundschutz.md) | Linux servers (SYS.1.1, SYS.1.3) | `examples/compliance/bsi-grundschutz.yml` | `bsi-basis`, `bsi-standard`, `bsi-hoch` |
 | [Si001 IT-Grundschutz Bund (CH)](examples/compliance/si001.md) | Linux servers and clients, macOS and Windows clients | `examples/compliance/si001.yml` | `-e si001_schutzbedarf=erhoeht`, `-e si001_rolle=client` |
 | NIST SP 800-53 / 800-171, CMMC | macOS (via mSCP), Linux (via STIG) | `cis/macos*.yml`, `stig/*.yml` | `nist-800-53r5-moderate`, `nist-800-171`, `cmmc-level-2`, … |
-| [MITRE ATT&CK](examples/attack/index.md) | Linux, Windows, macOS | `examples/attack/*.yml` | `attack-t1053.003`, `attack-persistence`, … and `--attack-layer` |
+| [MITRE ATT&CK](examples/attack/index.md) | Linux, Windows, macOS | `examples/attack/*.yml` | `attack-t1053.003`, `attack-persistence`, … and `--export attack` |
 | [Linux hardening](examples/compliance/linux-hardening.md) | Linux | `examples/compliance/linux-hardening.yml` | `hardening` |
 
 ```bash
@@ -66,17 +66,17 @@ techniques. checkmate uses it in two ways:
   their mitigations (audit, firewall, persistent logs). Every check is tagged
   with its technique and tactics, e.g. `attack-t1053.003` and
   `attack-persistence`; a test validates every tag against the ATT&CK data.
-- **`--attack-layer FILE`** writes an [ATT&CK Navigator](https://mitre-attack.github.io/attack-navigator/)
+- **`--export attack`** writes an [ATT&CK Navigator](https://mitre-attack.github.io/attack-navigator/)
   layer for any policy with `attack-t*` tags. Each technique is colored by the
   worst result of its checks (failed, warning, waived, passed) and carries the
   failing check IDs as comment. Open it in the Navigator with *Open Existing
   Layer*.
 
 ```bash
-sudo checkmate run examples/attack/linux.yml --attack-layer attack.json
+sudo checkmate run examples/attack/linux.yml --export attack -o web01   # web01.attack.json
 sudo checkmate run examples/attack/linux.yml --tags attack-persistence -v
-checkmate run examples/attack/windows.yml --attack-layer attack.json   # elevated PowerShell
-sudo checkmate run examples/attack/macos.yml --attack-layer attack.json
+checkmate run examples/attack/windows.yml --export attack -o pc01       # elevated PowerShell
+sudo checkmate run examples/attack/macos.yml --export attack -o mac01
 ```
 
 Each policy is tested with planted artifacts: 15 on Rocky Linux 9 and

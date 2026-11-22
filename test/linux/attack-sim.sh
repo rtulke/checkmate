@@ -54,7 +54,7 @@ for image in ${ATTACK_IMAGES:-rocky9 debian12}; do
   docker build -q -t "checkmate-test:$image" -f "test/linux/$image.Dockerfile" test/linux >/dev/null 2>&1
   got=$(docker run --rm -v "$PWD:/src:ro" "checkmate-test:$image" bash -c "{ $plant } >&2
     /src/test/linux/out-cis/checkmate-linux run /src/examples/attack/linux.yml --allow-insecure-policy \
-      --format json --attack-layer /tmp/layer.json || true" |
+      --format json --export attack -o /tmp/layer || true" |
     python3 -c '
 import json, sys
 r = json.load(sys.stdin)

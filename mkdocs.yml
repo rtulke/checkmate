@@ -95,6 +95,7 @@ nav:
       - Templating and variables: reference/templating.md
       - Platforms and facts: reference/platforms.md
       - Command line: reference/cli.md
+      - Reports and exports: reference/exports.md
       - Results, severity and score: reference/results.md
       - Waivers: reference/waivers.md
   - Security standards: standards.md

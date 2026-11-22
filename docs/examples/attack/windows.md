@@ -1,6 +1,6 @@
 # MITRE ATT&CK Windows
 
-Checks for traces and mitigations of MITRE ATT&CK techniques on Windows: persistence (Run keys, startup folders, scheduled tasks, WMI event subscriptions, services, IFEO debuggers, accessibility binaries, Winlogon, AppInit DLLs, LSA packages, COM hijacking, Office test, BITS jobs), credential access (LSA protection, WDigest, SAM permissions) and impairing defenses (firewall, event log, Defender, PowerShell logging, UAC). Every check carries the technique and its tactics as tags, so `--attack-layer` turns the results into an ATT&CK Navigator layer. Run in an elevated PowerShell.
+Checks for traces and mitigations of MITRE ATT&CK techniques on Windows: persistence (Run keys, startup folders, scheduled tasks, WMI event subscriptions, services, IFEO debuggers, accessibility binaries, Winlogon, AppInit DLLs, LSA packages, COM hijacking, Office test, BITS jobs), credential access (LSA protection, WDigest, SAM permissions) and impairing defenses (firewall, event log, Defender, PowerShell logging, UAC). Every check carries the technique and its tactics as tags, so `--export attack` turns the results into an ATT&CK Navigator layer. Run in an elevated PowerShell.
 
 <div class="grid cards" markdown>
 
@@ -69,7 +69,7 @@ description: >
   AppInit DLLs, LSA packages, COM hijacking, Office test, BITS jobs),
   credential access (LSA protection, WDigest, SAM permissions) and impairing
   defenses (firewall, event log, Defender, PowerShell logging, UAC). Every
-  check carries the technique and its tactics as tags, so `--attack-layer`
+  check carries the technique and its tactics as tags, so `--export attack`
   turns the results into an ATT&CK Navigator layer. Run in an elevated
   PowerShell.
 

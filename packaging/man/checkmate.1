@@ -14,6 +14,14 @@ checkmate \- command-based compliance checks for Linux, macOS and Windows
 .RI [ options ]
 .I policy.yml
 .br
+.B checkmate export
+.RI [ options ]
+.IR report.json ...
+.br
+.B checkmate diff
+.RI [ options ]
+.I old new
+.br
 .B checkmate facts
 .br
 .B checkmate version
@@ -23,8 +31,9 @@ checks a host against a policy: a YAML file of checks, each of which runs a
 command and compares its exit code and output with an expectation.
 Policies are templated with Jinja2, can select commands per platform, and
 include other policy files.
-Results are printed as text, JSON or JUnit XML, together with a weighted
-compliance score.
+Results are printed as text together with a weighted compliance score, and
+exported as JSON, JSON Lines, CSV, HTML, PDF, JUnit XML, XCCDF, ARF,
+Prometheus metrics, ATT&CK Navigator layers or syslog messages.
 .PP
 checkmate ships policies for the CIS Benchmarks (Linux distributions,
 Windows, macOS, PostgreSQL, Apache httpd), DISA STIGs, BSI IT-Grundschutz,
@@ -45,6 +54,32 @@ Load and expand a policy and report errors without running any check.
 List the selected checks; with
 .B \-v
 also the command each check would run on this host.
+.TP
+.B export
+Convert JSON reports written by
+.B run
+into other formats.
+Several reports (hosts or runs) are merged into one document.
+A single format without
+.B \-o
+is written to standard output, otherwise every format to
+.IR base . ext ;
+.B \-
+reads a report from standard input.
+.TP
+.B diff
+Compare two JSON reports (new problems, fixed checks, other status changes,
+added and removed checks, score) or two policies (added, removed and
+changed checks, field by field, after expanding loops, templates and
+snippets).
+Files ending in
+.B .json
+are reports,
+.B .yml
+and
+.B .yaml
+policies.
+The exit status is 0 without and 1 with differences.
 .TP
 .B facts
 Print the facts gathered for this host as JSON (operating system,
@@ -114,29 +149,60 @@ Report every result as if no waiver existed.
 .BI \-j ", " \-\-jobs " n"
 Number of checks run in parallel.
 Default: the number of CPUs.
-.SS Output (run)
+.SS Output (run, export, diff)
 .TP
 .BI \-\-format " format"
 Output on standard output:
 .B text
 (default),
-.B json
+.BR json ,
+.BR jsonl ,
+.BR csv ,
+.BR html ,
+.BR junit ,
+.BR xccdf ,
+.BR arf ,
+.B prom
 or
-.BR junit .
+.BR attack .
+For
+.BR diff :
+.B text
+or
+.BR json .
 .TP
-.BI \-\-json\-out " file"
-Also write a JSON report to
-.IR file .
+.BI \-\-export " list"
+Also write these formats to files, comma-separated, e.g.
+.BR html,pdf,json .
+Each file gets the extension of its format
+.RB ( .html ", " .pdf ", " .junit.xml ", " .xccdf.xml ", " .arf.xml ", " .prom ", " .attack.json ", ...)."
+.B syslog
+sends every result to the local syslog daemon,
+.BI syslog: url
+to a collector:
+.BR udp:// ,
+.B tcp://
+or
+.BI tls:// host\fR[\fB: port\fR]
+with an optional
+.BI ?facility= name\fR.
 .TP
-.BI \-\-junit\-out " file"
-Also write a JUnit XML report to
-.IR file .
+.BI \-o ", " \-\-output " base"
+Base name or directory of the exported files.
+Default for
+.BR run :
+.IR checkmate\-<host>\-<time> ;
+for
+.BR export :
+the name of the report.
+Files are replaced atomically and created with mode 0640.
 .TP
-.BI \-\-attack\-layer " file"
-Also write an ATT&CK Navigator layer for the checks tagged with ATT&CK
-techniques
-.RB ( attack\-t1053.003 ).
-Each technique is colored by the worst result of its checks.
+.BI \-f ", " \-\-format " list"
+.RB ( export )
+Formats to write, comma-separated, including
+.B pdf
+and
+.BR syslog .
 .TP
 .BR \-v ", " \-\-verbose
 Show the severity and the reason of every result on one line.
@@ -256,11 +322,37 @@ sudo checkmate run baseline.yml \-\-fail\-on high \-q \-vv
 .fi
 .RE
 .PP
-Write JSON and JUnit reports for a CI pipeline:
+Write JSON, JUnit and HTML reports for a CI pipeline
+.RI ( report.json ", " report.junit.xml ", " report.html ):
 .PP
 .RS
 .nf
-checkmate run baseline.yml \-\-json\-out report.json \-\-junit\-out junit.xml
+checkmate run baseline.yml \-\-export json,junit,html \-o report
+.fi
+.RE
+.PP
+Update Prometheus metrics and send the results to a SIEM:
+.PP
+.RS
+.nf
+checkmate run baseline.yml \-q \-\-export prom,syslog:tls://siem.example.com \-o /var/lib/checkmate/latest
+.fi
+.RE
+.PP
+Merge the reports of all hosts into one HTML and PDF report:
+.PP
+.RS
+.nf
+checkmate export \-f html,pdf \-o fleet reports/*.json
+.fi
+.RE
+.PP
+Show what changed between two runs, or between two versions of a policy:
+.PP
+.RS
+.nf
+checkmate diff monday.json tuesday.json
+checkmate diff baseline\-1.4.yml baseline\-1.5.yml
 .fi
 .RE
 .PP
@@ -278,7 +370,7 @@ Navigator:
 .PP
 .RS
 .nf
-sudo checkmate run /usr/share/checkmate/examples/attack/linux.yml \-\-attack\-layer attack.json
+sudo checkmate run /usr/share/checkmate/examples/attack/linux.yml \-\-export attack \-o web01
 .fi
 .RE
 .PP

@@ -39,6 +39,8 @@ Usage:
   checkmate run      [flags] <policy.yml>   run checks and report results
   checkmate validate [flags] <policy.yml>   check a policy for errors without running it
   checkmate list     [flags] <policy.yml>   list checks and the commands they would run
+  checkmate export   [flags] <report.json>...  convert or merge JSON reports (html, pdf, csv, ...)
+  checkmate diff     [flags] <old> <new>    compare two reports (.json) or two policies (.yml)
   checkmate facts                           print the facts gathered for this host
   checkmate version                         print the version
 
@@ -67,6 +69,10 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cmdValidate(rest, stdout, stderr)
 	case "list":
 		return cmdList(rest, stdout, stderr)
+	case "export":
+		return cmdExport(rest, os.Stdin, stdout, stderr)
+	case "diff":
+		return cmdDiff(rest, stdout, stderr)
 	case "facts":
 		return cmdFacts(stdout)
 	case "version", "--version":
@@ -135,10 +141,14 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	fs.SetOutput(stderr)
 	var common commonFlags
 	common.register(fs, true)
-	format := fs.String("format", "text", "output format on stdout: text, json or junit")
-	jsonOut := fs.String("json-out", "", "also write a JSON report to this file")
-	junitOut := fs.String("junit-out", "", "also write a JUnit XML report to this file")
-	attackOut := fs.String("attack-layer", "", "also write an ATT&CK Navigator layer of the attack-t* tagged checks to this file")
+	format := fs.String("format", "text", "output format on stdout: "+report.FormatNames())
+	exports := fs.String("export", "", "also write these formats to files, comma-separated, e.g. html,pdf,json; syslog[:<url>] sends to syslog")
+	output := fs.String("output", "", "base name or directory of the --export files (default: checkmate-<host>-<time>)")
+	fs.StringVar(output, "o", "", "shorthand for --output")
+	// Deprecated since 2.1, replaced by --export; kept working, not shown.
+	jsonOut := fs.String("json-out", "", "")
+	junitOut := fs.String("junit-out", "", "")
+	attackOut := fs.String("attack-layer", "", "")
 	jobs := fs.Int("jobs", 0, "number of checks to run in parallel (default: number of CPUs)")
 	fs.IntVar(jobs, "j", 0, "shorthand for --jobs")
 	verbosity := 0
@@ -157,7 +167,7 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	ignoreWaivers := fs.Bool("ignore-waivers", false, "report every result as if no waiver existed")
 	fs.Usage = func() {
 		fmt.Fprintln(stderr, "Usage: checkmate run [flags] <policy.yml>")
-		fs.PrintDefaults()
+		printDefaults(fs, "json-out", "junit-out", "attack-layer")
 	}
 
 	path, code := parseWithPolicy(fs, args)
@@ -172,8 +182,22 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "checkmate: invalid --color %q (use auto, always or never)\n", *color)
 		return exitUsage
 	}
-	if *format != "text" && *format != "json" && *format != "junit" {
-		fmt.Fprintf(stderr, "checkmate: unknown format %q (use text, json or junit)\n", *format)
+	stdoutFormat, ok := report.LookupFormat(*format)
+	if !ok {
+		fmt.Fprintf(stderr, "checkmate: unknown format %q (use %s)\n", *format, report.FormatNames())
+		return exitUsage
+	}
+	if stdoutFormat.Binary && isTerminal(stdout) {
+		fmt.Fprintf(stderr, "checkmate: not writing %s to a terminal; use --export %s or redirect stdout\n", *format, *format)
+		return exitUsage
+	}
+	plan, err := parseExports(*exports)
+	if err != nil {
+		fmt.Fprintln(stderr, "checkmate:", err)
+		return exitUsage
+	}
+	if *output != "" && plan.empty() {
+		fmt.Fprintln(stderr, "checkmate: -o needs --export, e.g. --export html,pdf")
 		return exitUsage
 	}
 	vars, err := common.vars()
@@ -210,40 +234,30 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 		IgnoreWaivers: *ignoreWaivers,
 	})
 
-	if *jsonOut != "" {
-		if err := writeFile(*jsonOut, func(w io.Writer) error { return report.JSON(w, r, version) }); err != nil {
-			fmt.Fprintln(stderr, "checkmate:", err)
-			return exitUsage
-		}
+	r.Version = version
+	opts := report.Options{
+		Version:   version,
+		Verbosity: minInt(verbosity, 3),
+		Quiet:     *quiet,
 	}
-	if *junitOut != "" {
-		if err := writeFile(*junitOut, func(w io.Writer) error { return report.JUnit(w, r) }); err != nil {
-			fmt.Fprintln(stderr, "checkmate:", err)
-			return exitUsage
-		}
+	if err := export([]*engine.Report{r}, plan, resolveBase(*output, defaultBase(r)), opts, stderr); err != nil {
+		fmt.Fprintln(stderr, "checkmate:", err)
+		return exitUsage
 	}
-	if *attackOut != "" {
-		if err := writeFile(*attackOut, func(w io.Writer) error { return report.AttackLayer(w, r, version) }); err != nil {
+	for _, legacy := range []struct{ path, format string }{{*jsonOut, "json"}, {*junitOut, "junit"}, {*attackOut, "attack"}} {
+		if legacy.path == "" {
+			continue
+		}
+		f, _ := report.LookupFormat(legacy.format)
+		if err := writeFile(legacy.path, func(w io.Writer) error { return f.Write(w, []*engine.Report{r}, opts) }); err != nil {
 			fmt.Fprintln(stderr, "checkmate:", err)
 			return exitUsage
 		}
 	}
 
-	switch *format {
-	case "json":
-		err = report.JSON(stdout, r, version)
-	case "junit":
-		err = report.JUnit(stdout, r)
-	default:
-		err = report.Text(stdout, r, report.TextOptions{
-			Color:     !*noColor && (*color == "always" || (*color == "auto" && useColor(stdout))),
-			Verbosity: minInt(verbosity, 3),
-			Quiet:     *quiet,
-			Version:   version,
-			Width:     terminalWidth(stdout),
-		})
-	}
-	if err != nil {
+	opts.Color = !*noColor && (*color == "always" || (*color == "auto" && useColor(stdout)))
+	opts.Width = terminalWidth(stdout)
+	if err := stdoutFormat.Write(stdout, []*engine.Report{r}, opts); err != nil {
 		fmt.Fprintln(stderr, "checkmate:", err)
 		return exitUsage
 	}
@@ -420,16 +434,20 @@ func reorderArgs(fs *flag.FlagSet, args []string) []string {
 	return append(flags, positional...)
 }
 
-func writeFile(path string, write func(io.Writer) error) error {
-	fh, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o640)
-	if err != nil {
-		return err
+// printDefaults prints the flags of fs except the hidden ones.
+func printDefaults(fs *flag.FlagSet, hidden ...string) {
+	skip := map[string]bool{}
+	for _, h := range hidden {
+		skip[h] = true
 	}
-	if err := write(fh); err != nil {
-		fh.Close()
-		return err
-	}
-	return fh.Close()
+	all := flag.NewFlagSet(fs.Name(), flag.ContinueOnError)
+	all.SetOutput(fs.Output())
+	fs.VisitAll(func(f *flag.Flag) {
+		if !skip[f.Name] {
+			all.Var(f.Value, f.Name, f.Usage)
+		}
+	})
+	all.PrintDefaults()
 }
 
 // terminalWidth returns the width of the terminal stdout is attached to, or

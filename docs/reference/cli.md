@@ -4,6 +4,8 @@
 checkmate run      [flags] <policy.yml>   run checks and report results
 checkmate validate [flags] <policy.yml>   check a policy for errors without running it
 checkmate list     [flags] <policy.yml>   list checks and the commands they would run
+checkmate export   [flags] <report.json>...  convert or merge JSON reports (html, pdf, csv, ...)
+checkmate diff     [flags] <old> <new>    compare two reports (.json) or two policies (.yml)
 checkmate facts                           print the facts gathered for this host
 checkmate version                         print the version
 ```
@@ -21,10 +23,9 @@ Flags may come before or after the policy file.
 | `--fail-on SEVERITY` | Lowest severity whose failures make the run non-compliant. Default: `defaults.fail_on`, else `low`. |
 | `--waivers FILE` | File with accepted deviations (repeatable). See [Waivers](waivers.md). |
 | `--ignore-waivers` | Report every result as if no waiver existed. |
-| `--format FORMAT` | Output on stdout: `text` (default), `json`, `junit`. |
-| `--json-out FILE` | Also write a JSON report to a file. |
-| `--junit-out FILE` | Also write a JUnit XML report to a file. |
-| `--attack-layer FILE` | Also write an [ATT&CK Navigator](../standards.md#mitre-attck) layer of the checks tagged `attack-t*`. |
+| `--format FORMAT` | Output on stdout: `text` (default), `json`, `jsonl`, `csv`, `html`, `junit`, `xccdf`, `arf`, `prom`, `attack`. See [Reports and exports](exports.md). |
+| `--export LIST` | Also write these formats to files, comma-separated: `html,pdf,json`. `syslog` or `syslog:udp://host` sends the results to syslog. |
+| `-o`, `--output BASE` | Base name or directory of the `--export` files. Default: `checkmate-<host>-<time>` in the current directory. |
 | `-j`, `--jobs N` | Checks to run in parallel. Default: number of CPUs. |
 | `-v`, `--verbose` | More output, repeatable (`-v -v` = `-vv`). See [Output levels](#output-levels). |
 | `-vv` | Details of failed, warned and errored checks. |
@@ -82,8 +83,11 @@ checkmate run baseline.yml --id SSH-ROOT --debug
 # Fail only on high and critical findings, everything else is a warning
 checkmate run baseline.yml --fail-on high
 
-# Console output plus reports for a dashboard and the CI server
-checkmate run baseline.yml --json-out report.json --junit-out junit.xml
+# Console output plus reports: report.json, report.junit.xml, report.html
+checkmate run baseline.yml --export json,junit,html -o report
+
+# Send every result to a SIEM
+checkmate run baseline.yml -q --export syslog:tls://siem.example.com
 
 # Override a variable
 checkmate run baseline.yml -e min_free_mb=2048
@@ -109,6 +113,33 @@ SSH-003  high      system,ssh,crypto   No weak ciphers
                                          $ sshd -T 2>/dev/null | awk '$1 == "ciphers" {print $2}'
                                          expect: stdout not to be empty and stdout !~ "(cbc|arcfour|3des|blowfish)"
 ```
+
+## checkmate export
+
+Converts JSON reports into other formats and merges several reports (hosts or runs) into one document. See [Reports and exports](exports.md#checkmate-export).
+
+| Flag | Description |
+|---|---|
+| `-f`, `--format LIST` | Formats, comma-separated (default: `text`). |
+| `-o`, `--output BASE` | Base name or directory of the files; `-` for stdout. A single format without `-o` goes to stdout. |
+| `--color WHEN` | Colors of the text format: `auto`, `always`, `never`. |
+
+```bash
+checkmate export -f html,pdf -o fleet reports/*.json
+```
+
+## checkmate diff
+
+Compares two JSON reports or two policies, recognised by the file extension. See [Reports and exports](exports.md#checkmate-diff).
+
+| Flag | Description |
+|---|---|
+| `--format FORMAT` | `text` (default) or `json`. |
+| `--color WHEN` | `auto`, `always`, `never`. |
+| `-e`, `--extra-var KEY=VALUE` | Variables for expanding policies. |
+| `--allow-insecure-policy` | Load policy files writable by other users while running as root. |
+
+Exit codes: `0` no differences, `1` differences, `2` error.
 
 ## Exit codes
 

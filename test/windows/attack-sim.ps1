@@ -5,7 +5,7 @@ param([string]$Checkmate = '.\checkmate.exe')
 $ErrorActionPreference = 'Stop'
 
 function Run-Policy([string]$out) {
-    & $Checkmate run examples/attack/windows.yml -q --format json --json-out $out | Out-Null
+    & $Checkmate run examples/attack/windows.yml -q --format json --export json -o $out | Out-Null
     Get-Content -LiteralPath $out -Raw | ConvertFrom-Json
 }
 

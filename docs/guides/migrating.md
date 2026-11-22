@@ -14,7 +14,7 @@ checkmate 1.x was a Python 2 tool with one module per check. Version 2 replaces 
 | `-a` | no tag filter |
 | `-I check_ssh` / `-E check_cron` | `--id 'MRH-SSH-*'` / `--skip-tags …` or `--id` |
 | `--checksum <sudoers file>` | `sha256sum <file>`, added to the allowlist file |
-| Report written to a fixed log directory | `--json-out <file>` at any path |
+| Report written to a fixed log directory | `--export json -o <dir or file>`, plus HTML, PDF, CSV, syslog, ... |
 | PyInstaller binary, RHEL 6/7 | Static Go binary, any Linux, macOS, Windows |
 
 ## Behavioral differences

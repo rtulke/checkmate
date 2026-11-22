@@ -357,14 +357,14 @@ func indentBlock(s, indent string) string {
 
 // JSON writes the report as indented JSON.
 func JSON(w io.Writer, r *engine.Report, version string) error {
-	doc := struct {
-		Tool    string `json:"tool"`
-		Version string `json:"version"`
-		*engine.Report
-	}{"checkmate", version, r}
+	doc := *r
+	doc.Tool = "checkmate"
+	if doc.Version == "" {
+		doc.Version = version
+	}
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
-	return enc.Encode(doc)
+	return enc.Encode(&doc)
 }
 
 type junitSuites struct {
@@ -406,14 +406,41 @@ type junitMessage struct {
 	Body    string `xml:",chardata"`
 }
 
-// JUnit writes the report as JUnit XML for CI systems.
-func JUnit(w io.Writer, r *engine.Report) error {
-	s := r.Summary
+// JUnit writes reports as JUnit XML for CI systems, one test suite per
+// report.
+func JUnit(w io.Writer, rs ...*engine.Report) error {
 	seconds := func(ms int64) string { return fmt.Sprintf("%.3f", float64(ms)/1000) }
-	suiteName := r.Policy
-	if suiteName == "" {
-		suiteName = r.PolicyPath
+	doc := junitSuites{Name: "checkmate"}
+	var total int64
+	labels := hostLabels(rs)
+	for i, r := range rs {
+		suite := junitSuiteFor(r, seconds)
+		if len(rs) > 1 {
+			suite.Name = labels[i] + ": " + suite.Name
+		}
+		doc.Suites = append(doc.Suites, suite)
+		doc.Tests += suite.Tests
+		doc.Failures += suite.Failures
+		doc.Errors += suite.Errors
+		doc.Skipped += suite.Skipped
+		total += r.DurationMS
 	}
+	doc.Time = seconds(total)
+	if _, err := io.WriteString(w, xml.Header); err != nil {
+		return err
+	}
+	enc := xml.NewEncoder(w)
+	enc.Indent("", "  ")
+	if err := enc.Encode(doc); err != nil {
+		return err
+	}
+	_, err := io.WriteString(w, "\n")
+	return err
+}
+
+func junitSuiteFor(r *engine.Report, seconds func(int64) string) junitSuite {
+	s := r.Summary
+	suiteName := policyTitle(r)
 	suite := junitSuite{
 		Name:      suiteName,
 		Hostname:  r.Facts.Hostname,
@@ -449,18 +476,56 @@ func JUnit(w io.Writer, r *engine.Report) error {
 		}
 		suite.Cases = append(suite.Cases, c)
 	}
-	doc := junitSuites{
-		Name: "checkmate", Tests: s.Total, Failures: s.Failed, Errors: s.Errors,
-		Skipped: suite.Skipped, Time: suite.Time, Suites: []junitSuite{suite},
+	return suite
+}
+
+// TextOverview writes a summary of several reports: one line per host and
+// the checks that have problems anywhere.
+func TextOverview(w io.Writer, rs []*engine.Report, opts TextOptions) error {
+	paint := func(color, s string) string {
+		if !opts.Color || color == "" {
+			return s
+		}
+		return color + s + colorReset
 	}
-	if _, err := io.WriteString(w, xml.Header); err != nil {
-		return err
+	fmt.Fprintf(w, "%s %s · %s · %d reports\n\n", paint(colorBold, "checkmate"), opts.Version, documentTitle(rs), len(rs))
+	labels := hostLabels(rs)
+	hostWidth := 4
+	for _, l := range labels {
+		hostWidth = maxInt(hostWidth, minInt(runeLen(l), 40))
 	}
-	enc := xml.NewEncoder(w)
-	enc.Indent("", "  ")
-	if err := enc.Encode(doc); err != nil {
-		return err
+	fmt.Fprintf(w, "%-*s  %7s  %5s  %5s  %5s  %5s  %6s  %s\n", hostWidth, "HOST", "SCORE", "PASS", "FAIL", "WARN", "ERROR", "WAIVED", "RESULT")
+	for i, r := range rs {
+		s := r.Summary
+		verdict := paint(colorGreen, "compliant")
+		switch {
+		case s.Evaluated == 0:
+			verdict = paint(colorYellow, "nothing evaluated")
+		case !s.Compliant:
+			verdict = paint(colorRed, "not compliant")
+		}
+		fmt.Fprintf(w, "%s  %7s  %5d  %5d  %5d  %5d  %6d  %s\n", padRight(truncate(labels[i], 40), hostWidth),
+			scoreText(s.Score), s.Passed, s.Failed, s.Warnings, s.Errors, s.Waived, verdict)
 	}
-	_, err := io.WriteString(w, "\n")
-	return err
+
+	problems := problemRows(checkRows(rs))
+	if len(problems) > 0 {
+		fmt.Fprintf(w, "\n%s\n", paint(colorBold, "Problems"))
+		for _, row := range problems {
+			var where []string
+			for i, res := range row.Results {
+				if res != nil && isProblem(res.Status) {
+					where = append(where, labels[i]+" "+string(res.Status))
+				}
+			}
+			color, _ := statusColor(row.worst())
+			fmt.Fprintf(w, "%s  %s  %s %s\n", paint(color, fmt.Sprintf("%-5s", row.worst())), row.ID,
+				paint(severityColor(row.Severity), "["+row.Severity+"]"), row.Name)
+			fmt.Fprintf(w, "       %s\n", paint(colorDim, strings.Join(where, ", ")))
+		}
+	}
+	s := aggregate(rs)
+	fmt.Fprintf(w, "\n%d hosts · %d checks · %d passed · %d failed · %d warnings · %d errors · %d waived · score %s\n",
+		len(rs), s.Total, s.Passed, s.Failed, s.Warnings, s.Errors, s.Waived, scoreText(s.Score))
+	return nil
 }

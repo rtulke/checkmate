@@ -54,7 +54,7 @@ var categories = []category{
 	{"services", "Linux services", "Common Linux network services: Postfix, NFS, FTP (vsftpd, ProFTPD), BIND, DHCP (Kea, ISC dhcpd), Dovecot, Samba and OpenLDAP. Checks of a service are skipped when it is not installed."},
 	{"validation", "Server validation", "Describe the expected state of a server role and validate it, in the style of goss and serverspec."},
 	{"compliance", "Compliance baselines", "Complete baselines: BSI IT-Grundschutz, Si001 of the Swiss Federal Administration, a broad Linux hardening baseline modelled on OpenSCAP and CIS, and a managed-RHEL baseline."},
-	{"attack", "MITRE ATT&CK", "Traces and mitigations of MITRE ATT&CK techniques, tagged with technique and tactic IDs. `--attack-layer` turns the results into an ATT&CK Navigator layer."},
+	{"attack", "MITRE ATT&CK", "Traces and mitigations of MITRE ATT&CK techniques, tagged with technique and tactic IDs. `--export attack` turns the results into an ATT&CK Navigator layer."},
 }
 
 type policyDoc struct {

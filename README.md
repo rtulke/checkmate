@@ -37,7 +37,7 @@ Most compliance tools need a plugin or module for every kind of check. checkmate
 - **Fail-closed**: a check that cannot be evaluated (timeout, missing tool, unexpected exit code) is an error, and errors always make a run non-compliant.
 - **Prioritized**: severities, a `--fail-on` threshold with warnings below it, a weighted compliance score, and waivers for accepted deviations.
 - **Independent checks**: every check collects its own data; no shared scans or caches between checks.
-- **Ready for pipelines**: exit codes, colored text, JSON, JUnit XML and ATT&CK Navigator layers.
+- **Reports for everyone**: HTML and PDF for auditors, CSV for spreadsheets, JSON Lines and syslog for SIEMs, Prometheus metrics, JUnit for CI, XCCDF/ARF for SCAP tools and ATT&CK Navigator layers; reports of many hosts merge into one, and `checkmate diff` shows what changed.
 
 ## Install
 
@@ -59,7 +59,7 @@ checkmate run examples/getting-started.yml  # run a policy
 checkmate list -v examples/system/ssh.yml   # show the commands for this host
 checkmate validate my-policy.yml            # check a policy without running it
 checkmate run baseline.yml -v               # with severity and reasons (-vv details, -vvv debug)
-checkmate run baseline.yml --tags ssh --fail-on high --junit-out junit.xml
+checkmate run baseline.yml --tags ssh --fail-on high --export junit,html -o report
 ```
 
 ## Security standards
@@ -146,6 +146,30 @@ checkmate run baseline.yml --waivers waivers.yml
 
 See [waivers](https://rtulke.github.io/checkmate/reference/waivers/).
 
+## Reports and exports
+
+One flag writes any number of formats next to the console output; `checkmate export` converts and merges saved JSON reports, `checkmate diff` compares reports or policies.
+
+```bash
+checkmate run baseline.yml --export html,pdf,json -o reports/      # reports/checkmate-<host>-<time>.*
+checkmate run baseline.yml -q --export prom,syslog:tls://siem.example.com -o /var/lib/checkmate/latest
+checkmate export -f html,pdf,csv -o fleet reports/*.json           # one report for all hosts
+checkmate diff monday.json tuesday.json                            # new problems, fixed checks, score
+checkmate diff baseline-1.4.yml baseline-1.5.yml                   # added, removed, changed checks
+```
+
+| Format | For |
+|---|---|
+| `text`, `html`, `pdf` | people: console, filterable single-file HTML page, printable PDF (built in, no external tools) |
+| `json`, `csv` | archives, scripts and spreadsheets |
+| `jsonl`, `syslog` | SIEMs: one JSON event per check, to a file or to syslog (local, UDP, TCP, TLS) |
+| `prom` | Prometheus via the node_exporter textfile collector |
+| `junit` | test views of GitLab, GitHub, Jenkins and Azure DevOps |
+| `xccdf`, `arf` | SCAP tools; valid for OpenSCAP, which renders them like its own results |
+| `attack` | MITRE ATT&CK Navigator layer |
+
+See [reports and exports](https://rtulke.github.io/checkmate/reference/exports/).
+
 ## Examples
 
 66 tested policies with 1,193 checks, organized like the documentation:
@@ -171,7 +195,7 @@ See [waivers](https://rtulke.github.io/checkmate/reference/waivers/).
 
 | | Runs on | Tested in CI |
 |---|---|---|
-| Linux | any distribution with a POSIX shell (bash or sh, also BusyBox) | examples on Rocky Linux 8/9, Debian 12, Ubuntu 24.04, openSUSE Leap 15, Alpine; CIS and STIG policies on 16 distributions in containers; hardened PostgreSQL and Apache servers; Postfix, NFS, vsftpd, BIND, Kea, Dovecot, Samba and OpenLDAP in default and hardened configuration; planted ATT&CK artifacts |
+| Linux | any distribution with a POSIX shell (bash or sh, also BusyBox) | examples on Rocky Linux 8/9, Debian 12, Ubuntu 24.04, openSUSE Leap 15, Alpine; CIS and STIG policies on 16 distributions in containers; hardened PostgreSQL and Apache servers; Postfix, NFS, vsftpd, BIND, Kea, Dovecot, Samba and OpenLDAP in default and hardened configuration; planted ATT&CK artifacts; XCCDF/ARF validated with OpenSCAP, metrics with promtool, syslog with rsyslog |
 | Windows | Windows 10/11, Windows Server 2016 and later (PowerShell 5.1 or 7) | CIS and ATT&CK policies on real Windows Server 2022 and 2025; every PowerShell command through the PowerShell parser |
 | macOS | macOS 13 and later | unit tests and Homebrew installation on macOS runners |
 | Network devices, remote servers | over SSH or SNMP from a management host | syntax of every command |
@@ -220,7 +244,7 @@ test/               container harnesses for Linux, Windows analysis and attack s
 | [CMMC](https://dodcio.defense.gov/CMMC/) | US Department of Defense | tags `cmmc-level-1`, `cmmc-level-2` (macOS) |
 | [IT-Grundschutz-Kompendium](https://www.bsi.bund.de/DE/Themen/Unternehmen-und-Organisationen/Standards-und-Zertifizierung/IT-Grundschutz/IT-Grundschutz-Kompendium/IT-Grundschutz-Bausteine/Bausteine_Download_Edition_node.html), Edition 2023 | BSI (Germany) | `examples/compliance/bsi-grundschutz.yml`: SYS.1.1, SYS.1.3 |
 | [Si001 IT-Grundschutz in der Bundesverwaltung](https://www.sepos.admin.ch/de/sicherheitsverfahren), V5.1, and the [Schutzbedarfsanalyse (Schuban)](https://www.bacs.admin.ch/de/beurteilung-des-schutzbedarfs) | SEPOS (formerly BACS), Switzerland | `examples/compliance/si001.yml` |
-| [MITRE ATT&CK](https://attack.mitre.org/) Enterprise 20.1 | The MITRE Corporation | `examples/attack/`, `--attack-layer` |
+| [MITRE ATT&CK](https://attack.mitre.org/) Enterprise 20.1 | The MITRE Corporation | `examples/attack/`, `--export attack` |
 
 ### Sources of the checks
 
@@ -244,7 +268,7 @@ test/               container harnesses for Linux, Windows analysis and attack s
 | [Wazuh SCA](https://github.com/wazuh/wazuh/tree/main/ruleset/sca) | model for checks of the hardening baseline and the application examples |
 | [goss](https://github.com/goss-org/goss) | format of the Ansible Lockdown audits; model for the server validation examples |
 | [InSpec](https://github.com/inspec/inspec) | model for waivers |
-| [ATT&CK Navigator](https://mitre-attack.github.io/attack-navigator/) | opens the layers written by `--attack-layer` |
+| [ATT&CK Navigator](https://mitre-attack.github.io/attack-navigator/) | opens the layers written by `--export attack` |
 | [Mappings Explorer](https://center-for-threat-informed-defense.github.io/mappings-explorer/) (Center for Threat-Informed Defense) | NIST-to-ATT&CK mappings, evaluated and not used for tagging (generic controls map to hundreds of techniques) |
 
 ## License
