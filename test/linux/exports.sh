@@ -28,6 +28,8 @@ for img in debian:12-slim rockylinux:9-minimal; do
       --export json,html,pdf,csv,jsonl,junit,xccdf,arf,prom,syslog -o /out/$name >/dev/null 2>/out/$name.stderr
     sleep 1
     grep -h 'checkmate\[' /var/log/messages 2>/dev/null > /out/$name.syslog || true
+    # Reports are created with mode 0640 as root; let the runner read them.
+    chown -R $(id -u):$(id -g) /out
   " || true
   for ext in json html pdf csv jsonl junit.xml xccdf.xml arf.xml prom; do
     [ -s "$out/$name.$ext" ] || fail "$name.$ext missing: $(cat "$out/$name.stderr")"
@@ -39,22 +41,22 @@ done
 
 echo "== merged export of both reports"
 cm=test/linux/out-cis/checkmate-linux
-docker run --rm -v "$PWD:/src" -w /src debian:12-slim \
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/src" -w /src debian:12-slim \
   "$cm" export -f html,pdf,xccdf,arf,csv,prom,junit -o "$out/fleet" "$out/debian.json" "$out/rockylinux.json" || fail "merged export"
 grep -q 'debian-host' "$out/fleet.html" && grep -q 'rockylinux-host' "$out/fleet.html" && echo "ok: merged HTML has both hosts" || fail "merged HTML"
 
 echo "== diff of the two reports"
 rc=0
-docker run --rm -v "$PWD:/src" -w /src debian:12-slim "$cm" diff "$out/debian.json" "$out/rockylinux.json" > "$out/diff.txt" || rc=$?
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/src" -w /src debian:12-slim "$cm" diff "$out/debian.json" "$out/rockylinux.json" > "$out/diff.txt" || rc=$?
 [ "$rc" -le 1 ] && grep -q '^score ' "$out/diff.txt" && echo "ok: diff (exit $rc)" || fail "diff exit $rc"
 
 echo "== OpenSCAP validates XCCDF and ARF"
-docker run --rm -v "$PWD/$out:/x" fedora:43 sh -c '
+docker run --rm -v "$PWD/$out:/x:ro" fedora:43 sh -c '
   dnf -q -y install openscap-scanner >/dev/null 2>&1
   cd /x; rc=0
   for f in debian.xccdf.xml fleet.xccdf.xml; do oscap xccdf validate "$f" >/dev/null 2>&1 || { echo "invalid $f"; oscap xccdf validate "$f"; rc=1; }; done
   for f in debian.arf.xml fleet.arf.xml; do oscap ds rds-validate "$f" || { echo "invalid $f"; rc=1; }; done
-  oscap xccdf generate report fleet.arf.xml > oscap-report.html || rc=1
+  oscap xccdf generate report fleet.arf.xml > /tmp/oscap-report.html || rc=1
   exit $rc' && echo "ok: XCCDF/ARF valid, OpenSCAP report rendered" || fail "OpenSCAP"
 
 echo "== promtool lints the metrics"
