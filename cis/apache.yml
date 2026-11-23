@@ -36,6 +36,15 @@ checks:
     run: '{{ httpd }} -t'
     allow_rc: [0, 1]
     expect: { stderr: "~ Syntax OK" }
+    rationale: |
+      A configuration with syntax errors cannot be reloaded, so an attempted change silently leaves the old configuration active or prevents a restart after a reboot. All other checks of this policy read the configuration the way httpd parses it and are only meaningful when it is valid.
+    remediation: |
+      Run the syntax check and fix every error it reports in the file and line it names, then reload the server.
+
+      apachectl -t
+      systemctl reload httpd
+
+      On Debian/Ubuntu and SUSE use apache2ctl -t and systemctl reload apache2.
 
   # 2 Minimize Apache modules
 
@@ -47,6 +56,14 @@ checks:
     only_if: '{{ httpd }} -t'
     run: '{{ httpd }} -M 2>/dev/null'
     expect: { some: "~ ^[[:space:]]*log_config_module[[:space:]]" }
+    rationale: |
+      The log_config module provides the access log formats and the CustomLog directive. Without it no request log is written, so attacks, abuse and errors cannot be investigated afterwards.
+    remediation: |
+      Load mod_log_config. On RHEL-like systems make sure the LoadModule line is active in /etc/httpd/conf.modules.d/00-base.conf; on Debian/Ubuntu and SUSE the module is normally compiled in or enabled with a2enmod.
+
+      LoadModule log_config_module modules/mod_log_config.so
+
+      Validate with apachectl configtest (apache2ctl configtest on Debian/Ubuntu and SUSE) and reload the httpd or apache2 service.
 
   - id: "CIS-APACHE-{{ item.value.cis }}-{{ item.key }}"
     name: "{{ item.value.name }}"
@@ -64,6 +81,15 @@ checks:
       basic-digest-auth: { cis: 2.9, name: Basic and digest authentication modules are not loaded, modules: "auth_basic_module|auth_digest_module" }
     run: '{{ httpd }} -M 2>/dev/null'
     expect: { none: "~ ^[[:space:]]*({{ item.value.modules }})[[:space:]]" }
+    rationale: |
+      Every loaded module adds code that can contain vulnerabilities and features that can be misused. WebDAV allows writing files over HTTP, the status and info modules disclose internal server details, autoindex lists directory contents, proxy modules can turn the server into an open relay, userdir publishes home directories, and basic or digest authentication sends weak or replayable credentials. Modules that the site does not need are removed.
+    remediation: |
+      Unload the modules named by this check (dav_*, status_module, autoindex_module, proxy_*, userdir_module, info_module, auth_basic_module or auth_digest_module). On RHEL-like systems comment out the LoadModule line in /etc/httpd/conf.modules.d/ (grep -rn MODULE_NAME /etc/httpd/conf.modules.d/ shows the file). On Debian/Ubuntu run a2dismod -f NAME, on SUSE a2dismod NAME. Remove configuration that still uses directives of the module, apachectl configtest reports it.
+
+      grep -rnE 'dav|status|autoindex|proxy|userdir|info|auth_basic|auth_digest' /etc/httpd/conf.modules.d/
+      a2dismod -f dav dav_fs status autoindex proxy userdir info auth_basic auth_digest
+
+      The grep applies to RHEL-like systems, a2dismod to Debian/Ubuntu (name only the modules this check reports). Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   # 3 Principles, permissions and ownership
 
@@ -78,6 +104,15 @@ checks:
     expect:
       - "!empty"
       - "!= root"
+    rationale: |
+      httpd starts as root to bind privileged ports and then switches its worker processes to the configured user. If that user is root, any flaw in a module or a CGI script gives an attacker full control of the system. A dedicated unprivileged account limits the damage to what that account can access.
+    remediation: |
+      Run the workers as a dedicated system account. On RHEL-like systems set User and Group in /etc/httpd/conf/httpd.conf (the packaged account is apache); on Debian/Ubuntu set APACHE_RUN_USER and APACHE_RUN_GROUP in /etc/apache2/envvars (www-data); on SUSE set User and Group in /etc/apache2/uid.conf (wwwrun, www).
+
+      User apache
+      Group apache
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE. If the account does not exist, create it first, for example with useradd -r -d /var/www -s /sbin/nologin apache.
 
   - id: CIS-APACHE-3.2-user-shell
     name: The httpd user has no login shell
@@ -89,6 +124,14 @@ checks:
       u=$({{ httpd }} -S 2>/dev/null | awk -F'"' '$1 == "User: name=" {print $2}')
       getent passwd "$u" | cut -d: -f7
     expect: "~ (nologin|false)$"
+    rationale: |
+      The httpd account is only used to run the server. Without a valid login shell, a stolen or guessed credential or a misconfigured service cannot be used to open an interactive session as that account.
+    remediation: |
+      Set the login shell of the httpd user (shown by httpd -S as User) to nologin.
+
+      usermod -s /sbin/nologin apache
+
+      Replace apache with the reported account: www-data on Debian/Ubuntu (shell /usr/sbin/nologin), wwwrun on SUSE.
 
   - id: CIS-APACHE-3.3-user-locked
     name: The httpd user account is locked
@@ -100,6 +143,14 @@ checks:
       u=$({{ httpd }} -S 2>/dev/null | awk -F'"' '$1 == "User: name=" {print $2}')
       getent shadow "$u" | cut -d: -f2
     expect: "~ ^[!*]"
+    rationale: |
+      A locked password prevents anyone from authenticating as the httpd account with a password, so it cannot be used for logins even if a login service is misconfigured. The server itself does not need a password to switch to this user.
+    remediation: |
+      Lock the password of the httpd user.
+
+      passwd -l apache
+
+      Replace apache with the account reported by httpd -S: www-data on Debian/Ubuntu, wwwrun on SUSE.
 
   - id: "CIS-APACHE-{{ item.value.cis }}-server-root-{{ item.key }}"
     name: "{{ item.value.name }}"
@@ -117,6 +168,17 @@ checks:
       [ -d "$r" ] || { echo "server root '$r' not found"; exit 0; }
       find "$r" {{ item.value.find }} -print
     expect: empty
+    rationale: |
+      The server root holds the configuration, the module binaries and links to logs and runtime data. If these files are owned by, or writable for, another user or group, that account can change the configuration or replace modules and gain the privileges of httpd, which starts as root. Only root should own and modify them.
+    remediation: |
+      Review each file listed by the check (the server root is /etc/httpd on RHEL-like systems, /etc/apache2 on Debian/Ubuntu and SUSE) and correct the item this check covers: owner root, group root, no write permission for others, or no write permission for the group.
+
+      chown root FILE
+      chgrp root FILE
+      chmod o-w FILE
+      chmod g-w FILE
+
+      Apply only the command that matches the reported problem. Check first whether a file was deliberately given to another account, for example by a deployment tool, and change that process too.
 
   - id: CIS-APACHE-3.12-document-root-group-write
     name: Files below the document root are not writable by the httpd group
@@ -130,6 +192,15 @@ checks:
       [ -d "$d" ] || { echo "document root '$d' not found"; exit 0; }
       find "$d" ! -type l -group "$g" -perm -0020 -print
     expect: empty
+    rationale: |
+      Files in the document root that the httpd group can write may be modified by the web server processes themselves. A compromised script or module could then deface the site or plant malicious content and scripts. Content should be maintained by separate accounts and only be readable by httpd.
+    remediation: |
+      Review each listed file and remove the group write permission, or give the file a group other than the httpd group.
+
+      chmod g-w FILE
+      chgrp root FILE
+
+      If an application must write to a directory (uploads, caches), keep that directory outside the document root or restrict it so that its content cannot be executed.
 
   - id: CIS-APACHE-3.7-core-dump-directory
     name: A core dump directory is not inside the document root and not accessible by others
@@ -147,6 +218,16 @@ checks:
       any:
         - "== not set"
         - "~ ^root [0-7][0-7]0$"
+    rationale: |
+      Core dumps of httpd can contain memory contents such as session data, credentials and private keys. A dump directory inside the document root could be downloaded by clients, and one that other users can read exposes these secrets locally.
+    remediation: |
+      Either remove the CoreDumpDirectory directive, or point it to a directory outside the document root that is owned by root and has no permissions for others.
+
+      mkdir -p /var/log/httpd/coredumps
+      chown root:apache /var/log/httpd/coredumps
+      chmod 750 /var/log/httpd/coredumps
+
+      Set CoreDumpDirectory /var/log/httpd/coredumps in the server configuration. On Debian/Ubuntu use a path such as /var/log/apache2/coredumps and group www-data. Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-3.9-pid-file
     name: The PID file directory is owned by root and not writable by others
@@ -160,6 +241,15 @@ checks:
       case "$p" in "$d"/*) echo "$p is inside the document root $d"; exit 0 ;; esac
       stat -L -c '%U %a' "$(dirname "$p")"
     expect: "~ ^root [0-7][0-7][0145]$"
+    rationale: |
+      The PID file tells init scripts and administrators which process to signal. If its directory is writable by other users or reachable through the document root, an attacker could replace the PID and have root send signals to an arbitrary process, or learn details about the server.
+    remediation: |
+      Keep the PID file in a root-owned directory outside the document root that others cannot write, and fix the directory permissions.
+
+      chown root /run/httpd
+      chmod o-w /run/httpd
+
+      Use the directory of the PidFile reported by httpd -S (/run/httpd on RHEL-like systems, /run/apache2 on Debian/Ubuntu and SUSE). If the PID file is inside the document root, set PidFile to such a directory and reload. Runtime directories are recreated at boot from tmpfiles.d, so make persistent permission changes with an override in /etc/tmpfiles.d/.
 
   # 4 Access control
 
@@ -177,6 +267,18 @@ checks:
     expect:
       - { some: '~ (?i)^[[:space:]]*require[[:space:]]+all[[:space:]]+denied' }
       - { none: '~ (?i)^[[:space:]]*(allow[[:space:]]+from|require[[:space:]]+all[[:space:]]+granted)' }
+    rationale: |
+      Access control in httpd is inherited from the file system root down. Denying everything at the root and granting access only to the directories that are meant to be served prevents a misconfigured alias or symbolic link from exposing arbitrary files of the system.
+    remediation: |
+      Make the Directory block for the file system root deny all access and remove any Allow from or Require all granted lines from it. The block is in /etc/httpd/conf/httpd.conf on RHEL-like systems and /etc/apache2/apache2.conf on Debian/Ubuntu and SUSE (/etc/apache2/httpd.conf).
+
+      <Directory />
+          Options None
+          AllowOverride None
+          Require all denied
+      </Directory>
+
+      Grant access explicitly in Directory blocks for the document root and other served paths. Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-4.3-root-directory-override
     name: .htaccess overrides are disabled for the file system root
@@ -188,6 +290,18 @@ checks:
     expect:
       - { some: '~ (?i)^[[:space:]]*allowoverride[[:space:]]+none[[:space:]]*$' }
       - { none: '~ (?i)^[[:space:]]*allowoverridelist' }
+    rationale: |
+      With overrides enabled at the file system root, any .htaccess file anywhere on the disk could change access control or enable features for its directory. Disabling overrides at the root means only the main configuration decides, and httpd does not have to search for .htaccess files.
+    remediation: |
+      Set AllowOverride None in the Directory block for the file system root and remove any AllowOverrideList directive from it (httpd.conf on RHEL-like systems, apache2.conf on Debian/Ubuntu, httpd.conf on SUSE).
+
+      <Directory />
+          Options None
+          AllowOverride None
+          Require all denied
+      </Directory>
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-4.4-override-disabled
     name: .htaccess overrides are disabled everywhere
@@ -198,6 +312,16 @@ checks:
     run: "{{ conf }} | grep -iE '^[[:space:]]*allowoverride' || true"
     expect:
       each: '~ (?i)^[[:space:]]*allowoverride[[:space:]]+none[[:space:]]*$'
+    rationale: |
+      .htaccess files let anyone who can write into a served directory change the server behaviour for it, including access control, handlers and rewrite rules. Keeping all settings in the main configuration makes them reviewable in one place and also avoids the per-request lookup of .htaccess files.
+    remediation: |
+      Change every AllowOverride directive in the configuration to None. Find them with the command below; typical places are httpd.conf and conf.d/userdir.conf on RHEL-like systems and apache2.conf and the site files on Debian/Ubuntu.
+
+      grep -rni allowoverride /etc/httpd /etc/apache2 2>/dev/null
+
+      AllowOverride None
+
+      Move the rules from existing .htaccess files into the corresponding Directory blocks of the server configuration before disabling them. Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   # 5 Features, content and options
 
@@ -209,6 +333,18 @@ checks:
     only_if: '{{ httpd }} -t'
     run: *rootdir
     expect: { some: '~ (?i)^[[:space:]]*options[[:space:]]+none[[:space:]]*$' }
+    rationale: |
+      Options such as Indexes, ExecCGI, Includes or FollowSymLinks are inherited by every directory below. Setting no options at the file system root ensures that a feature is only active where it is enabled on purpose.
+    remediation: |
+      Add Options None to the Directory block for the file system root (httpd.conf on RHEL-like systems, apache2.conf on Debian/Ubuntu, httpd.conf on SUSE).
+
+      <Directory />
+          Options None
+          AllowOverride None
+          Require all denied
+      </Directory>
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-5.2-document-root-options
     name: The document root allows no options except MultiViews
@@ -224,6 +360,16 @@ checks:
         in_doc && tolower($1) == "options"'
     expect:
       each: '~ (?i)^[[:space:]]*options[[:space:]]+(none|[+]?multiviews)[[:space:]]*$'
+    rationale: |
+      Options on the document root decide whether directory listings, server-side includes, CGI execution or symbolic links are possible for the whole site. Disabling them limits information disclosure and stops uploaded or misplaced files from being executed. Content negotiation (MultiViews) is harmless and may stay.
+    remediation: |
+      Set the Options of the Directory block for the main document root (shown by httpd -S, /var/www/html on RHEL-like systems and Debian/Ubuntu) to None, or MultiViews if content negotiation is used.
+
+      <Directory "/var/www/html">
+          Options None
+      </Directory>
+
+      Edit the existing block, in httpd.conf on RHEL-like systems (it ships with Options Indexes FollowSymLinks) or in the site files on Debian/Ubuntu. Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-5.3-no-includes
     name: Server-side includes with command execution are not enabled
@@ -234,6 +380,17 @@ checks:
     run: "{{ conf }} | grep -iE '^[[:space:]]*options[[:space:]]' || true"
     expect:
       none: '~ (?i)[[:space:]+](includes|all)([[:space:]]|$)'
+    rationale: |
+      Server-side includes with the exec element run shell commands while a page is rendered. Anyone who can place or influence content could execute commands as the httpd user. IncludesNOEXEC keeps the include feature without command execution.
+    remediation: |
+      Remove Includes and All from every Options directive; use IncludesNOEXEC where server-side includes are needed, or drop the option.
+
+      grep -rniE '^[[:space:]]*options' /etc/httpd /etc/apache2 2>/dev/null
+
+      Options None
+      Options IncludesNOEXEC
+
+      Options All also enables Includes, so replace it with the explicit list of options that are needed. Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-5.4-default-content
     name: Default welcome pages and the manual are removed
@@ -251,6 +408,17 @@ checks:
       done
       true
     expect: empty
+    rationale: |
+      Default welcome pages, the manual and the sample icon and index configuration reveal the server software and version and serve no purpose on a production system. Removing them reduces information leakage and the amount of content that could contain flaws.
+    remediation: |
+      Remove each file the check lists. On RHEL-like systems delete the welcome, manual and autoindex configuration files and the noindex page; on Debian/Ubuntu disable the manual and replace the default index page with real content.
+
+      rm /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/manual.conf /etc/httpd/conf.d/autoindex.conf
+      rm /usr/share/httpd/noindex/index.html
+      a2disconf apache2-doc
+      rm /var/www/html/index.html
+
+      Run only the lines for files that were reported, then validate and reload (apachectl configtest and systemctl reload httpd, or apache2ctl configtest and systemctl reload apache2). Package updates can restore removed files: remove the httpd-manual or apache2-doc package where installed and repeat the check after updates.
 
   - id: CIS-APACHE-5.5-printenv
     name: The printenv CGI example is removed
@@ -260,6 +428,14 @@ checks:
     only_if: '{{ httpd }} -t'
     run: find /var/www /usr/lib/cgi-bin /srv/www -name 'printenv*' -print 2>/dev/null || true
     expect: empty
+    rationale: |
+      The printenv sample script prints all CGI environment variables, which reveals paths, software versions and internal server details to any client. Sample scripts are not meant for production systems.
+    remediation: |
+      Review each listed file and delete the sample script.
+
+      rm FILE
+
+      Typical locations are /var/www/cgi-bin on RHEL-like systems and /usr/lib/cgi-bin on Debian/Ubuntu.
 
   - id: CIS-APACHE-5.6-test-cgi
     name: The test-cgi CGI example is removed
@@ -269,6 +445,14 @@ checks:
     only_if: '{{ httpd }} -t'
     run: find /var/www /usr/lib/cgi-bin /srv/www -name 'test-cgi*' -print 2>/dev/null || true
     expect: empty
+    rationale: |
+      The test-cgi sample script echoes request and server details and has a history of information disclosure issues. Sample scripts are not meant for production systems.
+    remediation: |
+      Review each listed file and delete the sample script.
+
+      rm FILE
+
+      Typical locations are /var/www/cgi-bin on RHEL-like systems and /usr/lib/cgi-bin on Debian/Ubuntu.
 
   - id: CIS-APACHE-5.7-limit-methods
     name: HTTP request methods are limited
@@ -278,6 +462,18 @@ checks:
     only_if: '{{ httpd }} -t'
     run: "{{ conf }}"
     expect: { some: '~ (?i)^[[:space:]]*<limitexcept[[:space:]]' }
+    rationale: |
+      Most sites only need GET, POST and HEAD. Methods such as PUT, DELETE or PROPFIND widen the attack surface and can enable unintended changes if a handler supports them. Denying all methods except the needed ones limits what clients can ask the server to do.
+    remediation: |
+      Restrict the allowed request methods with a LimitExcept block inside the Directory block of the document root.
+
+      <Directory "/var/www/html">
+          <LimitExcept GET POST OPTIONS>
+              Require all denied
+          </LimitExcept>
+      </Directory>
+
+      HEAD is covered by GET. Add the methods an application really needs. Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-5.8-trace-disabled
     name: The TRACE method is disabled
@@ -287,6 +483,14 @@ checks:
     only_if: '{{ httpd }} -t'
     run: "{{ conf }} | awk 'tolower($1) == \"traceenable\" {v = tolower($2)} END {print (v == \"\" ? \"on\" : v)}'"
     expect: "== off"
+    rationale: |
+      The TRACE method echoes the request back to the client, including headers. Combined with script injection it can be abused to read cookies and authentication headers that are otherwise protected (cross-site tracing), and it has no use on a production server.
+    remediation: |
+      Set TraceEnable off at server level. Put it in a file that is read after the distribution defaults: /etc/httpd/conf.d/zz-hardening.conf on RHEL-like systems, /etc/apache2/conf-available/zz-hardening.conf on Debian/Ubuntu (then run a2enconf zz-hardening), /etc/apache2/conf.d/zz-hardening.conf on SUSE. Remove or align other occurrences of the directive, because the last one wins.
+
+      TraceEnable off
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-5.9-old-protocols
     name: Requests with old HTTP protocol versions are rejected
@@ -296,6 +500,17 @@ checks:
     only_if: '{{ httpd }} -t'
     run: "{{ conf }}"
     expect: { some: '~ (?i)^[[:space:]]*rewritecond[[:space:]]+%\{THE_REQUEST\}.*HTTP/1' }
+    rationale: |
+      HTTP/1.0 and older requests lack the Host header and are mostly sent by scanners and attack tools rather than by browsers. Rejecting them reduces exposure to old request smuggling and fingerprinting techniques.
+    remediation: |
+      Reject requests whose request line does not end in HTTP/1.1 with mod_rewrite, in the server configuration and in each virtual host (rewrite rules are not inherited by virtual hosts by default). Load mod_rewrite first (a2enmod rewrite on Debian/Ubuntu and SUSE).
+
+      RewriteEngine On
+      RewriteCond %{THE_REQUEST} !HTTP/1\.1$
+      RewriteCond %{THE_REQUEST} !HTTP/2(\.0)?$
+      RewriteRule .* - [F]
+
+      The second condition keeps HTTP/2 requests working. Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-5.10-htaccess-files
     name: Access to .ht* files is denied
@@ -309,6 +524,16 @@ checks:
         tolower($1) ~ /^<\/files(match)?>$/ {in_ht = 0}
         in_ht'
     expect: { some: '~ (?i)^[[:space:]]*require[[:space:]]+all[[:space:]]+denied' }
+    rationale: |
+      .htaccess and .htpasswd files contain access rules and password hashes. If they can be downloaded, an attacker learns the protection scheme and can try to crack the hashes offline.
+    remediation: |
+      Deny access to all files whose names start with .ht. The distribution configuration normally contains this block; restore it if it was removed.
+
+      <FilesMatch "^\.ht">
+          Require all denied
+      </FilesMatch>
+
+      On RHEL-like systems it belongs in /etc/httpd/conf/httpd.conf, on Debian/Ubuntu in /etc/apache2/apache2.conf. Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-5.11-file-extensions
     name: Only approved file extensions can be requested
@@ -318,6 +543,21 @@ checks:
     only_if: '{{ httpd }} -t'
     run: "{{ conf }}"
     expect: { some: '~ (?i)^[[:space:]]*<filesmatch[[:space:]]+"?\^\.\*\$"?>' }
+    rationale: |
+      Backup copies, editor swap files, configuration files and archives left in the document root can expose source code and credentials. Denying all files by default and allowing only the extensions the site actually serves prevents such files from being downloaded.
+    remediation: |
+      Deny every file by default and then allow the extensions the site serves, inside the Directory block of the document root.
+
+      <Directory "/var/www/html">
+          <FilesMatch "^.*$">
+              Require all denied
+          </FilesMatch>
+          <FilesMatch "^.*\.(css|html?|js|pdf|txt|xml|xsl|gif|ico|jpe?g|png|svg|woff2?)$">
+              Require all granted
+          </FilesMatch>
+      </Directory>
+
+      Adjust the extension list to the content of the site and test that directory index requests still work. Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-5.12-ip-requests
     name: Requests for an IP address instead of the host name are rejected
@@ -327,6 +567,16 @@ checks:
     only_if: '{{ httpd }} -t'
     run: "{{ conf }}"
     expect: { some: '~ (?i)^[[:space:]]*rewritecond[[:space:]]+%\{HTTP_HOST\}' }
+    rationale: |
+      Requests addressed to the IP address instead of a host name are usually automated scans and worms. Rejecting them hides the site from such scanners and prevents content from being reached under an unexpected name.
+    remediation: |
+      Reject requests whose Host header is not the expected name with mod_rewrite, in the server configuration and in each virtual host. Load mod_rewrite first (a2enmod rewrite on Debian/Ubuntu and SUSE).
+
+      RewriteEngine On
+      RewriteCond %{HTTP_HOST} !^www\.example\.com$ [NC]
+      RewriteRule .* - [F]
+
+      Replace www.example.com with the real host name, and add conditions for further names. Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-5.13-listen-addresses
     name: httpd listens only on explicit IP addresses
@@ -338,6 +588,15 @@ checks:
     expect:
       - each: '~ (?i)^[[:space:]]*listen[[:space:]]+(\[[0-9a-f:]+\]|[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):[0-9]+'
       - none: '~ (0\.0\.0\.0|\[::\]):'
+    rationale: |
+      Listening on all addresses exposes the server on every interface, including management or internal networks where it is not meant to be reachable. Binding to explicit addresses keeps the service on the intended network only.
+    remediation: |
+      Replace every Listen directive with one that names an explicit IP address and port. The directives are in /etc/httpd/conf/httpd.conf and /etc/httpd/conf.d/ssl.conf on RHEL-like systems, in /etc/apache2/ports.conf on Debian/Ubuntu and /etc/apache2/listen.conf on SUSE.
+
+      Listen 192.0.2.10:80
+      Listen 192.0.2.10:443
+
+      Use the server's real addresses; IPv6 addresses go in square brackets, for example Listen [2001:db8::10]:443. Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-5.14-framing
     name: Pages cannot be framed by other sites
@@ -347,6 +606,14 @@ checks:
     only_if: '{{ httpd }} -t'
     run: "{{ conf }}"
     expect: { some: '~ (?i)^[[:space:]]*header[[:space:]]+(always[[:space:]]+)?(set|append)[[:space:]]+(x-frame-options|content-security-policy.*frame-ancestors)' }
+    rationale: |
+      If other sites can embed the pages in a frame, they can overlay them with deceptive content and trick users into clicking buttons or entering data (clickjacking). A header that restricts framing to the own origin prevents this.
+    remediation: |
+      Send a header that forbids framing by other origins; mod_headers must be loaded (a2enmod headers on Debian/Ubuntu and SUSE). Put it in a file that is read after the distribution defaults: /etc/httpd/conf.d/zz-hardening.conf on RHEL-like systems, /etc/apache2/conf-available/zz-hardening.conf on Debian/Ubuntu (then run a2enconf zz-hardening), /etc/apache2/conf.d/zz-hardening.conf on SUSE. Remove or align other occurrences of the directive, because the last one wins.
+
+      Header always append X-Frame-Options SAMEORIGIN
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE. Alternatively set a Content-Security-Policy with frame-ancestors 'self'.
 
   # 6 Operations: logging, monitoring and maintenance
 
@@ -362,6 +629,15 @@ checks:
         tolower($1) == "loglevel" {l = tolower($2)}
         END {print (e ? "errorlog" : "no ErrorLog"), (l == "" ? "warn" : l)}'
     expect: "~ ^errorlog (notice|info|debug|trace[1-8])"
+    rationale: |
+      The error log records failed requests, module errors and security events such as access denials. With the default warn level, many relevant events are not recorded. Logging at notice level or more detailed provides the information needed to detect and investigate attacks.
+    remediation: |
+      Define an error log and set the log level to notice or more detailed. Put it in a file that is read after the distribution defaults: /etc/httpd/conf.d/zz-hardening.conf on RHEL-like systems, /etc/apache2/conf-available/zz-hardening.conf on Debian/Ubuntu (then run a2enconf zz-hardening), /etc/apache2/conf.d/zz-hardening.conf on SUSE. Remove or align other occurrences of the directive, because the last one wins.
+
+      ErrorLog logs/error_log
+      LogLevel notice core:info
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE. On Debian/Ubuntu use ErrorLog ${APACHE_LOG_DIR}/error.log. The distribution configuration usually defines ErrorLog already and sets LogLevel warn, which has to be raised.
 
   - id: CIS-APACHE-6.3-access-log
     name: An access log is written
@@ -371,6 +647,15 @@ checks:
     only_if: '{{ httpd }} -t'
     run: "{{ conf }}"
     expect: { some: '~ (?i)^[[:space:]]*(customlog|transferlog)[[:space:]]' }
+    rationale: |
+      The access log records every request with client address, time, request line and status. It is the main source for detecting attacks, tracing incidents and proving what happened.
+    remediation: |
+      Write an access log with mod_log_config. The distribution configuration usually contains a CustomLog directive, restore it if it was removed.
+
+      LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+      CustomLog "logs/access_log" combined
+
+      On RHEL-like systems this belongs in /etc/httpd/conf/httpd.conf; on Debian/Ubuntu use CustomLog ${APACHE_LOG_DIR}/access.log combined in the site files or keep conf-enabled/other-vhosts-access-log.conf enabled. Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-6.4-log-rotation
     name: Logs are rotated and kept for at least 13 rotations
@@ -386,6 +671,14 @@ checks:
       [ -n "$r" ] || r=$(awk '/^[[:space:]]*[^#].*\{/ {depth++} /\}/ {depth--} depth == 0 && $1 == "rotate" {print $2}' /etc/logrotate.conf 2>/dev/null | sed -n 1p)
       echo "${r:-0}"
     expect: ">= 13"
+    rationale: |
+      Without rotation, logs grow until the file system is full, and with too few rotations the evidence of an incident is gone before it is noticed. Keeping at least 13 rotations (about three months with weekly rotation) gives enough history for investigations.
+    remediation: |
+      Add a rotate line with a value of 13 or more to the httpd logrotate file: /etc/logrotate.d/httpd on RHEL-like systems, /etc/logrotate.d/apache2 on Debian/Ubuntu and SUSE.
+
+      rotate 13
+
+      Put the line inside the braces of the log file block, next to the rotation interval (weekly). Without its own rotate line the file inherits the global value of /etc/logrotate.conf, which is often 4.
 
   - id: CIS-APACHE-6.6-modsecurity
     name: ModSecurity is loaded
@@ -395,6 +688,16 @@ checks:
     only_if: '{{ httpd }} -t'
     run: '{{ httpd }} -M 2>/dev/null'
     expect: { some: "~ ^[[:space:]]*security2_module[[:space:]]" }
+    rationale: |
+      ModSecurity is a web application firewall inside httpd. It inspects requests and responses and can block common attacks such as SQL injection, cross-site scripting and protocol abuse before they reach applications.
+    remediation: |
+      Install and enable ModSecurity.
+
+      dnf install mod_security
+      apt-get install libapache2-mod-security2
+      zypper install apache2-mod_security2
+
+      Use the line for the platform (yum on RHEL 7). On Debian/Ubuntu also run a2enmod security2, on SUSE a2enmod security2. Start in detection mode (SecRuleEngine DetectionOnly) and switch to On after tuning. Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-6.7-owasp-crs
     name: The OWASP Core Rule Set is included
@@ -404,6 +707,15 @@ checks:
     only_if: '{{ httpd }} -t'
     run: "{{ conf }}"
     expect: { some: '~ (?i)^[[:space:]]*include(optional)?[[:space:]].*(crs|owasp)' }
+    rationale: |
+      ModSecurity without rules does not block anything. The OWASP Core Rule Set provides maintained generic rules against the most common web attacks and is the usual baseline for ModSecurity.
+    remediation: |
+      Install the OWASP Core Rule Set and load it with an Include or IncludeOptional line whose path names the rule set (it must contain crs or owasp).
+
+      apt-get install modsecurity-crs
+      dnf install mod_security_crs
+
+      On Debian/Ubuntu the package is loaded by IncludeOptional /usr/share/modsecurity-crs/*.load in mods-available/security2.conf. On RHEL-like systems the package activates its rules through modsecurity.d/activated_rules/*.conf, which this check does not recognize; install the rule set below a path such as /etc/httpd/crs and load it with IncludeOptional /etc/httpd/crs/crs-setup.conf and IncludeOptional /etc/httpd/crs/rules/*.conf instead, without loading the rules twice. Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   # 7 SSL/TLS
 
@@ -415,6 +727,15 @@ checks:
     only_if: '{{ httpd }} -t'
     run: '{{ httpd }} -M 2>/dev/null'
     expect: { some: "~ ^[[:space:]]*(ssl|nss)_module[[:space:]]" }
+    rationale: |
+      Without TLS, credentials, session cookies and content travel in clear text and can be read or modified by anyone on the network path. The TLS module is the prerequisite for serving the site over HTTPS.
+    remediation: |
+      Install or enable the TLS module.
+
+      dnf install mod_ssl
+      a2enmod ssl
+
+      The first line is for RHEL-like systems (yum on RHEL 7), the second for Debian/Ubuntu and SUSE. Configure a certificate and key, then validate and reload (apachectl configtest and systemctl reload httpd, or apache2ctl configtest and systemctl reload apache2).
 
   - id: CIS-APACHE-7.2-certificates-valid
     name: Configured certificates are valid and trusted
@@ -430,6 +751,15 @@ checks:
         if ! openssl verify -untrusted "$c" "$c" >/dev/null 2>&1; then echo "$c: not trusted"; fi
       done
     expect: empty
+    rationale: |
+      An expired, self-signed or otherwise untrusted certificate trains users to ignore browser warnings and gives no assurance that clients talk to the real server, which makes interception easy. Certificates have to be current and chain up to a trusted authority.
+    remediation: |
+      Replace each reported certificate with a valid one issued by a trusted certificate authority, and append the intermediate certificates to the SSLCertificateFile, because the check verifies the file together with its own chain.
+
+      openssl x509 -in FILE -noout -subject -issuer -enddate
+      openssl verify -untrusted FILE FILE
+
+      For an internal CA, add its root certificate to the system trust store: copy it to /etc/pki/ca-trust/source/anchors/ and run update-ca-trust on RHEL-like systems, to /usr/local/share/ca-certificates/ and run update-ca-certificates on Debian/Ubuntu, to /etc/pki/trust/anchors/ and run update-ca-certificates on SUSE. Reload httpd after replacing certificates.
 
   - id: CIS-APACHE-7.3-private-keys
     name: Private keys are readable only by root
@@ -444,6 +774,15 @@ checks:
         case "$s" in [46]00\ root) ;; *) echo "$k: $s" ;; esac
       done
     expect: empty
+    rationale: |
+      Whoever holds the private key of the server can impersonate it and, without forward secrecy, decrypt recorded traffic. The key is read by httpd while it still runs as root, so no other account needs access to it.
+    remediation: |
+      Make each reported private key owned by root and readable only by root.
+
+      chown root:root FILE
+      chmod 400 FILE
+
+      FILE is the SSLCertificateKeyFile named by the check. Mode 600 is also accepted.
 
   - id: CIS-APACHE-7.4-protocols
     name: Only TLS 1.2 and newer are enabled
@@ -471,6 +810,14 @@ checks:
           for (p in on) if (on[p] && (p == "sslv3" || p == "tlsv1" || p == "tlsv1.1")) print "SSLProtocol enables " p
         }'
     expect: empty
+    rationale: |
+      SSL 3.0, TLS 1.0 and TLS 1.1 have known weaknesses (POODLE, BEAST, weak hash functions) and are deprecated. Allowing only TLS 1.2 and newer prevents downgrade attacks and protects the confidentiality of connections.
+    remediation: |
+      Allow only TLS 1.2 and 1.3. Also change SSLProtocol lines inside virtual hosts, such as in conf.d/ssl.conf on RHEL-like systems or sites-available/default-ssl.conf on Debian/Ubuntu. Put it in a file that is read after the distribution defaults: /etc/httpd/conf.d/zz-hardening.conf on RHEL-like systems, /etc/apache2/conf-available/zz-hardening.conf on Debian/Ubuntu (then run a2enconf zz-hardening), /etc/apache2/conf.d/zz-hardening.conf on SUSE. Remove or align other occurrences of the directive, because the last one wins.
+
+      SSLProtocol -all +TLSv1.2 +TLSv1.3
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE. On RHEL 7 (OpenSSL 1.0.2) use SSLProtocol -all +TLSv1.2. On RHEL 8 and later you can instead omit SSLProtocol and rely on a system crypto policy other than LEGACY (update-crypto-policies --set DEFAULT).
 
   - id: CIS-APACHE-7.5-weak-ciphers
     name: Weak cipher suites are disabled
@@ -481,6 +828,15 @@ checks:
     run: "{{ conf }} | awk 'tolower($1) == \"sslciphersuite\" {v = $0} END {print v}'"
     expect:
       none: '~ (?i)([[:space:]:]|^)[+]?(null|enull|anull|exp|export|des|3des|rc4|md5|low)(:|[[:space:]]|$)'
+    rationale: |
+      Cipher suites without encryption or authentication, export-grade ciphers and algorithms such as DES, 3DES, RC4 and MD5 can be broken or downgraded with practical effort. Disabling them ensures that negotiated connections use strong cryptography.
+    remediation: |
+      Set a cipher suite list without NULL, export, DES, 3DES, RC4, MD5 or LOW ciphers. Also change SSLCipherSuite lines in the TLS virtual hosts. Put it in a file that is read after the distribution defaults: /etc/httpd/conf.d/zz-hardening.conf on RHEL-like systems, /etc/apache2/conf-available/zz-hardening.conf on Debian/Ubuntu (then run a2enconf zz-hardening), /etc/apache2/conf.d/zz-hardening.conf on SUSE. Remove or align other occurrences of the directive, because the last one wins.
+
+      SSLCipherSuite ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:!aNULL:!eNULL:!MD5
+      SSLHonorCipherOrder on
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE. Excluding a cipher with a leading ! is fine; the check only flags ciphers that are enabled.
 
   - id: CIS-APACHE-7.6-insecure-renegotiation
     name: Insecure TLS renegotiation is disabled
@@ -490,6 +846,14 @@ checks:
     only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
     run: "{{ conf }} | awk 'tolower($1) == \"sslinsecurerenegotiation\" {v = tolower($2)} END {print v}'"
     expect: "!= on"
+    rationale: |
+      Insecure renegotiation allows a man in the middle to inject data at the start of a TLS session that the server treats as coming from the authenticated client. Only the secure renegotiation extension should be supported.
+    remediation: |
+      Disable insecure renegotiation (this is the default, so removing SSLInsecureRenegotiation on also works). Put it in a file that is read after the distribution defaults: /etc/httpd/conf.d/zz-hardening.conf on RHEL-like systems, /etc/apache2/conf-available/zz-hardening.conf on Debian/Ubuntu (then run a2enconf zz-hardening), /etc/apache2/conf.d/zz-hardening.conf on SUSE. Remove or align other occurrences of the directive, because the last one wins.
+
+      SSLInsecureRenegotiation off
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-7.7-compression
     name: TLS compression is disabled
@@ -499,6 +863,14 @@ checks:
     only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
     run: "{{ conf }} | awk 'tolower($1) == \"sslcompression\" {v = tolower($2)} END {print v}'"
     expect: "!= on"
+    rationale: |
+      Compression at the TLS layer leaks information about the plaintext through the size of encrypted records, which the CRIME attack uses to recover session cookies. TLS compression is therefore kept off.
+    remediation: |
+      Disable TLS compression (this is the default, so removing SSLCompression on also works). Put it in a file that is read after the distribution defaults: /etc/httpd/conf.d/zz-hardening.conf on RHEL-like systems, /etc/apache2/conf-available/zz-hardening.conf on Debian/Ubuntu (then run a2enconf zz-hardening), /etc/apache2/conf.d/zz-hardening.conf on SUSE. Remove or align other occurrences of the directive, because the last one wins.
+
+      SSLCompression off
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-7.9-https-redirect
     name: Plain HTTP virtual hosts redirect to HTTPS
@@ -513,6 +885,17 @@ checks:
         in_vh && tolower($0) ~ /(redirect|rewriterule).*https:/ {redirect = 1}
         tolower($1) == "</virtualhost>" && in_vh { if (!redirect) print name; in_vh = 0 }'
     expect: empty
+    rationale: |
+      Content served over plain HTTP can be read and altered in transit. Redirecting every plain HTTP request to HTTPS ensures that users end up on the protected site even when they type the address without a scheme or follow an old link.
+    remediation: |
+      In every port 80 virtual host listed by the check, redirect all requests to the HTTPS site and serve no content directly.
+
+      <VirtualHost *:80>
+          ServerName www.example.com
+          Redirect permanent / https://www.example.com/
+      </VirtualHost>
+
+      Use the reported host names. The virtual hosts are in conf.d/ on RHEL-like systems, in sites-available/ on Debian/Ubuntu and in vhosts.d/ on SUSE. Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-7.11-ocsp-stapling
     name: OCSP stapling is enabled
@@ -522,6 +905,15 @@ checks:
     only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
     run: "{{ conf }} | awk 'tolower($1) == \"sslusestapling\" {v = tolower($2)} END {print (v == \"\" ? \"off\" : v)}'"
     expect: "== on"
+    rationale: |
+      With OCSP stapling the server delivers a signed, current revocation status together with its certificate. Clients no longer have to contact the CA themselves, which avoids leaking browsing behaviour and makes revocation checks more reliable.
+    remediation: |
+      Enable OCSP stapling and define the stapling cache, which must be set outside of virtual hosts. Put it in a file that is read after the distribution defaults: /etc/httpd/conf.d/zz-hardening.conf on RHEL-like systems, /etc/apache2/conf-available/zz-hardening.conf on Debian/Ubuntu (then run a2enconf zz-hardening), /etc/apache2/conf.d/zz-hardening.conf on SUSE. Remove or align other occurrences of the directive, because the last one wins.
+
+      SSLUseStapling on
+      SSLStaplingCache "shmcb:/run/httpd/ssl_stapling(512000)"
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE. On Debian/Ubuntu and SUSE use shmcb:/run/apache2/ssl_stapling(512000). The server must be able to reach the OCSP responder of the CA.
 
   - id: CIS-APACHE-7.12-hsts
     name: HTTP Strict Transport Security is sent
@@ -531,6 +923,14 @@ checks:
     only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
     run: "{{ conf }}"
     expect: { some: '~ (?i)^[[:space:]]*header[[:space:]]+(always[[:space:]]+)?set[[:space:]]+strict-transport-security' }
+    rationale: |
+      HTTP Strict Transport Security tells browsers to use only HTTPS for the site for a given time. This prevents SSL stripping attacks, where a man in the middle keeps the user on plain HTTP after the first request.
+    remediation: |
+      Send the Strict-Transport-Security header; mod_headers must be loaded (a2enmod headers on Debian/Ubuntu and SUSE). Put it in a file that is read after the distribution defaults: /etc/httpd/conf.d/zz-hardening.conf on RHEL-like systems, /etc/apache2/conf-available/zz-hardening.conf on Debian/Ubuntu (then run a2enconf zz-hardening), /etc/apache2/conf.d/zz-hardening.conf on SUSE. Remove or align other occurrences of the directive, because the last one wins.
+
+      Header always set Strict-Transport-Security "max-age=31536000"
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE. Add includeSubDomains only if every subdomain is served over HTTPS.
 
   - id: CIS-APACHE-7.13-forward-secrecy
     name: Only cipher suites with forward secrecy are enabled
@@ -543,6 +943,15 @@ checks:
       - "!empty"
       - each: '~ (?i)(ecdhe|eecdh|dhe|edh)'
       - none: '~ (?i)([[:space:]:]|^)[+]?(rsa|krsa|aes128-sha|aes256-sha|aes128-gcm-sha256|aes256-gcm-sha384)(:|[[:space:]]|$)'
+    rationale: |
+      Without forward secrecy, anyone who later obtains the server's private key can decrypt all recorded past sessions. Ephemeral Diffie-Hellman key exchange (ECDHE or DHE) generates a new key per session, so a stolen key does not expose earlier traffic.
+    remediation: |
+      Set an explicit cipher suite list that contains only ECDHE or DHE key exchange and no static RSA suites. Make sure this is the last SSLCipherSuite line, also with respect to the TLS virtual hosts. Put it in a file that is read after the distribution defaults: /etc/httpd/conf.d/zz-hardening.conf on RHEL-like systems, /etc/apache2/conf-available/zz-hardening.conf on Debian/Ubuntu (then run a2enconf zz-hardening), /etc/apache2/conf.d/zz-hardening.conf on SUSE. Remove or align other occurrences of the directive, because the last one wins.
+
+      SSLCipherSuite ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:!aNULL:!eNULL:!MD5
+      SSLHonorCipherOrder on
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE. On RHEL 8 and later the default SSLCipherSuite PROFILE=SYSTEM does not satisfy this check and has to be replaced. TLS 1.3 suites always use forward secrecy and need no change.
 
   # 8 Information leakage
 
@@ -554,6 +963,14 @@ checks:
     only_if: '{{ httpd }} -t'
     run: "{{ conf }} | awk 'tolower($1) == \"servertokens\" {v = tolower($2)} END {print (v == \"\" ? \"full\" : v)}'"
     expect: "in [prod, productonly]"
+    rationale: |
+      By default the Server header reveals the exact version, the operating system and loaded modules. This helps attackers to pick matching exploits. Reporting only the product name removes that information without affecting clients.
+    remediation: |
+      Set ServerTokens to Prod. On Debian/Ubuntu conf-available/security.conf sets it to OS; edit it there or make sure your file sorts after it. Put it in a file that is read after the distribution defaults: /etc/httpd/conf.d/zz-hardening.conf on RHEL-like systems, /etc/apache2/conf-available/zz-hardening.conf on Debian/Ubuntu (then run a2enconf zz-hardening), /etc/apache2/conf.d/zz-hardening.conf on SUSE. Remove or align other occurrences of the directive, because the last one wins.
+
+      ServerTokens Prod
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-8.2-server-signature
     name: Error pages carry no server signature
@@ -563,6 +980,14 @@ checks:
     only_if: '{{ httpd }} -t'
     run: "{{ conf }} | awk 'tolower($1) == \"serversignature\" {v = tolower($2)} END {print (v == \"\" ? \"off\" : v)}'"
     expect: "== off"
+    rationale: |
+      The server signature adds the server version and host name to error pages and directory listings. Turning it off avoids disclosing version information that helps attackers to select exploits.
+    remediation: |
+      Set ServerSignature Off. On Debian/Ubuntu conf-available/security.conf sets it to On; edit it there or make sure your file sorts after it. Put it in a file that is read after the distribution defaults: /etc/httpd/conf.d/zz-hardening.conf on RHEL-like systems, /etc/apache2/conf-available/zz-hardening.conf on Debian/Ubuntu (then run a2enconf zz-hardening), /etc/apache2/conf.d/zz-hardening.conf on SUSE. Remove or align other occurrences of the directive, because the last one wins.
+
+      ServerSignature Off
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-8.3-icons
     name: The default icons alias is removed
@@ -572,6 +997,14 @@ checks:
     only_if: '{{ httpd }} -t'
     run: "{{ conf }}"
     expect: { none: '~ (?i)^[[:space:]]*alias[[:space:]]+"?/icons/' }
+    rationale: |
+      The default /icons/ alias exposes the bundled icon set. Requesting known files there reveals that Apache is running and sometimes its version, and the directory has no purpose when directory listings are disabled.
+    remediation: |
+      Remove or comment out the Alias /icons/ directive. It is in /etc/httpd/conf.d/autoindex.conf on RHEL-like systems, in /etc/apache2/mods-available/alias.conf on Debian/Ubuntu and in /etc/apache2/default-server.conf on SUSE.
+
+      grep -rni 'alias[[:space:]]*"\?/icons/' /etc/httpd /etc/apache2 2>/dev/null
+
+      Do not disable mod_alias itself, it also provides Redirect. Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   - id: CIS-APACHE-8.4-etag
     name: ETag headers do not contain inode numbers
@@ -581,6 +1014,14 @@ checks:
     only_if: '{{ httpd }} -t'
     run: "{{ conf }} | grep -iE '^[[:space:]]*fileetag[[:space:]]' || true"
     expect: { none: '~ (?i)[[:space:]+](all|inode)([[:space:]]|$)' }
+    rationale: |
+      An ETag based on the inode number reveals file system details and makes the same file get different ETags on different servers of a cluster. Using only modification time and size avoids the information leak.
+    remediation: |
+      Remove the inode component from FileETag, or remove the directive to get the default of MTime Size. Fix every FileETag line that uses All or INode. Put it in a file that is read after the distribution defaults: /etc/httpd/conf.d/zz-hardening.conf on RHEL-like systems, /etc/apache2/conf-available/zz-hardening.conf on Debian/Ubuntu (then run a2enconf zz-hardening), /etc/apache2/conf.d/zz-hardening.conf on SUSE. Remove or align other occurrences of the directive, because the last one wins.
+
+      FileETag MTime Size
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   # 9 Denial of service mitigations, 10 request limits
 
@@ -601,6 +1042,17 @@ checks:
       if [ "{{ item.key }}" = LimitRequestBody ] && [ "$v" = 0 ]; then v=1073741824; fi
       echo "${v:-{{ item.value.default }}}"
     expect: "{{ item.value.expect }}"
+    rationale: |
+      Connection limits decide how many resources a single client can bind. A long request Timeout lets slow clients hold worker slots (slowloris), persistent connections avoid the cost of repeated handshakes, a high number of requests per connection keeps that benefit, and a short keep-alive timeout frees idle connections quickly. Together they make the server harder to exhaust.
+    remediation: |
+      Set the directive named by this check to the value it expects: Timeout 10 or less, KeepAlive On, MaxKeepAliveRequests 100 or more, KeepAliveTimeout 15 or less. Put it in a file that is read after the distribution defaults: /etc/httpd/conf.d/zz-hardening.conf on RHEL-like systems, /etc/apache2/conf-available/zz-hardening.conf on Debian/Ubuntu (then run a2enconf zz-hardening), /etc/apache2/conf.d/zz-hardening.conf on SUSE. Remove or align other occurrences of the directive, because the last one wins.
+
+      Timeout 10
+      KeepAlive On
+      MaxKeepAliveRequests 100
+      KeepAliveTimeout 15
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE. Debian/Ubuntu set Timeout 300 in apache2.conf; change it there or override it. A short Timeout can break slow backends or uploads over slow links.
 
 
   - id: "CIS-APACHE-{{ item.value.cis }}-{{ item.key | lower }}"
@@ -620,6 +1072,17 @@ checks:
       if [ "{{ item.key }}" = LimitRequestBody ] && [ "$v" = 0 ]; then v=1073741824; fi
       echo "${v:-{{ item.value.default }}}"
     expect: "{{ item.value.expect }}"
+    rationale: |
+      Very long request lines, many or large header fields and big request bodies are used to exhaust memory and to exploit parsing flaws in modules and applications. Limiting them to what the site really needs reduces the impact of such requests. Limits that are too tight break legitimate requests with long URLs, many cookies or uploads.
+    remediation: |
+      Set the directive named by this check to the value it expects: LimitRequestLine 512 or less, LimitRequestFields 100 or less, LimitRequestFieldSize 1024 or less, LimitRequestBody 102400 or less (0 means unlimited and fails). Put it in a file that is read after the distribution defaults: /etc/httpd/conf.d/zz-hardening.conf on RHEL-like systems, /etc/apache2/conf-available/zz-hardening.conf on Debian/Ubuntu (then run a2enconf zz-hardening), /etc/apache2/conf.d/zz-hardening.conf on SUSE. Remove or align other occurrences of the directive, because the last one wins.
+
+      LimitRequestLine 512
+      LimitRequestFields 100
+      LimitRequestFieldSize 1024
+      LimitRequestBody 102400
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE. Raise LimitRequestBody inside the Directory or Location of an upload handler only where needed, and test the application with the new limits.
 
   - id: CIS-APACHE-9.5-request-read-timeout
     name: Slow requests are cut off by mod_reqtimeout
@@ -629,6 +1092,15 @@ checks:
     only_if: '{{ httpd }} -t'
     run: '{{ httpd }} -M 2>/dev/null'
     expect: { some: "~ ^[[:space:]]*reqtimeout_module[[:space:]]" }
+    rationale: |
+      Slow HTTP attacks send headers or bodies one byte at a time to keep connections open and exhaust worker slots. mod_reqtimeout enforces minimum transfer rates and maximum times for reading the request, so such connections are closed early.
+    remediation: |
+      Load mod_reqtimeout and set read timeouts for headers and body. On RHEL-like systems the LoadModule line is in /etc/httpd/conf.modules.d/00-base.conf; on Debian/Ubuntu and SUSE run a2enmod reqtimeout.
+
+      LoadModule reqtimeout_module modules/mod_reqtimeout.so
+      RequestReadTimeout header=20-40,MinRate=500 body=20,MinRate=500
+
+      Validate and reload: apachectl configtest and systemctl reload httpd on RHEL-like systems, apache2ctl configtest and systemctl reload apache2 on Debian/Ubuntu and SUSE.
 
   # 11 SELinux (RHEL-like systems)
 
@@ -641,6 +1113,15 @@ checks:
     only_if: '{{ httpd }} -t'
     run: getenforce 2>/dev/null || echo "SELinux not available"
     expect: "== Enforcing"
+    rationale: |
+      SELinux confines httpd to the files, ports and actions its policy allows. Even if an attacker gains code execution in the web server, the policy blocks access to other data and services. In permissive or disabled mode these restrictions are only logged or not applied at all.
+    remediation: |
+      Switch SELinux to enforcing for the running system and in its configuration.
+
+      setenforce 1
+      sed -i 's/^SELINUX=.*/SELINUX=enforcing/' /etc/selinux/config
+
+      If SELinux was disabled, set SELINUX=permissive first, run touch /.autorelabel and reboot so that the file system is relabelled, review the denials with ausearch -m avc, and then switch to enforcing.
 
   - id: CIS-APACHE-11.2-httpd-confined
     name: httpd processes run in the httpd_t domain
@@ -653,6 +1134,15 @@ checks:
     expect:
       - "!empty"
       - each: "~ :httpd_t:"
+    rationale: |
+      httpd is only restricted by its SELinux policy when its processes run in the httpd_t domain. A server started from a wrongly labelled binary or by hand from an unconfined shell runs unconfined and is not protected by the policy.
+    remediation: |
+      Restore the SELinux labels of the httpd binary and start the server through systemd, so that the processes transition into httpd_t.
+
+      restorecon -v /usr/sbin/httpd
+      systemctl restart httpd
+
+      Check the result with ps -eZ | grep httpd.
 
   - id: CIS-APACHE-11.3-httpd-not-permissive
     name: The httpd_t domain is not permissive
@@ -663,6 +1153,14 @@ checks:
     only_if: '{{ httpd }} -t && command -v semodule'
     run: semodule -l 2>/dev/null | grep -i permissive_httpd_t || true
     expect: empty
+    rationale: |
+      A permissive domain logs policy violations but does not block them. With httpd_t permissive, the SELinux confinement of the web server has no effect even though the system is enforcing.
+    remediation: |
+      Remove the permissive setting for the httpd_t domain.
+
+      semanage permissive -d httpd_t
+
+      Review the AVC denials that occur afterwards with ausearch -m avc -c httpd and allow needed access with booleans (setsebool -P) or file contexts instead of making the domain permissive.
 
   # 12 AppArmor (Debian and Ubuntu)
 
@@ -675,6 +1173,15 @@ checks:
     only_if: '{{ httpd }} -t'
     run: cat /sys/module/apparmor/parameters/enabled 2>/dev/null || echo N
     expect: "== Y"
+    rationale: |
+      AppArmor confines programs to the files and capabilities listed in their profiles. Even if an attacker gains code execution in the web server, an enforced profile limits what can be read, written or executed. The kernel module has to be enabled for any profile to take effect.
+    remediation: |
+      Install AppArmor and enable it at boot.
+
+      apt-get install apparmor apparmor-utils
+      systemctl enable --now apparmor
+
+      If the kernel command line contains apparmor=0, remove it from GRUB_CMDLINE_LINUX in /etc/default/grub, run update-grub and reboot.
 
   - id: CIS-APACHE-12.3-apparmor-enforce
     name: An AppArmor profile for apache2 is in enforce mode
@@ -685,3 +1192,16 @@ checks:
     only_if: '{{ httpd }} -t && command -v aa-status'
     run: aa-status 2>/dev/null | sed -n '/profiles are in enforce mode/,/profiles are in complain mode/p' | grep -c apache2 || true
     expect: "> 0"
+    rationale: |
+      An AppArmor profile only restricts apache2 when it is loaded in enforce mode. In complain mode violations are merely logged, and without a profile the server runs unconfined.
+    remediation: |
+      Install an AppArmor profile for apache2, tune it in complain mode, and then put it into enforce mode.
+
+      apt-get install apparmor-profiles apparmor-utils libapache2-mod-apparmor
+      cp /usr/share/apparmor/extra-profiles/usr.sbin.apache2 /etc/apparmor.d/
+      aa-complain /etc/apparmor.d/usr.sbin.apache2
+      aa-logprof
+      aa-enforce /etc/apparmor.d/usr.sbin.apache2
+      systemctl restart apache2
+
+      Run aa-logprof after exercising the site to add the access it needs. Package and profile names can differ between releases.

@@ -33,6 +33,15 @@ checks:
     only_if: command -v psql && command -v runuser
     run: "{{ psql }} -c 'SELECT 1'"
     expect: "== 1"
+    rationale: |
+      All database checks of this policy query the running server through the local socket as the postgres user. If the server is down or local access for postgres is broken, none of the settings can be verified, and the database is probably not available to its users either.
+    remediation: |
+      Start the PostgreSQL service and make sure the postgres operating system user can connect over the local socket (peer authentication in pg_hba.conf).
+
+      systemctl start postgresql
+      runuser -u postgres -- psql -c 'SELECT 1'
+
+      The service is called postgresql on RHEL-like systems with distribution packages, postgresql-VERSION with PGDG packages, and postgresql@VERSION-main on Debian/Ubuntu. If the connection is refused, check that pg_hba.conf contains a line such as local all postgres peer and reload the server.
 
   # 1 Installation and patches
 
@@ -44,6 +53,14 @@ checks:
     only_if: command -v systemctl && test -d /run/systemd/system && command -v psql
     run: systemctl list-unit-files --no-legend 2>/dev/null | awk '$1 ~ /^postgresql/ && $2 == "enabled" {print $1}'
     expect: "!empty"
+    rationale: |
+      If the database service is not enabled, it does not come back after a reboot, which causes an outage for all dependent applications. Starting it through systemd also ensures it runs with the intended unit settings and is supervised.
+    remediation: |
+      Enable the PostgreSQL unit so that it starts at boot.
+
+      systemctl enable --now postgresql
+
+      The service is called postgresql on RHEL-like systems with distribution packages, postgresql-VERSION with PGDG packages, and postgresql@VERSION-main on Debian/Ubuntu.
 
   - id: CIS-PG-1.3-cluster-initialized
     name: The data directory contains an initialized cluster
@@ -55,6 +72,15 @@ checks:
       d=$({{ psql }} -c 'SHOW data_directory')
       if [ -f "$d/PG_VERSION" ]; then echo initialized; else echo "$d has no PG_VERSION"; fi
     expect: "== initialized"
+    rationale: |
+      A data directory without PG_VERSION is not a valid, initialized cluster. Running a server against an incomplete or unexpected directory indicates a broken installation and can lead to data loss or a server started with default settings.
+    remediation: |
+      Initialize the cluster with the distribution tools and point the service at it.
+
+      postgresql-setup --initdb
+      pg_createcluster VERSION main --start
+
+      The first line is for RHEL-like systems (with PGDG packages /usr/pgsql-VERSION/bin/postgresql-VERSION-setup initdb), the second for Debian/Ubuntu. Never initialize over a directory that still contains data.
 
   # 2 Directory and file permissions
 
@@ -66,6 +92,16 @@ checks:
     only_if: getent passwd postgres && command -v runuser
     run: cd / && runuser -l postgres -c umask 2>/dev/null | tail -n 1
     expect: "~ ^0?077$"
+    rationale: |
+      Files created by the postgres account in a login session (dumps, exports, scripts, copied configuration) inherit its umask. With umask 077 they are readable only by postgres, so database contents do not leak to other local users.
+    remediation: |
+      Set umask 077 in the login profile of the postgres account. Its home directory is /var/lib/pgsql on RHEL-like systems and /var/lib/postgresql on Debian/Ubuntu.
+
+      h=$(getent passwd postgres | cut -d: -f6)
+      echo 'umask 077' >> "$h/.bash_profile"
+      chown postgres: "$h/.bash_profile"
+
+      If the account has a .profile but no .bash_profile, add the line to .profile instead, because bash reads only the first of them.
 
   - id: CIS-PG-2.1-data-directory-mode
     name: The data directory is accessible only by its owner
@@ -75,6 +111,14 @@ checks:
     only_if: "{{ psql }} -c 'SELECT 1'"
     run: stat -c '%a %U' "$({{ psql }} -c 'SHOW data_directory')"
     expect: "~ ^7[05]0 postgres$"
+    rationale: |
+      The data directory contains all table data, the WAL and configuration such as pg_hba.conf. Access by other accounts would expose all database contents and allow tampering. PostgreSQL itself refuses to start with permissions that are too open.
+    remediation: |
+      Make the data directory owned by postgres and accessible only by it (0750 is also accepted when the cluster was initialized with group access).
+
+      d=$(runuser -u postgres -- psql -X -A -t -c 'SHOW data_directory')
+      chown postgres: "$d"
+      chmod 700 "$d"
 
   # 3 Logging, monitoring and auditing
 
@@ -86,6 +130,15 @@ checks:
     only_if: "{{ psql }} -c 'SELECT 1'"
     run: "{{ psql }} -c 'SHOW log_destination'"
     expect: "~ (stderr|csvlog|jsonlog|syslog)"
+    rationale: |
+      Without a log destination, server errors, failed logins and audit events are not recorded anywhere. Logs are needed to detect attacks, investigate incidents and diagnose problems.
+    remediation: |
+      Set log_destination to stderr, csvlog, jsonlog or syslog, or a combination.
+
+      runuser -u postgres -- psql -c "ALTER SYSTEM SET log_destination = 'stderr'"
+      runuser -u postgres -- psql -c "SELECT pg_reload_conf()"
+
+      A reload is enough to apply it. ALTER SYSTEM writes postgresql.auto.conf, which overrides postgresql.conf; remove contradicting lines from postgresql.conf as well. csvlog and jsonlog (PostgreSQL 15 and later) need the logging collector.
 
   - id: "CIS-PG-{{ item.value.cis }}-{{ item.key }}"
     name: "{{ item.value.name }}"
@@ -117,6 +170,37 @@ checks:
       log_timezone: { cis: 3.1.26, name: Log timestamps use UTC, expect: "in [UTC, GMT, Etc/UTC, Etc/GMT, Etc/Universal, Universal, Zulu]" }
     run: "{{ psql }} -c 'SHOW {{ item.key }}'"
     expect: "{{ item.value.expect }}"
+    rationale: |
+      These logging parameters decide what the server records and how log files are protected. The logging collector writes reliable log files with time-based names and rotation; restrictive file modes keep logged statements and user names private; syslog settings preserve message order and completeness; logging errors, connections, disconnections and DDL makes attacks and changes traceable; debug output is kept off because it can contain sensitive data; UTC timestamps and no host name lookups keep logs consistent and fast.
+    remediation: |
+      Set the parameter named by this check to a value that matches its expectation with ALTER SYSTEM, then reload the configuration. Values that pass:
+
+      logging_collector = on (needs a restart)
+      log_directory = '/var/log/postgresql'
+      log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+      log_file_mode = '0600'
+      log_truncate_on_rotation = on
+      syslog_facility = 'local0'
+      syslog_sequence_numbers = on
+      syslog_split_messages = on
+      syslog_ident = 'postgres'
+      log_min_messages = 'warning'
+      log_min_error_statement = 'error'
+      debug_print_parse = off
+      debug_print_rewritten = off
+      debug_print_plan = off
+      debug_pretty_print = on
+      log_connections = on
+      log_disconnections = on
+      log_error_verbosity = 'default'
+      log_hostname = off
+      log_statement = 'ddl'
+      log_timezone = 'UTC'
+
+      runuser -u postgres -- psql -c "ALTER SYSTEM SET log_statement = 'ddl'"
+      runuser -u postgres -- psql -c "SELECT pg_reload_conf()"
+
+      Replace the example with the reported parameter and its value. logging_collector only takes effect after systemctl restart of the PostgreSQL service. ALTER SYSTEM writes postgresql.auto.conf, which overrides postgresql.conf; remove contradicting lines from postgresql.conf as well.
 
   - id: CIS-PG-3.1.8-log-rotation-age
     name: Log files are rotated by age
@@ -126,6 +210,15 @@ checks:
     only_if: "{{ psql }} -c 'SELECT 1'"
     run: "{{ psql }} -c \"SELECT setting FROM pg_settings WHERE name = 'log_rotation_age'\""
     expect: "> 0"
+    rationale: |
+      Rotating log files by age keeps individual files manageable and lets old logs be archived or removed on a predictable schedule, without the log growing into one unbounded file.
+    remediation: |
+      Set log_rotation_age to a value greater than zero, for example one day.
+
+      runuser -u postgres -- psql -c "ALTER SYSTEM SET log_rotation_age = '1d'"
+      runuser -u postgres -- psql -c "SELECT pg_reload_conf()"
+
+      A reload is enough to apply it. ALTER SYSTEM writes postgresql.auto.conf, which overrides postgresql.conf; remove contradicting lines from postgresql.conf as well.
 
   - id: CIS-PG-3.1.9-log-rotation-size
     name: Log files are rotated by size
@@ -135,6 +228,15 @@ checks:
     only_if: "{{ psql }} -c 'SELECT 1'"
     run: "{{ psql }} -c \"SELECT setting FROM pg_settings WHERE name = 'log_rotation_size'\""
     expect: "> 0"
+    rationale: |
+      Rotating log files by size prevents a burst of messages, for example during an attack or a failure, from creating a single huge file that is hard to handle and can fill the file system.
+    remediation: |
+      Set log_rotation_size to a value greater than zero.
+
+      runuser -u postgres -- psql -c "ALTER SYSTEM SET log_rotation_size = '1GB'"
+      runuser -u postgres -- psql -c "SELECT pg_reload_conf()"
+
+      A reload is enough to apply it. ALTER SYSTEM writes postgresql.auto.conf, which overrides postgresql.conf; remove contradicting lines from postgresql.conf as well.
 
   - id: CIS-PG-3.1.24-log-line-prefix
     name: Log lines carry time, process, database, user and client
@@ -149,6 +251,15 @@ checks:
       - "~ %d"
       - "~ %u"
       - "~ %[hr]"
+    rationale: |
+      A log message is only useful for investigations when it shows when it happened, which process wrote it, and which database, user and client were involved. The log line prefix adds this context to every message.
+    remediation: |
+      Set log_line_prefix so that it contains a timestamp (%m, %t or %n), the process ID (%p), the database (%d), the user (%u) and the client host (%h or %r).
+
+      runuser -u postgres -- psql -c "ALTER SYSTEM SET log_line_prefix = '%m [%p] %q%u@%d %h '"
+      runuser -u postgres -- psql -c "SELECT pg_reload_conf()"
+
+      A reload is enough to apply it. ALTER SYSTEM writes postgresql.auto.conf, which overrides postgresql.conf; remove contradicting lines from postgresql.conf as well.
 
   - id: CIS-PG-3.2-pgaudit
     name: The pgAudit extension is preloaded
@@ -158,6 +269,21 @@ checks:
     only_if: "{{ psql }} -c 'SELECT 1'"
     run: "{{ psql }} -c 'SHOW shared_preload_libraries'"
     expect: '~ (^|,)\s*pgaudit\s*(,|$)'
+    rationale: |
+      The standard statement logging cannot reliably tell which objects were read or changed. pgAudit produces detailed session and object audit records, which are needed to prove who accessed or modified data.
+    remediation: |
+      Install pgAudit, add it to shared_preload_libraries and restart the server, then create the extension and choose what to log.
+
+      dnf install pgaudit
+      apt-get install postgresql-VERSION-pgaudit
+      runuser -u postgres -- psql -c "SHOW shared_preload_libraries"
+      runuser -u postgres -- psql -c "ALTER SYSTEM SET shared_preload_libraries = 'pgaudit'"
+      systemctl restart postgresql
+      runuser -u postgres -- psql -c "CREATE EXTENSION pgaudit"
+      runuser -u postgres -- psql -c "ALTER SYSTEM SET pgaudit.log = 'ddl,role,write'"
+      runuser -u postgres -- psql -c "SELECT pg_reload_conf()"
+
+      Use the install line for the platform (PGDG packages are called pgaudit_VERSION or similar, SUSE uses postgresqlVERSION-pgaudit). ALTER SYSTEM replaces the whole list: keep libraries that are already preloaded, for example 'pg_stat_statements,pgaudit'. The service is called postgresql on RHEL-like systems with distribution packages, postgresql-VERSION with PGDG packages, and postgresql@VERSION-main on Debian/Ubuntu.
 
   # 4 User access and authorization
 
@@ -169,6 +295,16 @@ checks:
     only_if: command -v sudo && getent passwd postgres
     run: sudo -n -l -U postgres 2>/dev/null | grep -E '^[[:space:]]+\(' || true
     expect: empty
+    rationale: |
+      The postgres account runs the database server. If it can run commands with sudo, a compromise of the database, for example through COPY TO PROGRAM or an untrusted function, leads straight to root access on the host.
+    remediation: |
+      Remove every sudo rule that applies to postgres, directly or through a group, and take the account out of administrative groups.
+
+      sudo -l -U postgres
+      grep -rn postgres /etc/sudoers /etc/sudoers.d/
+      gpasswd -d postgres wheel
+
+      Edit the files with visudo (visudo -f /etc/sudoers.d/FILE). The administrative group is wheel on RHEL-like and SUSE systems and sudo on Debian/Ubuntu.
 
   - id: CIS-PG-4.2-admin-roles
     name: Only approved roles have administrative attributes
@@ -182,6 +318,14 @@ checks:
       AND rolname !~ '^pg_'
       AND rolname NOT IN ({% for r in admin_roles %}'{{ r }}'{{ ', ' if not loop.last }}{% endfor %})"
     expect: empty
+    rationale: |
+      Superuser, CREATEROLE, CREATEDB, REPLICATION and BYPASSRLS bypass most access controls or allow granting further rights. Every role holding them is a high-value target, so they are limited to the few approved administrative roles.
+    remediation: |
+      Review each listed role. Remove the attributes it does not need, or add the role to the admin_roles variable of the policy if it is an approved administrator.
+
+      runuser -u postgres -- psql -c "ALTER ROLE ROLE NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS"
+
+      Replace ROLE with the reported name. Use dedicated roles for replication and grant predefined roles such as pg_monitor instead of superuser for monitoring.
 
   - id: CIS-PG-4.3-security-definer
     name: No user function runs with the privileges of its owner
@@ -196,6 +340,16 @@ checks:
           WHERE p.prosecdef AND n.nspname NOT IN ('pg_catalog', 'information_schema')"
       done
     expect: empty
+    rationale: |
+      A SECURITY DEFINER function runs with the privileges of its owner instead of the caller. If it is badly written or its search_path can be influenced, any user allowed to execute it can escalate privileges, often up to superuser.
+    remediation: |
+      Review each listed function. Convert it to SECURITY INVOKER if it does not need elevated rights; otherwise fix its search_path and restrict who may execute it.
+
+      runuser -u postgres -- psql -d DATABASE -c "ALTER FUNCTION SCHEMA.FUNCTION(ARGS) SECURITY INVOKER"
+      runuser -u postgres -- psql -d DATABASE -c "ALTER FUNCTION SCHEMA.FUNCTION(ARGS) SET search_path = pg_catalog, pg_temp"
+      runuser -u postgres -- psql -d DATABASE -c "REVOKE EXECUTE ON FUNCTION SCHEMA.FUNCTION(ARGS) FROM PUBLIC"
+
+      Functions that legitimately need SECURITY DEFINER keep the check failing; document them with a waiver.
 
   - id: CIS-PG-4.6-set-user
     name: The set_user extension is available
@@ -205,6 +359,15 @@ checks:
     only_if: "{{ psql }} -c 'SELECT 1'"
     run: "{{ psql }} -c \"SELECT count(*) FROM pg_available_extensions WHERE name = 'set_user'\""
     expect: "> 0"
+    rationale: |
+      The set_user extension lets administrators escalate to superuser only when needed, with every escalation logged. This makes it possible to run without direct superuser logins while keeping an audit trail of privileged work.
+    remediation: |
+      Install the set_user extension package.
+
+      dnf install set_user_VERSION
+      apt-get install postgresql-VERSION-set-user
+
+      Use the line for the platform (both come from the PostgreSQL community repositories). To use it, add set_user to shared_preload_libraries, restart the server, run CREATE EXTENSION set_user and grant EXECUTE on set_user() to the administrators.
 
   # 5 Connection and login
 
@@ -216,6 +379,17 @@ checks:
     only_if: "{{ psql }} -c 'SELECT 1'"
     run: "{{ psql }} -c \"SELECT 'line ' || line_number || ': ' || type || ' ' || array_to_string(database, ',') || ' ' || array_to_string(user_name, ',') FROM pg_hba_file_rules WHERE auth_method = 'trust'\""
     expect: empty
+    rationale: |
+      The trust method lets anyone who can reach the matching connection type log in as any listed user without a password. On a shared host or a network this gives direct access to the database, including superuser accounts.
+    remediation: |
+      Replace trust in each reported pg_hba.conf line with peer for local socket connections or scram-sha-256 for network connections, then reload.
+
+      runuser -u postgres -- psql -X -A -t -c 'SHOW hba_file'
+      local   all   postgres   peer
+      host    all   all   192.0.2.0/24   scram-sha-256
+      runuser -u postgres -- psql -c "SELECT pg_reload_conf()"
+
+      The two pg_hba.conf lines are examples. Make sure users that rely on trust have a password or a matching operating system account before reloading.
 
   - id: CIS-PG-5.2-host-auth
     name: Network logins use a strong authentication method
@@ -225,6 +399,16 @@ checks:
     only_if: "{{ psql }} -c 'SELECT 1'"
     run: "{{ psql }} -c \"SELECT 'line ' || line_number || ': ' || type || ' ' || coalesce(address, '') || ' ' || auth_method FROM pg_hba_file_rules WHERE type LIKE 'host%' AND auth_method IN ('trust', 'password', 'md5')\""
     expect: empty
+    rationale: |
+      Network logins with trust need no password, password sends it in clear text, and md5 relies on a weak hash whose stored value is enough to log in. SCRAM-SHA-256 or certificate authentication protect credentials on the wire and in storage.
+    remediation: |
+      Change the method of each reported host line in pg_hba.conf to scram-sha-256 (or cert, ldap, gss where used), then reload.
+
+      runuser -u postgres -- psql -X -A -t -c 'SHOW hba_file'
+      host    all   all   192.0.2.0/24   scram-sha-256
+      runuser -u postgres -- psql -c "SELECT pg_reload_conf()"
+
+      Users whose passwords are still stored as MD5 hashes cannot log in with scram-sha-256: set password_encryption = 'scram-sha-256' and reset their passwords (\password USER in psql) first.
 
   - id: CIS-PG-5.2-hba-valid
     name: pg_hba.conf has no invalid lines
@@ -234,6 +418,16 @@ checks:
     only_if: "{{ psql }} -c 'SELECT 1'"
     run: "{{ psql }} -c \"SELECT 'line ' || line_number || ': ' || error FROM pg_hba_file_rules WHERE error IS NOT NULL\""
     expect: empty
+    rationale: |
+      PostgreSQL skips pg_hba.conf lines it cannot parse. A broken line can silently remove a restriction or block legitimate access after the next reload, so the file the server reads has to be free of errors.
+    remediation: |
+      Correct each reported line in pg_hba.conf as indicated by the error message, then reload.
+
+      runuser -u postgres -- psql -X -A -t -c 'SHOW hba_file'
+      runuser -u postgres -- psql -c "SELECT line_number, error FROM pg_hba_file_rules WHERE error IS NOT NULL"
+      runuser -u postgres -- psql -c "SELECT pg_reload_conf()"
+
+      pg_hba_file_rules reads the file on disk, so run the query again before reloading to confirm that all errors are gone.
 
   - id: CIS-PG-5.2-password-encryption
     name: Passwords are stored as SCRAM-SHA-256
@@ -243,6 +437,15 @@ checks:
     only_if: "{{ psql }} -c 'SELECT 1'"
     run: "{{ psql }} -c 'SHOW password_encryption'"
     expect: "== scram-sha-256"
+    rationale: |
+      Passwords stored as MD5 hashes can be used directly for MD5 authentication and are easy to crack. SCRAM-SHA-256 stores salted, iterated verifiers and supports an authentication exchange that does not reveal the password.
+    remediation: |
+      Set password_encryption to scram-sha-256.
+
+      runuser -u postgres -- psql -c "ALTER SYSTEM SET password_encryption = 'scram-sha-256'"
+      runuser -u postgres -- psql -c "SELECT pg_reload_conf()"
+
+      A reload is enough to apply it. ALTER SYSTEM writes postgresql.auto.conf, which overrides postgresql.conf; remove contradicting lines from postgresql.conf as well. Existing passwords keep their old format until they are set again, for example with \password USER in psql.
 
   # 6 PostgreSQL settings
 
@@ -254,6 +457,15 @@ checks:
     only_if: command -v psql
     run: cat /proc/sys/crypto/fips_enabled 2>/dev/null || echo 0
     expect: "== 1"
+    rationale: |
+      FIPS mode restricts the operating system's cryptographic libraries to validated algorithms and implementations. PostgreSQL uses the system OpenSSL for TLS and pgcrypto, so the database then only uses approved cryptography, as some regulations require.
+    remediation: |
+      Enable FIPS mode for the operating system and reboot.
+
+      fips-mode-setup --enable
+      reboot
+
+      This applies to RHEL 8 and 9. On RHEL 10 FIPS mode is chosen at installation, on RHEL 7 it needs the dracut-fips package and the fips=1 kernel parameter, on Ubuntu it requires Ubuntu Pro (pro enable fips-updates), on SUSE the FIPS pattern and the fips=1 kernel parameter. Test applications before enabling it, as non-approved algorithms stop working.
 
   - id: CIS-PG-6.8-ssl
     name: TLS is enabled
@@ -263,6 +475,15 @@ checks:
     only_if: "{{ psql }} -c 'SELECT 1'"
     run: "{{ psql }} -c 'SHOW ssl'"
     expect: "== on"
+    rationale: |
+      Without TLS, passwords, queries and result data travel in clear text between clients and the server and can be read or altered on the network. Enabling TLS is the prerequisite for encrypted and server-authenticated connections.
+    remediation: |
+      Provide a certificate and private key (ssl_cert_file and ssl_key_file, by default server.crt and server.key in the data directory) and enable TLS.
+
+      runuser -u postgres -- psql -c "ALTER SYSTEM SET ssl = on"
+      runuser -u postgres -- psql -c "SELECT pg_reload_conf()"
+
+      A reload is enough to apply it. ALTER SYSTEM writes postgresql.auto.conf, which overrides postgresql.conf; remove contradicting lines from postgresql.conf as well. Require TLS for network clients with hostssl lines in pg_hba.conf.
 
   - id: CIS-PG-6.8-ssl-min-protocol
     name: TLS 1.2 or newer is required
@@ -272,6 +493,15 @@ checks:
     only_if: "{{ psql }} -c 'SELECT 1'"
     run: "{{ psql }} -c 'SHOW ssl_min_protocol_version'"
     expect: "in [TLSv1.2, TLSv1.3]"
+    rationale: |
+      TLS 1.0 and 1.1 are deprecated and have known weaknesses. Requiring TLS 1.2 or newer prevents clients and attackers from negotiating a weak protocol version.
+    remediation: |
+      Set the minimum TLS protocol version to TLSv1.2 or TLSv1.3.
+
+      runuser -u postgres -- psql -c "ALTER SYSTEM SET ssl_min_protocol_version = 'TLSv1.2'"
+      runuser -u postgres -- psql -c "SELECT pg_reload_conf()"
+
+      A reload is enough to apply it. ALTER SYSTEM writes postgresql.auto.conf, which overrides postgresql.conf; remove contradicting lines from postgresql.conf as well.
 
   - id: CIS-PG-6.8-ssl-key-file
     name: The TLS private key is readable only by its owner
@@ -284,6 +514,16 @@ checks:
       case "$k" in /*) ;; *) k="$({{ psql }} -c 'SHOW data_directory')/$k" ;; esac
       stat -L -c '%a %U' "$k"
     expect: "~ ^[46]00 (postgres|root)$"
+    rationale: |
+      Whoever obtains the server's TLS private key can impersonate the database server and, without forward secrecy, decrypt recorded connections. The key must not be readable by other accounts.
+    remediation: |
+      Make the key file named by ssl_key_file owned by postgres (or root) and readable only by its owner.
+
+      runuser -u postgres -- psql -X -A -t -c 'SHOW ssl_key_file'
+      chown postgres: KEYFILE
+      chmod 600 KEYFILE
+
+      KEYFILE is the reported path (relative paths are inside the data directory). On Debian/Ubuntu the default snakeoil key is root:ssl-cert with mode 640, which this check rejects: copy it to a postgres-owned file with mode 600, set ssl_key_file to that file with ALTER SYSTEM and reload.
 
   - id: CIS-PG-6.9-pgcrypto
     name: The pgcrypto extension is available
@@ -293,6 +533,16 @@ checks:
     only_if: "{{ psql }} -c 'SELECT 1'"
     run: "{{ psql }} -c \"SELECT count(*) FROM pg_available_extensions WHERE name = 'pgcrypto'\""
     expect: "> 0"
+    rationale: |
+      pgcrypto provides functions to encrypt and hash data inside the database. Having it available allows applications to protect sensitive columns, such as personal data, with strong cryptography.
+    remediation: |
+      Install the PostgreSQL contrib modules, which contain pgcrypto.
+
+      dnf install postgresql-contrib
+      apt-get install postgresql-contrib
+      zypper install postgresqlVERSION-contrib
+
+      Use the line for the platform (yum on RHEL 7, postgresqlVERSION-contrib with PGDG packages; on Debian/Ubuntu it is part of the server package since PostgreSQL 10). Run CREATE EXTENSION pgcrypto in the databases that use it.
 
   # 7 Replication
 
@@ -304,6 +554,17 @@ checks:
     only_if: "{{ psql }} -c 'SELECT 1'"
     run: "{{ psql }} -c 'SELECT r.usename FROM pg_stat_replication r JOIN pg_roles a ON a.oid = r.usesysid WHERE a.rolsuper'"
     expect: empty
+    rationale: |
+      Replication only needs the REPLICATION attribute. A standby that connects as a superuser stores superuser credentials on another host, so a compromise of the standby or its configuration gives full control of the primary.
+    remediation: |
+      Create a dedicated replication role, allow it in pg_hba.conf, and change primary_conninfo on each standby to use it.
+
+      runuser -u postgres -- psql -c "CREATE ROLE replicator WITH REPLICATION LOGIN"
+      runuser -u postgres -- psql -c "\password replicator"
+      hostssl replication replicator 192.0.2.20/32 scram-sha-256
+      runuser -u postgres -- psql -c "SELECT pg_reload_conf()"
+
+      The hostssl line goes into pg_hba.conf of the primary. On the standby set user=replicator in primary_conninfo and reload it (restart on PostgreSQL 12).
 
   - id: CIS-PG-7.2-log-replication-commands
     name: Replication commands are logged
@@ -313,6 +574,15 @@ checks:
     only_if: "{{ psql }} -c 'SELECT 1'"
     run: "{{ psql }} -c 'SHOW log_replication_commands'"
     expect: "== on"
+    rationale: |
+      Replication connections can copy the whole database. Logging replication commands records when base backups and streaming start, so unexpected copies of the data can be detected.
+    remediation: |
+      Enable logging of replication commands.
+
+      runuser -u postgres -- psql -c "ALTER SYSTEM SET log_replication_commands = on"
+      runuser -u postgres -- psql -c "SELECT pg_reload_conf()"
+
+      A reload is enough to apply it. ALTER SYSTEM writes postgresql.auto.conf, which overrides postgresql.conf; remove contradicting lines from postgresql.conf as well.
 
   - id: CIS-PG-7.4-wal-archiving
     name: WAL archiving is enabled and has a target
@@ -326,6 +596,16 @@ checks:
         OR coalesce(current_setting('archive_library', true), '') <> '' THEN 'ok'
       ELSE 'no archive_command or archive_library' END"
     expect: "== ok"
+    rationale: |
+      Archived WAL files allow point-in-time recovery and rebuilding standbys. Without continuous archiving, a failure or a destructive change can only be undone back to the last full backup, and all later transactions are lost.
+    remediation: |
+      Enable archive_mode (needs a restart) and set an archive_command or, from PostgreSQL 15 on, an archive_library.
+
+      runuser -u postgres -- psql -c "ALTER SYSTEM SET archive_mode = on"
+      runuser -u postgres -- psql -c "ALTER SYSTEM SET archive_command = 'pgbackrest --stanza=main archive-push %p'"
+      systemctl restart postgresql
+
+      The command is an example for pgBackRest; use the archiving tool of your backup setup and make sure it fails when the file was not stored. The service is called postgresql on RHEL-like systems with distribution packages, postgresql-VERSION with PGDG packages, and postgresql@VERSION-main on Debian/Ubuntu.
 
   - id: CIS-PG-7.5-standby-tls
     name: A standby connects to its primary with TLS
@@ -338,6 +618,15 @@ checks:
       any:
         - "== not a standby"
         - "~ sslmode=(require|verify-ca|verify-full)"
+    rationale: |
+      Streaming replication transfers the full content of the database. If the standby connects without TLS, the data and the replication credentials can be captured or altered on the network.
+    remediation: |
+      On the standby, add sslmode=verify-full (or at least require) to primary_conninfo and reload.
+
+      runuser -u postgres -- psql -c "ALTER SYSTEM SET primary_conninfo = 'host=PRIMARY user=replicator sslmode=verify-full sslrootcert=/var/lib/pgsql/root.crt'"
+      runuser -u postgres -- psql -c "SELECT pg_reload_conf()"
+
+      Keep the other options of the existing primary_conninfo. PostgreSQL 12 needs a restart for this change. The primary must have ssl = on, and verify-full needs the CA certificate on the standby.
 
   # 8 Special configuration considerations
 
@@ -355,6 +644,18 @@ checks:
         *) echo "log_directory $l is relative to $d" ;;
       esac
     expect: "== outside"
+    rationale: |
+      Log files inside the data directory are included in file system backups and base backups of the cluster, and a log flood can fill the volume that holds the database. A separate directory keeps logs and data apart and allows different permissions and retention.
+    remediation: |
+      Create a log directory outside the data directory and set log_directory to its absolute path.
+
+      mkdir -p /var/log/postgresql
+      chown postgres: /var/log/postgresql
+      chmod 700 /var/log/postgresql
+      runuser -u postgres -- psql -c "ALTER SYSTEM SET log_directory = '/var/log/postgresql'"
+      runuser -u postgres -- psql -c "SELECT pg_reload_conf()"
+
+      On RHEL-like systems with SELinux enforcing, label the directory first: semanage fcontext -a -t postgresql_log_t '/var/log/postgresql(/.*)?' and restorecon -Rv /var/log/postgresql. ALTER SYSTEM writes postgresql.auto.conf, which overrides postgresql.conf; remove contradicting lines from postgresql.conf as well.
 
   - id: CIS-PG-8.2-pgbackrest
     name: pgBackRest is installed
@@ -364,6 +665,16 @@ checks:
     only_if: command -v psql
     run: command -v pgbackrest
     expect: true
+    rationale: |
+      Reliable backups are the last line of defence against data loss, ransomware and destructive mistakes. pgBackRest provides consistent full, differential and incremental backups with WAL archiving, verification and encryption.
+    remediation: |
+      Install pgBackRest and configure a stanza for the cluster.
+
+      dnf install pgbackrest
+      apt-get install pgbackrest
+      zypper install pgbackrest
+
+      Use the line for the platform (on RHEL-like systems it comes from the PGDG or EPEL repositories, yum on RHEL 7). Configure /etc/pgbackrest.conf, then run pgbackrest --stanza=main stanza-create and a first backup.
 
   - id: CIS-PG-8.3-dynamic-library-path
     name: Libraries are loaded only from the installation directory
@@ -373,3 +684,12 @@ checks:
     only_if: "{{ psql }} -c 'SELECT 1'"
     run: "{{ psql }} -c 'SHOW dynamic_library_path'"
     expect: "== $libdir"
+    rationale: |
+      dynamic_library_path decides where the server looks for loadable modules. A path that includes directories outside the installation lets anyone who can write there have arbitrary code loaded into the database server.
+    remediation: |
+      Reset dynamic_library_path to its default of $libdir and reload.
+
+      runuser -u postgres -- psql -c 'ALTER SYSTEM RESET dynamic_library_path'
+      runuser -u postgres -- psql -c 'SELECT pg_reload_conf()'
+
+      If postgresql.conf sets the parameter, remove that line too. Install extensions into the PostgreSQL library directory instead of adding paths.
