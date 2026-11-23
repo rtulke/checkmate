@@ -18,6 +18,25 @@ NIST SP 800-53 controls: every check names its STIG ID, vulnerability ID,
 rule ID, CCI and NIST control in the description, and the check name is the
 STIG rule title.
 
+Every check carries the rationale (vulnerability discussion) and the fix
+text of its STIG rule, taken unchanged from the DISA XCCDF benchmark; they
+are shown with `-vv` and in the HTML, PDF, CSV and XCCDF reports. Several
+checks of one rule share its texts. The DISA releases are listed in
+`STIG_DISA` in the Makefile:
+
+| Policy | Checks from | Texts from DISA |
+|---|---|---|
+| `rhel7.yml` | V3R14 | V3R15, the final release: it only changes RHEL-07-020250, which is not part of the policy, and renumbers the rule revisions |
+| `rhel8.yml` | V2R9 | V2R9 |
+| `rhel9.yml` | V2R10 | V2R10 |
+| `rhel10.yml` | V1R3 | V1R3 |
+| `ubuntu22.yml` | V2R10 | V2R10 |
+| `ubuntu24.yml` | V1R7 | V1R7 |
+| `amazon2023.yml` | V1R5 | V1R5 |
+
+Where the upstream audit names a wrong vulnerability ID for a STIG ID (eleven
+rules of RHEL 7), the converter takes the IDs from the DISA benchmark.
+
 ## Selecting categories
 
 | Tag | Selects | Severity |

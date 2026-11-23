@@ -1,6 +1,6 @@
 # DISA STIG Amazon Linux 2023
 
-Automated checks for 187 rules of the DISA Security Technical Implementation Guide for Amazon Linux 2023 (version 1r5), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Select categories with tags, e.g. `--tags stig-cat-1`.
+Automated checks for 187 rules of the DISA Security Technical Implementation Guide for Amazon Linux 2023 (version 1r5), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Rationale and fix texts are taken from the DISA STIG V1R5 (30 Sep 2026). Select categories with tags, e.g. `--tags stig-cat-1`.
 
 **Policy:** [`stig/amazon2023.yml`](https://github.com/rtulke/checkmate/blob/main/stig/amazon2023.yml) · **STIG version:** 1r5
 

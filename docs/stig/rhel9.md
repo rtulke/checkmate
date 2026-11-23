@@ -1,6 +1,6 @@
 # DISA STIG Red Hat Enterprise Linux 9
 
-Automated checks for 426 rules of the DISA Security Technical Implementation Guide for Red Hat Enterprise Linux 9 (version 2.10.0), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Select categories with tags, e.g. `--tags stig-cat-1`.
+Automated checks for 426 rules of the DISA Security Technical Implementation Guide for Red Hat Enterprise Linux 9 (version 2.10.0), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Rationale and fix texts are taken from the DISA STIG V2R10 (30 Sep 2026). Select categories with tags, e.g. `--tags stig-cat-1`.
 
 **Policy:** [`stig/rhel9.yml`](https://github.com/rtulke/checkmate/blob/main/stig/rhel9.yml) · **STIG version:** 2.10.0
 

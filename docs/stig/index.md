@@ -3,7 +3,8 @@
 Automated checks for the Security Technical Implementation Guides of the US Defense Information Systems
 Agency, generated from the goss audit content of [Ansible Lockdown](https://github.com/ansible-lockdown)
 (MIT license). STIGs implement NIST SP 800-53 controls; each check names its STIG ID, vulnerability ID, CCI
-and NIST control in the description. Rule titles are taken from the STIG.
+and NIST control in the description. Rule titles are taken from the STIG, and every check carries the
+rationale and the fix text of its rule from the DISA XCCDF benchmark (shown with `-vv` and in the reports).
 
 | STIG | Rules | CAT I | CAT II | CAT III | Checks |
 |---|---|---|---|---|---|

@@ -10,6 +10,11 @@ PLATFORMS := linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 win
 CIS_BENCHMARKS := rhel7 rhel8 rhel9 rhel10 debian11 debian12 debian13 ubuntu18 ubuntu20 ubuntu22 ubuntu24 ubuntu26 suse15 suse16 amazon2 amazon2023 amazon2027
 CIS_WINDOWS := win11:Windows-11 win2019:Windows-2019 win2022:Windows-2022 win2025:Windows-2025
 STIG_BENCHMARKS := rhel7 rhel8 rhel9 rhel10 ubuntu22 ubuntu24 amazon2023
+# DISA STIG packages with the rationale and fix texts, one per STIG benchmark
+# (https://public.cyber.mil/stigs/downloads/). Update with new DISA releases.
+STIG_DISA := rhel7:U_RHEL_7_V3R15 rhel8:U_RHEL_8_V2R9 rhel9:U_RHEL_9_V2R10 rhel10:U_RHEL_10_V1R3 \
+	ubuntu22:U_CAN_Ubuntu_22-04_LTS_V2R10 ubuntu24:U_CAN_Ubuntu_24-04_LTS_V1R7 amazon2023:U_Amazon_Linux_2023_V1R5
+STIG_DISA_URL := https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip
 CIS_CACHE := .cache/cis
 
 build:
@@ -92,14 +97,22 @@ cis-import:
 		go run ./tools/mscp-import -src $(CIS_CACHE)/mscp-$$branch -macos $$major -out cis/macos$$major.yml || exit 1; \
 	done
 
-# Regenerates stig/*.yml from the Ansible Lockdown STIG audit repositories (needs gh).
+# Regenerates stig/*.yml from the Ansible Lockdown STIG audit repositories
+# (needs gh) and the DISA STIG packages (needs curl and unzip).
 stig-import:
 	@for b in $(STIG_BENCHMARKS); do \
 		repo=$$(echo $$b | tr a-z A-Z)-STIG-Audit; \
 		branch=$$(gh api repos/ansible-lockdown/$$repo -q .default_branch); \
 		mkdir -p $(CIS_CACHE)/$$b-stig; \
 		gh api repos/ansible-lockdown/$$repo/tarball/$$branch | tar xzf - -C $(CIS_CACHE)/$$b-stig --strip-components=1; \
-		go run ./tools/cis-import -src $(CIS_CACHE)/$$b-stig -bench $$b-stig -out stig/$$b.yml || exit 1; \
+		zip=$$(printf '%s\n' $(STIG_DISA) | sed -n "s/^$$b://p"); \
+		[ -n "$$zip" ] || { echo "no DISA package for $$b in STIG_DISA"; exit 1; }; \
+		mkdir -p $(CIS_CACHE)/disa; \
+		[ -f $(CIS_CACHE)/disa/$$zip.zip ] || curl -fsSL -o $(CIS_CACHE)/disa/$$zip.zip $(STIG_DISA_URL)/$${zip}_STIG.zip || exit 1; \
+		xccdf=$$(unzip -Z1 $(CIS_CACHE)/disa/$$zip.zip | grep -m1 'Manual-xccdf\.xml$$'); \
+		unzip -oqj $(CIS_CACHE)/disa/$$zip.zip "$$xccdf" -d $(CIS_CACHE)/disa/$$b || exit 1; \
+		go run ./tools/cis-import -src $(CIS_CACHE)/$$b-stig -bench $$b-stig \
+			-disa $(CIS_CACHE)/disa/$$b/$$(basename "$$xccdf") -out stig/$$b.yml || exit 1; \
 	done
 
 # Runs every CIS policy in a container of its platform (needs docker).

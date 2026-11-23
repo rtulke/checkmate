@@ -1,6 +1,6 @@
 # DISA STIG Ubuntu 22.04 LTS
 
-Automated checks for 190 rules of the DISA Security Technical Implementation Guide for Ubuntu 22.04 LTS (version 2.10.0), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Select categories with tags, e.g. `--tags stig-cat-1`.
+Automated checks for 190 rules of the DISA Security Technical Implementation Guide for Ubuntu 22.04 LTS (version 2.10.0), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Rationale and fix texts are taken from the DISA STIG V2R10 (30 Sep 2026). Select categories with tags, e.g. `--tags stig-cat-1`.
 
 **Policy:** [`stig/ubuntu22.yml`](https://github.com/rtulke/checkmate/blob/main/stig/ubuntu22.yml) · **STIG version:** 2.10.0
 

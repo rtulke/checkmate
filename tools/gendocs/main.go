@@ -694,7 +694,8 @@ func writeSTIGPages() ([]cisPage, error) {
 	idx.WriteString("Automated checks for the Security Technical Implementation Guides of the US Defense Information Systems\n")
 	idx.WriteString("Agency, generated from the goss audit content of [Ansible Lockdown](https://github.com/ansible-lockdown)\n")
 	idx.WriteString("(MIT license). STIGs implement NIST SP 800-53 controls; each check names its STIG ID, vulnerability ID, CCI\n")
-	idx.WriteString("and NIST control in the description. Rule titles are taken from the STIG.\n\n")
+	idx.WriteString("and NIST control in the description. Rule titles are taken from the STIG, and every check carries the\n")
+	idx.WriteString("rationale and the fix text of its rule from the DISA XCCDF benchmark (shown with `-vv` and in the reports).\n\n")
 	idx.WriteString("| STIG | Rules | CAT I | CAT II | CAT III | Checks |\n|---|---|---|---|---|---|\n")
 	tr, tc := 0, 0
 	for _, p := range pages {

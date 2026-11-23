@@ -97,6 +97,8 @@ type check struct {
 	As          string
 	OnlyIf      string
 	When        []string
+	Rationale   string
+	Remediation string
 }
 
 // ruleMeta is the meta block of a goss resource.
@@ -125,6 +127,7 @@ func main() {
 	src := flag.String("src", "", "checkout of an ansible-lockdown *-CIS-Audit repository")
 	key := flag.String("bench", "", "benchmark key, e.g. rhel9")
 	out := flag.String("out", "", "output policy file")
+	disaFile := flag.String("disa", "", "DISA manual XCCDF benchmark of the STIG (U_*_Manual-xccdf.xml), for rationale and fix texts")
 	flag.Parse()
 
 	b, ok := benchmarks[*key]
@@ -134,8 +137,19 @@ func main() {
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)
-		fmt.Fprintf(os.Stderr, "usage: cis-import -src DIR -bench KEY -out FILE\nbenchmarks: %s\n", strings.Join(keys, ", "))
+		fmt.Fprintf(os.Stderr, "usage: cis-import -src DIR -bench KEY -out FILE [-disa XCCDF]\nbenchmarks: %s\n", strings.Join(keys, ", "))
 		os.Exit(2)
+	}
+	if b.stig() != (*disaFile != "") {
+		fmt.Fprintln(os.Stderr, "cis-import: -disa is required for STIGs and only valid for them")
+		os.Exit(2)
+	}
+	if *disaFile != "" {
+		var err error
+		if disa, err = loadDISA(*disaFile); err != nil {
+			fmt.Fprintln(os.Stderr, "cis-import:", err)
+			os.Exit(1)
+		}
 	}
 	stats, err := convert(*src, b, *out)
 	if err != nil {
@@ -144,12 +158,63 @@ func main() {
 	}
 	fmt.Fprintf(os.Stderr, "%s: %d rule files, %d rules, %d checks, %d resources skipped\n",
 		b.Key, stats.files, stats.rules, stats.checks, stats.skipped)
+	if disa != nil {
+		fmt.Fprintf(os.Stderr, "%s: DISA texts %s: %d rules of the same revision, %d of another revision, %d without texts\n",
+			b.Key, disa.Release, len(stats.textExact), len(stats.textOther), len(stats.textMissing))
+		for _, id := range sortedKeys(stats.textMissing) {
+			fmt.Fprintf(os.Stderr, "  no DISA texts for %s\n", id)
+		}
+	}
 }
 
-type stats struct{ files, rules, checks, skipped int }
+type stats struct {
+	files, rules, checks, skipped int
+	// STIG rules by how their DISA texts were found
+	textExact, textOther, textMissing map[string]bool
+}
+
+// disa holds the DISA texts while a STIG is converted.
+var disa *disaBenchmark
+
+// stigTexts finds the DISA texts of a STIG rule. A vulnerability ID that
+// does not belong to the STIG ID (a typo upstream) is corrected, together
+// with the rule ID, so descriptions and XCCDF idents name the right rule.
+// match is "exact", "other" (another revision of the rule) or "missing".
+func stigTexts(m ruleMeta) (r *disaRule, fixed ruleMeta, match, note string) {
+	r, exact, conflict := disa.lookup(m)
+	switch {
+	case r == nil:
+		return nil, m, "missing", ""
+	case exact:
+		match = "exact"
+	default:
+		match = "other"
+	}
+	if r.StigID == strings.TrimSpace(m.CISID) && r.VulID != strings.TrimSpace(m.VulID) {
+		why := conflict
+		if why == "" && strings.TrimSpace(m.VulID) == "" {
+			why = "no vulnerability ID upstream"
+		} else if why == "" {
+			why = m.VulID + " is not a vulnerability ID of this STIG"
+		}
+		note = fmt.Sprintf("corrected vulnerability ID to %s (%s)", r.VulID, why)
+		m.VulID, m.RuleID = r.VulID, r.RuleID
+	}
+	return r, m, match, note
+}
+
+func (st *stats) recordText(id, match, note string) {
+	if st.textExact[id] || st.textOther[id] || st.textMissing[id] {
+		return
+	}
+	map[string]map[string]bool{"exact": st.textExact, "other": st.textOther, "missing": st.textMissing}[match][id] = true
+	if note != "" {
+		fmt.Fprintf(os.Stderr, "  %s: %s\n", id, note)
+	}
+}
 
 func convert(src string, b benchmark, out string) (stats, error) {
-	var st stats
+	st := stats{textExact: map[string]bool{}, textOther: map[string]bool{}, textMissing: map[string]bool{}}
 	vars, version, err := loadVars(src)
 	if err != nil {
 		return st, err
@@ -243,6 +308,11 @@ func convert(src string, b benchmark, out string) (stats, error) {
 							meta.Cat = catFromPath(f)
 						}
 					}
+					var texts *disaRule
+					var textMatch, textNote string
+					if disa != nil {
+						texts, meta, textMatch, textNote = stigTexts(meta)
+					}
 					generated := convertResource(b, kind, name, attrs, meta)
 					if len(generated) == 0 {
 						if ri == 0 {
@@ -270,6 +340,14 @@ func convert(src string, b benchmark, out string) (stats, error) {
 						continue
 					}
 					rules[meta.CISID] = true
+					if disa != nil {
+						st.recordText(meta.CISID, textMatch, textNote)
+					}
+					if texts != nil {
+						for i := range generated {
+							generated[i].Rationale, generated[i].Remediation = texts.Rationale, texts.Fix
+						}
+					}
 					for _, c := range generated {
 						sig := c.ID + "\x00" + c.Run + "\x00" + strings.Join(c.Expect, "\x00") + "\x00" + strings.Join(c.When, "\x00")
 						if e := bySignature[sig]; e != nil {
@@ -1180,8 +1258,9 @@ func writePolicy(path string, b benchmark, version string, checks []check, rules
 		fmt.Fprintf(&w, "  Automated checks for %d rules of the DISA Security Technical\n", rules)
 		fmt.Fprintf(&w, "  Implementation Guide for %s (version %s), converted from the goss\n", b.Name, version)
 		fmt.Fprintf(&w, "  audit content of the ansible-lockdown project. Severity follows the STIG\n")
-		fmt.Fprintf(&w, "  category: CAT I high, CAT II medium, CAT III low. Select categories with\n")
-		fmt.Fprintf(&w, "  tags, e.g. `--tags stig-cat-1`.\n\n")
+		fmt.Fprintf(&w, "  category: CAT I high, CAT II medium, CAT III low. Rationale and fix\n")
+		fmt.Fprintf(&w, "  texts are taken from the DISA STIG %s (%s). Select categories\n", disa.Release, disa.Date)
+		fmt.Fprintf(&w, "  with tags, e.g. `--tags stig-cat-1`.\n\n")
 		return writeChecks(&w, path, b, checks)
 	}
 	fmt.Fprintf(&w, "# Do not edit by hand; regenerate with `make cis-import`. See cis/NOTICE.\n")
@@ -1252,11 +1331,29 @@ func writeChecks(w *bytes.Buffer, path string, b benchmark, checks []check) erro
 				fmt.Fprintf(w, "      - %s\n", protectTemplates(applyPatches(e)))
 			}
 		}
+		writeText(w, "rationale", c.Rationale)
+		writeText(w, "remediation", c.Remediation)
 	}
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
 	return os.WriteFile(path, w.Bytes(), 0o644)
+}
+
+// writeText writes a text field of a check as a YAML block scalar.
+func writeText(w *bytes.Buffer, key, text string) {
+	text = strings.TrimSpace(text)
+	if text == "" {
+		return
+	}
+	fmt.Fprintf(w, "    %s: |\n", key)
+	for _, line := range strings.Split(protectTemplates(text), "\n") {
+		if line == "" {
+			w.WriteString("\n")
+			continue
+		}
+		w.WriteString("      " + line + "\n")
+	}
 }
 
 // protectTemplates keeps Jinja2 from interpreting {{ and {% in commands.
