@@ -62,19 +62,19 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-1.1.9-blacklist_usb-content` | /etc/modprobe.d/blacklist.conf has the expected content (1 rule) | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-1.1.9-usb-storage` | usb storage: modprobe -n -v usb-storage \| grep -E '(usb-storage\|install)' | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-1.2.1-gpg_keys` | gpg keys: rpm -q gpg-pubkey --qf '%{name}-%{version}-%{release} --> %{summary} | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-1.2.2-gpg_check_global` | gpg check global: if [ `grep -c -E '^\s*gpgcheck.*0' /etc/yum.conf` -ge 1 ]; then echo FAIL; elif [ `grep -… | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-1.2.2-gpg_check_repo` | gpg check repo: if [ `grep -c -E '^\s*gpgcheck.*0' /etc/yum.repos.d/*.repo` -ge 1 ]; then echo FAIL; elif… | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-1.2.2-gpg_check_global` | gpg check global: if [ `grep -c -E '^\\s\*gpgcheck.\*0' /etc/yum.conf` -ge 1 ]; then echo FAIL; elif [ `grep -… | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-1.2.2-gpg_check_repo` | gpg check repo: if [ `grep -c -E '^\\s\*gpgcheck.\*0' /etc/yum.repos.d/\*.repo` -ge 1 ]; then echo FAIL; elif… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-1.2.3-repos_configured` | repos configured: yum repolist | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-1.2.4-repo_gpg_check_global` | repo gpg check global: if [ `grep -c -E '^\s*repo_gpgcheck.*0' /etc/dnf/dnf.conf` -ge 1 ]; then echo FAIL; elif … | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-1.2.4-repo_gpg_check_repo` | repo gpg check repo: if [ `grep -c -E '^\s*repo_gpgcheck.*0' /etc/yum.repos.d/*.repo` -ge 1 ]; then echo FAIL;… | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-1.2.4-repo_gpg_check_global` | repo gpg check global: if [ `grep -c -E '^\\s\*repo_gpgcheck.\*0' /etc/dnf/dnf.conf` -ge 1 ]; then echo FAIL; elif … | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-1.2.4-repo_gpg_check_repo` | repo gpg check repo: if [ `grep -c -E '^\\s\*repo_gpgcheck.\*0' /etc/yum.repos.d/\*.repo` -ge 1 ]; then echo FAIL;… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-1.3.1-aide` | Package aide is installed | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-1.3.2-aide_cron` | aide cron: grep -rs aide /etc/cron.* /etc/crontab /var/spool/cron/* | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-1.3.2-aide_cron` | aide cron: grep -rs aide /etc/cron.\* /etc/crontab /var/spool/cron/\* | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-1.3.3-audit_bins_crypto_aide` | audit bins crypto aide: grep /sbin/au /etc/aide.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-1.4.1-boot_grub2_grub.cfg-attrs` | /boot/grub2/grub.cfg: exists, mode 0600 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-1.5.1-kernel.randomize_va_space` | Kernel parameter kernel.randomize_va_space is 2 | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-1.5.1-aslr_enabled_2` | aslr enabled 2: grep "kernel\.randomize_va_space" /etc/sysctl.conf /etc/sysctl.d/* \| cut -d ":" -f2 | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-1.5.1-aslr_enabled_2` | aslr enabled 2: grep "kernel\\.randomize_va_space" /etc/sysctl.conf /etc/sysctl.d/\* \| cut -d ":" -f2 | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-1.5.2-kernel.yama.ptrace_scope` | Kernel parameter kernel.yama.ptrace_scope is 1 | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-1.5.2-ptrace_scope` | ptrace scope: grep "kernel\.yama\.ptrace_scope" /etc/sysctl.conf /etc/sysctl.d/* \| cut -d ":" -f2 | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-1.5.2-ptrace_scope` | ptrace scope: grep "kernel\\.yama\\.ptrace_scope" /etc/sysctl.conf /etc/sysctl.d/\* \| cut -d ":" -f2 | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-1.5.3-coredump_storage-attrs` | /etc/systemd/coredump.conf: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-1.5.3-coredump_storage-content` | /etc/systemd/coredump.conf has the expected content (1 rule) | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-1.5.4-coredump_backtraces-attrs` | /etc/systemd/coredump.conf: exists | L1 server | <span class="sev sev-medium">medium</span> |
@@ -87,7 +87,7 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-1.6.1.4-selinux_config-attrs` | /etc/selinux/config: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-1.6.1.4-selinux_config-content` | /etc/selinux/config has the expected content (1 rule) | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-1.6.1.4-selinux_config_running` | selinux config running: getenforce | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-1.6.1.5-selinux_config_enforcing` | selinux config enforcing: grep -Ei "^\s*SELINUX=[Ee]nforcing" /etc/selinux/config | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-1.6.1.5-selinux_config_enforcing` | selinux config enforcing: grep -Ei "^\\s\*SELINUX=[Ee]nforcing" /etc/selinux/config | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-1.6.1.5-selinux_run_enforcing` | selinux run enforcing: getenforce | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-1.6.1.6-selinux_unconfined` | selinux unconfined: ps -eZ \| grep unconfined_service_t | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-1.6.1.7-setroubleshoot` | Package setroubleshoot is not installed | L1 server | <span class="sev sev-medium">medium</span> |
@@ -105,7 +105,7 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-1.9-crypto_policies_config-attrs` | /etc/crypto-policies/config: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-1.9-crypto_policies_config-content` | /etc/crypto-policies/config has the expected content (2 rules) | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-2.1.1-chrony` | Package chrony is installed | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-2.1.2-chrony_server_config` | chrony server config: grep -Pr -- '^\h*(server\|pool)\h+[^#\n\r]+' /etc/chrony.conf /etc/chrony.d/*.conf | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-2.1.2-chrony_server_config` | chrony server config: grep -Pr -- '^\\h\*(server\|pool)\\h+[^#\\n\\r]+' /etc/chrony.conf /etc/chrony.d/\*.conf | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-2.2.1-xorgs-x11-servers` | Package xorgs-x11-servers is not installed | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-2.2.2-avahi` | Package avahi is not installed | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-2.2.3-cups` | Package cups is not installed | L1 server | <span class="sev sev-medium">medium</span> |
@@ -122,7 +122,7 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-2.2.12-net-snmp` | Package net-snmp is not installed | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-2.2.13-telnet-server` | Package telnet-server is not installed | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-2.2.14-dnsmasq` | Package dnsmasq is not installed | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-2.2.15-mta_installed` | mta installed: ss -lntu \| grep -E ":25\s" \| grep -E -v "\s(127.0.0.1\|\[?::1\]?):25\s" | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-2.2.15-mta_installed` | mta installed: ss -lntu \| grep -E ":25\\s" \| grep -E -v "\\s(127.0.0.1\|\\[?::1\\]?):25\\s" | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-2.2.16-nfs-server-enabled` | Service nfs-server is not enabled | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-2.2.16-nfs-server-running` | Service nfs-server is not running | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-2.2.17-rpcbind-enabled` | Service rpcbind is not enabled | L1 server | <span class="sev sev-medium">medium</span> |
@@ -194,13 +194,13 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-4.1.9-at_allow_users-attrs` | /etc/at.allow: exists, mode 0600 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.1.9-at_deny_users-absent` | /etc/at.deny does not exist | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.2.1-sshconfig_perms-attrs` | /etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-4.2.2-etc_ssh_ssh_private_key_group` | /etc/ssh/ssh private key group: groupkeys=$(sudo find /etc/ssh/ -name *_key -type f ! -group root ); echo $groupkeys | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-4.2.2-etc_ssh_ssh_private_key_perms` | /etc/ssh/ssh private key perms: keyperms=$(sudo find /etc/ssh/ -name *_key -type f -perm /137 ); echo $keyperms | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-4.2.2-etc_ssh_ssh_private_key_user` | /etc/ssh/ssh private key user: userkeys=$(sudo find /etc/ssh/ -name *_key -type f ! -user root ); echo $userkeys | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-4.2.3-etc_ssh_ssh_public_key_group` | /etc/ssh/ssh public key group: groupkeys=$(sudo find /etc/ssh/ -name *_key.pub -type f ! -group root ); echo $groupkeys | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-4.2.3-etc_ssh_ssh_public_key_perms` | /etc/ssh/ssh public key perms: keysperm=$(sudo find /etc/ssh/ -name *_key.pub -type f  -perm /137 ); echo $keyperms | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-4.2.3-etc_ssh_ssh_public_key_user` | /etc/ssh/ssh public key user: userkeys=$(sudo find /etc/ssh/ -name *_key.pub -type f ! -user root ); echo $userkeys | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-4.2.4-sshd_access_limited` | sshd access limited: grep -Ei "^(Allow\|Deny)(Users\|Groups)" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-4.2.2-etc_ssh_ssh_private_key_group` | /etc/ssh/ssh private key group: groupkeys=$(sudo find /etc/ssh/ -name \*_key -type f ! -group root ); echo $groupkeys | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-4.2.2-etc_ssh_ssh_private_key_perms` | /etc/ssh/ssh private key perms: keyperms=$(sudo find /etc/ssh/ -name \*_key -type f -perm /137 ); echo $keyperms | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-4.2.2-etc_ssh_ssh_private_key_user` | /etc/ssh/ssh private key user: userkeys=$(sudo find /etc/ssh/ -name \*_key -type f ! -user root ); echo $userkeys | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-4.2.3-etc_ssh_ssh_public_key_group` | /etc/ssh/ssh public key group: groupkeys=$(sudo find /etc/ssh/ -name \*_key.pub -type f ! -group root ); echo $groupkeys | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-4.2.3-etc_ssh_ssh_public_key_perms` | /etc/ssh/ssh public key perms: keysperm=$(sudo find /etc/ssh/ -name \*_key.pub -type f  -perm /137 ); echo $keyperms | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-4.2.3-etc_ssh_ssh_public_key_user` | /etc/ssh/ssh public key user: userkeys=$(sudo find /etc/ssh/ -name \*_key.pub -type f ! -user root ); echo $userkeys | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-4.2.4-sshd_access_limited` | sshd access limited: grep -Ei "^(Allow\|Deny)(Users\|Groups)" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.2.5-sshd_config_loglevel-attrs` | /etc/ssh/sshd_config: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.2.5-sshd_config_loglevel-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.2.6-sshd_config_pam_enable-attrs` | /etc/ssh/sshd_config: exists | L1 server | <span class="sev sev-medium">medium</span> |
@@ -219,7 +219,7 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-4.2.12-sshd_config_x11-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-4.2.13-sshd_config_tcpforward-attrs` | /etc/ssh/sshd_config: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.2.13-sshd_config_tcpforward-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-4.2.14-sshd_crypto` | sshd crypto: grep -Ei "^\s*Crypto_policy" /etc/sysconfig/sshd /etc/ssh/sshd_config /etc/ssh/sshd_confi… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-4.2.14-sshd_crypto` | sshd crypto: grep -Ei "^\\s\*Crypto_policy" /etc/sysconfig/sshd /etc/ssh/sshd_config /etc/ssh/sshd_confi… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.2.15-sshd_config_banner-attrs` | /etc/ssh/sshd_config: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.2.15-sshd_config_banner-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.2.16-sshd_config_maxauthtries-attrs` | /etc/ssh/sshd_config: exists | L1 server | <span class="sev sev-medium">medium</span> |
@@ -235,14 +235,14 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-4.3.1-sudo` | Package sudo is installed | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.3.2-sudoers_pty-attrs` | /etc/sudoers: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.3.2-sudoers_pty-content` | /etc/sudoers has the expected content (1 rule) | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-4.3.2-pty_sudoers_d` | pty sudoers d: ls -1 /etc/sudoers.d/* > /dev/null 2>&1; if [ '$?' = '0' ]; then grep -c '^Defaults.*\sus… | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-4.3.2-pty_sudoers_d` | pty sudoers d: ls -1 /etc/sudoers.d/\* > /dev/null 2>&1; if [ '$?' = '0' ]; then grep -c '^Defaults.\*\\sus… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.3.3-sudoers_log-attrs` | /etc/sudoers: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.3.3-sudoers_log-content` | /etc/sudoers has the expected content (1 rule) | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-4.3.3-log_sudoers_d` | log sudoers d: grep -c '^Defaults logfile=/var/log/*.log' /etc/sudoers.d/.*/ | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-4.3.3-log_sudoers_d` | log sudoers d: grep -c '^Defaults logfile=/var/log/\*.log' /etc/sudoers.d/.\*/ | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.3.4-sudoers_reauth-attrs` | /etc/sudoers: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.3.4-sudoers_reauth-content` | /etc/sudoers has the expected content (1 rule) | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-4.3.4-sudoers_reauth_d` | sudoers reauth d: grep authenticate /etc/sudoers.d/* | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-4.3.5-sudo_timeout` | sudo timeout: grep -rP "timestamp_timeout=\K[0-9]*" /etc/sudoers* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-4.3.4-sudoers_reauth_d` | sudoers reauth d: grep authenticate /etc/sudoers.d/\* | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-4.3.5-sudo_timeout` | sudo timeout: grep -rP "timestamp_timeout=\\K[0-9]\*" /etc/sudoers\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.3.6-su_restricted-attrs` | /etc/pam.d/su: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.3.6-su_restricted-content` | /etc/pam.d/su has the expected content (1 rule) | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.3.6-sugroup_etc_group` | sugroup etc group: grep nosugroup /etc/group | L1 server | <span class="sev sev-medium">medium</span> |
@@ -280,7 +280,7 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-4.6.1.3-login_expire_warn-attrs` | /etc/login.defs: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.6.1.3-login_expire_warn-content` | /etc/login.defs has the expected content (2 rules) | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.6.1.4-inactive_passwd` | inactive passwd: useradd -D \| grep INACTIVE | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-4.6.1.4-inactive_users` | inactive users: grep -E ^[^:]+:[^\!*] /etc/shadow \| grep -vw root \| cut -d : -f1,7 | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-4.6.1.4-inactive_users` | inactive users: grep -E ^[^:]+:[^\\!\*] /etc/shadow \| grep -vw root \| cut -d : -f1,7 | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.6.1.5-passwd_chg_past` | No user has a last password change date in the future | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.6.2-secure_system_LK` | secure system LK: /awk -F: '$3<1000' /etc/passwd \| egrep -wv 'root' \| cut -d: -f1 \| xargs -I '{}' passwd -S… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.6.2-secure_system_accts` | secure system accts: /awk -F: '$3<1000' /etc/passwd \| egrep -v 'root\|sync\|halt\|shutdown\|/sbin/nologin\|/bin/fal… | L1 server | <span class="sev sev-medium">medium</span> |
@@ -299,9 +299,9 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-5.1.1.4-rsyslog_perms-content` | /etc/rsyslog.conf has the expected content (1 rule) | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-5.1.1.5-rsyslog_logging_config-attrs` | /etc/rsyslog.conf: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-5.1.1.5-rsyslog_logging_config-content` | /etc/rsyslog.conf has the expected content (13 rules) | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-5.1.1.6-remote_syslog` | remote syslog: grep "^*.*[^I][^I]*@" /etc/rsyslog.conf /etc/rsyslog.d/*.conf | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-5.1.1.7-syslog_TCPServerRun` | syslog TCPServerRun: grep '$InputTCPServerRun' /etc/rsyslog.conf /etc/rsyslog.d/*.conf | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-5.1.1.7-syslog_imtcp` | syslog imtcp: grep '$ModLoad imtcp' /etc/rsyslog.conf /etc/rsyslog.d/*.conf | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-5.1.1.6-remote_syslog` | remote syslog: grep "^\*.\*[^I][^I]\*@" /etc/rsyslog.conf /etc/rsyslog.d/\*.conf | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-5.1.1.7-syslog_TCPServerRun` | syslog TCPServerRun: grep '$InputTCPServerRun' /etc/rsyslog.conf /etc/rsyslog.d/\*.conf | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-5.1.1.7-syslog_imtcp` | syslog imtcp: grep '$ModLoad imtcp' /etc/rsyslog.conf /etc/rsyslog.d/\*.conf | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-5.1.2.1.1-systemd-journal-remote` | Package systemd-journal-remote is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-5.1.2.1.2-etc_systemd_journal-upload.conf-attrs` | /etc/systemd/journal-upload.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-5.1.2.1.2-etc_systemd_journal-upload.conf-content` | /etc/systemd/journal-upload.conf has the expected content (4 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -317,7 +317,7 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-5.1.2.5-forward_journald_conf` | forward journald conf: grep -i forward /etc/systemd/journald.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-5.1.2.6-log_rotate_journald_conf` | log rotate journald conf: grep -Ei "max\|keep" /etc/systemd/journald.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-5.1.2.7-etc_tmpfiles.d_systemd.conf` | /etc/tmpfiles.d/systemd.conf: echo "Manual - Please check journald default permissions" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-5.1.3-logfile_configured` | logfile configured: find /var/log/ -type f -perm /g+wx,o+rwx -exec ls -l "{}" + \| grep -Ev "[b,u,w]tmp.*\|last… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-5.1.3-logfile_configured` | logfile configured: find /var/log/ -type f -perm /g+wx,o+rwx -exec ls -l "{}" + \| grep -Ev "[b,u,w]tmp.\*\|last… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-5.2.1.1-audit` | Package audit is installed | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.1.1-audit-libs` | Package audit-libs is installed | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.1.2-grub_enable_audit-attrs` | /etc/default/grub: exists | L2 server | <span class="sev sev-low">low</span> |
@@ -332,53 +332,53 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-5.2.2.2-auditd_log_deleted-content` | /etc/audit/auditd.conf has the expected content (1 rule) | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.2.3-auditd_logs_full-attrs` | /etc/audit/auditd.conf: exists | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.2.3-auditd_logs_full-content` | /etc/audit/auditd.conf has the expected content (3 rules) | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.1-auditd_admin_scope_cnf` | auditd admin scope cnf: grep scope /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.1-auditd_admin_scope_cnf` | auditd admin scope cnf: grep scope /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.1-auditd_admin_scope_live` | auditd admin scope live: auditctl -l \| grep scope | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.2-auditd_sudo_scope_cnf` | auditd sudo scope cnf: grep user_emu /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.2-auditd_sudo_scope_cnf` | auditd sudo scope cnf: grep user_emu /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.2-auditd_sudo_scope_live` | auditd sudo scope live: auditctl -l \| grep user_emu | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.3-auditd_modify_sudo_log_conf` | auditd modify sudo log conf: grep sudo_log /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.3-auditd_modify_sudo_log_conf` | auditd modify sudo log conf: grep sudo_log /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.3-auditd_modify_sudo_log_live` | auditd modify sudo log live: auditctl -l \| grep sudo_log | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.4-auditd_time_cnf` | auditd time cnf: grep time-change /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.4-auditd_time_cnf` | auditd time cnf: grep time-change /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.4-auditd_time_live` | auditd time live: auditctl -l \| grep time-change | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.5-auditd_locale_cnf` | auditd locale cnf: grep system-locale /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.5-auditd_locale_cnf` | auditd locale cnf: grep system-locale /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.5-auditd_locale_live` | auditd locale live: auditctl -l \| grep system-locale | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.6-auditd_priv_cmds_cnf` | auditd priv cmds cnf: echo "Manual - Please investigate privilege commands are collected as per documentation" | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.7-auditd_access_cnf` | auditd access cnf: grep access /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.7-auditd_access_cnf` | auditd access cnf: grep access /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.7-auditd_access_live` | auditd access live: auditctl -l \| grep access | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.8-auditd_identity_cnf` | auditd identity cnf: grep identity /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.8-auditd_identity_cnf` | auditd identity cnf: grep identity /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.8-auditd_identity_live` | auditd identity live: auditctl -l \| grep identity | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.9-auditd_perms_cnf` | auditd perms cnf: grep perm_mod /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.9-auditd_perms_cnf` | auditd perms cnf: grep perm_mod /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.9-auditd_perms_live` | auditd perms live: auditctl -l \| grep perm_mod | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.10-auditd_mounts_cnf` | auditd mounts cnf: grep mounts /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.10-auditd_mounts_cnf` | auditd mounts cnf: grep mounts /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.10-auditd_mounts_live` | auditd mounts live: auditctl -l \| grep mounts | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.11-auditd_session_live` | auditd session live: auditctl -l \| grep session | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.11-auditd_sessions_cnf` | auditd sessions cnf: grep session /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.12-auditd_logins_cnf` | auditd logins cnf: grep logins /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.11-auditd_sessions_cnf` | auditd sessions cnf: grep session /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.12-auditd_logins_cnf` | auditd logins cnf: grep logins /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.12-auditd_logins_live` | auditd logins live: auditctl -l \| grep logins | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.13-auditd_delete_cnf` | auditd delete cnf: grep delete /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.13-auditd_delete_cnf` | auditd delete cnf: grep delete /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.13-auditd_delete_live` | auditd delete live: auditctl -l \| grep delete | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.14-auditd_MAC_cnf` | auditd MAC cnf: grep MAC-policy /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.14-auditd_MAC_cnf` | auditd MAC cnf: grep MAC-policy /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.14-auditd_MAC_live` | auditd MAC live: auditctl -l \| grep MAC-policy | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.15-auditd_chcon_cnf` | auditd chcon cnf: grep chcon /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.15-auditd_chcon_cnf` | auditd chcon cnf: grep chcon /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.15-auditd_chcon_live` | auditd chcon live: auditctl -l \| grep chcon | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.16-auditd_setfacl_cnf` | auditd setfacl cnf: grep setfacl /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.16-auditd_setfacl_cnf` | auditd setfacl cnf: grep setfacl /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.16-auditd_setfacl_live` | auditd setfacl live: auditctl -l \| grep setfacl | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.17-auditd_chacl_cnf` | auditd chacl cnf: grep chacl /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.17-auditd_chacl_cnf` | auditd chacl cnf: grep chacl /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.17-auditd_chacl_live` | auditd chacl live: auditctl -l \| grep chacl | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.18-auditd_usermod_cnf` | auditd usermod cnf: grep usermod /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.18-auditd_usermod_cnf` | auditd usermod cnf: grep usermod /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.18-auditd_usermod_live` | auditd usermod live: auditctl -l \| grep usermod | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.19-auditd_admin_module_live` | auditd admin module live: auditctl -l \| grep modules | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.19-auditd_module_cnf` | auditd module cnf: grep modules /etc/audit/rules.d/*.rules | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.20-auditd_immutable` | auditd immutable: grep "-e 2" /etc/audit/rules.d/*.rules \| tail -1 | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.19-auditd_module_cnf` | auditd module cnf: grep modules /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.3.20-auditd_immutable` | auditd immutable: grep "-e 2" /etc/audit/rules.d/\*.rules \| tail -1 | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.21-auditd_conf_vs_live` | auditd conf vs live: augenrules --check | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.4.1-audit_logfile_perms` | audit logfile perms: for file in `grep ^log_file /etc/audit/auditd.conf \| awk '{ print $NF }'`; do stat -Lc "%… | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.4.2-audit_logfile_owner` | audit logfile owner: for file in `grep ^log_file /etc/audit/auditd.conf \| awk '{ print $NF }'`; do stat -Lc "%… | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.4.3-audit_logfile_group` | audit logfile group: for file in `grep ^log_file /etc/audit/auditd.conf \| awk '{ print $NF }'`; do stat -Lc " … | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.4.3-audit_logfile_group_setting` | audit logfile group setting: grep log_group /etc/audit/audit* \| awk '{ print $NF}' | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.4.4-audit_logfile_dir_perms` | audit logfile dir perms: for dir in `dirname \`grep ^log_file /etc/audit/auditd.conf \| awk '{ print $NF }'\``; do … | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.4.5-audit_conf_perms` | audit conf perms: for file  in `find /etc/audit/ -type f \( -name '*.conf' -o -name '*.rules' \)`; do stat … | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.4.6-audit_conf_owner` | audit conf owner: for file  in `find /etc/audit/ -type f \( -name '*.conf' -o -name '*.rules' \)`; do stat … | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.4.7-audit_conf_group` | audit conf group: for file  in `find /etc/audit/ -type f \( -name '*.conf' -o -name '*.rules' \)`; do stat … | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.4.3-audit_logfile_group_setting` | audit logfile group setting: grep log_group /etc/audit/audit\* \| awk '{ print $NF}' | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.4.4-audit_logfile_dir_perms` | audit logfile dir perms: for dir in `dirname \\`grep ^log_file /etc/audit/auditd.conf \| awk '{ print $NF }'\\``; do … | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.4.5-audit_conf_perms` | audit conf perms: for file  in `find /etc/audit/ -type f \\( -name '\*.conf' -o -name '\*.rules' \\)`; do stat … | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.4.6-audit_conf_owner` | audit conf owner: for file  in `find /etc/audit/ -type f \\( -name '\*.conf' -o -name '\*.rules' \\)`; do stat … | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-AMAZON2023-5.2.4.7-audit_conf_group` | audit conf group: for file  in `find /etc/audit/ -type f \\( -name '\*.conf' -o -name '\*.rules' \\)`; do stat … | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.4.8-audit_tools_perms` | audit tools perms: stat -c "%n_%a" /sbin/auditctl /sbin/aureport /sbin/ausearch /sbin/autrace /sbin/auditd /… | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.4.9-audit_tools_owner` | audit tools owner: stat -c "%n_%U" /sbin/auditctl /sbin/aureport /sbin/ausearch /sbin/autrace /sbin/auditd /… | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.4.10-audit_tools_group` | audit tools group: stat -c "%n_%G" /sbin/auditctl /sbin/aureport /sbin/ausearch /sbin/autrace /sbin/auditd /… | L2 server | <span class="sev sev-low">low</span> |
@@ -401,15 +401,15 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-6.2.1-accts_passwds-content` | /etc/passwd has the expected content (2 rules) | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-6.2.2-shadow_empty_passwd-attrs` | /etc/shadow: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-6.2.2-shadow_empty_passwd-content` | /etc/shadow has the expected content (1 rule) | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-6.2.3-passwd_group_exist` | passwd group exist: pwck -r \| grep 'no group' \| awk '{ gsub("[:\47]",""); print $2}' | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-6.2.3-passwd_group_exist` | passwd group exist: pwck -r \| grep 'no group' \| awk '{ gsub("[:\\47]",""); print $2}' | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-6.2.4-no_dup_uid` | no dup uid: cat /etc/passwd \| cut -d: -f3 \| uniq -d | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-6.2.5-no_dup_gid` | no dup gid: cat /etc/group \| cut -d: -f3 \| uniq -d | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-6.2.6-no_dup_username` | no dup username: cat /etc/passwd \| cut -d: -f1 \| uniq -d | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-6.2.7-no_dup_groupname` | no dup groupname: cat /etc/group \| cut -d: -f1 \| uniq -d | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-6.2.8-root_path_check` | root path check: /bin/bash --login -c 'env \| grep ^PATH=' \| sed -e 's/PATH=//' -e 's/::/:/' -e 's/:$//' -e… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-6.2.9-uid_0_check` | uid 0 check: awk -F: '($3 == 0) { print $1 }' /etc/passwd | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-6.2.10-home_dirs_exist` | home dirs exist: set -o pipefail; pwck -r \| grep -P "^user '(?P<user>.*)': directory '(?P<dir>.*)' does no… | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-6.2.10-home_dirs_exist` | home dirs exist: set -o pipefail; pwck -r \| grep -P "^user '(?P<user>.\*)': directory '(?P<dir>.\*)' does no… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-6.2.10-home_dirs_owned` | home dirs owned: getent passwd {1000..60000} \|  awk -F: '{ print $1  " "  $6 }' \| while read user dir; do … | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-6.2.10-home_dirs_perms` | home dirs perms: for i in `getent passwd {1000..60000} \|  awk '{split($0,a,":");print a[6]}'`; do stat -c … | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-6.2.11-dot_file_perms` | dot file perms: find /home/ -name "\.*" -perm /g+w,o+w | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-6.2.11-dot_file_perms` | dot file perms: find /home/ -name "\\.\*" -perm /g+w,o+w | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-6.2.11-dot_files_exist` | dot files exist: find /home/ -name .forward -name .netrc -name .rhosts | L1 server | <span class="sev sev-medium">medium</span> |

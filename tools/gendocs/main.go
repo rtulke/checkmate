@@ -615,8 +615,11 @@ func firstSentence(s string) string {
 	return s
 }
 
+// escapeTable escapes a table cell: "|" ends the cell, and "\\" and "*"
+// are Markdown markup (as in the registry value name \\*\NETLOGON or the
+// path sshd_config.d/*.conf).
 func escapeTable(s string) string {
-	return strings.ReplaceAll(s, "|", `\|`)
+	return strings.NewReplacer("|", `\|`, `\`, `\\`, "*", `\*`).Replace(s)
 }
 
 func ensureNewline(s string) string {

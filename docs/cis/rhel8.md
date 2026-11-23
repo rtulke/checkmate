@@ -119,16 +119,16 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-1.2.1.1-gpg_keys` | gpg keys: rpm -q gpg-pubkey --qf '%{name}-%{version}-%{release} --> %{summary} | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.2.1.2-gpgcheck_global-attrs` | /etc/dnf/dnf.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.2.1.2-gpgcheck_global-content` | /etc/dnf/dnf.conf has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-1.2.1.2-gpgcheck_repo` | gpgcheck repo: grep -E '^\s*gpgcheck\s*=\s*0' /etc/yum.repos.d/*.repo | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-1.2.1.2-gpgcheck_repo` | gpgcheck repo: grep -E '^\\s\*gpgcheck\\s\*=\\s\*0' /etc/yum.repos.d/\*.repo | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.2.1.3-repo_gpgcheck_global-attrs` | /etc/dnf/dnf.conf: exists | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-1.2.1.3-repo_gpgcheck_global-content` | /etc/dnf/dnf.conf has the expected content (2 rules) | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-1.2.1.3-repo_gpgcheck_repo` | repo gpgcheck repo: grep -E '^\s*repo_gpgcheck\s*=\s*0' /etc/yum.repos.d/*.repo | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-1.2.1.3-repo_gpgcheck_repo` | repo gpgcheck repo: grep -E '^\\s\*repo_gpgcheck\\s\*=\\s\*0' /etc/yum.repos.d/\*.repo | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-1.2.1.4-repos_configured` | repos configured: dnf repolist | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.2.1.5-dnf_weak_deps-attrs` | /etc/dnf/dnf.conf: exists | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-1.2.1.5-dnf_weak_deps-content` | /etc/dnf/dnf.conf has the expected content (1 rule) | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-1.2.2.1-security-updates` | security updates: dnf check-update | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.3.1.1-libselinux_installed` | Package libselinux is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-1.3.1.2-selinux_disabled_boot` | selinux disabled boot: grep "^\s*linux" /boot/grub2/grubenv \| grep -E "(selinux=0\|enforcing=0)" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-1.3.1.2-selinux_disabled_boot` | selinux disabled boot: grep "^\\s\*linux" /boot/grub2/grubenv \| grep -E "(selinux=0\|enforcing=0)" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.3.1.3-selinux_policy-attrs` | /etc/selinux/config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.3.1.3-selinux_policy-content` | /etc/selinux/config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.3.1.3-selinux_sestatus` | selinux sestatus: sestatus \| grep 'Loaded policy' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -144,7 +144,7 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-1.4.1-grub_bootpass-attrs` | /boot/grub2/user.cfg: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.4.1-grub_bootpass-content` | /boot/grub2/user.cfg has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.4.2-boot_efi_mask` | /boot/efi is a separate mount with uid=0, gid=0, fmask=0077 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-1.5.1-core_size` | core size: grep -Psi -- '^\s*hard\s+core\b' /etc/security/limits.conf /etc/security/limits.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-1.5.1-core_size` | core size: grep -Psi -- '^\\s\*hard\\s+core\\b' /etc/security/limits.conf /etc/security/limits.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.5.2-sysctl_hardlinks_conf` | sysctl hardlinks conf: grep -R fs.protected_hardlinks /etc/sysctl.conf /etc/sysctl.d/ | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.5.2-sysctl_hardlinks_live` | sysctl hardlinks live: sysctl fs.protected_hardlinks | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.5.3-sysctl_symlinks_conf` | sysctl symlinks conf: grep -R fs.protected_symlinks /etc/sysctl.conf /etc/sysctl.d/ | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
@@ -156,9 +156,9 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-1.5.6-sysctl_ktpr_restrict_conf` | sysctl ktpr restrict conf: grep -R kernel.kptr_restrict /etc/sysctl.conf /etc/sysctl.d/ | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.5.6-sysctl_ktpr_restrict_live` | sysctl ktpr restrict live: sysctl kernel.kptr_restrict | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.5.7-ptrace_restricted` | Kernel parameter kernel.yama.ptrace_scope is map[or:[1 2 3]] | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-1.5.7-ptrace_restricted_2` | ptrace restricted 2: grep "kernel\.yama\.ptrace_scope" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-1.5.7-ptrace_restricted_2` | ptrace restricted 2: grep "kernel\\.yama\\.ptrace_scope" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.5.8-address_space_random` | Kernel parameter kernel.randomize_va_space is 2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-1.5.8-aslr_enabled_2` | aslr enabled 2: grep "kernel\.randomize_va_space" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-1.5.8-aslr_enabled_2` | aslr enabled 2: grep "kernel\\.randomize_va_space" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.5.9-procmaxsize_coredump_conf` | procmaxsize coredump conf: grep -iR ProcessSizeMax /etc/systemd/coredump.conf /etc/systemd/coredump.conf.d/ | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.5.10-storage_coredump_conf` | storage coredump conf: grep -iR storage /etc/systemd/coredump.conf /etc/systemd/coredump.conf.d/ | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.6.1-crypto_not_legacy-attrs` | /etc/crypto-policies/config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -253,57 +253,57 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-3.2.6-lsmod_tipc` | lsmod tipc: lsmod \| grep -i tipc | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.2.6-modprobe_tipc` | modprobe tipc: modprobe -n -v tipc | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.1-net.ipv4.ip_forward` | Kernel parameter net.ipv4.ip_forward is 0 | L2 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.1-ip4_forward_conf` | ip4 forward conf: grep net.ipv4.ip_forward /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /usr/… | L2 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.1-ip4_forward_conf` | ip4 forward conf: grep net.ipv4.ip_forward /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysctl.d/\*.conf /usr/… | L2 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.2-net.ipv4.conf.all.forwarding` | Kernel parameter net.ipv4.conf.all.forwarding is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.2-ip4_all_forwarding` | ip4 all forwarding: grep forwarding /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /usr/local/lib… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.2-ip4_all_forwarding` | ip4 all forwarding: grep forwarding /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysctl.d/\*.conf /usr/local/lib… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.3-net.ipv4.conf.default.forwarding` | Kernel parameter net.ipv4.conf.default.forwarding is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.3-ip4_default_forwarding` | ip4 default forwarding: grep forwarding /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /usr/local/lib… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.3-ip4_default_forwarding` | ip4 default forwarding: grep forwarding /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysctl.d/\*.conf /usr/local/lib… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.4-net.ipv4.conf.all.send_redirects` | Kernel parameter net.ipv4.conf.all.send_redirects is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.4-ip4_all_send_redirects` | ip4 all send redirects: grep send_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /usr/local… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.4-ip4_all_send_redirects` | ip4 all send redirects: grep send_redirects /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysctl.d/\*.conf /usr/local… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.5-net.ipv4.conf.default.send_redirects` | Kernel parameter net.ipv4.conf.default.send_redirects is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.5-ip4_default_send_redirects` | ip4 default send redirects: grep send_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /usr/local… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.5-ip4_default_send_redirects` | ip4 default send redirects: grep send_redirects /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysctl.d/\*.conf /usr/local… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.6-net.ipv4.icmp_ignore_bogus_error_respons` | Kernel parameter net.ipv4.icmp_ignore_bogus_error_responses is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.6-ipv4_ignore_bogus` | ipv4 ignore bogus: grep net.ipv4.icmp_ignore_bogus_error_responses /etc/sysctl.conf /etc/sysctl.d/*.conf /ru… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.6-ipv4_ignore_bogus` | ipv4 ignore bogus: grep net.ipv4.icmp_ignore_bogus_error_responses /etc/sysctl.conf /etc/sysctl.d/\*.conf /ru… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.7-net.ipv4.icmp_echo_ignore_broadcasts` | Kernel parameter net.ipv4.icmp_echo_ignore_broadcasts is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.7-ipv4_echo_ignore_broadcasts` | ipv4 echo ignore broadcasts: grep net.ipv4.icmp_echo_ignore_broadcasts /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysc… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.7-ipv4_echo_ignore_broadcasts` | ipv4 echo ignore broadcasts: grep net.ipv4.icmp_echo_ignore_broadcasts /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysc… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.8-net.ipv4.conf.all.accept_redirects` | Kernel parameter net.ipv4.conf.all.accept_redirects is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.8-ipv4_all_accept_redirects` | ipv4 all accept redirects: grep net.ipv4.conf.all.accept_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.8-ipv4_all_accept_redirects` | ipv4 all accept redirects: grep net.ipv4.conf.all.accept_redirects /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysctl… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.9-net.ipv4.conf.default.accept_redirects` | Kernel parameter net.ipv4.conf.default.accept_redirects is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.9-ipv4_default_accept_redirects` | ipv4 default accept redirects: grep net.ipv4.conf.default.accept_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sy… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.9-ipv4_default_accept_redirects` | ipv4 default accept redirects: grep net.ipv4.conf.default.accept_redirects /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sy… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.10-net.ipv4.conf.all.secure_redirects` | Kernel parameter net.ipv4.conf.all.secure_redirects is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.10-ipv4_all_secure_redirects` | ipv4 all secure redirects: grep net.ipv4.conf.all.secure_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.10-ipv4_all_secure_redirects` | ipv4 all secure redirects: grep net.ipv4.conf.all.secure_redirects /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysctl… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.11-net.ipv4.conf.default.secure_redirects` | Kernel parameter net.ipv4.conf.default.secure_redirects is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.11-ipv4_default_secure_redirects` | ipv4 default secure redirects: grep net.ipv4.conf.default.secure_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sy… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.11-ipv4_default_secure_redirects` | ipv4 default secure redirects: grep net.ipv4.conf.default.secure_redirects /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sy… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.12-net.ipv4.conf.all.rp_filter` | Kernel parameter net.ipv4.conf.all.rp_filter is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.12-ipv4_all_rp_filter` | ipv4 all rp filter: grep net.ipv4.conf.all.rp_filter /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.co… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.12-ipv4_all_rp_filter` | ipv4 all rp filter: grep net.ipv4.conf.all.rp_filter /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysctl.d/\*.co… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.13-net.ipv4.conf.default.rp_filter` | Kernel parameter net.ipv4.conf.default.rp_filter is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.13-ipv4_default_rp_filter` | ipv4 default rp filter: grep net.ipv4.conf.default.rp_filter /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.13-ipv4_default_rp_filter` | ipv4 default rp filter: grep net.ipv4.conf.default.rp_filter /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysctl.d/… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.14-net.ipv4.conf.all.accept_source_route` | Kernel parameter net.ipv4.conf.all.accept_source_route is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.14-ipv4_all_source_routed` | ipv4 all source routed: grep net.ipv4.conf.all.accept_source_route /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sys… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.14-ipv4_all_source_routed` | ipv4 all source routed: grep net.ipv4.conf.all.accept_source_route /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sys… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.15-net.ipv4.conf.default.accept_source_rout` | Kernel parameter net.ipv4.conf.default.accept_source_route is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.15-ipv4_default_source_routed` | ipv4 default source routed: grep net.ipv4.conf.default.accept_source_route /etc/sysctl.conf /etc/sysctl.d/*.conf /run… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.15-ipv4_default_source_routed` | ipv4 default source routed: grep net.ipv4.conf.default.accept_source_route /etc/sysctl.conf /etc/sysctl.d/\*.conf /run… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.16-net.ipv4.conf.all.log_martians` | Kernel parameter net.ipv4.conf.all.log_martians is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.16-ipv4_all_log_martians` | ipv4 all log martians: grep net.ipv4.conf.all.log_martians /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.16-ipv4_all_log_martians` | ipv4 all log martians: grep net.ipv4.conf.all.log_martians /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysctl.d/\*… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.17-net.ipv4.conf.default.log_martians` | Kernel parameter net.ipv4.conf.default.log_martians is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.17-ipv4_default_log_martians` | ipv4 default log martians: grep net.ipv4.conf.default.log_martians /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.17-ipv4_default_log_martians` | ipv4 default log martians: grep net.ipv4.conf.default.log_martians /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysctl… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.1.18-net.ipv4.tcp_syncookies` | Kernel parameter net.ipv4.tcp_syncookies is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.1.18-ipv4_tcp_syn_cookies` | ipv4 tcp syn cookies: grep net.ipv4.tcp_syncookies /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.1.18-ipv4_tcp_syn_cookies` | ipv4 tcp syn cookies: grep net.ipv4.tcp_syncookies /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysctl.d/\*.conf /… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.2.1-net.ipv6.ip_all_forwarding` | Kernel parameter net.ipv6.conf.all.forwarding is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.2.1-ipv6_all_forwarding_conf` | ipv6 all forwarding conf: grep net.ipv6.conf.all.forwarding /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.c… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.2.1-ipv6_all_forwarding_conf` | ipv6 all forwarding conf: grep net.ipv6.conf.all.forwarding /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysctl.d/\*.c… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.2.2-net.ipv6.ip_default_forwarding` | Kernel parameter net.ipv6.conf.default.forwarding is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.2.2-ipv6_default_forwarding_conf` | ipv6 default forwarding conf: grep net.ipv6.conf.default.forwarding /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.2.2-ipv6_default_forwarding_conf` | ipv6 default forwarding conf: grep net.ipv6.conf.default.forwarding /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysctl.d… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.2.3-net.ipv6.conf.all.accept_redirects` | Kernel parameter net.ipv6.conf.all.accept_redirects is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.2.3-ipv6_all_accept_redirects` | ipv6 all accept redirects: grep net.ipv6.conf.all.accept_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.2.3-ipv6_all_accept_redirects` | ipv6 all accept redirects: grep net.ipv6.conf.all.accept_redirects /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysctl… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.2.4-net.ipv6.conf.default.accept_redirects` | Kernel parameter net.ipv6.conf.default.accept_redirects is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.2.4-ipv6_default_accept_redirects` | ipv6 default accept redirects: grep net.ipv6.conf.default.accept_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sy… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.2.4-ipv6_default_accept_redirects` | ipv6 default accept redirects: grep net.ipv6.conf.default.accept_redirects /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sy… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.2.5-net.ipv6.conf.all.accept_source_route` | Kernel parameter net.ipv6.conf.all.accept_source_route is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.2.5-ipv6_all_source_routed` | ipv6 all source routed: grep net.ipv6.conf.all.accept_source_route /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sys… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.2.5-ipv6_all_source_routed` | ipv6 all source routed: grep net.ipv6.conf.all.accept_source_route /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sys… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.2.6-net.ipv6.conf.default.accept_source_rout` | Kernel parameter net.ipv6.conf.default.accept_source_route is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.2.6-ipv6_default_source_routed` | ipv6 default source routed: grep net.ipv6.conf.default.accept_source_route /etc/sysctl.conf /etc/sysctl.d/*.conf /run… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.2.6-ipv6_default_source_routed` | ipv6 default source routed: grep net.ipv6.conf.default.accept_source_route /etc/sysctl.conf /etc/sysctl.d/\*.conf /run… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.2.7-net.ipv6.conf.all.accept_ra` | Kernel parameter net.ipv6.conf.all.accept_ra is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.2.7-ipv6_all_accept_ra` | ipv6 all accept ra: grep net.ipv6.conf.all.accept_ra /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.co… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.2.7-ipv6_all_accept_ra` | ipv6 all accept ra: grep net.ipv6.conf.all.accept_ra /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysctl.d/\*.co… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-3.3.2.8-net.ipv6.conf.default.accept_ra` | Kernel parameter net.ipv6.conf.default.accept_ra is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-3.3.2.8-ipv6_default_accept_ra` | ipv6 default accept ra: grep net.ipv6.conf.default.accept_ra /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-3.3.2.8-ipv6_default_accept_ra` | ipv6 default accept ra: grep net.ipv6.conf.default.accept_ra /etc/sysctl.conf /etc/sysctl.d/\*.conf /run/sysctl.d/… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-4.1.1-firewalld` | Package firewalld is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-4.1.2-firewalld-attrs` | /etc/firewalld/firewalld.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-4.1.2-firewalld-content` | /etc/firewalld/firewalld.conf has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -317,17 +317,17 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-5.1.1-sshd_crypto_policy-content` | /etc/sysconfig/sshd has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.1.2-sshd_config_perms-attrs` | /etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.1.3-sysconfig_sshd_config-attrs` | /etc/sysconfig/sshd: exists, mode 0640 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.1.4-etc_ssh_ssh_host_prv_key_group` | /etc/ssh/ssh host prv key group: groupkeys=$(sudo find /etc/ssh/ -name *_key -type f ! \(-group root -o ! -group ssh_keys … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.1.4-etc_ssh_ssh_host_prv_key_perms` | /etc/ssh/ssh host prv key perms: keyperms=$(sudo find /etc/ssh/ -name *_key -type f -perm /137 ); echo $keyperms | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.1.4-etc_ssh_ssh_host_prv_key_user` | /etc/ssh/ssh host prv key user: userkeys=$(sudo find /etc/ssh/ -name *_key -type f ! -user root ! \( -group root -o -grou… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.1.5-etc_ssh_ssh_host_pub_key_group` | /etc/ssh/ssh host pub key group: groupkeys=$(sudo find /etc/ssh/ -name *_key.pub -type f ! -group root ); echo $groupkeys | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.1.5-etc_ssh_ssh_host_pub_key_perms` | /etc/ssh/ssh host pub key perms: keysperm=$(sudo find /etc/ssh/ -name *_key.pub -type f -perm /133 ); echo $keyperms | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.1.5-etc_ssh_ssh_host_pub_key_user` | /etc/ssh/ssh host pub key user: userkeys=$(sudo find /etc/ssh/ -name *_key -type f ! -user root ! -group root ); echo $us… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.1.6-sshd_access_limited` | sshd access limited: grep -Ei "^(Allow\|Deny)(Users\|Groups)" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.1.4-etc_ssh_ssh_host_prv_key_group` | /etc/ssh/ssh host prv key group: groupkeys=$(sudo find /etc/ssh/ -name \*_key -type f ! \\(-group root -o ! -group ssh_keys … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.1.4-etc_ssh_ssh_host_prv_key_perms` | /etc/ssh/ssh host prv key perms: keyperms=$(sudo find /etc/ssh/ -name \*_key -type f -perm /137 ); echo $keyperms | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.1.4-etc_ssh_ssh_host_prv_key_user` | /etc/ssh/ssh host prv key user: userkeys=$(sudo find /etc/ssh/ -name \*_key -type f ! -user root ! \\( -group root -o -grou… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.1.5-etc_ssh_ssh_host_pub_key_group` | /etc/ssh/ssh host pub key group: groupkeys=$(sudo find /etc/ssh/ -name \*_key.pub -type f ! -group root ); echo $groupkeys | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.1.5-etc_ssh_ssh_host_pub_key_perms` | /etc/ssh/ssh host pub key perms: keysperm=$(sudo find /etc/ssh/ -name \*_key.pub -type f -perm /133 ); echo $keyperms | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.1.5-etc_ssh_ssh_host_pub_key_user` | /etc/ssh/ssh host pub key user: userkeys=$(sudo find /etc/ssh/ -name \*_key -type f ! -user root ! -group root ); echo $us… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.1.6-sshd_access_limited` | sshd access limited: grep -Ei "^(Allow\|Deny)(Users\|Groups)" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.1.7-sshd_banner-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.1.7-sshd_banner-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.1.7-ssh_configd_banner` | ssh configd banner: grep -Eis '^\s*Banner\s+"?none\b'/etc/ssh/sshd_config.d/*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.1.8-no_weak_ssh_ciphers` | no weak ssh ciphers: sshd -T \| grep -Pi -- '^ciphers\h+\"?([^#\n\r]+,)?((3des\|aes(128\|192\|256))-cbc)\b' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.1.7-ssh_configd_banner` | ssh configd banner: grep -Eis '^\\s\*Banner\\s+"?none\\b'/etc/ssh/sshd_config.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.1.8-no_weak_ssh_ciphers` | no weak ssh ciphers: sshd -T \| grep -Pi -- '^ciphers\\h+\\"?([^#\\n\\r]+,)?((3des\|aes(128\|192\|256))-cbc)\\b' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.1.9-sshd_clientalive-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.1.9-sshd_clientalive-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.1.9-sshd_clientalive_live` | sshd clientalive live: sshd -T \| grep -i '^clientalive' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -373,11 +373,11 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-5.1.24-sshd_usepam-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.1.24-ssh_usepam_live` | ssh usepam live: sshd -T \| grep -i '^usepam' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.2.1-sudo` | Package sudo is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.2.2-pty_sudoers_d` | pty sudoers d: export PTY=`grep -q -Ei '^\s*Defaults\s+(\[^#]+,\s*)?use_pty' /etc/sudoers /etc/sudoers.d… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.2.3-log_sudoers_d` | log sudoers d: export LOG=`grep -q -Esi '^\s*Defaults\s+([^#]+,\s*)?logfile=' /etc/sudoers /etc/sudoers.… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.2.4-nopasswd_sudoers_d` | nopasswd sudoers d: grep -R NOPASSWD /etc/sudoers /etc/sudoers.d/* \| grep -v '.*\:#' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-5.2.5-authenticate_sudoers` | authenticate sudoers: grep -r "^[^#].*\!authenticate" /etc/sudoers* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.2.6-sudo_timeout` | sudo timeout: grep -rP "timestamp_timeout=\K[0-9]*" /etc/sudoers* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.2.2-pty_sudoers_d` | pty sudoers d: export PTY=`grep -q -Ei '^\\s\*Defaults\\s+(\\[^#]+,\\s\*)?use_pty' /etc/sudoers /etc/sudoers.d… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.2.3-log_sudoers_d` | log sudoers d: export LOG=`grep -q -Esi '^\\s\*Defaults\\s+([^#]+,\\s\*)?logfile=' /etc/sudoers /etc/sudoers.… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.2.4-nopasswd_sudoers_d` | nopasswd sudoers d: grep -R NOPASSWD /etc/sudoers /etc/sudoers.d/\* \| grep -v '.\*\\:#' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-5.2.5-authenticate_sudoers` | authenticate sudoers: grep -r "^[^#].\*\\!authenticate" /etc/sudoers\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.2.6-sudo_timeout` | sudo timeout: grep -rP "timestamp_timeout=\\K[0-9]\*" /etc/sudoers\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.2.7-restrict_su-attrs` | /etc/pam.d/su: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.2.7-restrict_su-content` | /etc/pam.d/su has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.2.7-sugroup_etc_group` | sugroup etc group: grep sugroup /etc/group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -410,7 +410,7 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-5.3.3.2.1-difok_pwquality-content` | /etc/security/pwquality.conf has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.3.3.2.2-minlen_pwquality-attrs` | /etc/security/pwquality.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.3.3.2.2-minlen_pwquality-content` | /etc/security/pwquality.conf has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.3.3.2.3-minclass_pwquality` | minclass pwquality: grep -Psi -- '^\h*(minclass\|[dulo]credit)\b' /etc/security/pwquality.conf /etc/security/p… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.3.3.2.3-minclass_pwquality` | minclass pwquality: grep -Psi -- '^\\h\*(minclass\|[dulo]credit)\\b' /etc/security/pwquality.conf /etc/security/p… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.3.3.2.4-maxrepeat_pwquality-attrs` | /etc/security/pwquality.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.3.3.2.4-maxrepeat_pwquality-content` | /etc/security/pwquality.conf has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.3.3.2.5-maxsequence_pwquality-attrs` | /etc/security/pwquality.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -421,7 +421,7 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-5.3.3.2.7-dictcheck_root_pwquality-content` | /etc/security/pwquality.conf has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.3.3.3.1-remember_pwhistory-attrs` | /etc/security/pwhistory.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.3.3.3.1-remember_pwhistory-content` | /etc/security/pwhistory.conf has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.3.3.3.1-pwhistory_pam` | pwhistory pam: grep -Pi -- '^\h*password\h+(requisite\|required\|sufficient)\h+pam_pwhistory\.so\h+([^#\n\… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.3.3.3.1-pwhistory_pam` | pwhistory pam: grep -Pi -- '^\\h\*password\\h+(requisite\|required\|sufficient)\\h+pam_pwhistory\\.so\\h+([^#\\n\\… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.3.3.3.2-enforce_for_root_pwhistory-attrs` | /etc/security/pwhistory.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.3.3.3.2-enforce_for_root_pwhistory-content` | /etc/security/pwhistory.conf has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.3.3.3.3-authtok_pwhistory_passwd-attrs` | /etc/pam.d/password-auth: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -446,18 +446,18 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-5.3.3.4.4-use_authtok_pwhistory_system-content` | /etc/pam.d/system-auth has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.4.1.1-max_days__etc_login.defs-attrs` | /etc/login.defs: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.4.1.1-max_days__etc_login.defs-content` | /etc/login.defs has the expected content (3 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.4.1.1-check_users_MAX_DAYS` | check users MAX DAYS: awk -F: '/^[^:]+:[^!*]/ && (length($5) == 0 \|\| $5 < 1 \|\| $5 > 365) {print $1":"$5}' /etc/… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.4.1.1-check_users_MAX_DAYS` | check users MAX DAYS: awk -F: '/^[^:]+:[^!\*]/ && (length($5) == 0 \|\| $5 < 1 \|\| $5 > 365) {print $1":"$5}' /etc/… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.4.1.2-min_days__etc_login.defs-attrs` | /etc/login.defs: exists | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-5.4.1.2-min_days__etc_login.defs-content` | /etc/login.defs has the expected content (2 rules) | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-5.4.1.2-check_users_MIN_DAYS` | check users MIN DAYS: awk -F: '/^[^:]+:[^!*]/ && (length($4) == 0 \|\| $4 < 7) {print $1":"$4}' /etc/shadow | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-5.4.1.3-check_users_warn_age` | check users warn age: awk -F: '/^[^:]+:[^!*]/ && (length($6) == 0 \|\| $6 < 7) {print $1":"$6}' /etc/shadow | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.4.1.2-check_users_MIN_DAYS` | check users MIN DAYS: awk -F: '/^[^:]+:[^!\*]/ && (length($4) == 0 \|\| $4 < 7) {print $1":"$4}' /etc/shadow | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-5.4.1.3-check_users_warn_age` | check users warn age: awk -F: '/^[^:]+:[^!\*]/ && (length($6) == 0 \|\| $6 < 7) {print $1":"$6}' /etc/shadow | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.4.1.3-login_defs_warn_age` | login defs warn age: grep PASS_WARN_AGE /etc/login.defs | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.4.1.4-crypt__etc_login.defs-attrs` | /etc/login.defs: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.4.1.4-crypt__etc_login.defs-content` | /etc/login.defs has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.4.1.4-crypt_userlib-attrs` | /etc/libuser.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.4.1.4-crypt_userlib-content` | /etc/libuser.conf has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.4.1.5-inactive_passwd` | inactive passwd: useradd -D \| grep INACTIVE | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.4.1.5-inactive_users` | inactive users: grep -E ^[^:]+:[^\!*] /etc/shadow \| grep -vw root \| cut -d : -f1,7 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.4.1.5-inactive_users` | inactive users: grep -E ^[^:]+:[^\\!\*] /etc/shadow \| grep -vw root \| cut -d : -f1,7 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.4.1.6-passwd_chg_past` | No user has a last password change date in the future | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.4.2.1-uid_0_check` | uid 0 check: awk -F: '($3 == 0) { print $1 }' /etc/passwd | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.4.2.2-gid_0_check` | gid 0 check: awk -F: '($1 !~ /^(sync\|shutdown\|halt\|operator)/ && $4=='0') {print $1":"$4}' /etc/passwd | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -466,27 +466,27 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-5.4.2.5-root_path_check` | root path check: /bin/bash --login -c 'env \| grep ^PATH=' \| sed -e 's/PATH=//' -e 's/::/:/' -e 's/:$//' -e… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.4.2.6-root_umask_bash_profile` | root umask bash profile: grep -i umask /root/.bash_profile /root/.bashrc | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.4.2.7-secure_system_accts` | secure system accts: awk -F: '$3<1000' /etc/passwd \| grep -Ev 'root\|sync\|halt\|shutdown\|nfsnobody\|/sbin/nologin… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.4.2.8-user_accts_valid_shell` | user accts valid shell: l_valid_shells="^($(awk -F\/ '$NF != "nologin" {print}' /etc/shells \| sed -rn '/^\//{s,/,… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.4.2.8-user_accts_valid_shell` | user accts valid shell: l_valid_shells="^($(awk -F\\/ '$NF != "nologin" {print}' /etc/shells \| sed -rn '/^\\//{s,/,… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.4.3.1-nologin_not_in_shells-attrs` | /etc/shells: exists | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-5.4.3.1-nologin_not_in_shells-content` | /etc/shells has the expected content (1 rule) | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-5.4.3.2-check_timeout` | check timeout: grep TMOUT /etc/profile.d/*.sh /etc/profile /etc/profile.d/*.sh\| cut -d ":" -f2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-5.4.3.3-umask_profile_scripts` | umask profile scripts: grep -i "^\s*umask" /etc/profile /etc/profile.d/*.sh /etc/login.defs \| cut -d ":" -f 2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.4.3.2-check_timeout` | check timeout: grep TMOUT /etc/profile.d/\*.sh /etc/profile /etc/profile.d/\*.sh\| cut -d ":" -f2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-5.4.3.3-umask_profile_scripts` | umask profile scripts: grep -i "^\\s\*umask" /etc/profile /etc/profile.d/\*.sh /etc/login.defs \| cut -d ":" -f 2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-6.1.1-aide_installed` | Package aide is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-6.1.2-aide_cron` | aide cron: grep -rs aide /etc/cron.* /etc/crontab /var/spool/cron/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-6.1.2-aide_cron` | aide cron: grep -rs aide /etc/cron.\* /etc/crontab /var/spool/cron/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-6.1.3-audit_bins_crypto_aide` | audit bins crypto aide: grep /sbin/au /etc/aide.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-6.2.1.1.5-storage_journald_conf` | storage journald conf: grep -i storage /etc/systemd/journald.conf /etc/systemd/journald.conf.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-6.2.1.1.6-compress_journald_conf` | compress journald conf: grep -i compress /etc/systemd/journald.conf /etc/systemd/journald.conf.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-6.2.1.1.5-storage_journald_conf` | storage journald conf: grep -i storage /etc/systemd/journald.conf /etc/systemd/journald.conf.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-6.2.1.1.6-compress_journald_conf` | compress journald conf: grep -i compress /etc/systemd/journald.conf /etc/systemd/journald.conf.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-6.2.2.1-rsyslog` | Package rsyslog is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-6.2.2.2-rsyslog-enabled` | Service rsyslog is enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-6.2.2.2-rsyslog-running` | Service rsyslog is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-6.2.2.3-forward_journald_conf` | forward journald conf: grep -ris '^\s*ForwardToSyslog' /etc/systemd/journald.conf /etc/systemd/journald.conf.d/ | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-6.2.2.4-perms_rsyslog_d` | perms rsyslog d: grep -s ^\$FileCreateMode /etc/rsyslog.conf /etc/rsyslog.d/*.conf \| cut -f2 -d: | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-6.2.2.3-forward_journald_conf` | forward journald conf: grep -ris '^\\s\*ForwardToSyslog' /etc/systemd/journald.conf /etc/systemd/journald.conf.d/ | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-6.2.2.4-perms_rsyslog_d` | perms rsyslog d: grep -s ^\\$FileCreateMode /etc/rsyslog.conf /etc/rsyslog.d/\*.conf \| cut -f2 -d: | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-6.2.2.5-etc_rsyslog.conf-attrs` | /etc/rsyslog.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-6.2.2.5-etc_rsyslog.conf-content` | /etc/rsyslog.conf has the expected content (13 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-6.2.2.7-local_syslog_input` | local syslog input: grep -E "imtcp\" port\|InputTCPServerRun" /etc/rsyslog.conf /etc/rsyslog.d/*.conf \| grep -… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-6.2.2.7-local_syslog_module` | local syslog module: grep "imtcp" /etc/rsyslog.conf /etc/rsyslog.d/*.conf \| grep -Ev ":#\|port=" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-6.2.2.7-local_syslog_input` | local syslog input: grep -E "imtcp\\" port\|InputTCPServerRun" /etc/rsyslog.conf /etc/rsyslog.d/\*.conf \| grep -… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-6.2.2.7-local_syslog_module` | local syslog module: grep "imtcp" /etc/rsyslog.conf /etc/rsyslog.d/\*.conf \| grep -Ev ":#\|port=" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-6.2.2.8-rsyslog_logrotate` | rsyslog logrotate: echo "Manual" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-6.2.3.1-logfile_configured_login_files` | logfile configured login files: find /var/log/ -type f -perm /g+x,o+wx -exec ls -l "{}" + \| grep -E "[b,u,w]tmp.*\|lastllo… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-6.2.3.1-logfile_configured_login_files` | logfile configured login files: find /var/log/ -type f -perm /g+x,o+wx -exec ls -l "{}" + \| grep -E "[b,u,w]tmp.\*\|lastllo… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-6.2.3.1-logfile_configured_sssd` | logfile configured sssd: find /var/log/ -type f -perm /g+x,o+rwx -exec ls -l "{}" + \| grep -Ei "ssd\|gdm" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-6.2.3.1-logfile_configured_syslog_logs` | logfile configured syslog logs: find /var/log/ -type f -perm /g+wx,o+wx -exec ls -l "{}" + \| grep -E "auth\|secure\|syslog\|… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-6.3.1.1-audit` | Package audit is installed | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
@@ -498,56 +498,56 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-6.3.1.4-auditd-running` | Service auditd is running | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.2.1-max_log_auditd_conf` | max log auditd conf: grep max_log_file /etc/audit/auditd.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.2.2-max_log_action_auditd_conf` | max log action auditd conf: grep max_log_file_action /etc/audit/auditd.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.2.3-logs_full_auditd_conf` | logs full auditd conf: grep -E "disk.*action" /etc/audit/auditd.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.2.3-logs_full_auditd_conf` | logs full auditd conf: grep -E "disk.\*action" /etc/audit/auditd.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.2.4-logs_low_space_auditd_conf` | logs low space auditd conf: grep space_left_action /etc/audit/auditd.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.1-auditd_admin_scope_cnf` | auditd admin scope cnf: grep scope /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.1-auditd_admin_scope_cnf` | auditd admin scope cnf: grep scope /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.1-auditd_admin_scope_live` | auditd admin scope live: auditctl -l \| grep scope | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.2-other_user_actions_cnf` | other user actions cnf: grep user_emu /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.2-other_user_actions_cnf` | other user actions cnf: grep user_emu /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.2-other_user_actions_live` | other user actions live: auditctl -l \| grep user_emu | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.3-modify_sudolog_cnf` | modify sudolog cnf: grep sudo_log /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.3-modify_sudolog_cnf` | modify sudolog cnf: grep sudo_log /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.3-modify_sudolog_live` | modify sudolog live: auditctl -l \| grep sudo_log | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.4-auditd_time_cnf` | auditd time cnf: grep time-change /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.4-auditd_time_cnf` | auditd time cnf: grep time-change /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.4-auditd_time_live` | auditd time live: auditctl -l \| grep time-change | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.5-auditd_locale_cnf` | auditd locale cnf: grep system-locale /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.5-auditd_locale_cnf` | auditd locale cnf: grep system-locale /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.5-auditd_locale_live` | auditd locale live: auditctl -l \| grep system-locale | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.6-auditd_priv_cmds_cnf` | auditd priv cmds cnf: echo "Manual - Please investigate privilege commands are collected as per documentation" | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.7-auditd_access_cnf` | auditd access cnf: grep access /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.7-auditd_access_cnf` | auditd access cnf: grep access /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.7-auditd_access_live` | auditd access live: auditctl -l \| grep access | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.8-auditd_identity_cnf` | auditd identity cnf: grep identity /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.8-auditd_identity_cnf` | auditd identity cnf: grep identity /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.8-auditd_identity_live` | auditd identity live: auditctl -l \| grep identity | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.9-auditd_perms_cnf` | auditd perms cnf: grep perm_mod /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.9-auditd_perms_cnf` | auditd perms cnf: grep perm_mod /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.9-auditd_perms_live` | auditd perms live: auditctl -l \| grep perm_mod | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.10-auditd_mounts_cnf` | auditd mounts cnf: grep mounts /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.10-auditd_mounts_cnf` | auditd mounts cnf: grep mounts /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.10-auditd_mounts_live` | auditd mounts live: auditctl -l \| grep mounts | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.11-auditd_session_live` | auditd session live: auditctl -l \| grep session | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.11-auditd_sessions_cnf` | auditd sessions cnf: grep session /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.12-auditd_logins_cnf` | auditd logins cnf: grep logins /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.11-auditd_sessions_cnf` | auditd sessions cnf: grep session /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.12-auditd_logins_cnf` | auditd logins cnf: grep logins /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.12-auditd_logins_live` | auditd logins live: auditctl -l \| grep logins | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.13-auditd_delete_cnf` | auditd delete cnf: grep delete /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.13-auditd_delete_cnf` | auditd delete cnf: grep delete /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.13-auditd_delete_live` | auditd delete live: auditctl -l \| grep delete | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.14-auditd_MAC_cnf` | auditd MAC cnf: grep MAC-policy /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.14-auditd_MAC_cnf` | auditd MAC cnf: grep MAC-policy /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.14-auditd_MAC_live` | auditd MAC live: auditctl -l \| grep MAC-policy | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.15-auditd_chcon_cnf` | auditd chcon cnf: grep chcon /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.15-auditd_chcon_cnf` | auditd chcon cnf: grep chcon /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.15-auditd_chcon_live` | auditd chcon live: auditctl -l \| grep chcon | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.16-auditd_setfacl_cnf` | auditd setfacl cnf: grep setfacl /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.16-auditd_setfacl_cnf` | auditd setfacl cnf: grep setfacl /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.16-auditd_setfacl_live` | auditd setfacl live: auditctl -l \| grep setfacl | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.17-auditd_chacl_cnf` | auditd chacl cnf: grep chacl /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.17-auditd_chacl_cnf` | auditd chacl cnf: grep chacl /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.17-auditd_chacl_live` | auditd chacl live: auditctl -l \| grep chacl | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.18-auditd_usermod_cnf` | auditd usermod cnf: grep usermod /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.18-auditd_usermod_cnf` | auditd usermod cnf: grep usermod /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.18-auditd_usermod_live` | auditd usermod live: auditctl -l \| grep usermod | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.19-auditd_admin_module_live` | auditd admin module live: auditctl -l \| grep modules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.19-auditd_module_cnf` | auditd module cnf: grep modules /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.20-auditd_run_regardless` | auditd run regardless: grep -w "\-c" /etc/audit/rules.d/*.rules \| tail -1 | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.21-auditd_immutable` | auditd immutable: grep "-e 2" /etc/audit/rules.d/*.rules \| tail -1 | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.19-auditd_module_cnf` | auditd module cnf: grep modules /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.20-auditd_run_regardless` | auditd run regardless: grep -w "\\-c" /etc/audit/rules.d/\*.rules \| tail -1 | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.3.21-auditd_immutable` | auditd immutable: grep "-e 2" /etc/audit/rules.d/\*.rules \| tail -1 | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.22-auditd_conf_vs_live` | auditd conf vs live: augenrules --check | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.4.1-audit_logfile_dir_perms` | audit logfile dir perms: for dir in `dirname \`grep ^log_file /etc/audit/auditd.conf \| awk '{ print $NF }'\``; do … | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.4.1-audit_logfile_dir_perms` | audit logfile dir perms: for dir in `dirname \\`grep ^log_file /etc/audit/auditd.conf \| awk '{ print $NF }'\\``; do … | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.4.2-audit_logfile_perms` | audit logfile perms: for file in `grep ^log_file /etc/audit/auditd.conf \| awk '{ print $NF }'`; do stat -Lc "%… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.4.3-audit_logfile_owner` | audit logfile owner: for file in `grep ^log_file /etc/audit/auditd.conf \| awk '{ print $NF }'`; do stat -Lc "%… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.4.4-audit_logfile_group` | audit logfile group: for file in `grep ^log_file /etc/audit/auditd.conf \| awk '{ print $NF }'`; do stat -Lc " … | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.4.4-audit_logfile_group_setting` | audit logfile group setting: grep log_group /etc/audit/audit* \| awk '{ print $NF}' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.4.5-audit_conf_perms` | audit conf perms: for file  in `find /etc/audit/ -type f \( -name '*.conf' -o -name '*.rules' \)`; do stat … | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.4.6-audit_conf_owner` | audit conf owner: for file in `find /etc/audit/ -type f \( -name '*.conf' -o -name '*.rules' \)`; do stat -… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.4.7-audit_conf_group` | audit conf group: for file  in `find /etc/audit/ -type f \( -name '*.conf' -o -name '*.rules' \)`; do stat … | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.4.4-audit_logfile_group_setting` | audit logfile group setting: grep log_group /etc/audit/audit\* \| awk '{ print $NF}' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.4.5-audit_conf_perms` | audit conf perms: for file  in `find /etc/audit/ -type f \\( -name '\*.conf' -o -name '\*.rules' \\)`; do stat … | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.4.6-audit_conf_owner` | audit conf owner: for file in `find /etc/audit/ -type f \\( -name '\*.conf' -o -name '\*.rules' \\)`; do stat -… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL8-6.3.4.7-audit_conf_group` | audit conf group: for file  in `find /etc/audit/ -type f \\( -name '\*.conf' -o -name '\*.rules' \\)`; do stat … | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.4.8-audit_tools_perms` | audit tools perms: stat -c "%n_%a" /sbin/auditctl /sbin/aureport /sbin/ausearch /sbin/autrace /sbin/auditd /… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.4.9-audit_tools_owner` | audit tools owner: stat -c "%n_%U" /sbin/auditctl /sbin/aureport /sbin/ausearch /sbin/autrace /sbin/auditd /… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.4.10-audit_tools_group` | audit tools group: stat -c "%n_%G" /sbin/auditctl /sbin/aureport /sbin/ausearch /sbin/autrace /sbin/auditd /… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
@@ -561,9 +561,9 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-7.1.8-etc_gshadow-_perms-attrs` | /etc/gshadow-: exists, mode 0000 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-7.1.9-etc_shells_perms-attrs` | /etc/shells: exists, mode 0644 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-7.1.10-etc_security_opasswd_perms-attrs` | /etc/security/opasswd: mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-7.1.11-world_writable` | world writable: df --local -P \| awk '{if (NR!=1) print $6}' \| xargs -I '{}' find '{}' -xdev -type d \( -p… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-7.1.12-unowned_ungrouped_dirs` | unowned ungrouped dirs: df --local -P \| awk 'NR!=1 {print $6}' \| xargs -I '{}' find '{}' -xdev \( ! -path "/run/u… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-7.1.13-audit_sgid_suid` | audit sgid suid: df --local -P \| awk '{if (NR!=1) print $7}' \| xargs -I '{}' find '{}' -xdev -type f \( -p… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-7.1.11-world_writable` | world writable: df --local -P \| awk '{if (NR!=1) print $6}' \| xargs -I '{}' find '{}' -xdev -type d \\( -p… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-7.1.12-unowned_ungrouped_dirs` | unowned ungrouped dirs: df --local -P \| awk 'NR!=1 {print $6}' \| xargs -I '{}' find '{}' -xdev \\( ! -path "/run/u… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-7.1.13-audit_sgid_suid` | audit sgid suid: df --local -P \| awk '{if (NR!=1) print $7}' \| xargs -I '{}' find '{}' -xdev -type f \\( -p… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-7.2.1-accts_use_shadowed` | accts use shadowed: awk -F: '($2 != "x" ) { print $1 " is not set to shadowed passwords "}' /etc/passwd | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-7.2.2-nopasswd_shadow` | nopasswd shadow: cat /etc/shadow \| cut -d ':' -f2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-7.2.3-passwd_group_exist` | passwd group exist: awk -F: 'NR==FNR {g[$3]; next} !($4 in g) {print $1":"$4}' /etc/group /etc/passwd | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -574,4 +574,4 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-7.2.8-home_dirs_exist` | home dirs exist: pwck -r \| grep -v journal \| grep "does not exist" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-7.2.8-home_dirs_owned` | home dirs owned: getent passwd {1000..60000} \|  awk -F: '{ print $1  " "  $6 }' \| while read user dir; do … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-7.2.8-home_dirs_restrict` | home dirs restrict: for i in `getent passwd {1000..60000} \|  awk '{split($0,a,":");print a[6]}'`; do stat -c … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-7.2.9-dot_netrc_perms` | dot netrc perms: find /home/  \( -name .netrc -o -name .rhost -o -name .forward \) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-7.2.9-dot_netrc_perms` | dot netrc perms: find /home/  \\( -name .netrc -o -name .rhost -o -name .forward \\) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

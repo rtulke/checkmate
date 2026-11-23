@@ -44,7 +44,7 @@ sudo checkmate run cis/apache.yml --tags cis-level-2 -v
 | `CIS-APACHE-5.7-limit-methods` | HTTP request methods are limited | L1 | <span class="sev sev-medium">medium</span> |
 | `CIS-APACHE-5.8-trace-disabled` | The TRACE method is disabled | L1 | <span class="sev sev-medium">medium</span> |
 | `CIS-APACHE-5.9-old-protocols` | Requests with old HTTP protocol versions are rejected | L1 | <span class="sev sev-low">low</span> |
-| `CIS-APACHE-5.10-htaccess-files` | Access to .ht* files is denied | L1 | <span class="sev sev-medium">medium</span> |
+| `CIS-APACHE-5.10-htaccess-files` | Access to .ht\* files is denied | L1 | <span class="sev sev-medium">medium</span> |
 | `CIS-APACHE-5.11-file-extensions` | Only approved file extensions can be requested | L2 | <span class="sev sev-low">low</span> |
 | `CIS-APACHE-5.12-ip-requests` | Requests for an IP address instead of the host name are rejected | L2 | <span class="sev sev-low">low</span> |
 | `CIS-APACHE-5.13-listen-addresses` | httpd listens only on explicit IP addresses | L2 | <span class="sev sev-low">low</span> |

@@ -11,21 +11,21 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 
 | ID | Check | Profiles | Severity |
 |---|---|---|---|
-| `CIS-SUSE15-1.1.1.1-blacklist_cramfs` | blacklist cramfs: grep cramfs /etc/modprobe.d/*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-1.1.1.1-blacklist_cramfs` | blacklist cramfs: grep cramfs /etc/modprobe.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.1.1.1-cramfs` | cramfs: modprobe -n -v cramfs \| grep -E '(cramfs\|install)' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-1.1.1.2-blacklist_freevxfs` | blacklist freevxfs: grep freevxfs /etc/modprobe.d/*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-1.1.1.2-blacklist_freevxfs` | blacklist freevxfs: grep freevxfs /etc/modprobe.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.1.1.2-freevxfs` | freevxfs: modprobe -n -v freevxfs \| grep -E '(freevxfs\|install)' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-1.1.1.3-blacklist_hfs` | blacklist hfs: grep hfs /etc/modprobe.d/*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-1.1.1.3-blacklist_hfs` | blacklist hfs: grep hfs /etc/modprobe.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.1.1.3-hfs_modprobe` | hfs modprobe: modprobe -n -v hfs \| grep -E '(hfs\|install)' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-1.1.1.4-blacklist_hfsplus` | blacklist hfsplus: grep hfsplus /etc/modprobe.d/*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-1.1.1.4-blacklist_hfsplus` | blacklist hfsplus: grep hfsplus /etc/modprobe.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.1.1.4-hfsplus_modprobe` | hfsplus modprobe: modprobe -n -v hfsplus \| grep -E '(hfsplus\|install)' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-1.1.1.5-blacklist_jffs2` | blacklist jffs2: grep jffs2 /etc/modprobe.d/*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-1.1.1.5-blacklist_jffs2` | blacklist jffs2: grep jffs2 /etc/modprobe.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.1.1.5-jffs2_modprobe` | jffs2 modprobe: modprobe -n -v jffs2 \| grep -E '(jffs2\|install)' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-1.1.1.6-blacklist_overlay` | blacklist overlay: grep overlay /etc/modprobe.d/*.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-1.1.1.6-blacklist_overlay` | blacklist overlay: grep overlay /etc/modprobe.d/\*.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-1.1.1.6-overlay` | overlay: modprobe -n -v overlay \| grep -E '(overlay\|install)' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-1.1.1.7-blacklist_squashfs` | blacklist squashfs: grep squashfs /etc/modprobe.d/*.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-1.1.1.7-blacklist_squashfs` | blacklist squashfs: grep squashfs /etc/modprobe.d/\*.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-1.1.1.7-squashfs` | squashfs: modprobe -n -v squashfs \| grep -E '(squashfs\|install)' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-1.1.1.8-blacklist_udf` | blacklist udf: grep udf /etc/modprobe.d/*.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-1.1.1.8-blacklist_udf` | blacklist udf: grep udf /etc/modprobe.d/\*.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-1.1.1.8-udf` | udf: modprobe -n -v udf \| grep -E '(udf\|install)' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-1.1.1.9-unused_filesystems` | unused filesystems: modprobe -n -v | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.1.2.1.1-tmp_mount` | /tmp is a separate mount | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -93,10 +93,10 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-1.1.2.7.4-var_log_audit_noexec_fstab_options-attrs` | /etc/fstab: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.1.2.7.4-var_log_audit_noexec_fstab_options-content` | /etc/fstab has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.2.1.1-gpg_keys` | gpg keys: rpm -q gpg-pubkey --qf '%{name}-%{version}-%{release} --> %{summary} | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-1.2.1.2-gpg_check_global` | gpg check global: if [ `grep -c -E '^\s*gpgcheck.*0' /etc/zypp/zypp.conf` -ge 1 ]; then echo FAIL; elif [ `… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-1.2.1.2-gpg_check_repo` | gpg check repo: if [ `grep -c -E '^\s*gpgcheck.*0' /etc/zypp/repos.d/*.repo` -ge 1 ]; then echo FAIL; eli… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-1.2.1.2-gpg_check_global` | gpg check global: if [ `grep -c -E '^\\s\*gpgcheck.\*0' /etc/zypp/zypp.conf` -ge 1 ]; then echo FAIL; elif [ `… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-1.2.1.2-gpg_check_repo` | gpg check repo: if [ `grep -c -E '^\\s\*gpgcheck.\*0' /etc/zypp/repos.d/\*.repo` -ge 1 ]; then echo FAIL; eli… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.2.1.3-repo_gpgcheck_global` | repo gpgcheck global: grep -E "^repo_gpgcheck" /etc/zypp/zypp.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-1.2.1.3-repo_gpgcheck_repo` | repo gpgcheck repo: grep -RPi -- '^\h*repo_gpgcheck\h*=\h*(0\|false\|no\|off)\b' /etc/zypp/repos.d/ | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-1.2.1.3-repo_gpgcheck_repo` | repo gpgcheck repo: grep -RPi -- '^\\h\*repo_gpgcheck\\h\*=\\h\*(0\|false\|no\|off)\\b' /etc/zypp/repos.d/ | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-1.2.1.4-repos_configured` | repos configured: zypper repos | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.2.2.1-package-updates` | package updates: zypper lu | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.3.1.1-apparmor-parser` | Package apparmor-parser is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -111,14 +111,14 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-1.3.1.4-apparmor_enf_only` | apparmor enf only: apparmor_status 2>/dev/null \| awk ' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-1.4.2-grub_bootloaders_perms-attrs` | /boot/grub2/grub.cfg: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.5.1-address_space_random` | Kernel parameter kernel.randomize_va_space is 2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-1.5.1-aslr_enabled_2` | aslr enabled 2: grep "kernel\.randomize_va_space" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-1.5.1-aslr_enabled_2` | aslr enabled 2: grep "kernel\\.randomize_va_space" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.5.2-fs_suid_dumpable` | Kernel parameter fs.suid_dumpable is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-1.5.2-coredump_dumpable_conf` | coredump dumpable conf: grep "fs.suid_dumpable" /etc/sysctl.conf /etc/sysctl.d/* 2>/dev/null | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-1.5.2-coredump_limits_conf` | coredump limits conf: grep -E "^\s*\*\s+hard\s+core" /etc/security/limits.conf /etc/security/limits.d/* 2>/dev/… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-1.5.2-coredump_dumpable_conf` | coredump dumpable conf: grep "fs.suid_dumpable" /etc/sysctl.conf /etc/sysctl.d/\* 2>/dev/null | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-1.5.2-coredump_limits_conf` | coredump limits conf: grep -E "^\\s\*\\\*\\s+hard\\s+core" /etc/security/limits.conf /etc/security/limits.d/\* 2>/dev/… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.5.3-prelink_package` | Package prelink is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.6.1-crypto_pkg_installed` | Package crypto-policies-scripts is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.6.2-crypto_policies_config` | crypto policies config: cat /etc/crypto-policies/config | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-1.6.3-crypto_policies_not_in_sshd` | crypto policies not in sshd: grep -Pi '^\h*CRYPTO_POLICY\h*=' /etc/sysconfig/ssh | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-1.6.3-crypto_policies_not_in_sshd` | crypto policies not in sshd: grep -Pi '^\\h\*CRYPTO_POLICY\\h\*=' /etc/sysconfig/ssh | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.6.4-crypto_policies_no_sha1_current-attrs` | /etc/crypto-policies/state/CURRENT.pol: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.6.4-crypto_policies_no_sha1_current-content` | /etc/crypto-policies/state/CURRENT.pol has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.6.5-crypto_policies_no_weakmacs-attrs` | /etc/crypto-policies/state/CURRENT.pol: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -127,9 +127,9 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-1.6.6-crypto_policies_no_ssh_cbc-content` | /etc/crypto-policies/state/CURRENT.pol has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.6.7-crypto_policies_no_ssh_chacha-poly1305-attrs` | /etc/crypto-policies/state/CURRENT.pol: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.6.7-crypto_policies_no_ssh_chacha-poly1305-content` | /etc/crypto-policies/state/CURRENT.pol has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-1.7.1-check_motd_files` | check motd files: grep -Eis "(\\\v\|\\\r\|\\\m\|\\\s\|$(grep '^ID=' /etc/os-release \| cut -d= -f2 \| sed -e 's/"… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-1.7.2-check_etc_issue` | check etc issue: grep -Eis "(\\\v\|\\\r\|\\\m\|\\\s\|$(grep '^ID=' /etc/os-release \| cut -d= -f2 \| sed -e 's/"… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-1.7.3-check_etc_issue_net` | check etc issue net: grep -Eis "(\\\v\|\\\r\|\\\m\|\\\s\|$(grep '^ID=' /etc/os-release \| cut -d= -f2 \| sed -e 's/"… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-1.7.1-check_motd_files` | check motd files: grep -Eis "(\\\\\\v\|\\\\\\r\|\\\\\\m\|\\\\\\s\|$(grep '^ID=' /etc/os-release \| cut -d= -f2 \| sed -e 's/"… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-1.7.2-check_etc_issue` | check etc issue: grep -Eis "(\\\\\\v\|\\\\\\r\|\\\\\\m\|\\\\\\s\|$(grep '^ID=' /etc/os-release \| cut -d= -f2 \| sed -e 's/"… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-1.7.3-check_etc_issue_net` | check etc issue net: grep -Eis "(\\\\\\v\|\\\\\\r\|\\\\\\m\|\\\\\\s\|$(grep '^ID=' /etc/os-release \| cut -d= -f2 \| sed -e 's/"… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.7.4-motd_permissions-attrs` | /etc/motd: mode 0644 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.7.5-etc_issue_permissions-attrs` | /etc/issue: exists, mode 0644 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-1.7.6-etc_issue_net_permissions-attrs` | /etc/issue.net: exists, mode 0644 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -187,7 +187,7 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-2.4.2.1-etc_at.allow-attrs` | /etc/at.allow: exists, mode 0640 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-2.4.2.1-at_deny_absent-absent` | /etc/at.deny does not exist | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.1.1-ipv6_disabled` | ipv6 disabled: [ -d /proc/sys/net/ipv6 ] \|\| { echo "IPv6 disabled in the kernel"; exit 0; } | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-3.1.2-wireless_disabled` | wireless disabled: find /sys/class/net/*/ -type d -name wireless 2>/dev/null \| while read -r l_dir; do | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-3.1.2-wireless_disabled` | wireless disabled: find /sys/class/net/\*/ -type d -name wireless 2>/dev/null \| while read -r l_dir; do | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.1.3-bluetooth_pkg` | Package bluez is not installed | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.2.1-lsmod_dccp` | lsmod dccp: lsmod \| grep -i dccp | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-3.2.1-modprobe_dccp` | modprobe dccp: modprobe -n -v dccp | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
@@ -198,37 +198,37 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-3.2.4-lsmod_sctp` | lsmod sctp: lsmod \| grep -i sctp | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-3.2.4-modprobe_sctp` | modprobe sctp: modprobe -n -v sctp | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-3.3.1-net.ipv4.ip_forward` | Kernel parameter net.ipv4.ip_forward is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-3.3.1-ipv4_ip_forward` | ipv4 ip forward: grep -E "^\s*net\.ipv4\.ip_forward" /etc/sysctl.conf /etc/sysctl.d/*.conf /usr/lib/sysctl… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-3.3.1-ipv4_ip_forward` | ipv4 ip forward: grep -E "^\\s\*net\\.ipv4\\.ip_forward" /etc/sysctl.conf /etc/sysctl.d/\*.conf /usr/lib/sysctl… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.3.2-net.ipv4.conf.all.send_redirects` | Kernel parameter net.ipv4.conf.all.send_redirects is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.3.2-net.ipv4.conf.default.send_redirects` | Kernel parameter net.ipv4.conf.default.send_redirects is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-3.3.2-ipv4_disable_all_redirect` | ipv4 disable all redirect: grep -E "^\s*net\.ipv4\.conf\.all\.send_redirects" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-3.3.2-ipv4_disable_def_redirect` | ipv4 disable def redirect: grep -E "^\s*net\.ipv4\.conf\.default\.send_redirects" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-3.3.2-ipv4_disable_all_redirect` | ipv4 disable all redirect: grep -E "^\\s\*net\\.ipv4\\.conf\\.all\\.send_redirects" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-3.3.2-ipv4_disable_def_redirect` | ipv4 disable def redirect: grep -E "^\\s\*net\\.ipv4\\.conf\\.default\\.send_redirects" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.3.3-net.ipv4.icmp_ignore_bogus_error_respons` | Kernel parameter net.ipv4.icmp_ignore_bogus_error_responses is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-3.3.3-ipv4_ignore_bogus` | ipv4 ignore bogus: grep "net.ipv4.icmp_ignore_bogus_error_responses" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-3.3.3-ipv4_ignore_bogus` | ipv4 ignore bogus: grep "net.ipv4.icmp_ignore_bogus_error_responses" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.3.4-net.ipv4.icmp_echo_ignore_broadcasts` | Kernel parameter net.ipv4.icmp_echo_ignore_broadcasts is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-3.3.4-ipv4_ignore_icmp_broadcast` | ipv4 ignore icmp broadcast: grep "net\.ipv4\.icmp_echo_ignore_broadcasts" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-3.3.4-ipv4_ignore_icmp_broadcast` | ipv4 ignore icmp broadcast: grep "net\\.ipv4\\.icmp_echo_ignore_broadcasts" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.3.5-net.ipv4.conf.all.accept_redirects` | Kernel parameter net.ipv4.conf.all.accept_redirects is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.3.5-net.ipv4.conf.default.accept_redirects` | Kernel parameter net.ipv4.conf.default.accept_redirects is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-3.3.5-ipv4_all_icmp_redirects` | ipv4 all icmp redirects: grep "net\.ipv4\.conf\.all\.accept_redirects" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-3.3.5-ipv4_def_icmp_redirects` | ipv4 def icmp redirects: grep "net\.ipv4\.conf\.default\.accept_redirects" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-3.3.5-ipv4_all_icmp_redirects` | ipv4 all icmp redirects: grep "net\\.ipv4\\.conf\\.all\\.accept_redirects" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-3.3.5-ipv4_def_icmp_redirects` | ipv4 def icmp redirects: grep "net\\.ipv4\\.conf\\.default\\.accept_redirects" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.3.6-net.ipv4.conf.all.secure_redirects` | Kernel parameter net.ipv4.conf.all.secure_redirects is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.3.6-net.ipv4.conf.default.secure_redirects` | Kernel parameter net.ipv4.conf.default.secure_redirects is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-3.3.6-ipv4_all_sec_redirects` | ipv4 all sec redirects: grep "net\.ipv4\.conf\.all\.secure_redirects" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-3.3.6-ipv4_def_sec_redirects` | ipv4 def sec redirects: grep "net\.ipv4\.conf\.default\.secure_redirects" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-3.3.6-ipv4_all_sec_redirects` | ipv4 all sec redirects: grep "net\\.ipv4\\.conf\\.all\\.secure_redirects" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-3.3.6-ipv4_def_sec_redirects` | ipv4 def sec redirects: grep "net\\.ipv4\\.conf\\.default\\.secure_redirects" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.3.7-net.ipv4.conf.all.rp_filter` | Kernel parameter net.ipv4.conf.all.rp_filter is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.3.7-net.ipv4.conf.default.rp_filter` | Kernel parameter net.ipv4.conf.default.rp_filter is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-3.3.7-ipv4_all_rp_filter` | ipv4 all rp filter: grep "net\.ipv4\.conf\.all\.rp_filter" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-3.3.7-ipv4_def_rp_filter` | ipv4 def rp filter: grep "net\.ipv4\.conf\.default\.rp_filter" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-3.3.7-ipv4_all_rp_filter` | ipv4 all rp filter: grep "net\\.ipv4\\.conf\\.all\\.rp_filter" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-3.3.7-ipv4_def_rp_filter` | ipv4 def rp filter: grep "net\\.ipv4\\.conf\\.default\\.rp_filter" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.3.8-net.ipv4.conf.all.accept_source_route` | Kernel parameter net.ipv4.conf.all.accept_source_route is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.3.8-net.ipv4.conf.default.accept_source_rout` | Kernel parameter net.ipv4.conf.default.accept_source_route is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-3.3.8-ipv4_all_source_route` | ipv4 all source route: grep "net\.ipv4\.conf\.all\.accept_source_route" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-3.3.8-ipv4_def_source_route` | ipv4 def source route: grep "net\.ipv4\.conf\.default\.accept_source_route" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-3.3.8-ipv4_all_source_route` | ipv4 all source route: grep "net\\.ipv4\\.conf\\.all\\.accept_source_route" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-3.3.8-ipv4_def_source_route` | ipv4 def source route: grep "net\\.ipv4\\.conf\\.default\\.accept_source_route" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.3.9-net.ipv4.conf.all.log_martians` | Kernel parameter net.ipv4.conf.all.log_martians is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.3.9-net.ipv4.conf.default.log_martians` | Kernel parameter net.ipv4.conf.default.log_martians is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-3.3.9-ipv4_all_martians` | ipv4 all martians: grep "net\.ipv4\.conf\.all\.log_martians" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-3.3.9-ipv4_def_martians` | ipv4 def martians: grep "net\.ipv4\.conf\.default\.log_martians" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-3.3.9-ipv4_all_martians` | ipv4 all martians: grep "net\\.ipv4\\.conf\\.all\\.log_martians" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-3.3.9-ipv4_def_martians` | ipv4 def martians: grep "net\\.ipv4\\.conf\\.default\\.log_martians" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-3.3.10-net.ipv4.tcp_syncookies` | Kernel parameter net.ipv4.tcp_syncookies is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-3.3.10-ipv4_tcp_syncookies` | ipv4 tcp syncookies: grep "net\.ipv4\.tcp_syncookies" /etc/sysctl.conf /etc/sysctl.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-3.3.10-ipv4_tcp_syncookies` | ipv4 tcp syncookies: grep "net\\.ipv4\\.tcp_syncookies" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-4.1.1-firewalld_started-enabled` | Service firewalld is enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-4.1.1-firewalld_started-running` | Service firewalld is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-4.1.1-iptables_stopped-enabled` | Service iptables is not enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -243,18 +243,18 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-4.2.5-firewalld_started_enabled-enabled` | Service firewalld is enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-4.2.5-firewalld_started_enabled-running` | Service firewalld is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.1.1-sshd_config_perms-attrs` | /etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.1.2-etc_ssh_ssh_host_prv_key_group` | /etc/ssh/ssh host prv key group: groupkeys=$(sudo find /etc/ssh/ -name *_key -type f ! -group root ); echo $groupkeys | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.1.2-etc_ssh_ssh_host_prv_key_perms` | /etc/ssh/ssh host prv key perms: keyperms=$(sudo find /etc/ssh/ -name *_key -type f -perm /137 ); echo $keyperms | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.1.2-etc_ssh_ssh_host_prv_key_user` | /etc/ssh/ssh host prv key user: userkeys=$(sudo find /etc/ssh/ -name *_key -type f ! -user root ); echo $userkeys | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.1.3-etc_ssh_ssh_host_pub_key_group` | /etc/ssh/ssh host pub key group: find /etc/ssh/ -name '*_key.pub' -type f ! -group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.1.3-etc_ssh_ssh_host_pub_key_perms` | /etc/ssh/ssh host pub key perms: find /etc/ssh/ -name '*_key.pub' -type f -perm /133 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.1.3-etc_ssh_ssh_host_pub_key_user` | /etc/ssh/ssh host pub key user: find /etc/ssh/ -name '*_key.pub' -type f ! -user root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.1.2-etc_ssh_ssh_host_prv_key_group` | /etc/ssh/ssh host prv key group: groupkeys=$(sudo find /etc/ssh/ -name \*_key -type f ! -group root ); echo $groupkeys | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.1.2-etc_ssh_ssh_host_prv_key_perms` | /etc/ssh/ssh host prv key perms: keyperms=$(sudo find /etc/ssh/ -name \*_key -type f -perm /137 ); echo $keyperms | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.1.2-etc_ssh_ssh_host_prv_key_user` | /etc/ssh/ssh host prv key user: userkeys=$(sudo find /etc/ssh/ -name \*_key -type f ! -user root ); echo $userkeys | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.1.3-etc_ssh_ssh_host_pub_key_group` | /etc/ssh/ssh host pub key group: find /etc/ssh/ -name '\*_key.pub' -type f ! -group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.1.3-etc_ssh_ssh_host_pub_key_perms` | /etc/ssh/ssh host pub key perms: find /etc/ssh/ -name '\*_key.pub' -type f -perm /133 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.1.3-etc_ssh_ssh_host_pub_key_user` | /etc/ssh/ssh host pub key user: find /etc/ssh/ -name '\*_key.pub' -type f ! -user root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.1.4-sshd_ciphers` | sshd ciphers: sshd -T \| grep ciphers | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.1.5-sshd_KEX` | sshd KEX: sshd -T \| grep -i '^kexalgorithms' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.1.6-sshd_MACS` | sshd MACS: sshd -T \| grep ^macs | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.1.8-ssh_banner-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.1.8-ssh_banner-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.1.8-ssh_configd_banner` | ssh configd banner: grep -Eis '^\s*Banner\s+"?none\b' /etc/ssh/sshd_config.d/*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.1.8-ssh_configd_banner` | ssh configd banner: grep -Eis '^\\s\*Banner\\s+"?none\\b' /etc/ssh/sshd_config.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.1.9-sshd_clientalive-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.1.9-sshd_clientalive-content` | /etc/ssh/sshd_config has the expected content (4 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.1.10-sshd_disableforwarding-attrs` | /etc/ssh/sshd_config: exists | L2 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -284,11 +284,11 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-5.1.22-ssh_usepam-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.1.22-ssh_usepam-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.2.1-sudo_pkg` | Package sudo is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.2.2-pty_sudoers_d` | pty sudoers d: export PTY=`grep -q -Ei '^\s*Defaults\s+(\[^#]+,\s*)?use_pty' /etc/sudoers /etc/sudoers.d… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.2.3-log_sudoers_d` | log sudoers d: export LOG=`grep -q -Esi '^\s*Defaults\s+([^#]+,\s*)?logfile=' /etc/sudoers /etc/sudoers.… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.2.4-nopasswd_sudoers_d` | nopasswd sudoers d: grep -R NOPASSWD /etc/sudoers /etc/sudoers.d/* \| grep -v '.*\:#' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-5.2.5-authenticate_sudoers` | authenticate sudoers: grep -r "^[^#].*\!authenticate" /etc/sudoers* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.2.6-sudo_timeout` | sudo timeout: grep -rP "timestamp_timeout=\K[0-9]*" /etc/sudoers* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.2.2-pty_sudoers_d` | pty sudoers d: export PTY=`grep -q -Ei '^\\s\*Defaults\\s+(\\[^#]+,\\s\*)?use_pty' /etc/sudoers /etc/sudoers.d… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.2.3-log_sudoers_d` | log sudoers d: export LOG=`grep -q -Esi '^\\s\*Defaults\\s+([^#]+,\\s\*)?logfile=' /etc/sudoers /etc/sudoers.… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.2.4-nopasswd_sudoers_d` | nopasswd sudoers d: grep -R NOPASSWD /etc/sudoers /etc/sudoers.d/\* \| grep -v '.\*\\:#' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-5.2.5-authenticate_sudoers` | authenticate sudoers: grep -r "^[^#].\*\\!authenticate" /etc/sudoers\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.2.6-sudo_timeout` | sudo timeout: grep -rP "timestamp_timeout=\\K[0-9]\*" /etc/sudoers\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.2.7-restrict_su-attrs` | /etc/pam.d/su: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.2.7-restrict_su-content` | /etc/pam.d/su has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.2.7-sugroup_etc_group` | sugroup etc group: grep nosugroup /etc/group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -300,7 +300,7 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-5.3.2.1.2-faillock_unlock_time-content` | /etc/security/faillock.conf has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.3.2.1.3-faillock_root_unlock_time-attrs` | /etc/security/faillock.conf: exists | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-5.3.2.1.3-faillock_root_unlock_time-content` | /etc/security/faillock.conf has the expected content (2 rules) | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-5.3.2.2.1-dict_check_use_pam` | dict check use pam: grep -Psi -- 'pam_cracklib.so' /etc/pam.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.3.2.2.1-dict_check_use_pam` | dict check use pam: grep -Psi -- 'pam_cracklib.so' /etc/pam.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.3.2.2.2-difok_check_use_pam` | difok check use pam: pam-config --query --cracklib --cracklib-difok | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.3.2.2.3-minlen_check_use_pam` | minlen check use pam: pam-config --query --cracklib --cracklib-minlen | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.3.2.2.4-mpasswd_complex_check_use_pam` | mpasswd complex check use pam: pam-config --query --cracklib | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -309,11 +309,11 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-5.3.2.2.7-enforce_for_root_check_use_pam` | enforce for root check use pam: pam-config --query --cracklib --cracklib-enforce_for_root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.3.2.3.1-pwhistory_remember_use_pam` | pwhistory remember use pam: pam-config --query --pwhistory --pwhistory-remember | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.3.2.3.2-pwhistory_remember_root_use_pam` | pwhistory remember root use pam: pam-config --query --pwhistory --pwhistory-enforce_for_root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.3.2.3.3-pwhistory_authtok_use_pam` | pwhistory authtok use pam: grep -P -- '^\h*password\h+([^#\n\r]+)\h+pam_pwhistory\.so\h+([^#\n\r]+\h+)?use_authtok\b… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.3.2.3.3-pwhistory_authtok_use_pam` | pwhistory authtok use pam: grep -P -- '^\\h\*password\\h+([^#\\n\\r]+)\\h+pam_pwhistory\\.so\\h+([^#\\n\\r]+\\h+)?use_authtok\\b… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.3.2.4.1-pam_unix_nullok` | pam unix nullok: pam-config --query --unix --unix-nullok | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.3.2.4.2-pam_unix_remember_root` | pam unix remember root: grep -Pi '^\h*password\h+([^#\n\r]+\h+)?pam_unix\.so\b' /etc/pam.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.3.2.4.2-pam_unix_remember_root` | pam unix remember root: grep -Pi '^\\h\*password\\h+([^#\\n\\r]+\\h+)?pam_unix\\.so\\b' /etc/pam.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.3.2.4.3-pam_unix_password_use_pam` | pam unix password use pam: pam-config --query --unix --unix-sha512 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.3.2.4.4-pam_unix_authtok` | pam unix authtok: grep -P -- '^\h*password\h+([^#\n\r]+)\h+pam_unix\.so\h+([^#\n\r]+\h+)?use_authtok\b' /et… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.3.2.4.4-pam_unix_authtok` | pam unix authtok: grep -P -- '^\\h\*password\\h+([^#\\n\\r]+)\\h+pam_unix\\.so\\h+([^#\\n\\r]+\\h+)?use_authtok\\b' /et… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.4.1.1-login_defs_max_days-attrs` | /etc/login.defs: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.4.1.1-login_defs_max_days-content` | /etc/login.defs has the expected content (3 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.4.1.2-login_defs_min_days-attrs` | /etc/login.defs: exists | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
@@ -323,7 +323,7 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-5.4.1.4-login_defs_hashing-attrs` | /etc/login.defs: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.4.1.4-login_defs_hashing-content` | /etc/login.defs has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.4.1.5-inactive_passwd` | inactive passwd: useradd -D \| grep INACTIVE | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.4.1.5-inactive_users` | inactive users: awk -F':' '($2~/^\\$.+\\$/) {if($7 > 45 \|\| $7 < 0)print $1 }' /etc/shadow | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.4.1.5-inactive_users` | inactive users: awk -F':' '($2~/^\\\\$.+\\\\$/) {if($7 > 45 \|\| $7 < 0)print $1 }' /etc/shadow | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.4.1.6-passwd_chg_past` | No user has a last password change date in the future | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.4.2.1-uid_0_check` | uid 0 check: awk -F: '($3 == 0) { print $1 }' /etc/passwd | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.4.2.2-gid_0_check` | gid 0 check: awk -F: '($1 !~ /^(sync\|shutdown\|halt\|operator)/ && $4=='0') {print $1":"$4}' /etc/passwd | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -332,19 +332,19 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-5.4.2.5-root_path_check` | root path check: /bin/bash --login -c 'env \| grep ^PATH=' \| sed -e 's/PATH=//' -e 's/::/:/' -e 's/:$//' -e… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.4.2.6-root_umask_bash_profile` | root umask bash profile: grep -i umask /root/.bash_profile /root/.bashrc | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.4.2.7-secure_system_accts` | secure system accts: awk -F: '$3<1000' /etc/passwd \| grep -Ev 'root\|sync\|halt\|shutdown\|nfsnobody\|/sbin/nologin… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.4.2.8-invalid_shell_lock_accts` | invalid shell lock accts: l_valid_shells="^($(awk -F\/ '$NF != "nologin" {print}' /etc/shells \| sed -rn '/^\//{s,/,… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.4.2.8-invalid_shell_lock_accts` | invalid shell lock accts: l_valid_shells="^($(awk -F\\/ '$NF != "nologin" {print}' /etc/shells \| sed -rn '/^\\//{s,/,… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.4.3.1-nologin_not_in_shells-attrs` | /etc/shells: exists | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-5.4.3.1-nologin_not_in_shells-content` | /etc/shells has the expected content (1 rule) | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-5.4.3.2-check_timeout` | check timeout: grep TMOUT /etc/profile.d/*.sh /etc/profile /etc/profile.d/*.sh\| cut -d ":" -f2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.4.3.3-umask_profile_scripts` | umask profile scripts: grep -i "^\s*umask" /etc/profile /etc/profile.d/*.sh /etc/login.defs /etc/default/login /… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.4.3.2-check_timeout` | check timeout: grep TMOUT /etc/profile.d/\*.sh /etc/profile /etc/profile.d/\*.sh\| cut -d ":" -f2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.4.3.3-umask_profile_scripts` | umask profile scripts: grep -i "^\\s\*umask" /etc/profile /etc/profile.d/\*.sh /etc/login.defs /etc/default/login /… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.1.1-aide_installed` | Package aide is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-6.1.2-aide_cron` | aide cron: grep -rs aide /etc/cron.* /etc/crontab /var/spool/cron/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-6.1.2-aide_cron` | aide cron: grep -rs aide /etc/cron.\* /etc/crontab /var/spool/cron/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.1.3-audit_bins_crypto_aide-attrs` | /etc/aide.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.1.3-audit_bins_crypto_aide-content` | /etc/aide.conf has the expected content (6 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.2.1.1-systemd-journald-enabled` | Service systemd-journald.service is enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.2.1.1-systemd-journald-running` | Service systemd-journald.service is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.2.1.2-etc_tmpfiles.d_systemd.conf` | /etc/tmpfiles.d/systemd.conf: grep -HEn ^f /usr/lib/tmpfiles.d/systemd.conf /etc/tmpfiles.d/systemd.conf \| awk -F' ' '(… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-6.2.1.3-log_rotate_journald_conf` | log rotate journald conf: grep -Ei "max\|keep" /etc/systemd/journald.conf /etc/systemd/journald.conf.d/*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-6.2.1.3-log_rotate_journald_conf` | log rotate journald conf: grep -Ei "max\|keep" /etc/systemd/journald.conf /etc/systemd/journald.conf.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.2.1.4-only_journald_installed_no_rsyslog-running` | Service rsyslog is not running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.2.1.4-only_journald_installed_pkg-running` | Service systemd-journald.service is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.2.2.1.1-systemd-journal-remote` | Package systemd-journal-remote is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -354,21 +354,21 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-6.2.2.1.4-systemd-journal-remote.socket-enabled` | Service systemd-journal-remote.socket is not enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.2.2.1.4-systemd-journal-remote.socket-running` | Service systemd-journal-remote.socket is not running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.2.2.1.4-journald_socket_masked` | journald socket masked: systemctl is-enabled systemd-journal-remote.socket | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-6.2.2.2-journald_syslog` | journald syslog: grep -i forward /etc/systemd/journald.conf /etc/systemd/journald.conf.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-6.2.2.3-compress_journald_conf` | compress journald conf: grep -i compress /etc/systemd/journald.conf /etc/systemd/journald.conf.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-6.2.2.4-storage_journald_conf` | storage journald conf: grep -i storage /etc/systemd/journald.conf /etc/systemd/journald.conf.d/* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-6.2.3.1.2-local_syslog_input` | local syslog input: grep -E "imtcp\" port\|InputTCPServerRun" /etc/rsyslog.conf /etc/rsyslog.d/*.conf \| grep -… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-6.2.3.1.2-local_syslog_module` | local syslog module: grep "imtcp" /etc/rsyslog.conf /etc/rsyslog.d/*.conf \| grep -Ev ":#\|port=" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-6.2.2.2-journald_syslog` | journald syslog: grep -i forward /etc/systemd/journald.conf /etc/systemd/journald.conf.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-6.2.2.3-compress_journald_conf` | compress journald conf: grep -i compress /etc/systemd/journald.conf /etc/systemd/journald.conf.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-6.2.2.4-storage_journald_conf` | storage journald conf: grep -i storage /etc/systemd/journald.conf /etc/systemd/journald.conf.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-6.2.3.1.2-local_syslog_input` | local syslog input: grep -E "imtcp\\" port\|InputTCPServerRun" /etc/rsyslog.conf /etc/rsyslog.d/\*.conf \| grep -… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-6.2.3.1.2-local_syslog_module` | local syslog module: grep "imtcp" /etc/rsyslog.conf /etc/rsyslog.d/\*.conf \| grep -Ev ":#\|port=" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.2.3.2-rsyslog` | Package rsyslog is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.2.3.3-rsyslog_service-enabled` | Service rsyslog.service is enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.2.3.3-rsyslog_service-running` | Service rsyslog.service is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-6.2.3.4-forward_journald_conf` | forward journald conf: systemd-analyze cat-config systemd/journald.conf \| grep -i '^\s*ForwardToSyslog' \| tail -1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-6.2.3.5-perms_rsyslog_d` | perms rsyslog d: grep -s ^\$FileCreateMode /etc/rsyslog.conf /etc/rsyslog.d/*.conf \| cut -f2 -d: | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-6.2.3.4-forward_journald_conf` | forward journald conf: systemd-analyze cat-config systemd/journald.conf \| grep -i '^\\s\*ForwardToSyslog' \| tail -1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-6.2.3.5-perms_rsyslog_d` | perms rsyslog d: grep -s ^\\$FileCreateMode /etc/rsyslog.conf /etc/rsyslog.d/\*.conf \| cut -f2 -d: | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.2.3.6-rsyslog_logging-attrs` | /etc/rsyslog.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.2.3.6-rsyslog_logging-content` | /etc/rsyslog.conf has the expected content (13 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.2.3.7-rsyslog_pkg` | Package logrotate is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.2.3.7-rsyslog_logrotate` | rsyslog logrotate: echo "Manual \| please check file rotaton matches site policy - logrotate" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-6.2.4.1-logfile_access_configured` | logfile access configured: find -L /var/log -type f \( -perm /0137 -o ! -user root -o ! -group root \) -exec stat -L… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-6.2.4.1-logfile_access_configured` | logfile access configured: find -L /var/log -type f \\( -perm /0137 -o ! -user root -o ! -group root \\) -exec stat -L… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-6.3.1.1-audit_packages` | Package audit is installed | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.1.2-audit_default_grub` | audit default grub: grep audit= /etc/default/grub | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.1.2-audit_running_grub` | audit running grub: grep audit= /proc/cmdline | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
@@ -378,55 +378,55 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-6.3.1.4-auditd_service-running` | Service auditd.service is running | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.2.1-max_log_auditd_conf` | max log auditd conf: grep max_log_file /etc/audit/auditd.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.2.2-max_log_action_auditd_conf` | max log action auditd conf: grep max_log_file_action /etc/audit/auditd.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.2.3-logs_full_auditd_conf` | logs full auditd conf: grep -E disk_.*_action /etc/audit/auditd.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.2.3-logs_full_auditd_conf` | logs full auditd conf: grep -E disk_.\*_action /etc/audit/auditd.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.2.4-logs_low_space_auditd_conf` | logs low space auditd conf: grep space_left_action /etc/audit/auditd.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.1-auditd_admin_scope_cnf` | auditd admin scope cnf: grep scope /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.1-auditd_admin_scope_cnf` | auditd admin scope cnf: grep scope /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.1-auditd_admin_scope_live` | auditd admin scope live: auditctl -l \| grep scope | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.2-auditd_sudo_actions` | auditd sudo actions: grep user_emulation /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.2-auditd_sudo_actions` | auditd sudo actions: grep user_emulation /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.2-auditd_sudo_actions_live` | auditd sudo actions live: auditctl -l \| grep user_emulation | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.3-auditd_sudolog_chg` | auditd sudolog chg: grep sudo_log_file /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.3-auditd_sudolog_chg` | auditd sudolog chg: grep sudo_log_file /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.3-auditd_sudolog_chg_live` | auditd sudolog chg live: auditctl -l \| grep sudo_log_file | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.4-auditd_time_cnf` | auditd time cnf: grep time-change /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.4-auditd_time_cnf` | auditd time cnf: grep time-change /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.4-auditd_time_live` | auditd time live: auditctl -l \| grep time-change | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.5-auditd_locale_cnf` | auditd locale cnf: grep system-locale /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.5-auditd_locale_cnf` | auditd locale cnf: grep system-locale /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.5-auditd_locale_live` | auditd locale live: auditctl -l \| grep system-locale | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.6-auditd_priv_cmds_cnf` | auditd priv cmds cnf: grep delete /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.7-auditd_access_cnf` | auditd access cnf: sh -c "grep auid /etc/audit/rules.d/*.rules" | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.6-auditd_priv_cmds_cnf` | auditd priv cmds cnf: grep delete /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.7-auditd_access_cnf` | auditd access cnf: sh -c "grep auid /etc/audit/rules.d/\*.rules" | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.7-auditd_access_live` | auditd access live: auditctl -l \| grep access | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.8-auditd_identity_cnf` | auditd identity cnf: grep identity /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.8-auditd_identity_cnf` | auditd identity cnf: grep identity /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.8-auditd_identity_live` | auditd identity live: auditctl -l \| grep identity | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.9-auditd_perms_cnf` | auditd perms cnf: grep perm_mod /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.9-auditd_perms_cnf` | auditd perms cnf: grep perm_mod /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.9-auditd_perms_live` | auditd perms live: auditctl -l \| grep perm_mod | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.10-auditd_mounts_cnf` | auditd mounts cnf: grep mounts /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.10-auditd_mounts_cnf` | auditd mounts cnf: grep mounts /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.10-auditd_mounts_live` | auditd mounts live: auditctl -l \| grep mounts | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.11-auditd_session_live` | auditd session live: auditctl -l \| grep -E '(session\|logins)' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.11-auditd_sessions_cnf` | auditd sessions cnf: grep -E '(session\|logins)' /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.12-auditd_logins_cnf` | auditd logins cnf: grep -R --include="*.rules" logins /etc/audit/rules.d/ | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.11-auditd_sessions_cnf` | auditd sessions cnf: grep -E '(session\|logins)' /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.12-auditd_logins_cnf` | auditd logins cnf: grep -R --include="\*.rules" logins /etc/audit/rules.d/ | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.12-auditd_logins_live` | auditd logins live: auditctl -l \| grep logins | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.13-auditd_delete_cnf` | auditd delete cnf: grep delete /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.13-auditd_delete_cnf` | auditd delete cnf: grep delete /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.13-auditd_delete_live` | auditd delete live: auditctl -l \| grep delete | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.14-auditd_MAC_cnf` | auditd MAC cnf: grep MAC-policy /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.14-auditd_MAC_cnf` | auditd MAC cnf: grep MAC-policy /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.14-auditd_MAC_live` | auditd MAC live: auditctl -l \| grep MAC-policy | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.15-chcon_module_cnf` | chcon module cnf: grep chcon /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.15-chcon_module_cnf` | chcon module cnf: grep chcon /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.15-chcon_module_live` | chcon module live: auditctl -l \| grep chcon | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.16-setfacl_module_cnf` | setfacl module cnf: grep setfacl /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.16-setfacl_module_cnf` | setfacl module cnf: grep setfacl /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.16-setfacl_module_live` | setfacl module live: auditctl -l \| grep setfacl | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.17-chacl_module_cnf` | chacl module cnf: grep chacl /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.17-chacl_module_cnf` | chacl module cnf: grep chacl /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.17-chacl_module_live` | chacl module live: auditctl -l \| grep chacl | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.18-usermod_module_cnf` | usermod module cnf: grep usermod /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.18-usermod_module_cnf` | usermod module cnf: grep usermod /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.18-usermod_module_live` | usermod module live: auditctl -l \| grep usermod | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.19-auditd_admin_module_live` | auditd admin module live: auditctl -l \| grep kernel_module | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.19-auditd_module_cnf` | auditd module cnf: grep kernel_module /etc/audit/rules.d/*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.3.20-auditd_immutable` | auditd immutable: grep "-e 2" /etc/audit/rules.d/*.rules \| cut -d ":" -f2 | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.19-auditd_module_cnf` | auditd module cnf: grep kernel_module /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.3.20-auditd_immutable` | auditd immutable: grep "-e 2" /etc/audit/rules.d/\*.rules \| cut -d ":" -f2 | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.3.21-auditd_config_match` | auditd config match: augenrules --check | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.4.1-audit_logfile_dir_perms` | audit logfile dir perms: for dir in `dirname \`grep ^log_file /etc/audit/auditd.conf \| awk '{ print $NF }'\``; do … | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.4.2-audit_logfile_perms` | audit logfile perms: l_dir="$(dirname "$(awk -F= '/^[[:space:]]*log_file[[:space:]]*=/{gsub(/[[:space:]]/,"",$… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.4.1-audit_logfile_dir_perms` | audit logfile dir perms: for dir in `dirname \\`grep ^log_file /etc/audit/auditd.conf \| awk '{ print $NF }'\\``; do … | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.4.2-audit_logfile_perms` | audit logfile perms: l_dir="$(dirname "$(awk -F= '/^[[:space:]]\*log_file[[:space:]]\*=/{gsub(/[[:space:]]/,"",$… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.4.3-audit_logfile_owner` | audit logfile owner: for file in `grep ^log_file /etc/audit/auditd.conf \| awk '{ print $NF }'`; do stat -Lc "%… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.4.4-audit_logfile_group` | audit logfile group: for file in `grep ^log_file /etc/audit/auditd.conf \| awk '{ print $NF }'`; do stat -Lc " … | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.4.4-audit_logfile_group_setting` | audit logfile group setting: grep log_group /etc/audit/audit* \| awk '{ print $NF}' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.4.5-audit_conf_perms` | audit conf perms: for file  in `find /etc/audit/ -type f \( -name '*.conf' -o -name '*.rules' \)`; do stat … | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.4.6-audit_conf_owner` | audit conf owner: for file in `find /etc/audit/ -type f \( -name '*.conf' -o -name '*.rules' \)`; do stat -… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-6.3.4.7-audit_conf_group` | audit conf group: for file  in `find /etc/audit/ -type f \( -name '*.conf' -o -name '*.rules' \)`; do stat … | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.4.4-audit_logfile_group_setting` | audit logfile group setting: grep log_group /etc/audit/audit\* \| awk '{ print $NF}' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.4.5-audit_conf_perms` | audit conf perms: for file  in `find /etc/audit/ -type f \\( -name '\*.conf' -o -name '\*.rules' \\)`; do stat … | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.4.6-audit_conf_owner` | audit conf owner: for file in `find /etc/audit/ -type f \\( -name '\*.conf' -o -name '\*.rules' \\)`; do stat -… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-SUSE15-6.3.4.7-audit_conf_group` | audit conf group: for file  in `find /etc/audit/ -type f \\( -name '\*.conf' -o -name '\*.rules' \\)`; do stat … | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.4.8-audit_tools_perms` | audit tools perms: stat -L -c "%n_%a" /sbin/auditctl /sbin/aureport /sbin/ausearch /sbin/autrace /sbin/audit… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.4.9-audit_tools_owner` | audit tools owner: stat -c "%n_%U" /sbin/auditctl /sbin/aureport /sbin/ausearch /sbin/autrace /sbin/auditd /… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-6.3.4.10-audit_tools_group` | audit tools group: stat -c "%n_%G" /sbin/auditctl /sbin/aureport /sbin/ausearch /sbin/autrace /sbin/auditd /… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
@@ -452,9 +452,9 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-7.2.5-no_dup_gid` | no dup gid: cut -d: -f3 /etc/group \| sort \| uniq -d | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-7.2.6-no_dup_username` | no dup username: cut -d: -f1 /etc/passwd \| sort \| uniq -d | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-7.2.7-no_dup_groupname` | no dup groupname: cut -d: -f1 /etc/group \| sort \| uniq -d | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-7.2.8-home_dirs_exist` | home dirs exist: awk -F: 'NR == FNR { if ($0 ~ /^\// && $0 !~ /\/nologin$/) l_shells[$0] = 1; next } ($7 i… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-7.2.8-home_dirs_ownership` | home dirs ownership: awk -F: 'NR == FNR { if ($0 ~ /^\// && $0 !~ /\/nologin$/) l_shells[$0] = 1; next } ($7 i… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-7.2.8-home_dirs_permissions` | home dirs permissions: awk -F: 'NR == FNR { if ($0 ~ /^\// && $0 !~ /\/nologin$/) l_shells[$0] = 1; next } ($7 i… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-7.2.9-bad_dot_files` | bad dot files: find /home/ -name "\.forward" -o -name "\.netrc" -o -name "\.rhosts" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-7.2.9-dot_file_bash_history` | dot file bash history: find /home/ -name "\.bash_history" -perm /go+rwx | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-7.2.9-dot_file_perms` | dot file perms: find /home/ -name "\.*" -perm /g+w,o+w \| grep -v .bash_history | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-7.2.8-home_dirs_exist` | home dirs exist: awk -F: 'NR == FNR { if ($0 ~ /^\\// && $0 !~ /\\/nologin$/) l_shells[$0] = 1; next } ($7 i… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-7.2.8-home_dirs_ownership` | home dirs ownership: awk -F: 'NR == FNR { if ($0 ~ /^\\// && $0 !~ /\\/nologin$/) l_shells[$0] = 1; next } ($7 i… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-7.2.8-home_dirs_permissions` | home dirs permissions: awk -F: 'NR == FNR { if ($0 ~ /^\\// && $0 !~ /\\/nologin$/) l_shells[$0] = 1; next } ($7 i… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-7.2.9-bad_dot_files` | bad dot files: find /home/ -name "\\.forward" -o -name "\\.netrc" -o -name "\\.rhosts" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-7.2.9-dot_file_bash_history` | dot file bash history: find /home/ -name "\\.bash_history" -perm /go+rwx | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-7.2.9-dot_file_perms` | dot file perms: find /home/ -name "\\.\*" -perm /g+w,o+w \| grep -v .bash_history | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
