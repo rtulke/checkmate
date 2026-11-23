@@ -25,14 +25,18 @@ import (
 )
 
 type rule struct {
-	ID         string         `yaml:"id"`
-	Title      string         `yaml:"title"`
-	Check      string         `yaml:"check"`
-	Result     any            `yaml:"result"`
-	ODV        map[string]any `yaml:"odv"`
-	Tags       []string       `yaml:"tags"`
-	Severity   string         `yaml:"severity"`
-	References struct {
+	ID               string         `yaml:"id"`
+	Title            string         `yaml:"title"`
+	Discussion       string         `yaml:"discussion"`
+	Check            string         `yaml:"check"`
+	Fix              string         `yaml:"fix"`
+	MobileconfigInfo yaml.Node      `yaml:"mobileconfig_info"`
+	DDMInfo          yaml.Node      `yaml:"ddm_info"`
+	Result           any            `yaml:"result"`
+	ODV              map[string]any `yaml:"odv"`
+	Tags             []string       `yaml:"tags"`
+	Severity         string         `yaml:"severity"`
+	References       struct {
 		NIST []string `yaml:"800-53r5"`
 		STIG []string `yaml:"disa_stig"`
 		CIS  struct {
@@ -154,6 +158,8 @@ func convert(src, version, out string) (int, int, error) {
 		}
 		e.WriteString("    allow_rc: any\n")
 		fmt.Fprintf(&e, "    expect: %s\n", expect)
+		writeText(&e, "rationale", asciidocText(r.Discussion, odv))
+		writeText(&e, "remediation", remediation(r, odv))
 		fmt.Fprintf(&e, "    reference: %s\n", jsonString("https://github.com/usnistgov/macos_security/blob/"+strings.ToLower(names[version])+"/rules/"+filepath.Base(filepath.Dir(f))+"/"+filepath.Base(f)))
 		entries = append(entries, entry{key: cisID + "/" + r.ID, text: e.String()})
 		count++
@@ -265,13 +271,40 @@ func severity(s string, level int) string {
 
 func description(version, cisID string, level int, r rule) string {
 	parts := []string{fmt.Sprintf("CIS Apple macOS %s benchmark recommendation %s (level %d); mSCP rule %s", version, cisID, level, r.ID)}
-	if len(r.References.NIST) > 0 {
-		parts = append(parts, "NIST SP 800-53 Rev. 5: "+strings.Join(r.References.NIST, ", "))
+	if nist := known(r.References.NIST); len(nist) > 0 {
+		parts = append(parts, "NIST SP 800-53 Rev. 5: "+strings.Join(nist, ", "))
 	}
-	if len(r.References.STIG) > 0 {
-		parts = append(parts, "DISA STIG: "+strings.Join(r.References.STIG, ", "))
+	if stig := known(r.References.STIG); len(stig) > 0 {
+		parts = append(parts, "DISA STIG: "+strings.Join(stig, ", "))
 	}
 	return strings.Join(parts, ". ") + "."
+}
+
+// known drops the "N/A" placeholder of mSCP reference lists.
+func known(refs []string) []string {
+	var out []string
+	for _, r := range refs {
+		if r = strings.TrimSpace(r); r != "" && r != "N/A" {
+			out = append(out, r)
+		}
+	}
+	return out
+}
+
+// writeText writes a text field of a check as a YAML block scalar.
+func writeText(w *bytes.Buffer, key, text string) {
+	text = strings.TrimSpace(text)
+	if text == "" {
+		return
+	}
+	fmt.Fprintf(w, "    %s: |\n", key)
+	for _, line := range strings.Split(protect(text), "\n") {
+		if line == "" {
+			w.WriteString("\n")
+			continue
+		}
+		w.WriteString("      " + line + "\n")
+	}
 }
 
 func readVersion(src string) string {

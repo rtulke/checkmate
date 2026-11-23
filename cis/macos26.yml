@@ -32,10 +32,16 @@ checks:
       fi
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      Make sure Software Update is updated and current.
+
+      Update macOS on Mac (https://support.apple.com/en-us/108382) or if enrolled in an MDM consult your MDM's documentation for automated methods.
+    remediation: |
+      NOTE: See discussion on how to install software updates.
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_softwareupdate_current.yaml"
   - id: "CIS-MACOS26-1.2-system_settings_software_update_download_enforce"
     name: "Enforce Software Update Downloads Updates Automatically"
-    description: "CIS Apple macOS 26 benchmark recommendation 1.2 (level 1); mSCP rule system_settings_software_update_download_enforce. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 1.2 (level 1); mSCP rule system_settings_software_update_download_enforce."
     tags: [cis, cis-macos26, cis-section-1, cis-level-1, cis-level-2]
     severity: medium
     run: |
@@ -45,10 +51,19 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Software Update MUST be configured to enforce automatic downloads of updates is enabled.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.SoftwareUpdate: AutomaticDownload = true
+
+      With declarative device management instead: com.apple.configuration.softwareupdate.settings: AutomaticActions > Download = AlwaysOn
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_software_update_download_enforce.yaml"
   - id: "CIS-MACOS26-1.3-system_settings_install_macos_updates_enforce"
     name: "Enforce macOS Updates are Automatically Installed"
-    description: "CIS Apple macOS 26 benchmark recommendation 1.3 (level 1); mSCP rule system_settings_install_macos_updates_enforce. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 1.3 (level 1); mSCP rule system_settings_install_macos_updates_enforce."
     tags: [cis, cis-macos26, cis-section-1, cis-level-1, cis-level-2]
     severity: medium
     run: |
@@ -58,10 +73,19 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Software Update MUST be configured to enforce automatic installation of macOS updates is enabled.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.SoftwareUpdate: AutomaticallyInstallMacOSUpdates = true
+
+      With declarative device management instead: com.apple.configuration.softwareupdate.settings: AutomaticActions > InstallOSUpdates = AlwaysOn
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_install_macos_updates_enforce.yaml"
   - id: "CIS-MACOS26-1.4-os_software_update_app_update_enforce"
     name: "Enforce Software Update App Update Updates Automatically"
-    description: "CIS Apple macOS 26 benchmark recommendation 1.4 (level 1); mSCP rule os_software_update_app_update_enforce. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 1.4 (level 1); mSCP rule os_software_update_app_update_enforce."
     tags: [cis, cis-macos26, cis-section-1, cis-level-1, cis-level-2]
     severity: medium
     run: |
@@ -71,6 +95,13 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Software Update MUST be configured to enforce automatic updates of App Updates is enabled.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.SoftwareUpdate: AutomaticallyInstallAppUpdates = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_software_update_app_update_enforce.yaml"
   - id: "CIS-MACOS26-1.5-os_config_data_install_enforce"
     name: "Enforce Installation of XProtect Remediator and Gatekeeper Updates Automatically"
@@ -84,10 +115,23 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Software Update MUST be configured to update XProtect Remediator and Gatekeeper automatically.
+
+      This setting enforces definition updates for XProtect Remediator and Gatekeeper; with this setting in place, new malware and adware that Apple has added to the list of malware or untrusted software will not execute. These updates do not require the computer to be restarted.
+
+      https://support.apple.com/en-us/HT207005
+
+      NOTE: Software update will automatically update XProtect Remediator and Gatekeeper by default in the macOS.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.SoftwareUpdate: ConfigDataInstall = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_config_data_install_enforce.yaml"
   - id: "CIS-MACOS26-1.5-system_settings_critical_update_install_enforce"
     name: "Enforce Critical Security Updates to be Installed"
-    description: "CIS Apple macOS 26 benchmark recommendation 1.5 (level 1); mSCP rule system_settings_critical_update_install_enforce. NIST SP 800-53 Rev. 5: SI-2. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 1.5 (level 1); mSCP rule system_settings_critical_update_install_enforce. NIST SP 800-53 Rev. 5: SI-2."
     tags: [cis, cis-macos26, cis-section-1, cis-level-1, cis-level-2, nist-800-53r5-low, nist-800-53r5-moderate, nist-800-53r5-high, cmmc-level-2, cmmc-level-1]
     severity: medium
     run: |
@@ -97,10 +141,19 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Ensure that security updates are installed as soon as they are available from Apple.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.SoftwareUpdate: CriticalUpdateInstall = true
+
+      With declarative device management instead: com.apple.configuration.softwareupdate.settings: AutomaticActions > InstallSecurityUpdates = AlwaysOn
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_critical_update_install_enforce.yaml"
   - id: "CIS-MACOS26-1.6-os_software_update_deferral"
     name: "Ensure Software Update Deferment Is Less Than or Equal to 30 Days"
-    description: "CIS Apple macOS 26 benchmark recommendation 1.6 (level 1); mSCP rule os_software_update_deferral. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 1.6 (level 1); mSCP rule os_software_update_deferral."
     tags: [cis, cis-macos26, cis-section-1, cis-level-1, cis-level-2]
     severity: medium
     run: |
@@ -117,6 +170,12 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Software updates MUST be deferred for 30 days or less.
+
+      If you need to defer software updates, create a Restrictions profile using the com.apple.applicationaccess domain and the key enforcedSoftwareUpdateDelay.
+    remediation: |
+      This is implemented by a Configuration Profile.
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_software_update_deferral.yaml"
   - id: "CIS-MACOS26-2.1.1.3-icloud_sync_disable"
     name: "Disable iCloud Desktop and Document Folder Sync"
@@ -130,6 +189,15 @@ checks:
       EOS
     allow_rc: any
     expect: "== false"
+    rationale: |
+      The macOS system's ability to automatically synchronize a user's desktop and documents folder to their iCloud Drive MUST be disabled.
+
+      Apple's iCloud service does not provide an organization with enough control over the storage and access of data and, therefore, automated file synchronization MUST be controlled by an organization approved service.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.applicationaccess: allowCloudDesktopAndDocuments = false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/icloud/icloud_sync_disable.yaml"
   - id: "CIS-MACOS26-2.2.1-system_settings_firewall_enable"
     name: "Enable macOS Application Firewall"
@@ -143,10 +211,19 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      The macOS Application Firewall is the built-in firewall that comes with macOS, and it MUST be enabled.
+
+      When the macOS Application Firewall is enabled, the flow of information within the information system and between interconnected systems will be controlled by approved authorizations.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.security.firewall: EnableFirewall = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_firewall_enable.yaml"
   - id: "CIS-MACOS26-2.2.2-system_settings_firewall_stealth_mode_enable"
     name: "Enable Firewall Stealth Mode"
-    description: "CIS Apple macOS 26 benchmark recommendation 2.2.2 (level 1); mSCP rule system_settings_firewall_stealth_mode_enable. NIST SP 800-53 Rev. 5: CM-7, CM-7(1), SC-7(16), SC-7. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 2.2.2 (level 1); mSCP rule system_settings_firewall_stealth_mode_enable. NIST SP 800-53 Rev. 5: CM-7, CM-7(1), SC-7(16), SC-7."
     tags: [cis, cis-macos26, cis-section-2, cis-level-1, cis-level-2, nist-800-53r5-low, nist-800-53r5-moderate, nist-800-53r5-high, nist-800-171, cmmc-level-2, cmmc-level-1]
     severity: medium
     run: |
@@ -156,6 +233,18 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Firewall Stealth Mode MUST be enabled.
+
+      When stealth mode is enabled, the Mac will not respond to any probing requests, and only requests from authorized applications will still be authorized.
+
+      IMPORTANT: Enabling firewall stealth mode may prevent certain remote mechanisms used for maintenance and compliance scanning from properly functioning. Information System Security Officers (ISSOs) are advised to first fully weigh the potential risks posed to their organization before opting not to enable stealth mode.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.security.firewall: EnableStealthMode = true
+      com.apple.security.firewall: EnableFirewall = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_firewall_stealth_mode_enable.yaml"
   - id: "CIS-MACOS26-2.3.1.1-os_airdrop_disable"
     name: "Disable AirDrop"
@@ -169,6 +258,14 @@ checks:
       EOS
     allow_rc: any
     expect: "== false"
+    rationale: |
+      AirDrop MUST be disabled to prevent file transfers to or from unauthorized devices.
+      AirDrop allows users to share and receive files from other nearby Apple devices.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.applicationaccess: allowAirDrop = false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_airdrop_disable.yaml"
   - id: "CIS-MACOS26-2.3.1.2-system_settings_airplay_receiver_disable"
     name: "Disable Airplay Receiver"
@@ -182,6 +279,17 @@ checks:
       EOS
     allow_rc: any
     expect: "== false"
+    rationale: |
+      Airplay Receiver allows you to send content from another Apple device to be displayed on the screen as it's being played from your other device.
+
+      Support for Airplay Receiver is non-essential and MUST be disabled.
+
+      The information system MUST be configured to provide only essential capabilities.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.applicationaccess: allowAirPlayIncomingRequests = false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_airplay_receiver_disable.yaml"
   - id: "CIS-MACOS26-2.3.2.1-system_settings_time_server_configure"
     name: "Configure macOS to Use an Authorized Time Server"
@@ -195,6 +303,15 @@ checks:
       EOS
     allow_rc: any
     expect: "== time.apple.com"
+    rationale: |
+      Approved time server MUST be the only server configured for use. As of macOS 10.13 only one time server is supported.
+
+      This rule ensures the uniformity of time stamps for information systems with multiple system clocks and systems connected over a network.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.MCX: timeServer = time.apple.com
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_time_server_configure.yaml"
   - id: "CIS-MACOS26-2.3.2.1-system_settings_time_server_enforce"
     name: "Enforce macOS Time Synchronization"
@@ -208,6 +325,15 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Time synchronization MUST be enforced on all networked systems.
+
+      This rule ensures the uniformity of time stamps for information systems with multiple system clocks and systems connected over a network.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.ManagedClient.preferences: com.apple.timed > TMAutomaticTimeOnlyEnabled = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_time_server_enforce.yaml"
   - id: "CIS-MACOS26-2.3.2.2-os_time_server_enabled"
     name: "Enable Time Synchronization Daemon"
@@ -218,6 +344,14 @@ checks:
       /bin/launchctl print system | /usr/bin/grep -c -E '\tcom.apple.timed'
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      The macOS time synchronization daemon (timed) MUST be enabled for proper time synchronization to an authorized time server.
+
+      NOTE: The time synchronization daemon is enabled by default on macOS.
+    remediation: |
+      /bin/launchctl load -w /System/Library/LaunchDaemons/com.apple.timed.plist
+
+      NOTE: The service "timed" cannot be unloaded or loaded while System Integrity Protection (SIP) is enabled.
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_time_server_enabled.yaml"
   - id: "CIS-MACOS26-2.3.3.1-system_settings_screen_sharing_disable"
     name: "Disable Screen Sharing and Apple Remote Desktop"
@@ -239,6 +373,14 @@ checks:
       echo $result
     allow_rc: any
     expect: "== PASS"
+    rationale: |
+      Support for both Screen Sharing and Apple Remote Desktop (ARD) is non-essential and MUST be disabled.
+
+      The information system MUST be configured to provide only essential capabilities. Disabling screen sharing and ARD helps prevent the unauthorized connection of devices, the unauthorized transfer of information, and unauthorized tunneling.
+    remediation: |
+      /bin/launchctl bootout system/com.apple.screensharing
+      /bin/launchctl disable system/com.apple.screensharing
+      NOTE - This will apply to the whole system
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_screen_sharing_disable.yaml"
   - id: "CIS-MACOS26-2.3.3.2-system_settings_smbd_disable"
     name: "Disable Server Message Block Sharing"
@@ -249,6 +391,13 @@ checks:
       /bin/launchctl print-disabled system | /usr/bin/grep -c '"com.apple.smbd" => disabled'
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      Support for Server Message Block (SMB) file sharing is non-essential and MUST be disabled.
+
+      The information system MUST be configured to provide only essential capabilities.
+    remediation: |
+      /bin/launchctl disable system/com.apple.smbd
+      The system may need to be restarted for the update to take effect.
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_smbd_disable.yaml"
   - id: "CIS-MACOS26-2.3.3.3-system_settings_printer_sharing_disable"
     name: "Disable Printer Sharing"
@@ -259,10 +408,15 @@ checks:
       /usr/sbin/cupsctl | /usr/bin/grep -c "_share_printers=0"
     allow_rc: any
     expect: "in [true, 1]"
+    rationale: |
+      Printer Sharing MUST be disabled.
+    remediation: |
+      /usr/sbin/cupsctl --no-share-printers
+      /usr/bin/lpstat -p | awk '{print $2}'| /usr/bin/xargs -I{} lpadmin -p {} -o printer-is-shared=false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_printer_sharing_disable.yaml"
   - id: "CIS-MACOS26-2.3.3.4-system_settings_ssh_disable"
     name: "Disable SSH Server for Remote Access Sessions"
-    description: "CIS Apple macOS 26 benchmark recommendation 2.3.3.4 (level 1); mSCP rule system_settings_ssh_disable. NIST SP 800-53 Rev. 5: CM-7, CM-7(1), AC-17. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 2.3.3.4 (level 1); mSCP rule system_settings_ssh_disable. NIST SP 800-53 Rev. 5: CM-7, CM-7(1), AC-17."
     tags: [cis, cis-macos26, cis-section-2, cis-level-1, cis-level-2, nist-800-53r5-low, nist-800-53r5-moderate, nist-800-53r5-high, nist-800-171, cmmc-level-2, cmmc-level-1]
     severity: high
     run: |
@@ -280,6 +434,12 @@ checks:
       echo $result
     allow_rc: any
     expect: "== PASS"
+    rationale: |
+      SSH service MUST be disabled for remote access.
+    remediation: |
+      /usr/sbin/systemsetup -f -setremotelogin off >/dev/null
+      /bin/launchctl disable system/com.openssh.sshd
+      NOTE: Systemsetup with -setremotelogin flag will fail unless you grant Full Disk Access to systemsetup or its parent process. Requires supervision.
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_ssh_disable.yaml"
   - id: "CIS-MACOS26-2.3.3.5-system_settings_remote_management_disable"
     name: "Disable Remote Management"
@@ -290,6 +450,10 @@ checks:
       /usr/libexec/mdmclient QuerySecurityInfo 2>/dev/null | /usr/bin/grep -c "RemoteDesktopEnabled = 0"
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      Remote Management MUST be disabled.
+    remediation: |
+      /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart -deactivate -stop
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_remote_management_disable.yaml"
   - id: "CIS-MACOS26-2.3.3.6-system_settings_rae_disable"
     name: "Disable Remote Apple Events"
@@ -300,6 +464,14 @@ checks:
       /bin/launchctl print-disabled system | /usr/bin/grep -c '"com.apple.AEServer" => disabled'
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      If the system does not require Remote Apple Events, support for Apple Remote Events is non-essential and MUST be disabled.
+
+      The information system MUST be configured to provide only essential capabilities. Disabling Remote Apple Events helps prevent the unauthorized connection of devices, the unauthorized transfer of information, and unauthorized tunneling.
+    remediation: |
+      /usr/sbin/systemsetup -setremoteappleevents off
+      /bin/launchctl disable system/com.apple.AEServer
+      NOTE: Systemsetup with -setremoteappleevents flag will fail unless you grant Full Disk Access to systemsetup or its parent process. Requires supervision.
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_rae_disable.yaml"
   - id: "CIS-MACOS26-2.3.3.7-system_settings_internet_sharing_disable"
     name: "Disable Internet Sharing"
@@ -313,6 +485,15 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      If the system does not require Internet sharing, support for it is non-essential and MUST be disabled.
+
+      The information system MUST be configured to provide only essential capabilities. Disabling Internet sharing helps prevent the unauthorized connection of devices, unauthorized transfer of information, and unauthorized tunneling.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.MCX: forceInternetSharingOff = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_internet_sharing_disable.yaml"
   - id: "CIS-MACOS26-2.3.3.8-system_settings_content_caching_disable"
     name: "Disable Content Caching Service"
@@ -326,6 +507,15 @@ checks:
       EOS
     allow_rc: any
     expect: "== false"
+    rationale: |
+      Content caching MUST be disabled.
+
+      Content caching is a macOS service that helps reduce Internet data usage and speed up software installation on Mac computers. It is not recommended for devices furnished to employees to act as a caching server.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.applicationaccess: allowContentCaching = false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_content_caching_disable.yaml"
   - id: "CIS-MACOS26-2.3.3.9-system_settings_media_sharing_disabled"
     name: "Disable Media Sharing"
@@ -348,6 +538,18 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Media sharing MUST be disabled.
+
+      When Media Sharing is enabled, the computer starts a network listening service that shares the contents of the user's music collection with other users in the same subnet.
+
+      The information system MUST be configured to provide only essential capabilities. Disabling Media Sharing helps prevent the unauthorized connection of devices and the unauthorized transfer of information. Disabling Media Sharing mitigates this risk.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.applicationaccess: allowMediaSharing = false
+      com.apple.applicationaccess: allowMediaSharingModification = false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_media_sharing_disabled.yaml"
   - id: "CIS-MACOS26-2.3.3.10-system_settings_bluetooth_sharing_disable"
     name: "Disable Bluetooth Sharing"
@@ -359,10 +561,19 @@ checks:
       /usr/bin/sudo -u "$CURRENT_USER" /usr/bin/defaults -currentHost read com.apple.Bluetooth PrefKeyServicesEnabled
     allow_rc: any
     expect: "in [false, 0]"
+    rationale: |
+      Bluetooth Sharing MUST be disabled.
+
+      Bluetooth Sharing allows users to wirelessly transmit files between the macOS and Bluetooth-enabled devices, including personally owned cellphones and tablets. A malicious user might introduce viruses or malware onto the system or extract sensitive files via Bluetooth Sharing. When Bluetooth Sharing is disabled, this risk is mitigated.
+
+      NOTE: The check and fix are for the last logged in user. To get the last logged in user, run the following.
+      CURRENT_USER=$( /usr/bin/defaults read /Library/Preferences/com.apple.loginwindow lastUserName )
+    remediation: |
+      /usr/bin/sudo -u "$CURRENT_USER" /usr/bin/defaults -currentHost write com.apple.Bluetooth PrefKeyServicesEnabled -bool false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_bluetooth_sharing_disable.yaml"
   - id: "CIS-MACOS26-2.3.4.1-system_settings_time_machine_auto_backup_enable"
     name: "Configure Time Machine for Automatic Backups"
-    description: "CIS Apple macOS 26 benchmark recommendation 2.3.4.1 (level 2); mSCP rule system_settings_time_machine_auto_backup_enable. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 2.3.4.1 (level 2); mSCP rule system_settings_time_machine_auto_backup_enable."
     tags: [cis, cis-macos26, cis-section-2, cis-level-2]
     severity: low
     run: |
@@ -372,20 +583,35 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Automatic backups MUST be enabled when using Time Machine.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.TimeMachine: AutoBackup = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_time_machine_auto_backup_enable.yaml"
   - id: "CIS-MACOS26-2.3.4.2-system_settings_time_machine_encrypted_configure"
     name: "Ensure Time Machine Volumes are Encrypted"
-    description: "CIS Apple macOS 26 benchmark recommendation 2.3.4.2 (level 1); mSCP rule system_settings_time_machine_encrypted_configure. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 2.3.4.2 (level 1); mSCP rule system_settings_time_machine_encrypted_configure."
     tags: [cis, cis-macos26, cis-section-2, cis-level-1, cis-level-2]
     severity: medium
     run: |
       /usr/bin/sudo /usr/bin/defaults read /Library/Preferences/com.apple.TimeMachine.plist | grep -c NotEncrypted
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      Time Machine volumes MUST be encrypted.
+    remediation: |
+      1. Go to System Settings -> Time Machine
+      2. Click Select Disk
+      3. Select existing Backup Disk under Available Disks
+      4. Click Encrypt Backups
+      5. Click Use Disk
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_time_machine_encrypted_configure.yaml"
   - id: "CIS-MACOS26-2.5.1.1-system_settings_external_intelligence_disable"
     name: "Disable External Intelligence Integrations"
-    description: "CIS Apple macOS 26 benchmark recommendation 2.5.1.1 (level 1); mSCP rule system_settings_external_intelligence_disable. NIST SP 800-53 Rev. 5: AC-20, CM-7, CM-7(1). DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 2.5.1.1 (level 1); mSCP rule system_settings_external_intelligence_disable. NIST SP 800-53 Rev. 5: AC-20, CM-7, CM-7(1)."
     tags: [cis, cis-macos26, cis-section-2, cis-level-1, cis-level-2, nist-800-53r5-low, nist-800-53r5-moderate, nist-800-53r5-high, nist-800-171, cmmc-level-1, cmmc-level-2]
     severity: medium
     run: |
@@ -395,10 +621,21 @@ checks:
       EOS
     allow_rc: any
     expect: "== false"
+    rationale: |
+      Integration with external intelligence systems MUST be disabled unless approved by the organization. Disabling external intelligence integration will mitigate the risk of data being sent to unapproved third party.
+
+      The information system MUST be configured to provide only essential capabilities.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.applicationaccess: allowExternalIntelligenceIntegrations = false
+
+      With declarative device management instead: com.apple.configuration.external-intelligence.settings: Enabled = false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_external_intelligence_disable.yaml"
   - id: "CIS-MACOS26-2.5.1.1-system_settings_external_intelligence_sign_in_disable"
     name: "Disable External Intelligence Integration Sign In"
-    description: "CIS Apple macOS 26 benchmark recommendation 2.5.1.1 (level 1); mSCP rule system_settings_external_intelligence_sign_in_disable. NIST SP 800-53 Rev. 5: AC-20, CM-7, CM-7(1). DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 2.5.1.1 (level 1); mSCP rule system_settings_external_intelligence_sign_in_disable. NIST SP 800-53 Rev. 5: AC-20, CM-7, CM-7(1)."
     tags: [cis, cis-macos26, cis-section-2, cis-level-1, cis-level-2, nist-800-53r5-low, nist-800-53r5-moderate, nist-800-53r5-high, nist-800-171, cmmc-level-1, cmmc-level-2]
     severity: medium
     run: |
@@ -408,6 +645,17 @@ checks:
       EOS
     allow_rc: any
     expect: "== false"
+    rationale: |
+      The ability to sign into an external intelligence systems MUST be disabled unless approved by the organization. Disabling external intelligence integration will mitigate the risk of data being sent to unapproved third party.
+
+      The information system MUST be configured to provide only essential capabilities.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.applicationaccess: allowExternalIntelligenceIntegrationsSignIn = false
+
+      With declarative device management instead: com.apple.configuration.external-intelligence.settings: AllowSignIn = false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_external_intelligence_sign_in_disable.yaml"
   - id: "CIS-MACOS26-2.5.1.2-os_writing_tools_disable"
     name: "Disable Apple Intelligence Writing Tools"
@@ -421,6 +669,15 @@ checks:
       EOS
     allow_rc: any
     expect: "== false"
+    rationale: |
+      Apple Intelligence features such as writing tools that use off device AI MUST be disabled.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.applicationaccess: allowWritingTools = false
+
+      With declarative device management instead: com.apple.configuration.intelligence.settings: AllowWritingTools = false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_writing_tools_disable.yaml"
   - id: "CIS-MACOS26-2.5.1.3-os_mail_summary_disable"
     name: "Disable Apple Intelligence Mail Summary"
@@ -434,10 +691,19 @@ checks:
       EOS
     allow_rc: any
     expect: "== false"
+    rationale: |
+      Apple Intelligence features such as Apple Mail Summary that use off device AI MUST be disabled.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.applicationaccess: allowMailSummary = false
+
+      With declarative device management instead: com.apple.configuration.intelligence.settings: Apps > Mail > AllowSummary = false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_mail_summary_disable.yaml"
   - id: "CIS-MACOS26-2.5.1.4-os_notes_transcription_disable"
     name: "Disable Apple Intelligence Notes Transcription"
-    description: "CIS Apple macOS 26 benchmark recommendation 2.5.1.4 (level 1); mSCP rule os_notes_transcription_disable. NIST SP 800-53 Rev. 5: AC-20, AC-20(1), CM-7, CM-7(1), SC-7(10). DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 2.5.1.4 (level 1); mSCP rule os_notes_transcription_disable. NIST SP 800-53 Rev. 5: AC-20, AC-20(1), CM-7, CM-7(1), SC-7(10)."
     tags: [cis, cis-macos26, cis-section-2, cis-level-1, cis-level-2, nist-800-53r5-low, nist-800-53r5-moderate, nist-800-53r5-high, nist-800-171, cmmc-level-2, cmmc-level-1]
     severity: medium
     run: |
@@ -447,10 +713,19 @@ checks:
       EOS
     allow_rc: any
     expect: "== false"
+    rationale: |
+      Apple Intelligence features such as Notes Transcription that use off device AI MUST be disabled.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.applicationaccess: allowNotesTranscription = false
+
+      With declarative device management instead: com.apple.configuration.intelligence.settings: Apps > Notes > AllowTranscription = false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_notes_transcription_disable.yaml"
   - id: "CIS-MACOS26-2.5.1.4-os_notes_transcription_summary_disable"
     name: "Disable Apple Intelligence Notes Transcription Summary"
-    description: "CIS Apple macOS 26 benchmark recommendation 2.5.1.4 (level 1); mSCP rule os_notes_transcription_summary_disable. NIST SP 800-53 Rev. 5: AC-20, AC-20(1), CM-7, CM-7(1), SC-7(10). DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 2.5.1.4 (level 1); mSCP rule os_notes_transcription_summary_disable. NIST SP 800-53 Rev. 5: AC-20, AC-20(1), CM-7, CM-7(1), SC-7(10)."
     tags: [cis, cis-macos26, cis-section-2, cis-level-1, cis-level-2, nist-800-53r5-low, nist-800-53r5-moderate, nist-800-53r5-high, nist-800-171, cmmc-level-2, cmmc-level-1]
     severity: medium
     run: |
@@ -460,6 +735,15 @@ checks:
       EOS
     allow_rc: any
     expect: "== false"
+    rationale: |
+      Apple Intelligence features such as Notes Transcription Summary that use off device AI MUST be disabled.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.applicationaccess: allowNotesTranscriptionSummary = false
+
+      With declarative device management instead: com.apple.configuration.intelligence.settings: Apps > Notes > AllowTranscriptionSummary = false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_notes_transcription_summary_disable.yaml"
   - id: "CIS-MACOS26-2.5.2.1-system_settings_siri_disable"
     name: "Disable Siri"
@@ -473,10 +757,21 @@ checks:
       EOS
     allow_rc: any
     expect: "== false"
+    rationale: |
+      Support for Siri is non-essential and MUST be disabled.
+
+      The information system MUST be configured to provide only essential capabilities.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.applicationaccess: allowAssistant = false
+
+      With declarative device management instead: com.apple.configuration.siri.settings: Enabled = false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_siri_disable.yaml"
   - id: "CIS-MACOS26-2.6.1.1-system_settings_location_services_enable"
     name: "Enable Location Services"
-    description: "CIS Apple macOS 26 benchmark recommendation 2.6.1.1 (level 2); mSCP rule system_settings_location_services_enable. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 2.6.1.1 (level 2); mSCP rule system_settings_location_services_enable."
     tags: [cis, cis-macos26, cis-section-2, cis-level-2]
     severity: low
     run: |
@@ -486,16 +781,26 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Location Services MUST be enabled.
+    remediation: |
+      /usr/bin/defaults write /var/db/locationd/Library/Preferences/ByHost/com.apple.locationd LocationServicesEnabled -bool true;
+      pid=$(/bin/launchctl print system | /usr/bin/awk '/\tcom.apple.locationd/ {print $1}')
+      kill -9 $pid
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_location_services_enable.yaml"
   - id: "CIS-MACOS26-2.6.1.2-system_settings_location_services_menu_enforce"
     name: "Ensure Location Services Is In the Menu Bar"
-    description: "CIS Apple macOS 26 benchmark recommendation 2.6.1.2 (level 1); mSCP rule system_settings_location_services_menu_enforce. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 2.6.1.2 (level 1); mSCP rule system_settings_location_services_menu_enforce."
     tags: [cis, cis-macos26, cis-section-2, cis-level-1, cis-level-2]
     severity: medium
     run: |
       /usr/bin/defaults read /Library/Preferences/com.apple.locationmenu.plist ShowSystemServices
     allow_rc: any
     expect: "in [true, 1]"
+    rationale: |
+      Location Services menu item MUST be enabled.
+    remediation: |
+      /usr/bin/defaults write /Library/Preferences/com.apple.locationmenu.plist ShowSystemServices -bool true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_location_services_menu_enforce.yaml"
   - id: "CIS-MACOS26-2.6.3.1-system_settings_diagnostics_reports_disable"
     name: "Disable Sending Diagnostic and Usage Data to Apple"
@@ -518,6 +823,16 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      The ability to submit diagnostic data to Apple MUST be disabled.
+
+      The information system MUST be configured to provide only essential capabilities. Disabling the submission of diagnostic and usage information will mitigate the risk of unwanted data being sent to Apple.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.SubmitDiagInfo: AutoSubmit = false
+      com.apple.applicationaccess: allowDiagnosticSubmission = false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_diagnostics_reports_disable.yaml"
   - id: "CIS-MACOS26-2.6.3.2-system_settings_improve_siri_dictation_disable"
     name: "Disable Improve Siri and Dictation Information to Apple"
@@ -531,6 +846,15 @@ checks:
       EOS
     allow_rc: any
     expect: "== 2"
+    rationale: |
+      The ability for Apple to store and review audio of your Siri and Dictation interactions MUST be disabled.
+
+      The information system MUST be configured to provide only essential capabilities. Disabling the submission of Siri and Dictation information will mitigate the risk of unwanted data being sent to Apple.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.assistant.support: Siri Data Sharing Opt-In Status = 2
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_improve_siri_dictation_disable.yaml"
   - id: "CIS-MACOS26-2.6.3.3-system_settings_improve_assistive_voice_disable"
     name: "Disable Sending Audio Recordings and Transcripts to Apple"
@@ -544,6 +868,15 @@ checks:
       EOS
     allow_rc: any
     expect: "== false"
+    rationale: |
+      The ability for Apple to store and review audio of your audio recordings and transcripts of your vocal shortcuts and voice control interactions MUST be disabled. This will disable "Improve Assistive Voice Features" in Privacy & Security within System Settings.
+
+      The information system MUST be configured to provide only essential capabilities. Disabling the submission of this information will mitigate the risk of unwanted data being sent to Apple.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.Accessibility: AXSAudioDonationSiriImprovementEnabled = false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_improve_assistive_voice_disable.yaml"
   - id: "CIS-MACOS26-2.6.4-system_settings_personalized_advertising_disable"
     name: "Disable Personalized Advertising"
@@ -557,6 +890,15 @@ checks:
       EOS
     allow_rc: any
     expect: "== false"
+    rationale: |
+      Ad tracking and targeted ads MUST be disabled.
+
+      The information system MUST be configured to provide only essential capabilities. Disabling ad tracking ensures that applications and advertisers are unable to track users' interests and deliver targeted advertisements.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.applicationaccess: allowApplePersonalizedAdvertising = false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_personalized_advertising_disable.yaml"
   - id: "CIS-MACOS26-2.6.5-os_gatekeeper_enable"
     name: "Enable Gatekeeper"
@@ -570,6 +912,17 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Gatekeeper MUST be enabled.
+
+      Gatekeeper is a security feature that ensures that applications are digitally signed by an Apple-issued certificate before they are permitted to run. Digital signatures allow the macOS host to verify that the application has not been modified by a malicious third party.
+
+      Administrator users will still have the option to override these settings on a case-by-case basis.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.systempolicy.control: EnableAssessment = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_gatekeeper_enable.yaml"
   - id: "CIS-MACOS26-2.6.6-system_settings_filevault_enforce"
     name: "Enforce FileVault"
@@ -590,6 +943,14 @@ checks:
       fi
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      FileVault MUST be enforced.
+
+      The information system implements cryptographic mechanisms to protect the confidentiality and integrity of information stored on digital media during transport outside of controlled areas.
+
+      NOTE: See the FileVault supplemental to implement this rule.
+    remediation: |
+      NOTE: See the FileVault supplemental to implement this rule.
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_filevault_enforce.yaml"
   - id: "CIS-MACOS26-2.6.8-system_settings_system_wide_preferences_configure"
     name: "Require Administrator Password to Modify System-Wide Preferences"
@@ -616,10 +977,57 @@ checks:
       echo $result
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      The system MUST be configured to require an administrator password in order to modify the system-wide preferences in System Settings.
+
+      Some Preference Panes in System Settings contain settings that affect the entire system. Requiring a password to unlock these system-wide settings reduces the risk of a non-authorized user modifying system configurations.
+    remediation: |
+      authDBs=("system.preferences" "system.preferences.energysaver" "system.preferences.network" "system.preferences.printing" "system.preferences.sharing" "system.preferences.softwareupdate" "system.preferences.startupdisk" "system.preferences.timemachine")
+
+      for section in ${authDBs[@]}; do
+        /usr/bin/security -q authorizationdb read "$section" > "/tmp/$section.plist"
+
+        class_key_value=$(/usr/libexec/PlistBuddy -c "Print :class" "/tmp/$section.plist" 2>&1)
+        if [[ "$class_key_value" == *"Does Not Exist"* ]]; then
+          /usr/libexec/PlistBuddy -c "Add :class string user" "/tmp/$section.plist"
+        else
+          /usr/libexec/PlistBuddy -c "Set :class user" "/tmp/$section.plist"
+        fi
+
+        key_value=$(/usr/libexec/PlistBuddy -c "Print :shared" "/tmp/$section.plist" 2>&1)
+        if [[ "$key_value" == *"Does Not Exist"* ]]; then
+          /usr/libexec/PlistBuddy -c "Add :shared bool false" "/tmp/$section.plist"
+        else
+          /usr/libexec/PlistBuddy -c "Set :shared false" "/tmp/$section.plist"
+        fi
+
+        auth_user_key=$(/usr/libexec/PlistBuddy -c "Print :authenticate-user" "/tmp/$section.plist" 2>&1)
+        if [[ "$auth_user_key" == *"Does Not Exist"* ]]; then
+          /usr/libexec/PlistBuddy -c "Add :authenticate-user bool true" "/tmp/$section.plist"
+        else
+          /usr/libexec/PlistBuddy -c "Set :authenticate-user true" "/tmp/$section.plist"
+        fi
+
+        session_owner_key=$(/usr/libexec/PlistBuddy -c "Print :session-owner" "/tmp/$section.plist" 2>&1)
+        if [[ "$session_owner_key" == *"Does Not Exist"* ]]; then
+          /usr/libexec/PlistBuddy -c "Add :session-owner bool false" "/tmp/$section.plist"
+        else
+          /usr/libexec/PlistBuddy -c "Set :session-owner false" "/tmp/$section.plist"
+        fi
+
+        group_key=$(/usr/libexec/PlistBuddy -c "Print :group" "/tmp/$section.plist" 2>&1)
+        if [[ "$group_key" == *"Does Not Exist"* ]]; then
+          /usr/libexec/PlistBuddy -c "Add :group string admin" "/tmp/$section.plist"
+        else
+          /usr/libexec/PlistBuddy -c "Set :group admin" "/tmp/$section.plist"
+        fi
+
+        /usr/bin/security -q authorizationdb write "$section" < "/tmp/$section.plist"
+      done
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_system_wide_preferences_configure.yaml"
   - id: "CIS-MACOS26-2.7.1-system_settings_hot_corners_secure"
     name: "Secure Hot Corners"
-    description: "CIS Apple macOS 26 benchmark recommendation 2.7.1 (level 1); mSCP rule system_settings_hot_corners_secure. NIST SP 800-53 Rev. 5: AC-11(1). DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 2.7.1 (level 1); mSCP rule system_settings_hot_corners_secure. NIST SP 800-53 Rev. 5: AC-11(1)."
     tags: [cis, cis-macos26, cis-section-2, cis-level-1, cis-level-2, cmmc-level-2]
     severity: medium
     run: |
@@ -634,6 +1042,18 @@ checks:
       fi
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      Hot corners MUST be secured.
+
+      The information system conceals, via the session lock, information previously visible on the display with a publicly viewable image. Although hot comers can be used to initiate a session lock or to launch useful applications, they can also be configured to disable an automatic session lock from initiating. Such a configuration introduces the risk that a user might forget to manually lock the screen before stepping away from the computer.
+
+      NOTE: The check and fix are for the last logged in user. To get the last logged in user, run the following.
+      CURRENT_USER=$( /usr/bin/defaults read /Library/Preferences/com.apple.loginwindow lastUserName )
+    remediation: |
+      /usr/bin/sudo -u "$CURRENT_USER" /usr/bin/defaults delete /Users/"$CURRENT_USER"/Library/Preferences/com.apple.dock wvous-bl-corner 2>/dev/null
+      /usr/bin/sudo -u "$CURRENT_USER" /usr/bin/defaults delete /Users/"$CURRENT_USER"/Library/Preferences/com.apple.dock wvous-tl-corner 2>/dev/null
+      /usr/bin/sudo -u "$CURRENT_USER" /usr/bin/defaults delete /Users/"$CURRENT_USER"/Library/Preferences/com.apple.dock wvous-tr-corner 2>/dev/null
+      /usr/bin/sudo -u "$CURRENT_USER" /usr/bin/defaults delete /Users/"$CURRENT_USER"/Library/Preferences/com.apple.dock wvous-br-corner 2>/dev/null
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_hot_corners_secure.yaml"
   - id: "CIS-MACOS26-2.9.1-system_settings_improve_search_disable"
     name: "Disable Improve Search Information to Apple"
@@ -647,10 +1067,19 @@ checks:
       EOS
     allow_rc: any
     expect: "== 2"
+    rationale: |
+      Sending data to Apple to help improve search MUST be disabled. This will disable "Improve Search" within Spotlight in System Settings.
+
+      The information system MUST be configured to provide only essential capabilities. Disabling the submission of search data will mitigate the risk of unwanted data being sent to Apple.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.assistant.support: Search Queries Data Sharing Status = 2
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_improve_search_disable.yaml"
   - id: "CIS-MACOS26-2.10.1.2-os_sleep_and_display_sleep_apple_silicon_enable"
     name: "Ensure Sleep and Display Sleep Is Enabled on Apple Silicon Devices"
-    description: "CIS Apple macOS 26 benchmark recommendation 2.10.1.2 (level 2); mSCP rule os_sleep_and_display_sleep_apple_silicon_enable. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 2.10.1.2 (level 2); mSCP rule os_sleep_and_display_sleep_apple_silicon_enable."
     tags: [cis, cis-macos26, cis-section-2, cis-level-2]
     severity: low
     run: |
@@ -671,26 +1100,50 @@ checks:
       echo "$error_count"
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      Apple Silicon MacBooks should set sleep timeout to 15 minutes (900 seconds) or less and the display sleep timeout should be 10 minutes (600 seconds) or less but less than the sleep setting.
+    remediation: |
+      /usr/bin/pmset -a sleep 15
+      /usr/bin/pmset -a displaysleep 10
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_sleep_and_display_sleep_apple_silicon_enable.yaml"
   - id: "CIS-MACOS26-2.10.2-os_power_nap_disable"
     name: "Disable Power Nap"
-    description: "CIS Apple macOS 26 benchmark recommendation 2.10.2 (level 1); mSCP rule os_power_nap_disable. NIST SP 800-53 Rev. 5: CM-7, CM-7(1). DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 2.10.2 (level 1); mSCP rule os_power_nap_disable. NIST SP 800-53 Rev. 5: CM-7, CM-7(1)."
     tags: [cis, cis-macos26, cis-section-2, cis-level-1, cis-level-2, cmmc-level-2]
     severity: medium
     run: |
       /usr/bin/pmset -g custom | /usr/bin/awk '/powernap/ { sum+=$2 } END {print sum}'
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      Power Nap MUST be disabled.
+
+      NOTE: Power Nap allows your Mac to perform actions while a Mac is asleep. This can interfere with USB power and may cause devices such as smartcards to stop functioning until a reboot and must therefore be disabled on all applicable systems.
+
+      The following Macs support Power Nap:
+
+      - MacBook (Early 2015 and later)
+      - MacBook Air (Late 2010 and later)
+      - MacBook Pro (all models with Retina display)
+      - Mac mini (Late 2012 and later)
+      - iMac (Late 2012 and later)
+      - Mac Pro (Late 2013 and later)
+    remediation: |
+      /usr/bin/pmset -a powernap 0
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_power_nap_disable.yaml"
   - id: "CIS-MACOS26-2.10.3-system_settings_wake_network_access_disable"
     name: "Ensure Wake for Network Access Is Disabled"
-    description: "CIS Apple macOS 26 benchmark recommendation 2.10.3 (level 1); mSCP rule system_settings_wake_network_access_disable. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 2.10.3 (level 1); mSCP rule system_settings_wake_network_access_disable."
     tags: [cis, cis-macos26, cis-section-2, cis-level-1, cis-level-2]
     severity: medium
     run: |
       /usr/bin/pmset -g custom | /usr/bin/awk '/womp/ { sum+=$2 } END {print sum}'
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      Wake for network access MUST be disabled.
+    remediation: |
+      /usr/bin/pmset -a womp 0
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_wake_network_access_disable.yaml"
   - id: "CIS-MACOS26-2.11.1-system_settings_screensaver_timeout_enforce"
     name: "Enforce Screen Saver Timeout"
@@ -711,6 +1164,15 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      The screen saver timeout MUST be set to 900 seconds or a shorter length of time.
+
+      This rule ensures that a full session lock is triggered within no more than 900 seconds of inactivity.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.screensaver: idleTime = 900
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_screensaver_timeout_enforce.yaml"
   - id: "CIS-MACOS26-2.11.2-system_settings_screensaver_ask_for_password_delay_enforce"
     name: "Enforce Session Lock After Screen Saver is Started"
@@ -731,6 +1193,15 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      A screen saver MUST be enabled and the system MUST be configured to require a password to unlock once the screensaver has been on for a maximum of 5 seconds.
+
+      An unattended system with an excessive grace period is vulnerable to a malicious user.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.screensaver: askForPasswordDelay = 5
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_screensaver_ask_for_password_delay_enforce.yaml"
   - id: "CIS-MACOS26-2.11.2-system_settings_screensaver_password_enforce"
     name: "Enforce Screen Saver Password"
@@ -744,6 +1215,15 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Users MUST authenticate when unlocking the screen saver.
+
+      The screen saver acts as a session lock and prevents unauthorized users from accessing the current user's account.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.screensaver: askForPassword = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_screensaver_password_enforce.yaml"
   - id: "CIS-MACOS26-2.11.4-system_settings_loginwindow_prompt_username_password_enforce"
     name: "Configure Login Window to Prompt for Username and Password"
@@ -757,6 +1237,15 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      The login window MUST be configured to prompt all users for both a username and a password.
+
+      By default, the system displays a list of known users on the login window, which can make it easier for a malicious user to gain access to someone else's account. Requiring users to type in both their username and password mitigates the risk of unauthorized users gaining access to the information system.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.loginwindow: SHOWFULLNAME = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_loginwindow_prompt_username_password_enforce.yaml"
   - id: "CIS-MACOS26-2.11.5-system_settings_password_hints_disable"
     name: "Disable Password Hints"
@@ -770,6 +1259,15 @@ checks:
       EOS
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      Password hints MUST be disabled.
+
+      Password hints leak information about passwords that are currently in use and can lead to loss of confidentiality.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.loginwindow: RetriesUntilHint = 0
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_password_hints_disable.yaml"
   - id: "CIS-MACOS26-2.12.1-os_password_hint_remove"
     name: "Remove Password Hint From User Accounts"
@@ -786,6 +1284,12 @@ checks:
       fi
     allow_rc: any
     expect: "== PASS"
+    rationale: |
+      User accounts MUST not contain password hints.
+    remediation: |
+      for u in $(/usr/bin/dscl . -list /Users UniqueID | /usr/bin/awk '$2 > 500 {print $1}'); do
+        /usr/bin/dscl . -delete /Users/$u hint
+      done
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_password_hint_remove.yaml"
   - id: "CIS-MACOS26-2.13.1-system_settings_guest_account_disable"
     name: "Disable the Guest Account"
@@ -808,16 +1312,32 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Guest access MUST be disabled.
+
+      Turning off guest access prevents anonymous users from accessing files.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.MCX: DisableGuestAccount = true
+      com.apple.MCX: EnableGuestAccount = false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_guest_account_disable.yaml"
   - id: "CIS-MACOS26-2.13.2-system_settings_guest_access_smb_disable"
     name: "Disable Guest Access to Shared SMB Folders"
-    description: "CIS Apple macOS 26 benchmark recommendation 2.13.2 (level 1); mSCP rule system_settings_guest_access_smb_disable. NIST SP 800-53 Rev. 5: AC-2(9), AC-2. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 2.13.2 (level 1); mSCP rule system_settings_guest_access_smb_disable. NIST SP 800-53 Rev. 5: AC-2(9), AC-2."
     tags: [cis, cis-macos26, cis-section-2, cis-level-1, cis-level-2, nist-800-53r5-low, nist-800-53r5-moderate, nist-800-53r5-high, nist-800-171, cmmc-level-2, cmmc-level-1]
     severity: medium
     run: |
       /usr/sbin/sysadminctl -smbGuestAccess status 2>&1 | /usr/bin/grep -c "SMB guest access disabled"
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      Guest access to shared Server Message Block (SMB) folders MUST be disabled.
+
+      Turning off guest access prevents anonymous users from accessing files shared via SMB.
+    remediation: |
+      /usr/sbin/sysadminctl -smbGuestAccess off
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_guest_access_smb_disable.yaml"
   - id: "CIS-MACOS26-2.13.3-system_settings_automatic_login_disable"
     name: "Disable Unattended or Automatic Logon to the System"
@@ -831,6 +1351,15 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Automatic logon MUST be disabled.
+
+      When automatic logons are enabled, the default user account is automatically logged on at boot time without prompting the user for a password. Even if the screen is later locked, a malicious user would be able to reboot the computer and find it already logged in. Disabling automatic logons mitigates this risk.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.loginwindow: com.apple.login.mcx.DisableAutoLoginClient = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/system_settings/system_settings_automatic_login_disable.yaml"
   - id: "CIS-MACOS26-2.18.1-os_on_device_dictation_enforce"
     name: "Enforce On Device Dictation"
@@ -844,6 +1373,19 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Dictation MUST be restricted to on device only to prevent potential data exfiltration.
+
+      The information system MUST be configured to provide only essential capabilities.
+
+      IMPORTANT: This rule only applies to Apple Silicon devices.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.applicationaccess: forceOnDeviceOnlyDictation = true
+
+      With declarative device management instead: com.apple.configuration.intelligence.settings: ForceOnDeviceOnlyTranslation = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_on_device_dictation_enforce.yaml"
   - id: "CIS-MACOS26-3.1-audit_auditd_enabled"
     name: "Enable Security Auditing"
@@ -860,6 +1402,24 @@ checks:
       fi
     allow_rc: any
     expect: "== pass"
+    rationale: |
+      The information system MUST be configured to generate audit records.
+
+      Audit records establish what types of events have occurred, when they occurred, and which users were involved. These records aid an organization in their efforts to establish, correlate, and investigate the events leading up to an outage or attack.
+
+      The content required to be captured in an audit record varies based on the impact level of an organization's system. Content that may be necessary to satisfy this requirement includes, for example, time stamps, source addresses, destination addresses, user identifiers, event descriptions, success/fail indications, filenames involved, and access or flow control rules invoked.
+
+      The information system initiates session audits at system start-up.
+
+      NOTE: Security auditing is NOT enabled by default on macOS Tahoe.
+    remediation: |
+      if [[ ! -e /etc/security/audit_control ]] && [[ -e /etc/security/audit_control.example ]];then
+        /bin/cp /etc/security/audit_control.example /etc/security/audit_control
+      fi
+
+      /bin/launchctl enable system/com.apple.auditd
+      /bin/launchctl bootstrap system /System/Library/LaunchDaemons/com.apple.auditd.plist
+      /usr/sbin/audit -i
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_auditd_enabled.yaml"
   - id: "CIS-MACOS26-3.2-audit_flags_aa_configure"
     name: "Configure System to Audit All Authorization and Authentication Events"
@@ -870,6 +1430,14 @@ checks:
       /usr/bin/awk -F':' '/^flags/ { print $NF }' /etc/security/audit_control | /usr/bin/tr ',' '\n' | /usr/bin/grep -Ec 'aa'
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      The auditing system MUST be configured to flag authorization and authentication (aa) events.
+
+      Authentication events contain information about the identity of a user, server, or client. Authorization events contain information about permissions, rights, and rules. If audit records do not include aa events, it is difficult to identify incidents and to correlate incidents to subsequent events.
+
+      Audit records can be generated from various components within the information system (e.g., via a module or policy filter).
+    remediation: |
+      /usr/bin/grep -qE "^flags.*[^-]aa" /etc/security/audit_control || /usr/bin/sed -i.bak '/^flags/ s/$/,aa/' /etc/security/audit_control; /usr/sbin/audit -s
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_flags_aa_configure.yaml"
   - id: "CIS-MACOS26-3.2-audit_flags_ad_configure"
     name: "Configure System to Audit All Administrative Action Events"
@@ -880,6 +1448,18 @@ checks:
       /usr/bin/awk -F':' '/^flags/ { print $NF }' /etc/security/audit_control | /usr/bin/tr ',' '\n' | /usr/bin/grep -Ec 'ad'
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      The auditing system MUST be configured to flag administrative action (ad) events.
+
+      Administrative action events include changes made to the system (e.g. modifying authentication policies). If audit records do not include ad events, it is difficult to identify incidents and to correlate incidents to subsequent events.
+
+      Audit records can be generated from various components within the information system (e.g., via a module or policy filter).
+
+      The information system audits the execution of privileged functions.
+
+      NOTE: We recommend changing the line "43127:AUE_MAC_SYSCALL:mac_syscall(2):ad" to "43127:AUE_MAC_SYSCALL:mac_syscall(2):zz" in the file /etc/security/audit_event. This will prevent sandbox violations from being audited by the ad flag.
+    remediation: |
+      /usr/bin/grep -qE "^flags.*[^-]ad" /etc/security/audit_control || /usr/bin/sed -i.bak '/^flags/ s/$/,ad/' /etc/security/audit_control; /usr/sbin/audit -s
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_flags_ad_configure.yaml"
   - id: "CIS-MACOS26-3.2-audit_flags_ex_configure"
     name: "Configure System to Audit All Failed Program Execution on the System"
@@ -890,16 +1470,35 @@ checks:
       /usr/bin/awk -F':' '/^flags/ { print $NF }' /etc/security/audit_control | /usr/bin/tr ',' '\n' | /usr/bin/grep -Ec '\-ex'
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      The audit system MUST be configured to record enforcement actions of access restrictions, including failed program execute (-ex) attempts.
+
+      Enforcement actions are the methods or mechanisms used to prevent unauthorized access and/or changes to configuration settings. One common and effective enforcement action method is using program execution restrictions (e.g., denying users access to execute certain processes).
+
+      This configuration ensures that audit lists include events in which program execution has failed.
+      Without auditing the enforcement of program execution, it is difficult to identify attempted attacks, as there is no audit trail available for forensic investigation.
+    remediation: |
+      /usr/bin/grep -qE "^flags.*-ex" /etc/security/audit_control || /usr/bin/sed -i.bak '/^flags/ s/$/,-ex/' /etc/security/audit_control; /usr/sbin/audit -s
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_flags_ex_configure.yaml"
   - id: "CIS-MACOS26-3.2-audit_flags_fm_failed_configure"
     name: "Configure System to Audit All Failed Change of Object Attributes"
-    description: "CIS Apple macOS 26 benchmark recommendation 3.2 (level 2); mSCP rule audit_flags_fm_failed_configure. NIST SP 800-53 Rev. 5: AC-2(12), AU-12, AU-2, AU-9, CM-5(1), MA-4(1). DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 3.2 (level 2); mSCP rule audit_flags_fm_failed_configure. NIST SP 800-53 Rev. 5: AC-2(12), AU-12, AU-2, AU-9, CM-5(1), MA-4(1)."
     tags: [cis, cis-macos26, cis-section-3, cis-level-2, nist-800-53r5-low, nist-800-53r5-moderate, nist-800-53r5-high, nist-800-171, cmmc-level-2]
     severity: medium
     run: |
       /usr/bin/awk -F':' '/^flags/ { print $NF }' /etc/security/audit_control | /usr/bin/tr ',' '\n' | /usr/bin/grep -Ec '\-fm'
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      The audit system MUST be configured to record enforcement actions of failed attempts to modify file attributes (-fm).
+
+      Enforcement actions are the methods or mechanisms used to prevent unauthorized changes to configuration settings. One common and effective enforcement action method is using access restrictions (i.e., denying modifications to a file by applying file permissions).
+
+      This configuration ensures that audit lists include events in which enforcement actions prevent attempts to modify a file.
+
+      Without auditing the enforcement of access restrictions, it is difficult to identify attempted attacks, as there is no audit trail available for forensic investigation.
+    remediation: |
+      /usr/bin/grep -qE "^flags.*,\s*-fm" /etc/security/audit_control || /usr/bin/sed -i.bak '/^flags/ s/$/,-fm/' /etc/security/audit_control;/usr/sbin/audit -s
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_flags_fm_failed_configure.yaml"
   - id: "CIS-MACOS26-3.2-audit_flags_fr_configure"
     name: "Configure System to Audit All Failed Read Actions on the System"
@@ -910,6 +1509,16 @@ checks:
       /usr/bin/awk -F':' '/^flags/ { print $NF }' /etc/security/audit_control | /usr/bin/tr ',' '\n' | /usr/bin/grep -Ec '\-fr'
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      The audit system MUST be configured to record enforcement actions of access restrictions, including failed file read (-fr) attempts.
+
+      Enforcement actions are the methods or mechanisms used to prevent unauthorized access and/or changes to configuration settings. One common and effective enforcement action method is using access restrictions (e.g., denying access to a file by applying file permissions).
+
+      This configuration ensures that audit lists include events in which enforcement actions prevent attempts to read a file.
+
+      Without auditing the enforcement of access restrictions, it is difficult to identify attempted attacks, as there is no audit trail available for forensic investigation.
+    remediation: |
+      /usr/bin/grep -qE "^flags.*-fr" /etc/security/audit_control || /usr/bin/sed -i.bak '/^flags/ s/$/,-fr/' /etc/security/audit_control;/usr/sbin/audit -s
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_flags_fr_configure.yaml"
   - id: "CIS-MACOS26-3.2-audit_flags_fw_configure"
     name: "Configure System to Audit All Failed Write Actions on the System"
@@ -920,6 +1529,16 @@ checks:
       /usr/bin/awk -F':' '/^flags/ { print $NF }' /etc/security/audit_control | /usr/bin/tr ',' '\n' | /usr/bin/grep -Ec '\-fw'
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      The audit system MUST be configured to record enforcement actions of access restrictions, including failed file write (-fw) attempts.
+
+      Enforcement actions are the methods or mechanisms used to prevent unauthorized access and/or changes to configuration settings. One common and effective enforcement action method is using access restrictions (e.g., denying users access to edit a file by applying file permissions).
+
+      This configuration ensures that audit lists include events in which enforcement actions prevent attempts to change a file.
+
+      Without auditing the enforcement of access restrictions, it is difficult to identify attempted attacks, as there is no audit trail available for forensic investigation.
+    remediation: |
+      /usr/bin/grep -qE "^flags.*-fw" /etc/security/audit_control || /usr/bin/sed -i.bak '/^flags/ s/$/,-fw/' /etc/security/audit_control;/usr/sbin/audit -s
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_flags_fw_configure.yaml"
   - id: "CIS-MACOS26-3.2-audit_flags_lo_configure"
     name: "Configure System to Audit All Log In and Log Out Events"
@@ -930,6 +1549,14 @@ checks:
       /usr/bin/awk -F':' '/^flags/ { print $NF }' /etc/security/audit_control | /usr/bin/tr ',' '\n' | /usr/bin/grep -Ec '^lo'
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      The audit system MUST be configured to record all attempts to log in and out of the system (lo).
+
+      Frequently, an attacker that successfully gains access to a system has only gained access to an account with limited privileges, such as a guest account or a service account. The attacker must attempt to change to another user account with normal or elevated privileges in order to proceed. Auditing both successful and unsuccessful attempts to switch to another user account (by way of monitoring login and logout events) mitigates this risk.
+
+      The information system monitors login and logout events.
+    remediation: |
+      /usr/bin/grep -qE "^flags.*[^-]lo" /etc/security/audit_control || /usr/bin/sed -i.bak '/^flags/ s/$/,lo/' /etc/security/audit_control; /usr/sbin/audit -s
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_flags_lo_configure.yaml"
   - id: "CIS-MACOS26-3.3-os_install_log_retention_configure"
     name: "Configure Install.log Retention to 365"
@@ -940,6 +1567,12 @@ checks:
       /usr/sbin/aslmanager -dd 2>&1 | /usr/bin/awk '/\/var\/log\/install.log$/ {count++} /Processing module com.apple.install/,/Finished/ { for (i=1;i<=NR;i++) { if ($i == "TTL" && $(i+2) >= 365) { ttl="True" }; if ($i == "MAX") {max="True"}}} END{if (count > 1) { print "Multiple config files for /var/log/install, manually remove the extra files"} else if (max == "True") { print "all_max setting is configured, must be removed" } if (ttl != "True") { print "TTL not configured" } else { print "Yes" }}' 
     allow_rc: any
     expect: "== Yes"
+    rationale: |
+      The install.log MUST be configured to require records be kept for a organizational defined value before deletion, unless the system uses a central audit record storage facility.
+    remediation: |
+      /usr/bin/sed -i '' "s/\* file \/var\/log\/install.log.*/\* file \/var\/log\/install.log format='\$\(\(Time\)\(JZ\)\) \$Host \$\(Sender\)\[\$\(PID\\)\]: \$Message' rotate=utc compress file_max=50M size_only ttl=365/g" /etc/asl/com.apple.install
+
+      NOTE: If there are multiple configuration files in /etc/asl that are set to process the file /var/log/install.log, these files will have to be manually removed.
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_install_log_retention_configure.yaml"
   - id: "CIS-MACOS26-3.4-audit_retention_configure"
     name: "Configure Audit Retention to 30d"
@@ -950,6 +1583,12 @@ checks:
       /usr/bin/awk -F: '/expire-after/{print $2}' /etc/security/audit_control
     allow_rc: any
     expect: "== 30d"
+    rationale: |
+      The audit service MUST be configured to require records be kept for a organizational defined value before deletion, unless the system uses a central audit record storage facility.
+
+      When "expire-after" is set to "30d", the audit service will not delete audit logs until the log data criteria is met.
+    remediation: |
+      /usr/bin/sed -i.bak 's/^expire-after.*/expire-after:30d/' /etc/security/audit_control; /usr/sbin/audit -s
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_retention_configure.yaml"
   - id: "CIS-MACOS26-3.5-audit_acls_files_configure"
     name: "Configure Audit Log Files to Not Contain Access Control Lists"
@@ -960,6 +1599,12 @@ checks:
       /bin/ls -le $(/usr/bin/grep '^dir' /etc/security/audit_control | /usr/bin/awk -F: '{print $2}') | /usr/bin/awk '{print $1}' | /usr/bin/grep -c ":"
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      The audit log files MUST not contain access control lists (ACLs).
+
+      This rule ensures that audit information and audit files are configured to be readable and writable only by system administrators, thereby preventing unauthorized access, modification, and deletion of files.
+    remediation: |
+      /bin/chmod -RN /var/audit
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_acls_files_configure.yaml"
   - id: "CIS-MACOS26-3.5-audit_acls_folders_configure"
     name: "Configure Audit Log Folder to Not Contain Access Control Lists"
@@ -970,6 +1615,12 @@ checks:
       /bin/ls -lde /var/audit | /usr/bin/awk '{print $1}' | /usr/bin/grep -c ":"
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      The audit log folder MUST not contain access control lists (ACLs).
+
+      Audit logs contain sensitive data about the system and users. This rule ensures that the audit service is configured to create log folders that are readable and writable only by system administrators in order to prevent normal users from reading audit logs.
+    remediation: |
+      /bin/chmod -N /var/audit
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_acls_folders_configure.yaml"
   - id: "CIS-MACOS26-3.5-audit_control_acls_configure"
     name: "Configure Audit_Control to Not Contain Access Control Lists"
@@ -980,6 +1631,10 @@ checks:
       /bin/ls -le /etc/security/audit_control | /usr/bin/awk '{print $1}' | /usr/bin/grep -c ":"
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      /etc/security/audit_control MUST not contain Access Control Lists (ACLs).
+    remediation: |
+      /bin/chmod -N /etc/security/audit_control
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_control_acls_configure.yaml"
   - id: "CIS-MACOS26-3.5-audit_control_group_configure"
     name: "Configure Audit_Control Group to Wheel"
@@ -990,6 +1645,10 @@ checks:
       /bin/ls -dn /etc/security/audit_control | /usr/bin/awk '{print $4}'
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      /etc/security/audit_control MUST have the group set to wheel.
+    remediation: |
+      /usr/bin/chgrp wheel /etc/security/audit_control
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_control_group_configure.yaml"
   - id: "CIS-MACOS26-3.5-audit_control_mode_configure"
     name: "Configure Audit_Control Owner to Mode 440 or Less Permissive"
@@ -1000,6 +1659,10 @@ checks:
       /bin/ls -l /etc/security/audit_control | /usr/bin/awk '!/-r--[r-]-----|current|total/{print $1}' | /usr/bin/wc -l | /usr/bin/xargs
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      /etc/security/audit_control MUST be configured so that it is readable only by the root user and group wheel.
+    remediation: |
+      /bin/chmod 440 /etc/security/audit_control
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_control_mode_configure.yaml"
   - id: "CIS-MACOS26-3.5-audit_control_owner_configure"
     name: "Configure Audit_Control Owner to Root"
@@ -1010,6 +1673,10 @@ checks:
       /bin/ls -dn /etc/security/audit_control | /usr/bin/awk '{print $3}'
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      /etc/security/audit_control MUST have the owner set to root.
+    remediation: |
+      /usr/sbin/chown root /etc/security/audit_control
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_control_owner_configure.yaml"
   - id: "CIS-MACOS26-3.5-audit_files_group_configure"
     name: "Configure Audit Log Files Group to Wheel"
@@ -1020,6 +1687,14 @@ checks:
       /bin/ls -n $(/usr/bin/grep '^dir' /etc/security/audit_control | /usr/bin/awk -F: '{print $2}') | /usr/bin/awk '{s+=$4} END {print s}'
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      Audit log files MUST have the group set to wheel.
+
+      The audit service MUST be configured to create log files with the correct group ownership to prevent normal users from reading audit logs.
+
+      Audit logs contain sensitive data about the system and users. If log files are set to be readable and writable only by system administrators, the risk is mitigated.
+    remediation: |
+      /usr/bin/chgrp -R wheel /var/audit/*
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_files_group_configure.yaml"
   - id: "CIS-MACOS26-3.5-audit_files_mode_configure"
     name: "Configure Audit Log Files to Mode 440 or Less Permissive"
@@ -1030,6 +1705,10 @@ checks:
       /bin/ls -l $(/usr/bin/grep '^dir' /etc/security/audit_control | /usr/bin/awk -F: '{print $2}') | /usr/bin/awk '!/-r--r-----|current|total/{print $1}' | /usr/bin/wc -l | /usr/bin/tr -d ' '
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      The audit service MUST be configured to create log files that are readable only by the root user and group wheel. To achieve this, audit log files MUST be configured to mode 440 or less permissive; thereby preventing normal users from reading, modifying or deleting audit logs.
+    remediation: |
+      /bin/chmod 440 /var/audit/*
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_files_mode_configure.yaml"
   - id: "CIS-MACOS26-3.5-audit_files_owner_configure"
     name: "Configure Audit Log Files to be Owned by Root"
@@ -1040,6 +1719,14 @@ checks:
       /bin/ls -n $(/usr/bin/grep '^dir' /etc/security/audit_control | /usr/bin/awk -F: '{print $2}') | /usr/bin/awk '{s+=$3} END {print s}'
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      Audit log files MUST be owned by root.
+
+      The audit service MUST be configured to create log files with the correct ownership to prevent normal users from reading audit logs.
+
+      Audit logs contain sensitive data about the system and users. If log files are set to only be readable and writable by system administrators, the risk is mitigated.
+    remediation: |
+      /usr/sbin/chown -R root /var/audit/*
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_files_owner_configure.yaml"
   - id: "CIS-MACOS26-3.5-audit_folder_group_configure"
     name: "Configure Audit Log Folders Group to Wheel"
@@ -1050,6 +1737,14 @@ checks:
       /bin/ls -dn $(/usr/bin/grep '^dir' /etc/security/audit_control | /usr/bin/awk -F: '{print $2}') | /usr/bin/awk '{print $4}'
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      Audit log files MUST have the group set to wheel.
+
+      The audit service MUST be configured to create log files with the correct group ownership to prevent normal users from reading audit logs.
+
+      Audit logs contain sensitive data about the system and users. If log files are set to be readable and writable only by system administrators, the risk is mitigated.
+    remediation: |
+      /usr/bin/chgrp wheel /var/audit
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_folder_group_configure.yaml"
   - id: "CIS-MACOS26-3.5-audit_folder_owner_configure"
     name: "Configure Audit Log Folders to be Owned by Root"
@@ -1060,6 +1755,14 @@ checks:
       /bin/ls -dn $(/usr/bin/grep '^dir' /etc/security/audit_control | /usr/bin/awk -F: '{print $2}') | /usr/bin/awk '{print $3}'
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      Audit log folders MUST be owned by root.
+
+      The audit service MUST be configured to create log folders with the correct ownership to prevent normal users from reading audit logs.
+
+      Audit logs contain sensitive data about the system and users. If log folders are set to only be readable and writable by system administrators, the risk is mitigated.
+    remediation: |
+      /usr/sbin/chown root /var/audit
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_folder_owner_configure.yaml"
   - id: "CIS-MACOS26-3.5-audit_folders_mode_configure"
     name: "Configure Audit Log Folders to Mode 700 or Less Permissive"
@@ -1070,6 +1773,12 @@ checks:
       /usr/bin/stat -f %A $(/usr/bin/grep '^dir' /etc/security/audit_control | /usr/bin/awk -F: '{print $2}')
     allow_rc: any
     expect: "== 700"
+    rationale: |
+      The audit log folder MUST be configured to mode 700 or less permissive so that only the root user is able to read, write, and execute changes to folders.
+
+      Because audit logs contain sensitive data about the system and users, the audit service MUST be configured to mode 700 or less permissive; thereby preventing normal users from reading, modifying or deleting audit logs.
+    remediation: |
+      /bin/chmod 700 /var/audit
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/audit/audit_folders_mode_configure.yaml"
   - id: "CIS-MACOS26-4.1-os_bonjour_disable"
     name: "Disable Bonjour Multicast"
@@ -1083,6 +1792,13 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Bonjour multicast advertising MUST be disabled to prevent the system from broadcasting its presence and available services over network interfaces.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.mDNSResponder: NoMulticastAdvertisements = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_bonjour_disable.yaml"
   - id: "CIS-MACOS26-4.2-os_httpd_disable"
     name: "Disable the Built-in Web Server"
@@ -1104,6 +1820,13 @@ checks:
       echo $result
     allow_rc: any
     expect: "== PASS"
+    rationale: |
+      The built-in web server which is managed by launchd is a non-essential service built into macOS and MUST be disabled and not running.
+
+      NOTE: The built in web server service is disabled at startup by default macOS.
+    remediation: |
+      /usr/sbin/apachectl stop 2>/dev/null
+      /bin/launchctl disable system/org.apache.httpd
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_httpd_disable.yaml"
   - id: "CIS-MACOS26-4.3-os_nfsd_disable"
     name: "Disable Network File System Service"
@@ -1119,6 +1842,12 @@ checks:
       fi
     allow_rc: any
     expect: "== pass"
+    rationale: |
+      Support for Network File Systems (NFS) services is non-essential and, therefore, MUST be disabled.
+    remediation: |
+      /bin/launchctl disable system/com.apple.nfsd
+      /bin/rm -rf /etc/exports
+      The system may need to be restarted for the update to take effect.
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_nfsd_disable.yaml"
   - id: "CIS-MACOS26-5.1.1-os_home_folders_secure"
     name: "Secure User's Home Folders"
@@ -1129,6 +1858,16 @@ checks:
       /usr/bin/find /System/Volumes/Data/Users -mindepth 1 -maxdepth 1 -type d ! \( -perm 700 -o -perm 711 \) | /usr/bin/grep -v "Shared" | /usr/bin/grep -v "Guest" | /usr/bin/wc -l | /usr/bin/xargs
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      The system MUST be configured to prevent access to other user's home folders.
+
+      The default behavior of macOS is to allow all valid users access to the top level of every other user's home folder while restricting access only to the Apple default folders within.
+    remediation: |
+      IFS=$'\n'
+      for userDirs in $( /usr/bin/find /System/Volumes/Data/Users -mindepth 1 -maxdepth 1 -type d ! \( -perm 700 -o -perm 711 \) | /usr/bin/grep -v "Shared" | /usr/bin/grep -v "Guest" ); do
+        /bin/chmod og-rwx "$userDirs"
+      done
+      unset IFS
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_home_folders_secure.yaml"
   - id: "CIS-MACOS26-5.1.2-os_sip_enable"
     name: "Ensure System Integrity Protection is Enabled"
@@ -1139,16 +1878,29 @@ checks:
       /usr/bin/csrutil status | /usr/bin/grep -c 'System Integrity Protection status: enabled.'
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      System Integrity Protection (SIP) MUST be enabled.
+
+      SIP is vital to protecting the integrity of the system as it prevents malicious users and software from making unauthorized and/or unintended modifications to protected files and folders; ensures the presence of an audit record generation capability for defined auditable events for all operating system components; protects audit tools from unauthorized access, modification, and deletion; restricts the root user account and limits the actions that the root user can perform on protected parts of the macOS; and prevents non-privileged users from granting other users direct access to the contents of their home directories and folders.
+
+      NOTE: SIP is enabled by default in macOS.
+    remediation: |
+      /usr/bin/csrutil enable
+      NOTE: To re-enable "System Integrity Protection", boot the affected system into "Recovery" mode, launch "Terminal" from the "Utilities" menu, and run the command.
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_sip_enable.yaml"
   - id: "CIS-MACOS26-5.1.3-os_mobile_file_integrity_enable"
     name: "Enable Apple Mobile File Integrity"
-    description: "CIS Apple macOS 26 benchmark recommendation 5.1.3 (level 1); mSCP rule os_mobile_file_integrity_enable. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 5.1.3 (level 1); mSCP rule os_mobile_file_integrity_enable."
     tags: [cis, cis-macos26, cis-section-5, cis-level-1, cis-level-2]
     severity: medium
     run: |
       /usr/sbin/nvram -p | /usr/bin/grep -c "amfi_get_out_of_my_way=1"
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      Mobile file integrity MUST be enabled.
+    remediation: |
+      /usr/sbin/nvram boot-args=""
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_mobile_file_integrity_enable.yaml"
   - id: "CIS-MACOS26-5.1.4-os_authenticated_root_enable"
     name: "Enable Authenticated Root"
@@ -1159,36 +1911,70 @@ checks:
       /sbin/mount | /usr/bin/grep ' / ' | /usr/bin/grep -o 'sealed'
     allow_rc: any
     expect: "== sealed"
+    rationale: |
+      Authenticated Root MUST be enabled.
+
+      When Authenticated Root is enabled the macOS is booted from a signed volume that is cryptographically protected to prevent tampering with the system volume.
+
+      NOTE: Authenticated Root is enabled by default on macOS systems.
+
+      WARNING: If more than one partition with macOS is detected, the csrutil command will hang awaiting input.
+    remediation: |
+      /usr/bin/csrutil authenticated-root enable
+      NOTE: To re-enable "Authenticated Root", boot the affected system into "Recovery" mode, launch "Terminal" from the "Utilities" menu, and run the command.
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_authenticated_root_enable.yaml"
   - id: "CIS-MACOS26-5.1.5-os_system_wide_applications_configure"
     name: "Ensure Appropriate Permissions Are Enabled for System Wide Applications"
-    description: "CIS Apple macOS 26 benchmark recommendation 5.1.5 (level 1); mSCP rule os_system_wide_applications_configure. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 5.1.5 (level 1); mSCP rule os_system_wide_applications_configure."
     tags: [cis, cis-macos26, cis-section-5, cis-level-1, cis-level-2]
     severity: medium
     run: |
       /usr/bin/find /Applications -iname "*\.app" -type d -perm -2 -ls | /usr/bin/wc -l | /usr/bin/xargs
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      Applications in the System Applications Directory (/Applications) MUST not be world-writable.
+    remediation: |
+      IFS=$'\n'
+      for apps in $( /usr/bin/find /Applications -iname "*\.app" -type d -perm -2 ); do
+        /bin/chmod -R o-w "$apps"
+      done
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_system_wide_applications_configure.yaml"
   - id: "CIS-MACOS26-5.1.6-os_world_writable_system_folder_configure"
     name: "Ensure No World Writable Files Exist in the System Folder"
-    description: "CIS Apple macOS 26 benchmark recommendation 5.1.6 (level 1); mSCP rule os_world_writable_system_folder_configure. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 5.1.6 (level 1); mSCP rule os_world_writable_system_folder_configure."
     tags: [cis, cis-macos26, cis-section-5, cis-level-1, cis-level-2]
     severity: medium
     run: |
       /usr/bin/find /System/Volumes/Data/System -type d -perm -2 -ls | /usr/bin/grep -vE "downloadDir|locks" | /usr/bin/wc -l | /usr/bin/xargs
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      Folders in /System/Volumes/Data/System MUST not be world-writable.
+    remediation: |
+      IFS=$'\n'
+      for sysPermissions in $( /usr/bin/find /System/Volumes/Data/System -type d -perm -2 | /usr/bin/grep -vE "downloadDir|locks" ); do
+        /bin/chmod -R o-w "$sysPermissions"
+      done
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_world_writable_system_folder_configure.yaml"
   - id: "CIS-MACOS26-5.1.7-os_world_writable_library_folder_configure"
     name: "Ensure No World Writable Files Exist in the Library Folder"
-    description: "CIS Apple macOS 26 benchmark recommendation 5.1.7 (level 2); mSCP rule os_world_writable_library_folder_configure. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 5.1.7 (level 2); mSCP rule os_world_writable_library_folder_configure."
     tags: [cis, cis-macos26, cis-section-5, cis-level-2]
     severity: low
     run: |
       /usr/bin/find /Library -type d -perm -002 ! -perm -1000 ! -xattrname com.apple.rootless 2>/dev/null | /usr/bin/grep -vE "/Library/AppStore" | /usr/bin/wc -l | /usr/bin/xargs
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      Folders in /System/Volumes/Data/Library MUST not be world-writable.
+
+      NOTE: Some vendors are known to create world-writable folders to the System Library folder. You may need to add more exclusions to this check and fix to match your environment.
+    remediation: |
+      IFS=$'\n'
+      for libPermissions in $(/usr/bin/find /Library -type d -perm -002 ! -perm -1000 ! -xattrname com.apple.rootless 2>/dev/null); do
+        /bin/chmod -R o-w "$libPermissions"
+      done
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_world_writable_library_folder_configure.yaml"
   - id: "CIS-MACOS26-5.2.1-pwpolicy_account_lockout_enforce"
     name: "Limit Consecutive Failed Login Attempts to 5"
@@ -1199,6 +1985,17 @@ checks:
       /usr/bin/pwpolicy -getaccountpolicies 2> /dev/null | /usr/bin/tail +2 | /usr/bin/xmllint --xpath '//dict/key[text()="policyAttributeMaximumFailedAuthentications"]/following-sibling::integer[1]/text()' - | /usr/bin/awk '{ if ($1 <= 5) {print "pass"} else {print "fail"}}' | /usr/bin/uniq
     allow_rc: any
     expect: "== pass"
+    rationale: |
+      The macOS MUST be configured to limit the number of failed login attempts to a maximum of 5. When the maximum number of failed attempts is reached, the account MUST be locked for a period of time after.
+
+      This rule protects against malicious users attempting to gain access to the system via brute-force hacking methods.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.mobiledevice.passwordpolicy: maxFailedAttempts = 5
+
+      With declarative device management instead: com.apple.configuration.passcode.settings: MaximumFailedAttempts = 5
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/pwpolicy/pwpolicy_account_lockout_enforce.yaml"
   - id: "CIS-MACOS26-5.2.1-pwpolicy_account_lockout_timeout_enforce"
     name: "Set Account Lockout Time to 15 Minutes"
@@ -1209,6 +2006,17 @@ checks:
       /usr/bin/pwpolicy -getaccountpolicies 2> /dev/null | /usr/bin/tail +2 | /usr/bin/xmllint --xpath '//dict/key[text()="autoEnableInSeconds"]/following-sibling::integer[1]/text()' - | /usr/bin/awk '{ if ($1/60 >= 15 ) {print "pass"} else {print "fail"}}' | /usr/bin/uniq
     allow_rc: any
     expect: "== pass"
+    rationale: |
+      The macOS MUST be configured to enforce a lockout time period of at least 15 minutes when the maximum number of failed logon attempts is reached.
+
+      This rule protects against malicious users attempting to gain access to the system via brute-force hacking methods.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.mobiledevice.passwordpolicy: minutesUntilFailedLoginReset = 15
+
+      With declarative device management instead: com.apple.configuration.passcode.settings: MaximumGracePeriodInMinutes = 15
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/pwpolicy/pwpolicy_account_lockout_timeout_enforce.yaml"
   - id: "CIS-MACOS26-5.2.2-pwpolicy_minimum_length_enforce"
     name: "Require a Minimum Password Length of 15 Characters"
@@ -1219,6 +2027,19 @@ checks:
       /usr/bin/pwpolicy -getaccountpolicies 2>/dev/null | tail +2 | grep -oE "policyAttributePassword matches '.\{[0-9]+," | awk -F'[{,]' -v ODV=15 '{if ($2 > max) max=$2} END {print (max >= ODV) ? "pass" : "fail"}'
     allow_rc: any
     expect: "== pass"
+    rationale: |
+      The macOS MUST be configured to require a minimum of 15 characters be used when a password is created.
+
+      This rule enforces password complexity by requiring users to set passwords that are less vulnerable to malicious users.
+
+      NOTE: To comply with Executive Order 14028, “Improving the Nation's Cybersecurity”, OMB M-22-09, “Moving the U.S. Government Toward Zero Trust Cybersecurity Principles”, and NIST SP-800-63b, “Digital Identity Guidelines: Authentication and Lifecycle Management” federal, military, and intelligence communities must adopt the following configuration settings. Password policies must not require the use of complexity policies such as upper characters, lower characters, or special characters. Password policies must also not require the use of regular rotation. Password policies should define a minimum length. Multifactor authentication should be used where ever possible.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.mobiledevice.passwordpolicy: minLength = 15
+
+      With declarative device management instead: com.apple.configuration.passcode.settings: MinimumLength = 15
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/pwpolicy/pwpolicy_minimum_length_enforce.yaml"
   - id: "CIS-MACOS26-5.2.3-pwpolicy_alpha_numeric_enforce"
     name: "Require Passwords Contain a Minimum of One Numeric Character"
@@ -1229,6 +2050,19 @@ checks:
       /usr/bin/pwpolicy -getaccountpolicies 2> /dev/null | /usr/bin/tail +2 | /usr/bin/xmllint --xpath '//dict/key[text()="policyIdentifier"]/following-sibling::*[1]/text()' - | /usr/bin/grep "requireAlphanumeric" -c
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      The macOS MUST be configured to require at least one numeric character be used when a password is created.
+
+      This rule enforces password complexity by requiring users to set passwords that are less vulnerable to malicious users.
+
+      NOTE: To comply with Executive Order 14028, “Improving the Nation's Cybersecurity”, OMB M-22-09, “Moving the U.S. Government Toward Zero Trust Cybersecurity Principles”, and NIST SP-800-63b, “Digital Identity Guidelines: Authentication and Lifecycle Management” federal, military, and intelligence communities must adopt the following configuration settings. Password policies must not require the use of complexity policies such as upper characters, lower characters, or special characters. Password policies must also not require the use of regular rotation. Password policies should define a minimum length. Multifactor authentication should be used where ever possible.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.mobiledevice.passwordpolicy: requireAlphanumeric = true
+
+      With declarative device management instead: com.apple.configuration.passcode.settings: RequireAlphanumericPasscode = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/pwpolicy/pwpolicy_alpha_numeric_enforce.yaml"
   - id: "CIS-MACOS26-5.2.5-pwpolicy_special_character_enforce"
     name: "Require Passwords Contain a Minimum of One Special Character"
@@ -1239,6 +2073,21 @@ checks:
       /usr/bin/pwpolicy -getaccountpolicies 2>/dev/null | /usr/bin/tail -n +2 | /usr/bin/xmllint --xpath "//string[contains(text(), \"policyAttributePassword matches '(.*[^a-zA-Z0-9].*){\")]" - 2>/dev/null | /usr/bin/awk -F"{|}" '{if ($2 >= 1) {print "pass"} else {print "fail"}}'
     allow_rc: any
     expect: "== pass"
+    rationale: |
+      The macOS MUST be configured to require at least one special character be used when a password is created.
+
+      Special characters are those characters that are not alphanumeric. Examples include: ~ ! @ # $ % ^ *.
+
+      This rule enforces password complexity by requiring users to set passwords that are less vulnerable to malicious users.
+
+      NOTE: To comply with Executive Order 14028, “Improving the Nation's Cybersecurity”, OMB M-22-09, “Moving the U.S. Government Toward Zero Trust Cybersecurity Principles”, and NIST SP-800-63b, “Digital Identity Guidelines: Authentication and Lifecycle Management” federal, military, and intelligence communities must adopt the following configuration settings. Password policies must not require the use of complexity policies such as upper characters, lower characters, or special characters. Password policies must also not require the use of regular rotation. Password policies should define a minimum length. Multifactor authentication should be used where ever possible.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.mobiledevice.passwordpolicy: minComplexChars = 1
+
+      With declarative device management instead: com.apple.configuration.passcode.settings: MinimumComplexCharacters = 1
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/pwpolicy/pwpolicy_special_character_enforce.yaml"
   - id: "CIS-MACOS26-5.2.6-pwpolicy_custom_regex_enforce"
     name: "Require Passwords to Match the Defined Custom Regular Expression"
@@ -1249,6 +2098,22 @@ checks:
       /usr/bin/pwpolicy -getaccountpolicies 2> /dev/null | /usr/bin/tail +2 | /usr/bin/xmllint --xpath 'boolean(//*[contains(text(),"policyAttributePassword matches '\''^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*$'\''")])' -
     allow_rc: any
     expect: "== true"
+    rationale: |
+      The macOS MUST be configured to meet complexity requirements defined in ^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*$.
+
+      This rule enforces password complexity by requiring users to set passwords that are less vulnerable to malicious users.
+
+      NOTE: To comply with Executive Order 14028, “Improving the Nation's Cybersecurity”, OMB M-22-09, “Moving the U.S. Government Toward Zero Trust Cybersecurity Principles”, and NIST SP-800-63b, “Digital Identity Guidelines: Authentication and Lifecycle Management” federal, military, and intelligence communities must adopt the following configuration settings. Password policies must not require the use of complexity policies such as upper characters, lower characters, or special characters. Password policies must also not require the use of regular rotation. Password policies should define a minimum length. Multifactor authentication should be used where ever possible.
+
+      NOTE: The configuration profile generated must be installed from an MDM server.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.mobiledevice.passwordpolicy: customRegex > passwordContentRegex = ^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*$
+      com.apple.mobiledevice.passwordpolicy: customRegex > passwordContentDescription > default = Password must match custom regex.
+
+      With declarative device management instead: com.apple.configuration.passcode.settings: CustomRegex > Regex = ^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).*$, CustomRegex > Description = Password must match custom regex.
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/pwpolicy/pwpolicy_custom_regex_enforce.yaml"
   - id: "CIS-MACOS26-5.2.7-pwpolicy_max_lifetime_enforce"
     name: "Restrict Maximum Password Lifetime to 365 Days"
@@ -1259,6 +2124,19 @@ checks:
       /usr/bin/pwpolicy -getaccountpolicies 2> /dev/null | /usr/bin/tail +2 | /usr/bin/xmllint --xpath '//dict/key[text()="policyAttributeExpiresEveryNDays"]/following-sibling::*[1]/text()' - | /usr/bin/awk '{ if ($1 <= 365 ) {print "pass"} else {print "fail"}}' | /usr/bin/uniq
     allow_rc: any
     expect: "== pass"
+    rationale: |
+      The macOS MUST be configured to enforce a maximum password lifetime limit of at least 365 days.
+
+      This rule ensures that users are forced to change their passwords frequently enough to prevent malicious users from gaining and maintaining access to the system.
+
+      NOTE: To comply with Executive Order 14028, “Improving the Nation's Cybersecurity”, OMB M-22-09, “Moving the U.S. Government Toward Zero Trust Cybersecurity Principles”, and NIST SP-800-63b, “Digital Identity Guidelines: Authentication and Lifecycle Management” federal, military, and intelligence communities must adopt the following configuration settings. Password policies must not require the use of complexity policies such as upper characters, lower characters, or special characters. Password policies must also not require the use of regular rotation. Password policies should define a minimum length. Multifactor authentication should be used where ever possible.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.mobiledevice.passwordpolicy: maxPINAgeInDays = 365
+
+      With declarative device management instead: com.apple.configuration.passcode.settings: MaximumPasscodeAgeInDays = 365
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/pwpolicy/pwpolicy_max_lifetime_enforce.yaml"
   - id: "CIS-MACOS26-5.2.8-pwpolicy_history_enforce"
     name: "Prohibit Password Reuse for a Minimum of 24 Generations"
@@ -1269,10 +2147,25 @@ checks:
       /usr/bin/pwpolicy -getaccountpolicies 2> /dev/null | /usr/bin/tail +2 | /usr/bin/xmllint --xpath '//dict/key[text()="policyAttributePasswordHistoryDepth"]/following-sibling::*[1]/text()' - | /usr/bin/awk '{ if ($1 >= 24 ) {print "pass"} else {print "fail"}}' | /usr/bin/uniq
     allow_rc: any
     expect: "== pass"
+    rationale: |
+      The macOS MUST be configured to enforce a password history of at least 24 previous passwords when a password is created.
+
+      This rule ensures that users are  not allowed to reuse a password that was used in any of the 24 previous password generations.
+
+      Limiting password reuse protects against malicious users attempting to gain access to the system via brute-force hacking methods.
+
+      NOTE: The guidance for password based authentication in NIST 800-53 (Rev 5) and NIST 800-63B state that complexity rules should be organizationally defined. The values defined are based off of common complexity values. But your organization may define its own password complexity rules.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.mobiledevice.passwordpolicy: pinHistory = 24
+
+      With declarative device management instead: com.apple.configuration.passcode.settings: PasscodeReuseLimit = 24
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/pwpolicy/pwpolicy_history_enforce.yaml"
   - id: "CIS-MACOS26-5.3.1-os_internal_apfs_volumes_encrypted"
     name: "Ensure All Internal User Storage APFS Volumes Are Encrypted"
-    description: "CIS Apple macOS 26 benchmark recommendation 5.3.1 (level 1); mSCP rule os_internal_apfs_volumes_encrypted. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 5.3.1 (level 1); mSCP rule os_internal_apfs_volumes_encrypted."
     tags: [cis, cis-macos26, cis-section-5, cis-level-1, cis-level-2]
     severity: medium
     run: |
@@ -1291,10 +2184,18 @@ checks:
       fi
     allow_rc: any
     expect: "== Yes"
+    rationale: |
+      All internal user storage APFS volumes MUST be encrypted.
+
+      While FileVault protects the boot volume, data may be copied to other attached internal storage and reduce the protection afforded by FileVault. All internal APFS volumes that carry user data and do not have a specific role (Preboot, Recovery, VM) MUST be encrypted to protect user data from loss or tampering.
+    remediation: |
+      Use Disk Utility to erase a user disk and format as APFS (Encrypted).
+
+      NOTE: APFS Encrypted disks will be described as "FileVault" whether they are the boot volume or not.
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_internal_apfs_volumes_encrypted.yaml"
   - id: "CIS-MACOS26-5.3.2-os_external_apfs_hfs_volumes_encrypted"
     name: "Ensure All APFS and HFS+ External User Storage Volumes Are Encrypted"
-    description: "CIS Apple macOS 26 benchmark recommendation 5.3.2 (level 1); mSCP rule os_external_apfs_hfs_volumes_encrypted. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 5.3.2 (level 1); mSCP rule os_external_apfs_hfs_volumes_encrypted."
     tags: [cis, cis-macos26, cis-section-5, cis-level-1, cis-level-2]
     severity: medium
     run: |
@@ -1313,16 +2214,30 @@ checks:
       fi
     allow_rc: any
     expect: "== Yes"
+    rationale: |
+      All APFS and HFS+ external user storage volumes MUST be encrypted.
+
+      While FileVault protects the boot volume, data may be copied to attached external storage and reduce the protection afforded by FileVault. All external user data volumes (APFS or HFS+) MUST be encrypted to protect user data from loss or tampering. CoreStorage has been deprecated and replaced with APFS for volume encryption.
+    remediation: |
+      Use Disk Utility to erase a user disk and format as APFS (Encrypted).
+
+      NOTE: It is recommended using APFS over HFS+ where possible. If you do need to use an HFS+/CoreStorage external drive for compatibility reasons, you need to format the drive to MacOS Extended (Journaled) (or MacOS Extended (Case-Sensitive, Journaled) if Case-Sensitive is required).
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_external_apfs_hfs_volumes_encrypted.yaml"
   - id: "CIS-MACOS26-5.4-os_sudo_timeout_configure"
     name: "Configure Sudo Timeout Period to 0"
-    description: "CIS Apple macOS 26 benchmark recommendation 5.4 (level 1); mSCP rule os_sudo_timeout_configure. NIST SP 800-53 Rev. 5: N/A. DISA STIG: APPL-26-004022."
+    description: "CIS Apple macOS 26 benchmark recommendation 5.4 (level 1); mSCP rule os_sudo_timeout_configure. DISA STIG: APPL-26-004022."
     tags: [cis, cis-macos26, cis-section-5, cis-level-1, cis-level-2, nist-800-53r5-low, nist-800-53r5-moderate, nist-800-53r5-high, disa-stig]
     severity: medium
     run: |
       /usr/bin/sudo /usr/bin/sudo -V | /usr/bin/grep -c "Authentication timestamp timeout: 0.0 minutes"
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      The file /etc/sudoers MUST include a timestamp_timeout of 0.
+    remediation: |
+      /usr/bin/find /etc/sudoers* -type f -exec sed -i '' '/timestamp_timeout/d' '{}' \;
+      /bin/echo "Defaults timestamp_timeout=0" >> /etc/sudoers.d/mscp
+      /bin/chmod 440 /etc/sudoers.d/mscp
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_sudo_timeout_configure.yaml"
   - id: "CIS-MACOS26-5.5-os_sudoers_timestamp_type_configure"
     name: "Configure Sudoers Timestamp Type"
@@ -1333,6 +2248,12 @@ checks:
       /usr/bin/sudo /usr/bin/sudo -V | /usr/bin/awk -F": " '/Type of authentication timestamp record/{print $2}'
     allow_rc: any
     expect: "== tty"
+    rationale: |
+      The file /etc/sudoers MUST be configured to not include a timestamp_type of global or ppid and be configured for timestamp record types of tty.
+
+      This rule ensures that the "sudo" command will prompt for the administrator's password at least once in each newly opened terminal window. This prevents a malicious user from taking advantage of an unlocked computer or an abandoned logon session by bypassing the normal password prompt requirement.
+    remediation: |
+      /usr/bin/find /etc/sudoers* -type f -exec sed -i '' '/timestamp_type/d; /!tty_tickets/d' '{}' \;
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_sudoers_timestamp_type_configure.yaml"
   - id: "CIS-MACOS26-5.6-os_root_disable"
     name: "Disable Root Login"
@@ -1343,6 +2264,13 @@ checks:
       /usr/bin/dscl '/Local/Default' read '/Users/root' AuthenticationAuthority 2>/dev/null | /usr/bin/grep -c 'AuthenticationAuthority'
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      To assure individual accountability and prevent unauthorized access, logging in as root at the login window MUST be disabled.
+
+      The macOS system MUST require individuals to be authenticated with an individual authenticator prior to using a group authenticator, and administrator users MUST never log in directly as root.
+    remediation: |
+      /usr/bin/fdesetup remove -user root
+      /usr/bin/dscl '/Local/Default' delete '/Users/root' AuthenticationAuthority
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_root_disable.yaml"
   - id: "CIS-MACOS26-5.7-os_unlock_active_user_session_disable"
     name: "Disable Login to Other User's Active and Locked Sessions"
@@ -1365,6 +2293,25 @@ checks:
       echo $RESULT
     allow_rc: any
     expect: "== PASS"
+    rationale: |
+      The ability to log in to another user's active or locked session MUST be disabled.
+
+      macOS has a privilege that can be granted to any user that will allow that user to unlock active user's sessions. Disabling the admins and/or user's ability to log into another user's active and locked session prevents unauthorized persons from viewing potentially sensitive and/or personal information.
+
+      NOTE: Configuring this setting will change the user experience and disable TouchID from unlocking the screensaver. A configuration profile will be generated to include the setting that restores the expected behavior. You can also apply the settings using "/usr/bin/sudo /usr/bin/defaults write /Library/Preferences/com.apple.loginwindow screenUnlockMode -int 1".
+
+      WARNING: Do not apply this rule if your organization uses smartcards and Platform Single Sign-On (PSSO).
+    remediation: |
+      SS_RULE=$(/usr/bin/security -q authorizationdb read system.login.screensaver 2>&1 | /usr/bin/xmllint --xpath "//dict/key[.='rule']/following-sibling::array[1]/string/text()" -)
+
+      if [[ "$SS_RULE" == *psso* ]]; then
+          /usr/bin/security -q authorizationdb read psso-screensaver > "/tmp/psso-screensaver-mscp.plist"
+          /usr/bin/sed -i.bak 's/<string>authenticate-session-owner-or-admin<\/string>/<string>authenticate-session-owner<\/string>/' /tmp/psso-screensaver-mscp.plist
+          /usr/bin/security -q authorizationdb write psso-screensaver-mscp < /tmp/psso-screensaver-mscp.plist
+          /usr/bin/security -q authorizationdb write system.login.screensaver psso-screensaver-mscp 2>&1
+      else
+          /usr/bin/security -q authorizationdb write system.login.screensaver "authenticate-session-owner" 2>&1
+      fi
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_unlock_active_user_session_disable.yaml"
   - id: "CIS-MACOS26-5.8-os_policy_banner_loginwindow_enforce"
     name: "Display Policy Banner at Login Window"
@@ -1375,26 +2322,55 @@ checks:
       /bin/ls -ld /Library/Security/PolicyBanner.rtf* | /usr/bin/wc -l | /usr/bin/tr -d ' '
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      Displaying a standardized and approved use notification before granting access to the operating system ensures that users are provided with privacy and security notification verbiage that is consistent with applicable federal laws, Executive Orders, directives, policies, regulations, standards, and guidance.
+
+      System use notifications are required only for access via login interfaces with human users and are not required when such human interfaces do not exist.
+
+      The policy banner will show if a "PolicyBanner.rtf" or "PolicyBanner.rtfd" exists in the "/Library/Security" folder.
+
+      The banner text of the document MUST read:
+
+      Center for Internet Security Test Message
+    remediation: |
+      bannerText="Center for Internet Security Test Message"
+      /bin/mkdir /Library/Security/PolicyBanner.rtfd
+      /usr/bin/textutil -convert rtf -output /Library/Security/PolicyBanner.rtfd/TXT.rtf -stdin <<EOF
+      $bannerText
+      EOF
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_policy_banner_loginwindow_enforce.yaml"
   - id: "CIS-MACOS26-5.9-os_guest_folder_removed"
     name: "Remove Guest Folder if Present"
-    description: "CIS Apple macOS 26 benchmark recommendation 5.9 (level 1); mSCP rule os_guest_folder_removed. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 5.9 (level 1); mSCP rule os_guest_folder_removed."
     tags: [cis, cis-macos26, cis-section-5, cis-level-1, cis-level-2]
     severity: medium
     run: |
       /bin/ls /Users/ | /usr/bin/grep -c "Guest"
     allow_rc: any
     expect: "== 0"
+    rationale: |
+      The guest folder MUST be deleted if present.
+    remediation: |
+      /bin/rm -Rf /Users/Guest
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_guest_folder_removed.yaml"
   - id: "CIS-MACOS26-5.10-os_anti_virus_installed"
     name: "Must Use an Approved Antivirus Program"
-    description: "CIS Apple macOS 26 benchmark recommendation 5.10 (level 1); mSCP rule os_anti_virus_installed. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 5.10 (level 1); mSCP rule os_anti_virus_installed."
     tags: [cis, cis-macos26, cis-section-5, cis-level-1, cis-level-2]
     severity: high
     run: |
       /usr/bin/xprotect status | /usr/bin/grep -cE "(launch scans: enabled|background scans: enabled)"
     allow_rc: any
     expect: "== 2"
+    rationale: |
+      An approved antivirus product MUST be installed and configured to run.
+
+      Malicious software can establish a base on individual desktops and servers. Employing an automated mechanism to detect this type of software will aid in elimination of the software from the operating system.'
+    remediation: |
+      /bin/launchctl load -w /Library/Apple/System/Library/LaunchDaemons/com.apple.XProtect.daemon.scan.plist
+      /bin/launchctl load -w /Library/Apple/System/Library/LaunchDaemons/com.apple.XprotectFramework.PluginService.plist
+
+      NOTE: These services cannot be unloaded or loaded while System Integrity Protection (SIP) is enabled.
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_anti_virus_installed.yaml"
   - id: "CIS-MACOS26-5.11-os_sudo_log_enforce"
     name: "Configure Sudo To Log Events"
@@ -1405,70 +2381,119 @@ checks:
       /usr/bin/sudo /usr/bin/sudo -V | /usr/bin/grep -c "Log when a command is allowed by sudoers"
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      Sudo MUST be configured to log privilege escalation.
+    remediation: |
+      /usr/bin/find /etc/sudoers* -type f -exec sed -i '' '/^Defaults[[:blank:]]*\!log_allowed/s/^/# /' '{}' \;
+      /bin/echo "Defaults log_allowed" >> /etc/sudoers.d/mscp
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_sudo_log_enforce.yaml"
   - id: "CIS-MACOS26-6.3.1-os_safari_open_safe_downloads_disable"
     name: "Disable Automatic Opening of Safe Files in Safari"
-    description: "CIS Apple macOS 26 benchmark recommendation 6.3.1 (level 1); mSCP rule os_safari_open_safe_downloads_disable. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 6.3.1 (level 1); mSCP rule os_safari_open_safe_downloads_disable."
     tags: [cis, cis-macos26, cis-section-6, cis-level-1, cis-level-2]
     severity: medium
     run: |
       /usr/bin/profiles -P -o stdout | /usr/bin/grep -c 'AutoOpenSafeDownloads = 0' | /usr/bin/awk '{ if ($1 >= 1) {print "1"} else {print "0"}}'
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      Open "safe" files after downloading MUST be disabled in Safari.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.Safari: AutoOpenSafeDownloads = false
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_safari_open_safe_downloads_disable.yaml"
   - id: "CIS-MACOS26-6.3.3-os_safari_warn_fraudulent_website_enable"
     name: "Ensure Warn When Visiting A Fraudulent Website in Safari Is Enabled"
-    description: "CIS Apple macOS 26 benchmark recommendation 6.3.3 (level 1); mSCP rule os_safari_warn_fraudulent_website_enable. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 6.3.3 (level 1); mSCP rule os_safari_warn_fraudulent_website_enable."
     tags: [cis, cis-macos26, cis-section-6, cis-level-1, cis-level-2]
     severity: medium
     run: |
       /usr/bin/profiles -P -o stdout | /usr/bin/grep -c 'WarnAboutFraudulentWebsites = 1' | /usr/bin/awk '{ if ($1 >= 1) {print "1"} else {print "0"}}'
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      Warn when visiting a fraudulent website MUST be enabled in Safari.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.Safari: WarnAboutFraudulentWebsites = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_safari_warn_fraudulent_website_enable.yaml"
   - id: "CIS-MACOS26-6.3.4-os_safari_prevent_cross-site_tracking_enable"
     name: "Ensure Prevent Cross-site Tracking in Safari Is Enabled"
-    description: "CIS Apple macOS 26 benchmark recommendation 6.3.4 (level 1); mSCP rule os_safari_prevent_cross-site_tracking_enable. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 6.3.4 (level 1); mSCP rule os_safari_prevent_cross-site_tracking_enable."
     tags: [cis, cis-macos26, cis-section-6, cis-level-1, cis-level-2]
     severity: medium
     run: |
       /usr/bin/profiles -P -o stdout | /usr/bin/grep -cE '"WebKitPreferences.storageBlockingPolicy" = 1|"WebKitStorageBlockingPolicy" = 1|"BlockStoragePolicy" =2' | /usr/bin/awk '{ if ($1 >= 1) {print "1"} else {print "0"}}'
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      Prevent cross-site tracking MUST be enabled in Safari.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.Safari: WebKitPreferences.storageBlockingPolicy = 1
+      com.apple.Safari: WebKitStorageBlockingPolicy = 1
+      com.apple.Safari: BlockStoragePolicy = 2
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_safari_prevent_cross-site_tracking_enable.yaml"
   - id: "CIS-MACOS26-6.3.6-os_safari_advertising_privacy_protection_enable"
     name: "Ensure Advertising Privacy Protection in Safari Is Enabled"
-    description: "CIS Apple macOS 26 benchmark recommendation 6.3.6 (level 1); mSCP rule os_safari_advertising_privacy_protection_enable. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 6.3.6 (level 1); mSCP rule os_safari_advertising_privacy_protection_enable."
     tags: [cis, cis-macos26, cis-section-6, cis-level-1, cis-level-2]
     severity: medium
     run: |
       /usr/bin/profiles -P -o stdout | /usr/bin/grep -c '"WebKitPreferences.privateClickMeasurementEnabled" = 1' | /usr/bin/awk '{ if ($1 >= 1) {print "1"} else {print "0"}}'
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      Allow privacy-preserving measurement of ad effectiveness MUST be enabled in Safari.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.Safari: WebKitPreferences.privateClickMeasurementEnabled = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_safari_advertising_privacy_protection_enable.yaml"
   - id: "CIS-MACOS26-6.3.7-os_safari_show_full_website_address_enable"
     name: "Ensure Show Full Website Address in Safari Is Enabled"
-    description: "CIS Apple macOS 26 benchmark recommendation 6.3.7 (level 1); mSCP rule os_safari_show_full_website_address_enable. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 6.3.7 (level 1); mSCP rule os_safari_show_full_website_address_enable."
     tags: [cis, cis-macos26, cis-section-6, cis-level-1, cis-level-2]
     severity: medium
     run: |
       /usr/bin/profiles -P -o stdout | /usr/bin/grep -c 'ShowFullURLInSmartSearchField = 1' | /usr/bin/awk '{ if ($1 >= 1) {print "1"} else {print "0"}}'
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      Show full website address MUST be enabled in Safari.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.Safari: ShowFullURLInSmartSearchField = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_safari_show_full_website_address_enable.yaml"
   - id: "CIS-MACOS26-6.3.10-os_safari_show_status_bar_enabled"
     name: "Ensure Show Safari shows the Status Bar is Enabled"
-    description: "CIS Apple macOS 26 benchmark recommendation 6.3.10 (level 1); mSCP rule os_safari_show_status_bar_enabled. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 6.3.10 (level 1); mSCP rule os_safari_show_status_bar_enabled."
     tags: [cis, cis-macos26, cis-section-6, cis-level-1, cis-level-2]
     severity: medium
     run: |
       /usr/bin/profiles -P -o stdout | /usr/bin/grep -c 'ShowOverlayStatusBar = 1' | /usr/bin/awk '{ if ($1 >= 1) {print "1"} else {print "0"}}'
     allow_rc: any
     expect: "== 1"
+    rationale: |
+      Safari MUST be configured to show the status bar.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.Safari: ShowOverlayStatusBar = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_safari_show_status_bar_enabled.yaml"
   - id: "CIS-MACOS26-6.4.1-os_terminal_secure_keyboard_enable"
     name: "Ensure Secure Keyboard Entry Terminal.app is Enabled"
-    description: "CIS Apple macOS 26 benchmark recommendation 6.4.1 (level 1); mSCP rule os_terminal_secure_keyboard_enable. NIST SP 800-53 Rev. 5: N/A. DISA STIG: N/A."
+    description: "CIS Apple macOS 26 benchmark recommendation 6.4.1 (level 1); mSCP rule os_terminal_secure_keyboard_enable."
     tags: [cis, cis-macos26, cis-section-6, cis-level-1, cis-level-2]
     severity: medium
     run: |
@@ -1478,4 +2503,11 @@ checks:
       EOS
     allow_rc: any
     expect: "== true"
+    rationale: |
+      Secure keyboard entry MUST be enabled in Terminal.app.
+    remediation: |
+      This is implemented by a Configuration Profile.
+
+      Configuration profile settings (payload type: key = value):
+      com.apple.Terminal: SecureKeyboardEntry = true
     reference: "https://github.com/usnistgov/macos_security/blob/tahoe/rules/os/os_terminal_secure_keyboard_enable.yaml"

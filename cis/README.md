@@ -75,7 +75,11 @@ For macOS, mSCP rules tagged `cis_lvl1`/`cis_lvl2` are taken over with their
 check script and expected result; organization-defined values use the CIS
 value. Many of them read managed preferences, so on a Mac without a
 configuration profile (MDM) they fail even if the setting was made by hand,
-exactly as in mSCP. Rules without an automated check are left out.
+exactly as in mSCP. Rules without an automated check are left out. Every
+check carries the mSCP discussion as rationale and the mSCP fix as
+remediation; for rules implemented by a configuration profile the
+remediation lists the payload settings (and the declarative device
+management setting, where mSCP names one).
 
 For Windows, the upstream audits read most values from one shared snapshot
 (one secedit export, one auditpol call, ...) written before the checks run.
