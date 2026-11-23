@@ -210,6 +210,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/tmp'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /tmp on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data. A tmpfs mount on /tmp, e.g. with systemd's tmp.mount, counts as well.
   - id: "CIS-SUSE15-1.1.2.1.2-tmp_nodev_options"
     name: "/tmp is a separate mount with nodev"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -221,6 +223,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /tmp with the option nodev: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.1.2-tmp_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -230,6 +238,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.1.2-tmp_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -239,6 +249,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*nodev
   - id: "CIS-SUSE15-1.1.2.1.3-tmp_nosuid_options"
     name: "/tmp is a separate mount with nosuid"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -250,6 +264,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /tmp with the option nosuid: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.1.3-tmp_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -259,6 +279,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.1.3-tmp_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -268,6 +290,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*nosuid
   - id: "CIS-SUSE15-1.1.2.1.4-tmp_noexec_options"
     name: "/tmp is a separate mount with noexec"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -279,6 +305,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /tmp with the option noexec: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.1.4-tmp_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -288,6 +320,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.1.4-tmp_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -297,6 +331,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*noexec" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*noexec
   - id: "CIS-SUSE15-1.1.2.2.1-dev_shm_mount"
     name: "/dev/shm is a separate mount"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.2.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -308,6 +346,8 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ ^(tmpfs) "
+    remediation: |
+      Mount a tmpfs file system on /dev/shm with an entry in /etc/fstab or a systemd mount unit.
   - id: "CIS-SUSE15-1.1.2.2.2-dev_shm_nodev_options"
     name: "/dev/shm is a separate mount with nodev"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -319,6 +359,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /dev/shm with the option nodev: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.2.2-dev_shm_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -328,6 +374,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.2.2-dev_shm_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -337,6 +385,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*nodev
   - id: "CIS-SUSE15-1.1.2.2.3-dev_shm_nosuid_options"
     name: "/dev/shm is a separate mount with nosuid"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -348,6 +400,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /dev/shm with the option nosuid: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.2.3-dev_shm_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -357,6 +415,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.2.3-dev_shm_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -366,6 +426,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*nosuid
   - id: "CIS-SUSE15-1.1.2.2.4-dev_shm_noexec_options"
     name: "/dev/shm is a separate mount with noexec"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -377,6 +441,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /dev/shm with the option noexec: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.2.4-dev_shm_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -386,6 +456,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.2.4-dev_shm_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -395,6 +467,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*noexec" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*noexec
   - id: "CIS-SUSE15-1.1.2.3.1-home_mount"
     name: "/home is a separate mount"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.3.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -404,6 +480,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/home'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /home on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-SUSE15-1.1.2.3.2-home_nodev_options"
     name: "/home is a separate mount with nodev"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -415,6 +493,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /home with the option nodev: add it to the options of /home in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/home'
+
+      If /home is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.3.2-home_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -424,6 +508,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.3.2-home_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -433,6 +519,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/home.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/home.*nodev
   - id: "CIS-SUSE15-1.1.2.3.3-home_nosuid_options"
     name: "/home is a separate mount with nosuid"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -444,6 +534,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /home with the option nosuid: add it to the options of /home in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/home'
+
+      If /home is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.3.3-home_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -453,6 +549,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.3.3-home_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -462,6 +560,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/home.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/home.*nosuid.*
   - id: "CIS-SUSE15-1.1.2.4.1-var_mount"
     name: "/var is a separate mount"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.4.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -471,6 +573,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-SUSE15-1.1.2.4.2-var_nodev_options"
     name: "/var is a separate mount with nodev"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -482,6 +586,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var with the option nodev: add it to the options of /var in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var'
+
+      If /var is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.4.2-var_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -491,6 +601,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.4.2-var_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -500,6 +612,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\s.*nodev
   - id: "CIS-SUSE15-1.1.2.4.3-var_nosuid_options"
     name: "/var is a separate mount with nosuid"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -511,6 +627,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var with the option nosuid: add it to the options of /var in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var'
+
+      If /var is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.4.3-var_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -520,6 +642,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.4.3-var_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -529,6 +653,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\s.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\s.*nosuid
   - id: "CIS-SUSE15-1.1.2.5.1-var_tmp_mount"
     name: "/var/tmp is a separate mount"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.5.1."
@@ -538,6 +666,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/tmp'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/tmp on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-SUSE15-1.1.2.5.2-var_tmp_nodev_options"
     name: "/var/tmp is a separate mount with nodev"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -549,6 +679,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/tmp with the option nodev: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.5.2-var_tmp_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -558,6 +694,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.5.2-var_tmp_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -567,6 +705,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*nodev
   - id: "CIS-SUSE15-1.1.2.5.3-var_tmp_nosuid_options"
     name: "/var/tmp is a separate mount with nosuid"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -578,6 +720,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/tmp with the option nosuid: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.5.3-var_tmp_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -587,6 +735,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.5.3-var_tmp_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -596,6 +746,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*nosuid
   - id: "CIS-SUSE15-1.1.2.5.4-var_tmp_noexec_options"
     name: "/var/tmp is a separate mount with noexec"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -607,6 +761,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/tmp with the option noexec: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.5.4-var_tmp_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -616,6 +776,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.5.4-var_tmp_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -625,6 +787,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*noexec" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*noexec
   - id: "CIS-SUSE15-1.1.2.6.1-var_log_mount"
     name: "/var/log is a separate mount"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.6.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -634,6 +800,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/log'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/log on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-SUSE15-1.1.2.6.2-var_log_nodev_options"
     name: "/var/log is a separate mount with nodev"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -645,6 +813,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/log with the option nodev: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.6.2-var_log_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -654,6 +828,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.6.2-var_log_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -663,6 +839,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*nodev
   - id: "CIS-SUSE15-1.1.2.6.3-var_log_nosuid_options"
     name: "/var/log is a separate mount with nosuid"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -674,6 +854,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/log with the option nosuid: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.6.3-var_log_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -683,6 +869,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.6.3-var_log_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -692,6 +880,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*nosuid
   - id: "CIS-SUSE15-1.1.2.6.4-var_log_noexec_options"
     name: "/var/log is a separate mount with noexec"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -703,6 +895,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/log with the option noexec: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.6.4-var_log_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -712,6 +910,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.6.4-var_log_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -721,6 +921,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*noexec" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*noexec
   - id: "CIS-SUSE15-1.1.2.7.1-var_log_audit_mount"
     name: "/var/log/audit is a separate mount"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.7.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -730,6 +934,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/log/audit'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/log/audit on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-SUSE15-1.1.2.7.2-var_log_audit_nodev_options"
     name: "/var/log/audit is a separate mount with nodev"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -741,6 +947,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option nodev: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.7.2-var_log_audit_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -750,6 +962,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.7.2-var_log_audit_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -759,6 +973,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*nodev
   - id: "CIS-SUSE15-1.1.2.7.3-var_log_audit_nosuid_options"
     name: "/var/log/audit is a separate mount with nosuid"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -770,6 +988,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option nosuid: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.7.3-var_log_audit_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -779,6 +1003,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.7.3-var_log_audit_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -788,6 +1014,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*nosuid
   - id: "CIS-SUSE15-1.1.2.7.4-var_log_audit_noexec_options"
     name: "/var/log/audit is a separate mount with noexec"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -799,6 +1029,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option noexec: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-SUSE15-1.1.2.7.4-var_log_audit_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -808,6 +1044,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-SUSE15-1.1.2.7.4-var_log_audit_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -817,6 +1055,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*noexec" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*noexec
   - id: "CIS-SUSE15-1.2.1.1-gpg_keys"
     name: "gpg keys: rpm -q gpg-pubkey --qf '%{name}-%{version}-%{release} --\u003e %{summary}"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.2.1.1. NIST SP 800-53 Rev. 5: SI-2."
@@ -897,6 +1139,10 @@ checks:
     run: |
       rpm -q --quiet apparmor-parser
     expect: true
+    remediation: |
+      Install the package apparmor-parser:
+
+      zypper install apparmor-parser
   - id: "CIS-SUSE15-1.3.1.1-apparmor-profiles"
     name: "Package apparmor-profiles is installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.3.1.1. NIST SP 800-53 Rev. 5: AC-3."
@@ -905,6 +1151,10 @@ checks:
     run: |
       rpm -q --quiet apparmor-profiles
     expect: true
+    remediation: |
+      Install the package apparmor-profiles:
+
+      zypper install apparmor-profiles
   - id: "CIS-SUSE15-1.3.1.1-apparmor-utils"
     name: "Package apparmor-utils is installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.3.1.1. NIST SP 800-53 Rev. 5: AC-3."
@@ -913,6 +1163,10 @@ checks:
     run: |
       rpm -q --quiet apparmor-utils
     expect: true
+    remediation: |
+      Install the package apparmor-utils:
+
+      zypper install apparmor-utils
   - id: "CIS-SUSE15-1.3.1.1-libapparmor1"
     name: "Package libapparmor1 is installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.3.1.1. NIST SP 800-53 Rev. 5: AC-3."
@@ -921,6 +1175,10 @@ checks:
     run: |
       rpm -q --quiet libapparmor1
     expect: true
+    remediation: |
+      Install the package libapparmor1:
+
+      zypper install libapparmor1
   - id: "CIS-SUSE15-1.3.1.2-apparmor_boot_grub-attrs"
     name: "/boot/grub2/grub.cfg: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.3.1.2. NIST SP 800-53 Rev. 5: AC-3."
@@ -930,6 +1188,8 @@ checks:
       f='/boot/grub2/grub.cfg'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /boot/grub2/grub.cfg.
   - id: "CIS-SUSE15-1.3.1.2-apparmor_boot_grub-content"
     name: "/boot/grub2/grub.cfg has the expected content (3 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.3.1.2. NIST SP 800-53 Rev. 5: AC-3."
@@ -942,6 +1202,12 @@ checks:
       - { some: "~ apparmor=1" }
       - { some: "~ security=apparmor" }
       - { none: "~ apparmor=0" }
+    remediation: |
+      Edit /boot/grub2/grub.cfg so that its lines meet these conditions (regular expressions):
+
+      - a line matches apparmor=1
+      - a line matches security=apparmor
+      - no line matches apparmor=0
   - id: "CIS-SUSE15-1.3.1.2-grub_app_armor-attrs"
     name: "/etc/default/grub: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.3.1.2. NIST SP 800-53 Rev. 5: AC-3."
@@ -951,6 +1217,8 @@ checks:
       f='/etc/default/grub'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/default/grub.
   - id: "CIS-SUSE15-1.3.1.2-grub_app_armor-content"
     name: "/etc/default/grub has the expected content (3 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.3.1.2. NIST SP 800-53 Rev. 5: AC-3."
@@ -963,6 +1231,12 @@ checks:
       - { some: "~ ^GRUB_CMDLINE_LINUX.*apparmor=1" }
       - { some: "~ ^GRUB_CMDLINE_LINUX.*security=apparmor" }
       - { none: "~ apparmor=0" }
+    remediation: |
+      Edit /etc/default/grub so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^GRUB_CMDLINE_LINUX.*apparmor=1
+      - a line matches ^GRUB_CMDLINE_LINUX.*security=apparmor
+      - no line matches apparmor=0
   - id: "CIS-SUSE15-1.3.1.3-apparmor_enf_or_comp"
     name: "apparmor enf or comp: apparmor_status 2\u003e/dev/null | awk '"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.3.1.3. NIST SP 800-53 Rev. 5: AC-3."
@@ -1022,6 +1296,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /boot/grub2/grub.cfg if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/boot/grub2/grub.cfg'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/boot/grub2/grub.cfg'
   - id: "CIS-SUSE15-1.5.1-address_space_random"
     name: "Kernel parameter kernel.randomize_va_space is 2"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.5.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -1033,6 +1312,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 2"
+    remediation: |
+      Set the kernel parameter kernel.randomize_va_space to 2, now and at boot:
+
+      sysctl -w 'kernel.randomize_va_space=2'
+      printf '%s\n' 'kernel.randomize_va_space = 2' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of kernel.randomize_va_space from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-1.5.1-aslr_enabled_2"
     name: "aslr enabled 2: grep \"kernel\\.randomize_va_space\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.5.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -1055,6 +1341,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter fs.suid_dumpable to 0, now and at boot:
+
+      sysctl -w 'fs.suid_dumpable=0'
+      printf '%s\n' 'fs.suid_dumpable = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of fs.suid_dumpable from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-1.5.2-coredump_dumpable_conf"
     name: "coredump dumpable conf: grep \"fs.suid_dumpable\" /etc/sysctl.conf /etc/sysctl.d/* 2\u003e/dev/null"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.5.2. NIST SP 800-53 Rev. 5: CM-6."
@@ -1087,6 +1380,10 @@ checks:
     run: |
       rpm -q --quiet prelink
     expect: false
+    remediation: |
+      Remove the package prelink, unless the system needs it:
+
+      zypper remove prelink
   - id: "CIS-SUSE15-1.6.1-crypto_pkg_installed"
     name: "Package crypto-policies-scripts is installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: NA."
@@ -1095,6 +1392,10 @@ checks:
     run: |
       rpm -q --quiet crypto-policies-scripts
     expect: true
+    remediation: |
+      Install the package crypto-policies-scripts:
+
+      zypper install crypto-policies-scripts
   - id: "CIS-SUSE15-1.6.2-crypto_policies_config"
     name: "crypto policies config: cat /etc/crypto-policies/config"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.6.2. NIST SP 800-53 Rev. 5: SC-8."
@@ -1127,6 +1428,8 @@ checks:
       f='/etc/crypto-policies/state/CURRENT.pol'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/crypto-policies/state/CURRENT.pol.
   - id: "CIS-SUSE15-1.6.4-crypto_policies_no_sha1_current-content"
     name: "/etc/crypto-policies/state/CURRENT.pol has the expected content (2 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.6.4. NIST SP 800-53 Rev. 5: SC-8."
@@ -1138,6 +1441,11 @@ checks:
     expect:
       - { some: "~ ^sha1_in_certs\\s*=\\s*0" }
       - { none: "~ ^(hash|sign)\\s*=\\s*SHA1" }
+    remediation: |
+      Edit /etc/crypto-policies/state/CURRENT.pol so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^sha1_in_certs\s*=\s*0
+      - no line matches ^(hash|sign)\s*=\s*SHA1
   - id: "CIS-SUSE15-1.6.5-crypto_policies_no_weakmacs-attrs"
     name: "/etc/crypto-policies/state/CURRENT.pol: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.6.5. NIST SP 800-53 Rev. 5: SC-8."
@@ -1147,6 +1455,8 @@ checks:
       f='/etc/crypto-policies/state/CURRENT.pol'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/crypto-policies/state/CURRENT.pol.
   - id: "CIS-SUSE15-1.6.5-crypto_policies_no_weakmacs-content"
     name: "/etc/crypto-policies/state/CURRENT.pol has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.6.5. NIST SP 800-53 Rev. 5: SC-8."
@@ -1156,6 +1466,10 @@ checks:
       cat '/etc/crypto-policies/state/CURRENT.pol'
     allow_rc: any
     expect: { none: "~ ^mac\\s*=\\s*.*64" }
+    remediation: |
+      Edit /etc/crypto-policies/state/CURRENT.pol so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^mac\s*=\s*.*64
   - id: "CIS-SUSE15-1.6.6-crypto_policies_no_ssh_cbc-attrs"
     name: "/etc/crypto-policies/state/CURRENT.pol: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.6.6. NIST SP 800-53 Rev. 5: SC-8."
@@ -1165,6 +1479,8 @@ checks:
       f='/etc/crypto-policies/state/CURRENT.pol'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/crypto-policies/state/CURRENT.pol.
   - id: "CIS-SUSE15-1.6.6-crypto_policies_no_ssh_cbc-content"
     name: "/etc/crypto-policies/state/CURRENT.pol has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.6.6. NIST SP 800-53 Rev. 5: SC-8."
@@ -1174,6 +1490,10 @@ checks:
       cat '/etc/crypto-policies/state/CURRENT.pol'
     allow_rc: any
     expect: { none: "~ (?i)^\\s*cipher@(lib|open)ssh(-server|-client)?\\s*=\\s*([^#\\n\\r]+)?-CBC\\b" }
+    remediation: |
+      Edit /etc/crypto-policies/state/CURRENT.pol so that its lines meet these conditions (regular expressions):
+
+      - no line matches (?i)^\s*cipher@(lib|open)ssh(-server|-client)?\s*=\s*([^#\n\r]+)?-CBC\b
   - id: "CIS-SUSE15-1.6.7-crypto_policies_no_ssh_chacha-poly1305-attrs"
     name: "/etc/crypto-policies/state/CURRENT.pol: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.6.7. NIST SP 800-53 Rev. 5: SC-8."
@@ -1183,6 +1503,8 @@ checks:
       f='/etc/crypto-policies/state/CURRENT.pol'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/crypto-policies/state/CURRENT.pol.
   - id: "CIS-SUSE15-1.6.7-crypto_policies_no_ssh_chacha-poly1305-content"
     name: "/etc/crypto-policies/state/CURRENT.pol has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.6.7. NIST SP 800-53 Rev. 5: SC-8."
@@ -1192,6 +1514,10 @@ checks:
       cat '/etc/crypto-policies/state/CURRENT.pol'
     allow_rc: any
     expect: { none: "~ (?i)^\\s*cipher@(lib|open)ssh(-server|-client)?\\s*=\\s*([^#\\n\\r]+)?\\bchacha20-poly1305\\b" }
+    remediation: |
+      Edit /etc/crypto-policies/state/CURRENT.pol so that its lines meet these conditions (regular expressions):
+
+      - no line matches (?i)^\s*cipher@(lib|open)ssh(-server|-client)?\s*=\s*([^#\n\r]+)?\bchacha20-poly1305\b
   - id: "CIS-SUSE15-1.7.1-check_motd_files"
     name: "check motd files: grep -Eis \"(\\\\\\v|\\\\\\r|\\\\\\m|\\\\\\s|$(grep '^ID=' /etc/os-release | cut -d= -f2 | sed -e 's/\"…"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.7.1. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -1237,6 +1563,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/motd if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/motd'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/motd'
   - id: "CIS-SUSE15-1.7.5-etc_issue_permissions-attrs"
     name: "/etc/issue: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.7.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1249,6 +1580,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue'
   - id: "CIS-SUSE15-1.7.6-etc_issue_net_permissions-attrs"
     name: "/etc/issue.net: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.7.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1261,6 +1597,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue.net if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue.net'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue.net'
   - id: "CIS-SUSE15-1.8.1-gdm_removed"
     name: "Package gdm is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 1.8.1. NIST SP 800-53 Rev. 5: NA."
@@ -1269,6 +1610,10 @@ checks:
     run: |
       rpm -q --quiet gdm
     expect: false
+    remediation: |
+      Remove the package gdm, unless the system needs it:
+
+      zypper remove gdm
   - id: "CIS-SUSE15-2.1.1-autofs_pkg"
     name: "Package autofs is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.1. NIST SP 800-53 Rev. 5: SI-3, MP-7."
@@ -1277,6 +1622,10 @@ checks:
     run: |
       rpm -q --quiet autofs
     expect: false
+    remediation: |
+      Remove the package autofs, unless the system needs it:
+
+      zypper remove autofs
   - id: "CIS-SUSE15-2.1.2-avahi_pkg"
     name: "Package avahi is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.2. NIST SP 800-53 Rev. 5: SI-4."
@@ -1285,6 +1634,10 @@ checks:
     run: |
       rpm -q --quiet avahi
     expect: false
+    remediation: |
+      Remove the package avahi, unless the system needs it:
+
+      zypper remove avahi
   - id: "CIS-SUSE15-2.1.3-dhcp_pkg"
     name: "Package dhcp-server is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -1293,6 +1646,10 @@ checks:
     run: |
       rpm -q --quiet dhcp-server
     expect: false
+    remediation: |
+      Remove the package dhcp-server, unless the system needs it:
+
+      zypper remove dhcp-server
   - id: "CIS-SUSE15-2.1.4-dns_pkg"
     name: "Package bind9 is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -1301,6 +1658,10 @@ checks:
     run: |
       rpm -q --quiet bind9
     expect: false
+    remediation: |
+      Remove the package bind9, unless the system needs it:
+
+      zypper remove bind9
   - id: "CIS-SUSE15-2.1.5-dnsmasq_pkg"
     name: "Package dnsmasq is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -1309,6 +1670,10 @@ checks:
     run: |
       rpm -q --quiet dnsmasq
     expect: false
+    remediation: |
+      Remove the package dnsmasq, unless the system needs it:
+
+      zypper remove dnsmasq
   - id: "CIS-SUSE15-2.1.6-samba_pkg"
     name: "Package samba is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.6. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1317,6 +1682,10 @@ checks:
     run: |
       rpm -q --quiet samba
     expect: false
+    remediation: |
+      Remove the package samba, unless the system needs it:
+
+      zypper remove samba
   - id: "CIS-SUSE15-2.1.7-openldap2"
     name: "Package openldap2 is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.7. NIST SP 800-53 Rev. 5: CM-7."
@@ -1325,6 +1694,10 @@ checks:
     run: |
       rpm -q --quiet openldap2
     expect: false
+    remediation: |
+      Remove the package openldap2, unless the system needs it:
+
+      zypper remove openldap2
   - id: "CIS-SUSE15-2.1.7-openldap2_5"
     name: "Package openldap2_5 is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.7. NIST SP 800-53 Rev. 5: CM-7."
@@ -1333,6 +1706,10 @@ checks:
     run: |
       rpm -q --quiet openldap2_5
     expect: false
+    remediation: |
+      Remove the package openldap2_5, unless the system needs it:
+
+      zypper remove openldap2_5
   - id: "CIS-SUSE15-2.1.8-ftp_pkg"
     name: "Package vsftpd is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -1341,6 +1718,10 @@ checks:
     run: |
       rpm -q --quiet vsftpd
     expect: false
+    remediation: |
+      Remove the package vsftpd, unless the system needs it:
+
+      zypper remove vsftpd
   - id: "CIS-SUSE15-2.1.9-cyrus_imapd_pkg"
     name: "Package cyrus-imapd is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.9. NIST SP 800-53 Rev. 5: CM-7."
@@ -1349,6 +1730,10 @@ checks:
     run: |
       rpm -q --quiet cyrus-imapd
     expect: false
+    remediation: |
+      Remove the package cyrus-imapd, unless the system needs it:
+
+      zypper remove cyrus-imapd
   - id: "CIS-SUSE15-2.1.9-dovecot_pkg"
     name: "Package dovecot is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.9. NIST SP 800-53 Rev. 5: CM-7."
@@ -1357,6 +1742,10 @@ checks:
     run: |
       rpm -q --quiet dovecot
     expect: false
+    remediation: |
+      Remove the package dovecot, unless the system needs it:
+
+      zypper remove dovecot
   - id: "CIS-SUSE15-2.1.12-cups_pkg"
     name: "Package cups is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.12. NIST SP 800-53 Rev. 5: CM-7."
@@ -1365,6 +1754,10 @@ checks:
     run: |
       rpm -q --quiet cups
     expect: false
+    remediation: |
+      Remove the package cups, unless the system needs it:
+
+      zypper remove cups
   - id: "CIS-SUSE15-2.1.14-rsync_pkg"
     name: "Package rsync is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.14. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1373,6 +1766,10 @@ checks:
     run: |
       rpm -q --quiet rsync
     expect: false
+    remediation: |
+      Remove the package rsync, unless the system needs it:
+
+      zypper remove rsync
   - id: "CIS-SUSE15-2.1.15-snmp_pkg"
     name: "Package net-snmp is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.15. NIST SP 800-53 Rev. 5: CM-7."
@@ -1381,6 +1778,10 @@ checks:
     run: |
       rpm -q --quiet net-snmp
     expect: false
+    remediation: |
+      Remove the package net-snmp, unless the system needs it:
+
+      zypper remove net-snmp
   - id: "CIS-SUSE15-2.1.16-telnet_pkg"
     name: "Package telnet-server is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.16. NIST SP 800-53 Rev. 5: CM-7."
@@ -1389,6 +1790,10 @@ checks:
     run: |
       rpm -q --quiet telnet-server
     expect: false
+    remediation: |
+      Remove the package telnet-server, unless the system needs it:
+
+      zypper remove telnet-server
   - id: "CIS-SUSE15-2.1.17-tftp_pkg"
     name: "Package tftp-server is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.17. NIST SP 800-53 Rev. 5: CM-7."
@@ -1397,6 +1802,10 @@ checks:
     run: |
       rpm -q --quiet tftp-server
     expect: false
+    remediation: |
+      Remove the package tftp-server, unless the system needs it:
+
+      zypper remove tftp-server
   - id: "CIS-SUSE15-2.1.18-squid_pkg"
     name: "Package squid is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.18. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1405,6 +1814,10 @@ checks:
     run: |
       rpm -q --quiet squid
     expect: false
+    remediation: |
+      Remove the package squid, unless the system needs it:
+
+      zypper remove squid
   - id: "CIS-SUSE15-2.1.19-apache2_pkg"
     name: "Package apache2 is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.19. NIST SP 800-53 Rev. 5: CM-7."
@@ -1413,6 +1826,10 @@ checks:
     run: |
       rpm -q --quiet apache2
     expect: false
+    remediation: |
+      Remove the package apache2, unless the system needs it:
+
+      zypper remove apache2
   - id: "CIS-SUSE15-2.1.19-nginx_pkg"
     name: "Package nginx is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.19. NIST SP 800-53 Rev. 5: CM-7."
@@ -1421,6 +1838,10 @@ checks:
     run: |
       rpm -q --quiet nginx
     expect: false
+    remediation: |
+      Remove the package nginx, unless the system needs it:
+
+      zypper remove nginx
   - id: "CIS-SUSE15-2.1.20-xinetd_pkg"
     name: "Package xinetd is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.20. NIST SP 800-53 Rev. 5: CM-7."
@@ -1429,6 +1850,10 @@ checks:
     run: |
       rpm -q --quiet xinetd
     expect: false
+    remediation: |
+      Remove the package xinetd, unless the system needs it:
+
+      zypper remove xinetd
   - id: "CIS-SUSE15-2.1.21-xwindow_pkg"
     name: "Package xorg-x11-server is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.21. NIST SP 800-53 Rev. 5: CM-11."
@@ -1437,6 +1862,10 @@ checks:
     run: |
       rpm -q --quiet xorg-x11-server
     expect: false
+    remediation: |
+      Remove the package xorg-x11-server, unless the system needs it:
+
+      zypper remove xorg-x11-server
   - id: "CIS-SUSE15-2.1.23-manual_listening_ports"
     name: "manual listening ports: echo \"Manual!! - Please check only approved services are listening\""
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.23. NIST SP 800-53 Rev. 5: CM-7."
@@ -1453,6 +1882,10 @@ checks:
     run: |
       rpm -q --quiet ftp
     expect: false
+    remediation: |
+      Remove the package ftp, unless the system needs it:
+
+      zypper remove ftp
   - id: "CIS-SUSE15-2.2.2-openldap2-client_removed"
     name: "Package openldap2-client is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.2.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -1461,6 +1894,10 @@ checks:
     run: |
       rpm -q --quiet openldap2-client
     expect: false
+    remediation: |
+      Remove the package openldap2-client, unless the system needs it:
+
+      zypper remove openldap2-client
   - id: "CIS-SUSE15-2.2.2-openldap2_5_removed"
     name: "Package openldap2_5 is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.2.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -1469,6 +1906,10 @@ checks:
     run: |
       rpm -q --quiet openldap2_5
     expect: false
+    remediation: |
+      Remove the package openldap2_5, unless the system needs it:
+
+      zypper remove openldap2_5
   - id: "CIS-SUSE15-2.2.3-nis_client"
     name: "Package ypbind is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.2.3. NIST SP 800-53 Rev. 5: CM-7, CM-11."
@@ -1477,6 +1918,10 @@ checks:
     run: |
       rpm -q --quiet ypbind
     expect: false
+    remediation: |
+      Remove the package ypbind, unless the system needs it:
+
+      zypper remove ypbind
   - id: "CIS-SUSE15-2.2.4-telnet"
     name: "Package telnet is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.2.4. NIST SP 800-53 Rev. 5: CM-7, CM-11."
@@ -1485,6 +1930,10 @@ checks:
     run: |
       rpm -q --quiet telnet
     expect: false
+    remediation: |
+      Remove the package telnet, unless the system needs it:
+
+      zypper remove telnet
   - id: "CIS-SUSE15-2.2.5-tftp-client"
     name: "Package tftp is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.2.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -1493,6 +1942,10 @@ checks:
     run: |
       rpm -q --quiet tftp
     expect: false
+    remediation: |
+      Remove the package tftp, unless the system needs it:
+
+      zypper remove tftp
   - id: "CIS-SUSE15-2.3.1.1-chrony_tool"
     name: "Package chrony is installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.3.1.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1501,6 +1954,10 @@ checks:
     run: |
       rpm -q --quiet chrony
     expect: true
+    remediation: |
+      Install the package chrony:
+
+      zypper install chrony
   - id: "CIS-SUSE15-2.3.1.1-ntp"
     name: "Package ntp is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.3.1.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1509,6 +1966,10 @@ checks:
     run: |
       rpm -q --quiet ntp
     expect: false
+    remediation: |
+      Remove the package ntp, unless the system needs it:
+
+      zypper remove ntp
   - id: "CIS-SUSE15-2.3.1.1-timesync_masked-attrs"
     name: "/etc/systemd/system/systemd-timesyncd.service: exists, is a symbolic link, links to /dev/null"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.3.1.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1520,6 +1981,10 @@ checks:
       [ -L "$f" ] || echo "$f is not a symbolic link"
       [ "$(readlink "$f")" = '/dev/null' ] || echo "$f links to $(readlink "$f")"
     expect: empty
+    remediation: |
+      Create /etc/systemd/system/systemd-timesyncd.service if it is missing, then point the link to /dev/null:
+
+      ln -sfn '/dev/null' '/etc/systemd/system/systemd-timesyncd.service'
   - id: "CIS-SUSE15-2.3.3.1-chrony_pool-attrs"
     name: "/etc/chrony.d/pool.conf: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.3.3.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1529,6 +1994,8 @@ checks:
       f='/etc/chrony.d/pool.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/chrony.d/pool.conf.
   - id: "CIS-SUSE15-2.3.3.1-chrony_pool-content"
     name: "/etc/chrony.d/pool.conf has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.3.3.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1538,6 +2005,10 @@ checks:
       cat '/etc/chrony.d/pool.conf'
     allow_rc: any
     expect: { some: "~ ^pool time.nist.gov" }
+    remediation: |
+      Edit /etc/chrony.d/pool.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^pool time.nist.gov
   - id: "CIS-SUSE15-2.3.3.1-chrony_timeservers-attrs"
     name: "/etc/chrony.d/server.conf: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.3.3.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1547,6 +2018,8 @@ checks:
       f='/etc/chrony.d/server.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/chrony.d/server.conf.
   - id: "CIS-SUSE15-2.3.3.1-chrony_timeservers-content"
     name: "/etc/chrony.d/server.conf has the expected content (3 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.3.3.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1559,6 +2032,12 @@ checks:
       - { some: "~ ^server time-a-g.nist.gov iburst" }
       - { some: "~ ^server time-b-g.nist.gov iburst" }
       - { some: "~ ^server time-c-g.nist.gov iburst" }
+    remediation: |
+      Edit /etc/chrony.d/server.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^server time-a-g.nist.gov iburst
+      - a line matches ^server time-b-g.nist.gov iburst
+      - a line matches ^server time-c-g.nist.gov iburst
   - id: "CIS-SUSE15-2.3.3.1-chrony_user-attrs"
     name: "/etc/sysconfig/chronyd: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.3.3.1. NIST SP 800-53 Rev. 5: AU-8."
@@ -1568,6 +2047,8 @@ checks:
       f='/etc/sysconfig/chronyd'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/sysconfig/chronyd.
   - id: "CIS-SUSE15-2.3.3.1-chrony_user-content"
     name: "/etc/sysconfig/chronyd has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.3.3.1. NIST SP 800-53 Rev. 5: AU-8."
@@ -1577,6 +2058,10 @@ checks:
       cat '/etc/sysconfig/chronyd'
     allow_rc: any
     expect: { some: "~ ^OPTIONS=\".*-u chrony" }
+    remediation: |
+      Edit /etc/sysconfig/chronyd so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^OPTIONS=".*-u chrony
   - id: "CIS-SUSE15-2.3.3.2-chronyd-enabled"
     name: "Service chronyd is enabled"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.3.3.2. NIST SP 800-53 Rev. 5: AU-8."
@@ -1585,6 +2070,10 @@ checks:
     run: |
       systemctl show -p UnitFileState chronyd | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service chronyd:
+
+      systemctl enable chronyd
   - id: "CIS-SUSE15-2.3.3.2-chronyd-running"
     name: "Service chronyd is running"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.3.3.2. NIST SP 800-53 Rev. 5: AU-8."
@@ -1593,6 +2082,10 @@ checks:
     run: |
       systemctl show -p ActiveState chronyd | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service chronyd:
+
+      systemctl start chronyd
   - id: "CIS-SUSE15-2.4.1.1-cron"
     name: "Package cron is installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1601,6 +2094,10 @@ checks:
     run: |
       rpm -q --quiet cron
     expect: true
+    remediation: |
+      Install the package cron:
+
+      zypper install cron
   - id: "CIS-SUSE15-2.4.1.1-cron-enabled"
     name: "Service cron is enabled"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1609,6 +2106,10 @@ checks:
     run: |
       systemctl show -p UnitFileState cron | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service cron:
+
+      systemctl enable cron
   - id: "CIS-SUSE15-2.4.1.1-cron-running"
     name: "Service cron is running"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1617,6 +2118,10 @@ checks:
     run: |
       systemctl show -p ActiveState cron | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service cron:
+
+      systemctl start cron
   - id: "CIS-SUSE15-2.4.1.2-crontab_perms-attrs"
     name: "/etc/crontab: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.4.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1629,6 +2134,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/crontab if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/crontab'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/crontab'
   - id: "CIS-SUSE15-2.4.1.3-cron_hourly_perms-attrs"
     name: "/etc/cron.hourly: exists, is a directory, mode 0700 or stricter, owner root, group root"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.4.1.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1642,6 +2152,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.hourly if it is missing, then make it a directory, set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.hourly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.hourly'
   - id: "CIS-SUSE15-2.4.1.4-cron_daily_perms-attrs"
     name: "/etc/cron.daily: exists, is a directory, mode 0700 or stricter, owner root, group root"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.4.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1655,6 +2170,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.daily if it is missing, then make it a directory, set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.daily'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.daily'
   - id: "CIS-SUSE15-2.4.1.5-cron_weekly_perms-attrs"
     name: "/etc/cron.weekly: exists, is a directory, mode 0700 or stricter, owner root, group root"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.4.1.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1668,6 +2188,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.weekly if it is missing, then make it a directory, set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.weekly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.weekly'
   - id: "CIS-SUSE15-2.4.1.6-cron_monthly_perms-attrs"
     name: "/etc/cron.monthly: exists, is a directory, mode 0700 or stricter, owner root, group root"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.4.1.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1681,6 +2206,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.monthly if it is missing, then make it a directory, set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.monthly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.monthly'
   - id: "CIS-SUSE15-2.4.1.7-cron_d_perms-attrs"
     name: "/etc/cron.d: exists, is a directory, mode 0700 or stricter, owner root, group root"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.4.1.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1694,6 +2224,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.d if it is missing, then make it a directory, set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.d'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.d'
   - id: "CIS-SUSE15-2.4.1.8-cron_allow_restricted-attrs"
     name: "/etc/cron.allow: exists, owner root, group root"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.4.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1705,6 +2240,10 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.allow if it is missing, then set owner root and group root:
+
+      chown root:root '/etc/cron.allow'
   - id: "CIS-SUSE15-2.4.1.8-cron_deny_absent-absent"
     name: "/etc/cron.deny does not exist"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.4.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1713,6 +2252,10 @@ checks:
     run: |
       test -e '/etc/cron.deny' || test -L '/etc/cron.deny'
     expect: false
+    remediation: |
+      Remove /etc/cron.deny, unless the system needs it:
+
+      rm '/etc/cron.deny'
   - id: "CIS-SUSE15-2.4.2.1-etc_at.allow-attrs"
     name: "/etc/at.allow: exists, mode 0640 or stricter, owner root, group root"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.4.2.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1725,6 +2268,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/at.allow if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/at.allow'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/at.allow'
   - id: "CIS-SUSE15-2.4.2.1-at_deny_absent-absent"
     name: "/etc/at.deny does not exist"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.4.2.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1733,6 +2281,10 @@ checks:
     run: |
       test -e '/etc/at.deny' || test -L '/etc/at.deny'
     expect: false
+    remediation: |
+      Remove /etc/at.deny, unless the system needs it:
+
+      rm '/etc/at.deny'
   - id: "CIS-SUSE15-3.1.1-ipv6_disabled"
     name: "ipv6 disabled: [ -d /proc/sys/net/ipv6 ] || { echo \"IPv6 disabled in the kernel\"; exit 0; }"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.1.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -1779,6 +2331,10 @@ checks:
     run: |
       rpm -q --quiet bluez
     expect: false
+    remediation: |
+      Remove the package bluez, unless the system needs it:
+
+      zypper remove bluez
   - id: "CIS-SUSE15-3.2.1-lsmod_dccp"
     name: "lsmod dccp: lsmod | grep -i dccp"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.2.1. NIST SP 800-53 Rev. 5: CM-7, SI-4."
@@ -1878,6 +2434,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.ip_forward to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.ip_forward=0'
+      printf '%s\n' 'net.ipv4.ip_forward = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.ip_forward from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-3.3.1-ipv4_ip_forward"
     name: "ipv4 ip forward: grep -E \"^\\s*net\\.ipv4\\.ip_forward\" /etc/sysctl.conf /etc/sysctl.d/*.conf /usr/lib/sysctl…"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.3.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1900,6 +2463,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.send_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.send_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.send_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.send_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-3.3.2-net.ipv4.conf.default.send_redirects"
     name: "Kernel parameter net.ipv4.conf.default.send_redirects is 0"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.3.2. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1911,6 +2481,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.send_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.send_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.send_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.send_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-3.3.2-ipv4_disable_all_redirect"
     name: "ipv4 disable all redirect: grep -E \"^\\s*net\\.ipv4\\.conf\\.all\\.send_redirects\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.3.2. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1944,6 +2521,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.icmp_ignore_bogus_error_responses to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.icmp_ignore_bogus_error_responses=1'
+      printf '%s\n' 'net.ipv4.icmp_ignore_bogus_error_responses = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.icmp_ignore_bogus_error_responses from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-3.3.3-ipv4_ignore_bogus"
     name: "ipv4 ignore bogus: grep \"net.ipv4.icmp_ignore_bogus_error_responses\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.3.3. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1966,6 +2550,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.icmp_echo_ignore_broadcasts to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.icmp_echo_ignore_broadcasts=1'
+      printf '%s\n' 'net.ipv4.icmp_echo_ignore_broadcasts = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.icmp_echo_ignore_broadcasts from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-3.3.4-ipv4_ignore_icmp_broadcast"
     name: "ipv4 ignore icmp broadcast: grep \"net\\.ipv4\\.icmp_echo_ignore_broadcasts\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.3.4. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1988,6 +2579,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.accept_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-3.3.5-net.ipv4.conf.default.accept_redirects"
     name: "Kernel parameter net.ipv4.conf.default.accept_redirects is 0"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.3.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1999,6 +2597,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.accept_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-3.3.5-ipv4_all_icmp_redirects"
     name: "ipv4 all icmp redirects: grep \"net\\.ipv4\\.conf\\.all\\.accept_redirects\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.3.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2032,6 +2637,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.secure_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.secure_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.secure_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.secure_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-3.3.6-net.ipv4.conf.default.secure_redirects"
     name: "Kernel parameter net.ipv4.conf.default.secure_redirects is 0"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.3.6. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2043,6 +2655,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.secure_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.secure_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.secure_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.secure_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-3.3.6-ipv4_all_sec_redirects"
     name: "ipv4 all sec redirects: grep \"net\\.ipv4\\.conf\\.all\\.secure_redirects\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.3.6. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2076,6 +2695,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.rp_filter to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.rp_filter=1'
+      printf '%s\n' 'net.ipv4.conf.all.rp_filter = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.rp_filter from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-3.3.7-net.ipv4.conf.default.rp_filter"
     name: "Kernel parameter net.ipv4.conf.default.rp_filter is 1"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.3.7. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2087,6 +2713,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.rp_filter to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.rp_filter=1'
+      printf '%s\n' 'net.ipv4.conf.default.rp_filter = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.rp_filter from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-3.3.7-ipv4_all_rp_filter"
     name: "ipv4 all rp filter: grep \"net\\.ipv4\\.conf\\.all\\.rp_filter\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.3.7. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2120,6 +2753,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.accept_source_route=0'
+      printf '%s\n' 'net.ipv4.conf.all.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-3.3.8-net.ipv4.conf.default.accept_source_rout"
     name: "Kernel parameter net.ipv4.conf.default.accept_source_route is 0"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.3.8. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2131,6 +2771,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.accept_source_route=0'
+      printf '%s\n' 'net.ipv4.conf.default.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-3.3.8-ipv4_all_source_route"
     name: "ipv4 all source route: grep \"net\\.ipv4\\.conf\\.all\\.accept_source_route\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.3.8. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2164,6 +2811,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.log_martians to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.log_martians=1'
+      printf '%s\n' 'net.ipv4.conf.all.log_martians = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.log_martians from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-3.3.9-net.ipv4.conf.default.log_martians"
     name: "Kernel parameter net.ipv4.conf.default.log_martians is 1"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.3.9. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2175,6 +2829,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.log_martians to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.log_martians=1'
+      printf '%s\n' 'net.ipv4.conf.default.log_martians = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.log_martians from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-3.3.9-ipv4_all_martians"
     name: "ipv4 all martians: grep \"net\\.ipv4\\.conf\\.all\\.log_martians\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.3.9. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2208,6 +2869,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.tcp_syncookies to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.tcp_syncookies=1'
+      printf '%s\n' 'net.ipv4.tcp_syncookies = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.tcp_syncookies from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-SUSE15-3.3.10-ipv4_tcp_syncookies"
     name: "ipv4 tcp syncookies: grep \"net\\.ipv4\\.tcp_syncookies\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 3.3.10. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2227,6 +2895,10 @@ checks:
     run: |
       systemctl show -p UnitFileState firewalld | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service firewalld:
+
+      systemctl enable firewalld
   - id: "CIS-SUSE15-4.1.1-firewalld_started-running"
     name: "Service firewalld is running"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 4.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -2235,6 +2907,10 @@ checks:
     run: |
       systemctl show -p ActiveState firewalld | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service firewalld:
+
+      systemctl start firewalld
   - id: "CIS-SUSE15-4.1.1-iptables_stopped-enabled"
     name: "Service iptables is not enabled"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 4.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -2243,6 +2919,12 @@ checks:
     run: |
       systemctl show -p UnitFileState iptables | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service iptables, unless the system needs it:
+
+      systemctl disable iptables
+
+      To keep other units from starting it, mask it instead: systemctl mask iptables
   - id: "CIS-SUSE15-4.1.1-iptables_stopped-running"
     name: "Service iptables is not running"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 4.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -2251,6 +2933,10 @@ checks:
     run: |
       systemctl show -p ActiveState iptables | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service iptables, unless the system needs it:
+
+      systemctl stop iptables
   - id: "CIS-SUSE15-4.1.1-nftables_stopped-enabled"
     name: "Service nftables is not enabled"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 4.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -2259,6 +2945,12 @@ checks:
     run: |
       systemctl show -p UnitFileState nftables | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service nftables, unless the system needs it:
+
+      systemctl disable nftables
+
+      To keep other units from starting it, mask it instead: systemctl mask nftables
   - id: "CIS-SUSE15-4.1.1-nftables_stopped-running"
     name: "Service nftables is not running"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 4.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -2267,6 +2959,10 @@ checks:
     run: |
       systemctl show -p ActiveState nftables | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service nftables, unless the system needs it:
+
+      systemctl stop nftables
   - id: "CIS-SUSE15-4.1.1-nftables_masked-attrs"
     name: "/etc/systemd/system/nftables.service: exists, is a symbolic link, links to /dev/null"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 4.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -2278,6 +2974,10 @@ checks:
       [ -L "$f" ] || echo "$f is not a symbolic link"
       [ "$(readlink "$f")" = '/dev/null' ] || echo "$f links to $(readlink "$f")"
     expect: empty
+    remediation: |
+      Create /etc/systemd/system/nftables.service if it is missing, then point the link to /dev/null:
+
+      ln -sfn '/dev/null' '/etc/systemd/system/nftables.service'
   - id: "CIS-SUSE15-4.2.1-firewalld_installed"
     name: "Package firewalld is installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 4.2.1. NIST SP 800-53 Rev. 5: CA-9."
@@ -2286,6 +2986,10 @@ checks:
     run: |
       rpm -q --quiet firewalld
     expect: true
+    remediation: |
+      Install the package firewalld:
+
+      zypper install firewalld
   - id: "CIS-SUSE15-4.2.2-firewall_drops_unnecessary"
     name: "firewall drops unnecessary: echo \"Manual check - review 'firewall-cmd --list-all' and confirm only approved services …"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 4.2.2. NIST SP 800-53 Rev. 5: CA-9."
@@ -2318,6 +3022,10 @@ checks:
     run: |
       systemctl show -p UnitFileState firewalld | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service firewalld:
+
+      systemctl enable firewalld
   - id: "CIS-SUSE15-4.2.5-firewalld_started_enabled-running"
     name: "Service firewalld is running"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 4.2.5. NIST SP 800-53 Rev. 5: CA-9."
@@ -2326,6 +3034,10 @@ checks:
     run: |
       systemctl show -p ActiveState firewalld | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service firewalld:
+
+      systemctl start firewalld
   - id: "CIS-SUSE15-5.1.1-sshd_config_perms-attrs"
     name: "/etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2338,6 +3050,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/ssh/sshd_config'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/ssh/sshd_config'
   - id: "CIS-SUSE15-5.1.2-etc_ssh_ssh_host_prv_key_group"
     name: "/etc/ssh/ssh host prv key group: groupkeys=$(sudo find /etc/ssh/ -name *_key -type f ! -group root ); echo $groupkeys"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2461,6 +3178,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-SUSE15-5.1.8-ssh_banner-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.8. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2472,6 +3191,11 @@ checks:
     expect:
       - { some: "~ Banner /etc/issue\\.net" }
       - { none: "~ ^Banner none" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches Banner /etc/issue\.net
+      - no line matches ^Banner none
   - id: "CIS-SUSE15-5.1.8-ssh_configd_banner"
     name: "ssh configd banner: grep -Eis '^\\s*Banner\\s+\"?none\\b' /etc/ssh/sshd_config.d/*.conf"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.8. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5. CIS Controls v8: 4.1."
@@ -2492,6 +3216,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-SUSE15-5.1.9-sshd_clientalive-content"
     name: "/etc/ssh/sshd_config has the expected content (4 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.9. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2505,6 +3231,13 @@ checks:
       - { some: "~ ClientAliveCountMax 3" }
       - { some: "~ ClientAliveInterval ([1-9]|[1-2][0-9][0-9]|300)" }
       - { some: "~ ClientAliveCountMax [0-3]" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ClientAliveInterval 15
+      - a line matches ClientAliveCountMax 3
+      - a line matches ClientAliveInterval ([1-9]|[1-2][0-9][0-9]|300)
+      - a line matches ClientAliveCountMax [0-3]
   - id: "CIS-SUSE15-5.1.10-sshd_disableforwarding-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.10. NIST SP 800-53 Rev. 5: CM-7."
@@ -2514,6 +3247,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-SUSE15-5.1.10-sshd_disableforwarding-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.10. NIST SP 800-53 Rev. 5: CM-7."
@@ -2525,6 +3260,11 @@ checks:
     expect:
       - { some: "~ (?i)DisableForwarding yes" }
       - { none: "~ (?i)^DisableForwarding no" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches (?i)DisableForwarding yes
+      - no line matches (?i)^DisableForwarding no
   - id: "CIS-SUSE15-5.1.11-sshd_gssapiauth-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.11. NIST SP 800-53 Rev. 5: CM-7."
@@ -2534,6 +3274,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-SUSE15-5.1.11-sshd_gssapiauth-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.11. NIST SP 800-53 Rev. 5: CM-7."
@@ -2545,6 +3287,11 @@ checks:
     expect:
       - { some: "~ (?i)GSSAPIAuthentication no" }
       - { none: "~ (?i)^GSSAPIAuthentication yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches (?i)GSSAPIAuthentication no
+      - no line matches (?i)^GSSAPIAuthentication yes
   - id: "CIS-SUSE15-5.1.12-ssh_hostbased_auth-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.12. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2554,6 +3301,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-SUSE15-5.1.12-ssh_hostbased_auth-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.12. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2565,6 +3314,11 @@ checks:
     expect:
       - { some: "~ ^(?i)HostbasedAuthentication no" }
       - { none: "~ ^(?i)HostbasedAuthentication yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)HostbasedAuthentication no
+      - no line matches ^(?i)HostbasedAuthentication yes
   - id: "CIS-SUSE15-5.1.13-ssh_rhosts-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.13. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2574,6 +3328,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-SUSE15-5.1.13-ssh_rhosts-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.13. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2585,6 +3341,11 @@ checks:
     expect:
       - { some: "~ ^(?i)Ignorerhosts yes" }
       - { none: "~ ^(?i)Ignorerhosts no" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)Ignorerhosts yes
+      - no line matches ^(?i)Ignorerhosts no
   - id: "CIS-SUSE15-5.1.14-ssh_logingrace-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.14. NIST SP 800-53 Rev. 5: CM-6."
@@ -2594,6 +3355,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-SUSE15-5.1.14-ssh_logingrace-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.14. NIST SP 800-53 Rev. 5: CM-6."
@@ -2603,6 +3366,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ ^(?i)LoginGraceTime ([1-9]|[1-5][0-9]|60)$" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)LoginGraceTime ([1-9]|[1-5][0-9]|60)$
   - id: "CIS-SUSE15-5.1.15-ssh_loglevel-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.15. NIST SP 800-53 Rev. 5: AU-3, AU-12, SI-5."
@@ -2612,6 +3379,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-SUSE15-5.1.15-ssh_loglevel-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.15. NIST SP 800-53 Rev. 5: AU-3, AU-12, SI-5."
@@ -2623,6 +3392,11 @@ checks:
     expect:
       - { some: "~ LogLevel (VERBOSE|INFO)" }
       - { none: "~ ^LogLevel DEBUG" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches LogLevel (VERBOSE|INFO)
+      - no line matches ^LogLevel DEBUG
   - id: "CIS-SUSE15-5.1.16-sshd_authtries-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.16. NIST SP 800-53 Rev. 5: AU-3."
@@ -2632,6 +3406,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-SUSE15-5.1.16-sshd_authtries-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.16. NIST SP 800-53 Rev. 5: AU-3."
@@ -2643,6 +3419,11 @@ checks:
     expect:
       - { some: "~ (?i)maxauthtries [1-4]" }
       - { none: "~ (?i)maxauthtries ([5-9]|[1-9]{2,})" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches (?i)maxauthtries [1-4]
+      - no line matches (?i)maxauthtries ([5-9]|[1-9]{2,})
   - id: "CIS-SUSE15-5.1.17-ssh_maxstartups-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.17. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2652,6 +3433,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-SUSE15-5.1.17-ssh_maxstartups-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.17. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2661,6 +3444,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ MaxStartups 10:30:60" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches MaxStartups 10:30:60
   - id: "CIS-SUSE15-5.1.18-ssh_maxsessions-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.18. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2670,6 +3457,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-SUSE15-5.1.18-ssh_maxsessions-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.18. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2681,6 +3470,11 @@ checks:
     expect:
       - { some: "~ ^(?i)MaxSessions ([1-9]|10)" }
       - { none: "~ ^MaxSessions (1[1-9]|[2-9][0-9]|[1-9]{3,})" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)MaxSessions ([1-9]|10)
+      - no line matches ^MaxSessions (1[1-9]|[2-9][0-9]|[1-9]{3,})
   - id: "CIS-SUSE15-5.1.19-ssh_empty_passwd-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.19. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2690,6 +3484,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-SUSE15-5.1.19-ssh_empty_passwd-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.19. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2701,6 +3497,11 @@ checks:
     expect:
       - { some: "~ ^(?i)PermitEmptyPasswords no" }
       - { none: "~ ^(?i)PermitEmptyPasswords yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)PermitEmptyPasswords no
+      - no line matches ^(?i)PermitEmptyPasswords yes
   - id: "CIS-SUSE15-5.1.20-ssh_permit_root-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.20. NIST SP 800-53 Rev. 5: AC-6."
@@ -2710,6 +3511,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-SUSE15-5.1.20-ssh_permit_root-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.20. NIST SP 800-53 Rev. 5: AC-6."
@@ -2721,6 +3524,11 @@ checks:
     expect:
       - { some: "~ ^(?i)PermitRootLogin no" }
       - { none: "~ ^(?i)PermitRootLogin yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)PermitRootLogin no
+      - no line matches ^(?i)PermitRootLogin yes
   - id: "CIS-SUSE15-5.1.21-ssh_userenv-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.21. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2730,6 +3538,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-SUSE15-5.1.21-ssh_userenv-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.21. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2741,6 +3551,11 @@ checks:
     expect:
       - { some: "~ ^(?i)PermitUserEnvironment no" }
       - { none: "~ ^(?i)PermitUserEnvironment yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)PermitUserEnvironment no
+      - no line matches ^(?i)PermitUserEnvironment yes
   - id: "CIS-SUSE15-5.1.22-ssh_usepam-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.22. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2750,6 +3565,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-SUSE15-5.1.22-ssh_usepam-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.1.22. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2761,6 +3578,11 @@ checks:
     expect:
       - { some: "~ (?i)UsePAM yes" }
       - { none: "~ (?i)^UsePAM no" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches (?i)UsePAM yes
+      - no line matches (?i)^UsePAM no
   - id: "CIS-SUSE15-5.2.1-sudo_pkg"
     name: "Package sudo is installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.2.1. NIST SP 800-53 Rev. 5: AC-6."
@@ -2769,6 +3591,10 @@ checks:
     run: |
       rpm -q --quiet sudo
     expect: true
+    remediation: |
+      Install the package sudo:
+
+      zypper install sudo
   - id: "CIS-SUSE15-5.2.2-pty_sudoers_d"
     name: "pty sudoers d: export PTY=`grep -q -Ei '^\\s*Defaults\\s+(\\[^#]+,\\s*)?use_pty' /etc/sudoers /etc/sudoers.d…"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.2.2. NIST SP 800-53 Rev. 5: AC-6."
@@ -2834,6 +3660,8 @@ checks:
       f='/etc/pam.d/su'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/su.
   - id: "CIS-SUSE15-5.2.7-restrict_su-content"
     name: "/etc/pam.d/su has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.2.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2843,6 +3671,10 @@ checks:
       cat '/etc/pam.d/su'
     allow_rc: any
     expect: { some: "~ ^auth.*required.*pam_wheel.so\\suse_uid\\sgroup=nosugroup" }
+    remediation: |
+      Edit /etc/pam.d/su so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^auth.*required.*pam_wheel.so\suse_uid\sgroup=nosugroup
   - id: "CIS-SUSE15-5.2.7-sugroup_etc_group"
     name: "sugroup etc group: grep nosugroup /etc/group"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.2.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2863,6 +3695,10 @@ checks:
     run: |
       rpm -q --quiet pam
     expect: true
+    remediation: |
+      Install the package pam:
+
+      zypper install pam
   - id: "CIS-SUSE15-5.3.1.1-pam_version-version"
     name: "Package pam version \u003e= 1.3.0-150000.6.71.2"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.3.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -2875,6 +3711,10 @@ checks:
     expect:
       - { rc: "== 0" }
       - "\u003e= 1.3.0-150000.6.71.2"
+    remediation: |
+      Update the package pam to a version >= 1.3.0-150000.6.71.2:
+
+      zypper update pam
   - id: "CIS-SUSE15-5.3.2.1.1-faillock_attempts_deny-attrs"
     name: "/etc/security/faillock.conf: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.3.2.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -2884,6 +3724,8 @@ checks:
       f='/etc/security/faillock.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/faillock.conf.
   - id: "CIS-SUSE15-5.3.2.1.1-faillock_attempts_deny-content"
     name: "/etc/security/faillock.conf has the expected content (2 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.3.2.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -2895,6 +3737,11 @@ checks:
     expect:
       - { some: "~ ^deny\\s*=\\s*[1-5]$" }
       - { none: "~ ^deny\\s*=\\s*([6-9]|[0-9]{2,})" }
+    remediation: |
+      Edit /etc/security/faillock.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^deny\s*=\s*[1-5]$
+      - no line matches ^deny\s*=\s*([6-9]|[0-9]{2,})
   - id: "CIS-SUSE15-5.3.2.1.2-faillock_unlock_time-attrs"
     name: "/etc/security/faillock.conf: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.3.2.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -2904,6 +3751,8 @@ checks:
       f='/etc/security/faillock.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/faillock.conf.
   - id: "CIS-SUSE15-5.3.2.1.2-faillock_unlock_time-content"
     name: "/etc/security/faillock.conf has the expected content (2 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.3.2.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -2915,6 +3764,11 @@ checks:
     expect:
       - { some: "~ ^unlock_time\\s*=\\s*([1-9]|[1-9][0-9]|[1-8][0-9]{1,2}|900)$" }
       - { none: "~ ^unlock_time\\s*=\\s*(90[1-9]|9[1-9][0-9]|[1-9][0-9][0-9]{2,})" }
+    remediation: |
+      Edit /etc/security/faillock.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^unlock_time\s*=\s*([1-9]|[1-9][0-9]|[1-8][0-9]{1,2}|900)$
+      - no line matches ^unlock_time\s*=\s*(90[1-9]|9[1-9][0-9]|[1-9][0-9][0-9]{2,})
   - id: "CIS-SUSE15-5.3.2.1.3-faillock_root_unlock_time-attrs"
     name: "/etc/security/faillock.conf: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.3.2.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -2924,6 +3778,8 @@ checks:
       f='/etc/security/faillock.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/faillock.conf.
   - id: "CIS-SUSE15-5.3.2.1.3-faillock_root_unlock_time-content"
     name: "/etc/security/faillock.conf has the expected content (2 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.3.2.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -2935,6 +3791,11 @@ checks:
     expect:
       - { some: "~ ^(even_deny_root|root_unlock_time\\s*=\\s*([6-9][0-9]|[1-9][0-9]{2,})$)" }
       - { none: "~ ^root_unlock_time\\s*=\\s*([0-9]|[1-5][0-9]|60)" }
+    remediation: |
+      Edit /etc/security/faillock.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(even_deny_root|root_unlock_time\s*=\s*([6-9][0-9]|[1-9][0-9]{2,})$)
+      - no line matches ^root_unlock_time\s*=\s*([0-9]|[1-5][0-9]|60)
   - id: "CIS-SUSE15-5.3.2.2.1-dict_check_use_pam"
     name: "dict check use pam: grep -Psi -- 'pam_cracklib.so' /etc/pam.d/*"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.3.2.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3108,6 +3969,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-SUSE15-5.4.1.1-login_defs_max_days-content"
     name: "/etc/login.defs has the expected content (3 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3120,6 +3983,12 @@ checks:
       - { some: "~ ^PASS_MAX_DAYS\\s+365" }
       - { none: "~ ^PASS_MAX_DAYS\\s+(36[6-9]|[4-9][0-9][0-9]|[1-9][0-9][0-9][0-9]|[1-9][0-9][0-9][0-9][0-9])" }
       - { none: "~ ^PASS_MAX_DAYS\\s+-1" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_MAX_DAYS\s+365
+      - no line matches ^PASS_MAX_DAYS\s+(36[6-9]|[4-9][0-9][0-9]|[1-9][0-9][0-9][0-9]|[1-9][0-9][0-9][0-9][0-9])
+      - no line matches ^PASS_MAX_DAYS\s+-1
   - id: "CIS-SUSE15-5.4.1.2-login_defs_min_days-attrs"
     name: "/etc/login.defs: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.4.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -3129,6 +3998,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-SUSE15-5.4.1.2-login_defs_min_days-content"
     name: "/etc/login.defs has the expected content (2 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.4.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -3140,6 +4011,11 @@ checks:
     expect:
       - { some: "~ ^PASS_MIN_DAYS\\s[1-9]" }
       - { none: "~ ^PASS_MIN_DAYS\\s0" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_MIN_DAYS\s[1-9]
+      - no line matches ^PASS_MIN_DAYS\s0
   - id: "CIS-SUSE15-5.4.1.3-login_defs_warn_age-attrs"
     name: "/etc/login.defs: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.4.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3149,6 +4025,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-SUSE15-5.4.1.3-login_defs_warn_age-content"
     name: "/etc/login.defs has the expected content (3 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.4.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3161,6 +4039,12 @@ checks:
       - { some: "~ ^PASS_WARN_AGE\\s+7$" }
       - { some: "~ ^PASS_WARN_AGE\\s+(7|[1-9][0-9]{1,3})$" }
       - { none: "~ ^PASS_WARN_AGE\\s+[1-6]$" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_WARN_AGE\s+7$
+      - a line matches ^PASS_WARN_AGE\s+(7|[1-9][0-9]{1,3})$
+      - no line matches ^PASS_WARN_AGE\s+[1-6]$
   - id: "CIS-SUSE15-5.4.1.4-login_defs_hashing-attrs"
     name: "/etc/login.defs: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.4.1.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -3170,6 +4054,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-SUSE15-5.4.1.4-login_defs_hashing-content"
     name: "/etc/login.defs has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.4.1.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -3179,6 +4065,10 @@ checks:
       cat '/etc/login.defs'
     allow_rc: any
     expect: { some: "~ ^ENCRYPT_METHOD (SHA512|YESCRYPT)" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^ENCRYPT_METHOD (SHA512|YESCRYPT)
   - id: "CIS-SUSE15-5.4.1.5-inactive_passwd"
     name: "inactive passwd: useradd -D | grep INACTIVE"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.4.1.5. NIST SP 800-53 Rev. 5: NA."
@@ -3215,6 +4105,11 @@ checks:
         if [ "$t" -gt "$now" ]; then echo "$usr: last password change $d is in the future"; fi
       done
     expect: empty
+    remediation: |
+      Check the system clock, then set the last password change of every listed user to today, or expire the password so it must be changed at the next login:
+
+      chage --lastday "$(date +%Y-%m-%d)" USER
+      chage --lastday 0 USER
   - id: "CIS-SUSE15-5.4.2.1-uid_0_check"
     name: "uid 0 check: awk -F: '($3 == 0) { print $1 }' /etc/passwd"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.4.2.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3317,6 +4212,8 @@ checks:
       f='/etc/shells'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/shells.
   - id: "CIS-SUSE15-5.4.3.1-nologin_not_in_shells-content"
     name: "/etc/shells has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.4.3.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3326,6 +4223,10 @@ checks:
       cat '/etc/shells'
     allow_rc: any
     expect: { none: "~ .*nologin" }
+    remediation: |
+      Edit /etc/shells so that its lines meet these conditions (regular expressions):
+
+      - no line matches .*nologin
   - id: "CIS-SUSE15-5.4.3.2-check_timeout"
     name: "check timeout: grep TMOUT /etc/profile.d/*.sh /etc/profile /etc/profile.d/*.sh| cut -d \":\" -f2"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 5.4.3.2. NIST SP 800-53 Rev. 5: NA."
@@ -3359,6 +4260,10 @@ checks:
     run: |
       rpm -q --quiet aide
     expect: true
+    remediation: |
+      Install the package aide:
+
+      zypper install aide
   - id: "CIS-SUSE15-6.1.2-aide_cron"
     name: "aide cron: grep -rs aide /etc/cron.* /etc/crontab /var/spool/cron/*"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.1.2. NIST SP 800-53 Rev. 5: AU-2."
@@ -3379,6 +4284,8 @@ checks:
       f='/etc/aide.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/aide.conf.
   - id: "CIS-SUSE15-6.1.3-audit_bins_crypto_aide-content"
     name: "/etc/aide.conf has the expected content (6 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.1.3."
@@ -3394,6 +4301,15 @@ checks:
       - { some: "~ /sbin/aureport p\\+i\\+n\\+u\\+g\\+s\\+b\\+acl\\+xattrs\\+sha512" }
       - { some: "~ /sbin/autrace p\\+i\\+n\\+u\\+g\\+s\\+b\\+acl\\+xattrs\\+sha512" }
       - { some: "~ /sbin/augenrules p\\+i\\+n\\+u\\+g\\+s\\+b\\+acl\\+xattrs\\+sha512" }
+    remediation: |
+      Edit /etc/aide.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches /sbin/auditctl p\+i\+n\+u\+g\+s\+b\+acl\+xattrs\+sha512
+      - a line matches /sbin/auditd p\+i\+n\+u\+g\+s\+b\+acl\+xattrs\+sha512
+      - a line matches /sbin/ausearch p\+i\+n\+u\+g\+s\+b\+acl\+xattrs\+sha512
+      - a line matches /sbin/aureport p\+i\+n\+u\+g\+s\+b\+acl\+xattrs\+sha512
+      - a line matches /sbin/autrace p\+i\+n\+u\+g\+s\+b\+acl\+xattrs\+sha512
+      - a line matches /sbin/augenrules p\+i\+n\+u\+g\+s\+b\+acl\+xattrs\+sha512
   - id: "CIS-SUSE15-6.2.1.1-systemd-journald-enabled"
     name: "Service systemd-journald.service is enabled"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.2.1.1. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -3402,6 +4318,10 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journald.service | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service systemd-journald.service:
+
+      systemctl enable systemd-journald.service
   - id: "CIS-SUSE15-6.2.1.1-systemd-journald-running"
     name: "Service systemd-journald.service is running"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.2.1.1. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -3410,6 +4330,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journald.service | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service systemd-journald.service:
+
+      systemctl start systemd-journald.service
   - id: "CIS-SUSE15-6.2.1.2-etc_tmpfiles.d_systemd.conf"
     name: "/etc/tmpfiles.d/systemd.conf: grep -HEn ^f /usr/lib/tmpfiles.d/systemd.conf /etc/tmpfiles.d/systemd.conf | awk -F' ' '(…"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.2.1.2. NIST SP 800-53 Rev. 5: AC-3, AU-2, AU-12, MP-2, SI-5."
@@ -3449,6 +4373,10 @@ checks:
     run: |
       systemctl show -p ActiveState rsyslog | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service rsyslog, unless the system needs it:
+
+      systemctl stop rsyslog
   - id: "CIS-SUSE15-6.2.1.4-only_journald_installed_pkg-running"
     name: "Service systemd-journald.service is running"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.2.1.4. NIST SP 800-53 Rev. 5: NA."
@@ -3457,6 +4385,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journald.service | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service systemd-journald.service:
+
+      systemctl start systemd-journald.service
   - id: "CIS-SUSE15-6.2.2.1.1-systemd-journal-remote"
     name: "Package systemd-journal-remote is installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.2.2.1.1. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -3465,6 +4397,10 @@ checks:
     run: |
       rpm -q --quiet systemd-journal-remote
     expect: true
+    remediation: |
+      Install the package systemd-journal-remote:
+
+      zypper install systemd-journal-remote
   - id: "CIS-SUSE15-6.2.2.1.2-journald_remote_config"
     name: "journald remote config: systemd-analyze cat-config systemd/journal-upload.conf"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.2.2.1.2. NIST SP 800-53 Rev. 5: AU-2, AU-12."
@@ -3487,6 +4423,10 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journal-upload.service | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service systemd-journal-upload.service:
+
+      systemctl enable systemd-journal-upload.service
   - id: "CIS-SUSE15-6.2.2.1.3-systemd-journal-upload.service-running"
     name: "Service systemd-journal-upload.service is running"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.2.2.1.3. NIST SP 800-53 Rev. 5: AU-2, AU-12."
@@ -3495,6 +4435,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journal-upload.service | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service systemd-journal-upload.service:
+
+      systemctl start systemd-journal-upload.service
   - id: "CIS-SUSE15-6.2.2.1.4-systemd-journal-remote.socket-enabled"
     name: "Service systemd-journal-remote.socket is not enabled"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.2.2.1.4. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -3503,6 +4447,12 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journal-remote.socket | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service systemd-journal-remote.socket, unless the system needs it:
+
+      systemctl disable systemd-journal-remote.socket
+
+      To keep other units from starting it, mask it instead: systemctl mask systemd-journal-remote.socket
   - id: "CIS-SUSE15-6.2.2.1.4-systemd-journal-remote.socket-running"
     name: "Service systemd-journal-remote.socket is not running"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.2.2.1.4. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -3511,6 +4461,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journal-remote.socket | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service systemd-journal-remote.socket, unless the system needs it:
+
+      systemctl stop systemd-journal-remote.socket
   - id: "CIS-SUSE15-6.2.2.1.4-journald_socket_masked"
     name: "journald socket masked: systemctl is-enabled systemd-journal-remote.socket"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.2.2.1.4. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -3587,6 +4541,10 @@ checks:
     run: |
       rpm -q --quiet rsyslog
     expect: true
+    remediation: |
+      Install the package rsyslog:
+
+      zypper install rsyslog
   - id: "CIS-SUSE15-6.2.3.3-rsyslog_service-enabled"
     name: "Service rsyslog.service is enabled"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.2.3.3. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12."
@@ -3595,6 +4553,10 @@ checks:
     run: |
       systemctl show -p UnitFileState rsyslog.service | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service rsyslog.service:
+
+      systemctl enable rsyslog.service
   - id: "CIS-SUSE15-6.2.3.3-rsyslog_service-running"
     name: "Service rsyslog.service is running"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.2.3.3. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12."
@@ -3603,6 +4565,10 @@ checks:
     run: |
       systemctl show -p ActiveState rsyslog.service | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service rsyslog.service:
+
+      systemctl start rsyslog.service
   - id: "CIS-SUSE15-6.2.3.4-forward_journald_conf"
     name: "forward journald conf: systemd-analyze cat-config systemd/journald.conf | grep -i '^\\s*ForwardToSyslog' | tail -1"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.2.3.4. NIST SP 800-53 Rev. 5: AC-3, AU-2, AU-4, AU-12, MP-2."
@@ -3635,6 +4601,8 @@ checks:
       f='/etc/rsyslog.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/rsyslog.conf.
   - id: "CIS-SUSE15-6.2.3.6-rsyslog_logging-content"
     name: "/etc/rsyslog.conf has the expected content (13 rules)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.2.3.6. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -3657,6 +4625,22 @@ checks:
       - { some: "~ ^local2,local3.\\*\\s+-/var/log/localmessages" }
       - { some: "~ ^local4,local5.\\*\\s+-/var/log/localmessages" }
       - { some: "~ ^local6,local7.\\*\\s+-/var/log/localmessages" }
+    remediation: |
+      Edit /etc/rsyslog.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\*.emerg\s+:omusrmsg:\*
+      - a line matches auth,authpriv.\*\s+/var/log/secure
+      - a line matches ^mail.\*\s+-/var/log/mail
+      - a line matches ^mail.info\s+-/var/log/mail.info
+      - a line matches ^mail.err\s+/var/log/mail.err
+      - a line matches ^cron.\*\s+/var/log/cron
+      - a line matches ^*.=warning;\*.=err\s+-/var/log/warn
+      - a line matches ^*.crit\s+/var/log/warn
+      - a line matches ^*.*;mail.none;news.none\s+/var/log/messages
+      - a line matches ^local0,local1.\*\s+-/var/log/localmessages
+      - a line matches ^local2,local3.\*\s+-/var/log/localmessages
+      - a line matches ^local4,local5.\*\s+-/var/log/localmessages
+      - a line matches ^local6,local7.\*\s+-/var/log/localmessages
   - id: "CIS-SUSE15-6.2.3.7-rsyslog_pkg"
     name: "Package logrotate is installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.2.3.7. NIST SP 800-53 Rev. 5: AU-8."
@@ -3665,6 +4649,10 @@ checks:
     run: |
       rpm -q --quiet logrotate
     expect: true
+    remediation: |
+      Install the package logrotate:
+
+      zypper install logrotate
   - id: "CIS-SUSE15-6.2.3.7-rsyslog_logrotate"
     name: "rsyslog logrotate: echo \"Manual | please check file rotaton matches site policy - logrotate\""
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.2.3.7. NIST SP 800-53 Rev. 5: AU-8."
@@ -3716,6 +4704,10 @@ checks:
     run: |
       rpm -q --quiet audit
     expect: true
+    remediation: |
+      Install the package audit:
+
+      zypper install audit
   - id: "CIS-SUSE15-6.3.1.2-audit_default_grub"
     name: "audit default grub: grep audit= /etc/default/grub"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.3.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -3769,6 +4761,10 @@ checks:
     run: |
       systemctl show -p UnitFileState auditd.service | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service auditd.service:
+
+      systemctl enable auditd.service
   - id: "CIS-SUSE15-6.3.1.4-auditd_service-running"
     name: "Service auditd.service is running"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.3.1.4. NIST SP 800-53 Rev. 5: AU-2, AU-12, SI-5."
@@ -3777,6 +4773,10 @@ checks:
     run: |
       systemctl show -p ActiveState auditd.service | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service auditd.service:
+
+      systemctl start auditd.service
   - id: "CIS-SUSE15-6.3.2.1-max_log_auditd_conf"
     name: "max log auditd conf: grep max_log_file /etc/audit/auditd.conf"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 6.3.2.1. NIST SP 800-53 Rev. 5: AU-8."
@@ -4454,6 +5454,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/passwd if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/passwd'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/passwd'
   - id: "CIS-SUSE15-7.1.2-passwd-_perms-attrs"
     name: "/etc/passwd-: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 7.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4466,6 +5471,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/passwd- if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/passwd-'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/passwd-'
   - id: "CIS-SUSE15-7.1.3-group_perms-attrs"
     name: "/etc/group: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 7.1.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4478,6 +5488,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/group if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/group'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/group'
   - id: "CIS-SUSE15-7.1.4-group-_perms-attrs"
     name: "/etc/group-: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 7.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4490,6 +5505,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/group- if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/group-'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/group-'
   - id: "CIS-SUSE15-7.1.5-shadow_perms-attrs"
     name: "/etc/shadow: exists, mode 0640 or stricter, owner root, group root or shadow"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 7.1.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4502,6 +5522,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root'|'shadow') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shadow if it is missing, then set owner root and group root or shadow and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/shadow'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/shadow'
   - id: "CIS-SUSE15-7.1.6-shadow-_perms-attrs"
     name: "/etc/shadow-: exists, mode 0640 or stricter, owner root, group root or shadow"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 7.1.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4514,6 +5539,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root'|'shadow') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shadow- if it is missing, then set owner root and group root or shadow and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/shadow-'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/shadow-'
   - id: "CIS-SUSE15-7.1.7-gshadow_perms-attrs"
     name: "/etc/gshadow: mode 0640 or stricter, owner root, group root or shadow"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 7.1.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4526,6 +5556,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root'|'shadow') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/gshadow if it is missing, then set owner root and group root or shadow and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/gshadow'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/gshadow'
   - id: "CIS-SUSE15-7.1.8-gshadow-_perms-attrs"
     name: "/etc/gshadow-: mode 0640 or stricter, owner root, group root or shadow"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 7.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4538,6 +5573,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root'|'shadow') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/gshadow- if it is missing, then set owner root and group root or shadow and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/gshadow-'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/gshadow-'
   - id: "CIS-SUSE15-7.1.9-etc_shells_perms-attrs"
     name: "/etc/shells: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 7.1.9. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4550,6 +5590,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shells if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/shells'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/shells'
   - id: "CIS-SUSE15-7.1.10-etc_security_opasswd_perms-attrs"
     name: "/etc/security/opasswd: mode 0600 or stricter, owner root, group root"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 7.1.10. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4562,6 +5607,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/security/opasswd if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/security/opasswd'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/security/opasswd'
   - id: "CIS-SUSE15-7.1.11-world_writable"
     name: "world writable: df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm…"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 7.1.11. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4604,6 +5654,8 @@ checks:
       f='/etc/passwd'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/passwd.
   - id: "CIS-SUSE15-7.2.1-shadowed_passwds-content"
     name: "/etc/passwd has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 7.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -4613,6 +5665,10 @@ checks:
       cat '/etc/passwd'
     allow_rc: any
     expect: { some: "~ ^.*:x:" }
+    remediation: |
+      Edit /etc/passwd so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^.*:x:
   - id: "CIS-SUSE15-7.2.2-passwd_fields_not_empty_shadow-attrs"
     name: "/etc/shadow: exists"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 7.2.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -4622,6 +5678,8 @@ checks:
       f='/etc/shadow'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/shadow.
   - id: "CIS-SUSE15-7.2.2-passwd_fields_not_empty_shadow-content"
     name: "/etc/shadow has the expected content (1 rule)"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 7.2.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -4631,6 +5689,10 @@ checks:
       cat '/etc/shadow'
     allow_rc: any
     expect: { none: "~ ^*.[a-z]::" }
+    remediation: |
+      Edit /etc/shadow so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^*.[a-z]::
   - id: "CIS-SUSE15-7.2.3-passwd_group_exist"
     name: "passwd group exist: awk -F: '{print $4}' /etc/passwd |sort -u \u003e /tmp/uid \u0026\u0026 awk -F: '{print $3}' /etc/group| …"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 7.2.3. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."

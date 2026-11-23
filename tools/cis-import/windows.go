@@ -131,11 +131,19 @@ var regKinds = map[string]string{
 // winRegistryCheck checks one registry value. The command prints ABSENT or
 // "<kind>=<value>" (multi-string values joined with |).
 func winRegistryCheck(c check, name string, attrs map[string]any) []check {
+	if strings.HasSuffix(name, `\`) {
+		return winRegistryKeyCheck(c, strings.TrimSuffix(name, `\`), attrs)
+	}
 	i := strings.LastIndex(name, `\`)
 	if i < 0 {
 		return nil
 	}
 	keyPath, valueName := name[:i], name[i+1:]
+	// "KEY::NAME" separates a value name that contains backslashes, such
+	// as the hardened UNC path \\*\NETLOGON.
+	if j := strings.Index(name, "::"); j >= 0 {
+		keyPath, valueName = name[:j], name[j+2:]
+	}
 	hive := keyPath
 	rest := ""
 	if j := strings.Index(keyPath, `\`); j >= 0 {
@@ -152,25 +160,73 @@ else { '{0}={1}' -f $k.GetValueKind($n), (@($k.GetValue($n, $null, 'DoNotExpandE
 		psQuote(`Registry::`+full+`\`+rest), psQuote(valueName))
 
 	location := strings.ToUpper(hive) + `\` + rest
+	regType := strings.ToUpper(str(attrs["type"]))
 	if exists, ok := attrs["exists"].(bool); ok && !exists {
 		c.Name = firstLine(fmt.Sprintf("Registry value %s is not set (%s)", valueName, location), 120)
 		c.Expect = []string{yamlString("== ABSENT")}
+		c.Remediation = registryRemoval(location, valueName)
 		return []check{c}
 	}
 	value, hasValue := attrs["value"]
 	if !hasValue {
 		c.Name = firstLine(fmt.Sprintf("Registry value %s is set (%s)", valueName, location), 120)
 		c.Expect = []string{yamlString("!= ABSENT")}
+		c.Remediation = registryAnyValue(location, valueName, regType)
+		return []check{c}
+	}
+	kind := regKinds[regType]
+	// A value given as {match-regexp: RE} must match RE.
+	if m, ok := value.(map[string]any); ok {
+		re := str(m["match-regexp"])
+		if re == "" {
+			fmt.Fprintf(os.Stderr, "  skipped %s: unsupported registry value matcher %v\n", c.ID, m)
+			return nil
+		}
+		prefix := "[A-Za-z]+"
+		if kind != "" {
+			prefix = kind
+		}
+		c.Name = firstLine(fmt.Sprintf("Registry value %s matches %s (%s)", valueName, displayValue(re), location), 120)
+		if strings.HasPrefix(re, "^") {
+			re = re[1:]
+		} else {
+			re = ".*" + re
+		}
+		c.Expect = []string{yamlString("~ ^" + prefix + "=" + re)}
+		c.Remediation = registryPattern(location, valueName, regType, str(m["match-regexp"]))
 		return []check{c}
 	}
 	text := strings.ReplaceAll(fmt.Sprint(value), "\n", "|")
-	kind := regKinds[strings.ToUpper(str(attrs["type"]))]
 	c.Name = firstLine(fmt.Sprintf("Registry value %s is %s (%s)", valueName, displayValue(text), location), 120)
 	if kind == "" {
 		c.Expect = []string{yamlString("~ ^[A-Za-z]+=" + regexp.QuoteMeta(text) + "$")}
 	} else {
 		c.Expect = []string{yamlString("== " + kind + "=" + text)}
 	}
+	c.Remediation = registryValue(location, valueName, regType, value)
+	return []check{c}
+}
+
+// winRegistryKeyCheck checks whether a registry key exists.
+func winRegistryKeyCheck(c check, key string, attrs map[string]any) []check {
+	hive, rest, _ := strings.Cut(key, `\`)
+	full, ok := hives[strings.ToUpper(hive)]
+	if !ok || rest == "" {
+		return nil
+	}
+	location := strings.ToUpper(hive) + `\` + rest
+	c.Run = fmt.Sprintf(`if (Test-Path -LiteralPath %s) { 'PRESENT' } else { 'ABSENT' }`, psQuote(`Registry::`+full+`\`+rest))
+	if exists, ok := attrs["exists"].(bool); ok && !exists {
+		c.Name = firstLine(fmt.Sprintf("Registry key %s does not exist", location), 120)
+		c.Expect = []string{yamlString("== ABSENT")}
+		c.Remediation = fmt.Sprintf("Remove the registry key %s:\n\nRemove-Item -LiteralPath %s -Recurse\n\n%s",
+			location, psQuote(psPath(location)), gpoNote)
+		return []check{c}
+	}
+	c.Name = firstLine(fmt.Sprintf("Registry key %s exists", location), 120)
+	c.Expect = []string{yamlString("== PRESENT")}
+	c.Remediation = fmt.Sprintf("Create the registry key %s:\n\nNew-Item -Path %s -Force | Out-Null\n\n%s",
+		location, psQuote(psPath(location)), gpoNote)
 	return []check{c}
 }
 
@@ -205,6 +261,7 @@ func winFileCheck(c check, attrs map[string]any) []check {
 	if len(c.Expect) == 0 {
 		c.Expect = []string{yamlString("!empty")}
 	}
+	c.Remediation = remediationOrWarn(c.ID, key, c.Expect, "")
 	return []check{c}
 }
 
@@ -244,9 +301,24 @@ func winCommandCheck(c check, name string, attrs map[string]any) []check {
 	}
 	c.Run = b.String()
 	c.Name = what
+	if len(keys) == 1 {
+		c.Remediation = remediationOrWarn(c.ID, sortedKeys(keys)[0], nil, exec)
+	} else {
+		fmt.Fprintf(os.Stderr, "  %s: no remediation, the command reads %d values\n", c.ID, len(keys))
+	}
 	c.AllowAnyRC = true
 	c.Expect = append([]string{rcCondition(exitCodes(attrs["exit-status"]))}, patternConditions(attrs["stdout"])...)
 	return []check{c}
+}
+
+// remediationOrWarn reports checks the remediation generator cannot
+// describe, so a gap is noticed when the upstream content changes.
+func remediationOrWarn(id, key string, expect []string, exec string) string {
+	r, err := winRemediation(key, expect, exec)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "  %s: no remediation: %v\n", id, err)
+	}
+	return r
 }
 
 func indent(s, prefix string) string {

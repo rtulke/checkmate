@@ -89,6 +89,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/tmp'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /tmp on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data. A tmpfs mount on /tmp, e.g. with systemd's tmp.mount, counts as well.
   - id: "CIS-UBUNTU18-1.1.3-tmp"
     name: "/tmp is a separate mount with nodev"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.3."
@@ -100,6 +102,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /tmp with the option nodev: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU18-1.1.4-tmp"
     name: "/tmp is a separate mount with nosuid"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.4."
@@ -111,6 +119,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /tmp with the option nosuid: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU18-1.1.5-tmp"
     name: "/tmp is a separate mount with noexec"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.5."
@@ -122,6 +136,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /tmp with the option noexec: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU18-1.1.6-dev_shm"
     name: "/dev/shm is a separate mount"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.6."
@@ -131,6 +151,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/dev/shm'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /dev/shm on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-UBUNTU18-1.1.7-dev_shm"
     name: "/dev/shm is a separate mount with nodev"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.7."
@@ -142,6 +164,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /dev/shm with the option nodev: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU18-1.1.8-dev_shm"
     name: "/dev/shm is a separate mount with nosuid"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.8."
@@ -153,6 +181,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /dev/shm with the option nosuid: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU18-1.1.9-dev_shm"
     name: "/dev/shm is a separate mount with noexec"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.9."
@@ -164,6 +198,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /dev/shm with the option noexec: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU18-1.1.10-var"
     name: "/var is a separate mount"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.10."
@@ -173,6 +213,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-UBUNTU18-1.1.11-var_tmp"
     name: "/var/tmp is a separate mount"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.11."
@@ -182,6 +224,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/tmp'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/tmp on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-UBUNTU18-1.1.12-var_tmp"
     name: "/var/tmp is a separate mount with nodev"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.12."
@@ -193,6 +237,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/tmp with the option nodev: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU18-1.1.13-var_tmp"
     name: "/var/tmp is a separate mount with nosuid"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.13."
@@ -204,6 +254,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/tmp with the option nosuid: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU18-1.1.14-var_tmp"
     name: "/var/tmp is a separate mount with noexec"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.14."
@@ -215,6 +271,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/tmp with the option noexec: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU18-1.1.15-var_log"
     name: "/var/log is a separate mount"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.15."
@@ -224,6 +286,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/log'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/log on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-UBUNTU18-1.1.16-var_log_audit"
     name: "/var/log/audit is a separate mount"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.16."
@@ -233,6 +297,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/log/audit'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/log/audit on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-UBUNTU18-1.1.17-home"
     name: "/home is a separate mount"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.17."
@@ -242,6 +308,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/home'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /home on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-UBUNTU18-1.1.17-home-2"
     name: "/home is a separate mount with nodev"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.17."
@@ -253,6 +321,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /home with the option nodev: add it to the options of /home in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/home'
+
+      If /home is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU18-1.1.19-cdrom_nodev"
     name: "cdrom nodev: if [ `grep -c -i cdrom /etc/fstab` = 1 ] ; then if [ `grep -c -E 'cdrom.*nodev' /etc/fsta…"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.19."
@@ -339,6 +413,12 @@ checks:
     run: |
       systemctl show -p UnitFileState autofs | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service autofs, unless the system needs it:
+
+      systemctl disable autofs
+
+      To keep other units from starting it, mask it instead: systemctl mask autofs
   - id: "CIS-UBUNTU18-1.1.23-autofs-running"
     name: "Service autofs is not running"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.23."
@@ -347,6 +427,10 @@ checks:
     run: |
       systemctl show -p ActiveState autofs | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service autofs, unless the system needs it:
+
+      systemctl stop autofs
   - id: "CIS-UBUNTU18-1.1.24-cramfs"
     name: "cramfs: modprobe -n -v usb-storage | grep -E '(usb-storage|install)'"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.1.24."
@@ -389,6 +473,8 @@ checks:
       f='/usr/sbin/grub-mkconfig'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /usr/sbin/grub-mkconfig.
   - id: "CIS-UBUNTU18-1.4.1-usr_sbin_grub-mkconfig-content"
     name: "/usr/sbin/grub-mkconfig has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.4.1."
@@ -400,6 +486,11 @@ checks:
     expect:
       - { some: "~ s+chmod 400${grub_cfg}.new || true" }
       - { none: "~ chmod ([0-3]|[5-7)[[1-7][1-7])" }
+    remediation: |
+      Edit /usr/sbin/grub-mkconfig so that its lines meet these conditions (regular expressions):
+
+      - a line matches s+chmod 400${grub_cfg}.new || true
+      - no line matches chmod ([0-3]|[5-7)[[1-7][1-7])
   - id: "CIS-UBUNTU18-1.4.2-boot_grub_grub.cfg-attrs"
     name: "/boot/grub/grub.cfg: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.4.2."
@@ -409,6 +500,8 @@ checks:
       f='/boot/grub/grub.cfg'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /boot/grub/grub.cfg.
   - id: "CIS-UBUNTU18-1.4.2-boot_grub_grub.cfg-content"
     name: "/boot/grub/grub.cfg has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.4.2."
@@ -420,6 +513,11 @@ checks:
     expect:
       - { some: "~ set superusers=\"root\"" }
       - { some: "~ /password_pbkdf2 root blah" }
+    remediation: |
+      Edit /boot/grub/grub.cfg so that its lines meet these conditions (regular expressions):
+
+      - a line matches set superusers="root"
+      - a line matches /password_pbkdf2 root blah
   - id: "CIS-UBUNTU18-1.4.3-boot_grub_grub.cfg-attrs"
     name: "/boot/grub/grub.cfg: exists, mode 0256 or stricter, owner root, group root"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.4.3."
@@ -432,6 +530,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /boot/grub/grub.cfg if it is missing, then set owner root and group root and remove the permissions u-rxs,g-ws,o-x,a-t:
+
+      chown root:root '/boot/grub/grub.cfg'
+      chmod u-rxs,g-ws,o-x,a-t '/boot/grub/grub.cfg'
   - id: "CIS-UBUNTU18-1.4.4-check_root_pw"
     name: "check root pw: grep -Eq '^root:\\$[0-9]' /etc/shadow || echo \"root is not locked\""
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.4.4."
@@ -465,6 +568,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 2"
+    remediation: |
+      Set the kernel parameter kernel.randomize_va_space to 2, now and at boot:
+
+      sysctl -w 'kernel.randomize_va_space=2'
+      printf '%s\n' 'kernel.randomize_va_space = 2' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of kernel.randomize_va_space from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-1.5.2-aslr_enabled_2"
     name: "aslr enabled 2: grep \"^kernel\\.randomize_va_space\" /etc/sysctl.conf /etc/sysctl.d/* | cut -d \":\" -f2"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.5.2."
@@ -484,6 +594,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' prelink 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package prelink, unless the system needs it:
+
+      apt-get purge prelink
   - id: "CIS-UBUNTU18-1.5.4-fs.suid_dumpable"
     name: "Kernel parameter fs.suid_dumpable is 0"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.5.4."
@@ -495,6 +609,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter fs.suid_dumpable to 0, now and at boot:
+
+      sysctl -w 'fs.suid_dumpable=0'
+      printf '%s\n' 'fs.suid_dumpable = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of fs.suid_dumpable from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-1.5.4-coredump-enabled"
     name: "Service coredump is not enabled"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.5.4."
@@ -503,6 +624,12 @@ checks:
     run: |
       systemctl show -p UnitFileState coredump | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service coredump, unless the system needs it:
+
+      systemctl disable coredump
+
+      To keep other units from starting it, mask it instead: systemctl mask coredump
   - id: "CIS-UBUNTU18-1.5.4-coredump-running"
     name: "Service coredump is not running"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.5.4."
@@ -511,6 +638,10 @@ checks:
     run: |
       systemctl show -p ActiveState coredump | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service coredump, unless the system needs it:
+
+      systemctl stop coredump
   - id: "CIS-UBUNTU18-1.5.4-etc_systemd_coredump.conf-attrs"
     name: "/etc/systemd/coredump.conf: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.5.4."
@@ -520,6 +651,8 @@ checks:
       f='/etc/systemd/coredump.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/systemd/coredump.conf.
   - id: "CIS-UBUNTU18-1.5.4-etc_systemd_coredump.conf-content"
     name: "/etc/systemd/coredump.conf has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.5.4."
@@ -531,6 +664,11 @@ checks:
     expect:
       - { some: "~ ^Storage=none" }
       - { some: "~ ^ProcessSizeMax=0" }
+    remediation: |
+      Edit /etc/systemd/coredump.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^Storage=none
+      - a line matches ^ProcessSizeMax=0
   - id: "CIS-UBUNTU18-1.5.4-core_dumps_limits"
     name: "core dumps limits: grep -E \"\\*.*hard.*core.*0\" /etc/security/limits.conf /etc/security/limits.d/*"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.5.4."
@@ -561,6 +699,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' apparmor 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package apparmor:
+
+      apt-get install apparmor
   - id: "CIS-UBUNTU18-1.6.1.2-boot_grub_grub.cfg-attrs"
     name: "/boot/grub/grub.cfg: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.6.1.2."
@@ -570,6 +712,8 @@ checks:
       f='/boot/grub/grub.cfg'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /boot/grub/grub.cfg.
   - id: "CIS-UBUNTU18-1.6.1.2-boot_grub_grub.cfg-content"
     name: "/boot/grub/grub.cfg has the expected content (3 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.6.1.2."
@@ -582,6 +726,12 @@ checks:
       - { some: "~ apparmor=1" }
       - { some: "~ security=apparmor" }
       - { none: "~ apparmor=0" }
+    remediation: |
+      Edit /boot/grub/grub.cfg so that its lines meet these conditions (regular expressions):
+
+      - a line matches apparmor=1
+      - a line matches security=apparmor
+      - no line matches apparmor=0
   - id: "CIS-UBUNTU18-1.6.1.2-etc_default_grub-attrs"
     name: "/etc/default/grub: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.6.1.2."
@@ -591,6 +741,8 @@ checks:
       f='/etc/default/grub'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/default/grub.
   - id: "CIS-UBUNTU18-1.6.1.2-etc_default_grub-content"
     name: "/etc/default/grub has the expected content (3 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.6.1.2."
@@ -603,6 +755,12 @@ checks:
       - { some: "~ ^GRUB_CMDLINE_LINUX.*apparmor=1" }
       - { some: "~ ^GRUB_CMDLINE_LINUX.*security=apparmor" }
       - { none: "~ apparmor=0" }
+    remediation: |
+      Edit /etc/default/grub so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^GRUB_CMDLINE_LINUX.*apparmor=1
+      - a line matches ^GRUB_CMDLINE_LINUX.*security=apparmor
+      - no line matches apparmor=0
   - id: "CIS-UBUNTU18-1.6.1.3-apparmor_enf_or_comp"
     name: "apparmor enf or comp: LOADED=`apparmor_status | grep 'profiles are loaded' | awk '{print $1}'` \u0026\u0026 ENFORCE=`appa…"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.6.1.3."
@@ -637,6 +795,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue.net if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue.net'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue.net'
   - id: "CIS-UBUNTU18-1.7.3-etc_issue-attrs"
     name: "/etc/issue: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.7.3."
@@ -649,6 +812,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue'
   - id: "CIS-UBUNTU18-1.7.5-check_motd_files"
     name: "check motd files: grep -Eis \"(\\\\\\v|\\\\\\r|\\\\\\m|\\\\\\s|$(grep '^ID=' /etc/os-release | cut -d= -f2 | sed -e 's/\"…"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.7.5."
@@ -679,6 +847,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' gdm3 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package gdm3, unless the system needs it:
+
+      apt-get purge gdm3
   - id: "CIS-UBUNTU18-1.9-check_updates"
     name: "check updates: apt update | tail -1"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 1.9."
@@ -700,6 +872,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' chrony 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package chrony:
+
+      apt-get install chrony
   - id: "CIS-UBUNTU18-2.1.1.3-chrony"
     name: "Package chrony is installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.1.3."
@@ -708,6 +884,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' chrony 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package chrony:
+
+      apt-get install chrony
   - id: "CIS-UBUNTU18-2.1.1.3-ntp"
     name: "Package ntp is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.1.3."
@@ -716,6 +896,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ntp 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package ntp, unless the system needs it:
+
+      apt-get purge ntp
   - id: "CIS-UBUNTU18-2.1.1.3-chronyd-enabled"
     name: "Service chronyd is enabled"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.1.3."
@@ -724,6 +908,10 @@ checks:
     run: |
       systemctl show -p UnitFileState chronyd | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service chronyd:
+
+      systemctl enable chronyd
   - id: "CIS-UBUNTU18-2.1.1.3-chronyd-running"
     name: "Service chronyd is running"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.1.3."
@@ -732,6 +920,10 @@ checks:
     run: |
       systemctl show -p ActiveState chronyd | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service chronyd:
+
+      systemctl start chronyd
   - id: "CIS-UBUNTU18-2.1.1.3-timesyncd-enabled"
     name: "Service timesyncd is not enabled"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.1.3."
@@ -740,6 +932,12 @@ checks:
     run: |
       systemctl show -p UnitFileState timesyncd | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service timesyncd, unless the system needs it:
+
+      systemctl disable timesyncd
+
+      To keep other units from starting it, mask it instead: systemctl mask timesyncd
   - id: "CIS-UBUNTU18-2.1.1.3-timesyncd-running"
     name: "Service timesyncd is not running"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.1.3."
@@ -748,6 +946,10 @@ checks:
     run: |
       systemctl show -p ActiveState timesyncd | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service timesyncd, unless the system needs it:
+
+      systemctl stop timesyncd
   - id: "CIS-UBUNTU18-2.1.1.3-etc_chrony_chrony.conf-attrs"
     name: "/etc/chrony/chrony.conf: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.1.3."
@@ -757,6 +959,8 @@ checks:
       f='/etc/chrony/chrony.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/chrony/chrony.conf.
   - id: "CIS-UBUNTU18-2.1.1.3-etc_chrony_chrony.conf-content"
     name: "/etc/chrony/chrony.conf has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.1.3."
@@ -768,6 +972,11 @@ checks:
     expect:
       - { some: "~ ^server \u003cno value\u003e" }
       - { some: "~ ^user _chrony" }
+    remediation: |
+      Edit /etc/chrony/chrony.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^server <no value>
+      - a line matches ^user _chrony
   - id: "CIS-UBUNTU18-2.1.2-xserver-xorg"
     name: "Package xserver-xorg is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.2."
@@ -776,6 +985,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' xserver-xorg 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package xserver-xorg, unless the system needs it:
+
+      apt-get purge xserver-xorg
   - id: "CIS-UBUNTU18-2.1.3-avahi-daemon"
     name: "Package avahi-daemon is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.3."
@@ -784,6 +997,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' avahi-daemon 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package avahi-daemon, unless the system needs it:
+
+      apt-get purge avahi-daemon
   - id: "CIS-UBUNTU18-2.1.4-cups"
     name: "Package cups is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.4."
@@ -792,6 +1009,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' cups 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package cups, unless the system needs it:
+
+      apt-get purge cups
   - id: "CIS-UBUNTU18-2.1.5-cups"
     name: "Package cups is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.5."
@@ -800,6 +1021,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' cups 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package cups, unless the system needs it:
+
+      apt-get purge cups
   - id: "CIS-UBUNTU18-2.1.6-slapd"
     name: "Package slapd is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.6."
@@ -808,6 +1033,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' slapd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package slapd, unless the system needs it:
+
+      apt-get purge slapd
   - id: "CIS-UBUNTU18-2.1.8-bind9"
     name: "Package bind9 is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.8."
@@ -816,6 +1045,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' bind9 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package bind9, unless the system needs it:
+
+      apt-get purge bind9
   - id: "CIS-UBUNTU18-2.1.9-vsftpd"
     name: "Package vsftpd is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.9."
@@ -824,6 +1057,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' vsftpd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package vsftpd, unless the system needs it:
+
+      apt-get purge vsftpd
   - id: "CIS-UBUNTU18-2.1.10-httpd"
     name: "Package httpd is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.10."
@@ -832,6 +1069,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' httpd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package httpd, unless the system needs it:
+
+      apt-get purge httpd
   - id: "CIS-UBUNTU18-2.1.11-dovecot-imapd"
     name: "Package dovecot-imapd is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.11."
@@ -840,6 +1081,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' dovecot-imapd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package dovecot-imapd, unless the system needs it:
+
+      apt-get purge dovecot-imapd
   - id: "CIS-UBUNTU18-2.1.11-dovecot-pop3d"
     name: "Package dovecot-pop3d is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.11."
@@ -848,6 +1093,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' dovecot-pop3d 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package dovecot-pop3d, unless the system needs it:
+
+      apt-get purge dovecot-pop3d
   - id: "CIS-UBUNTU18-2.1.12-samba"
     name: "Package samba is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.12."
@@ -856,6 +1105,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' samba 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package samba, unless the system needs it:
+
+      apt-get purge samba
   - id: "CIS-UBUNTU18-2.1.13-squid"
     name: "Package squid is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.13."
@@ -864,6 +1117,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' squid 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package squid, unless the system needs it:
+
+      apt-get purge squid
   - id: "CIS-UBUNTU18-2.1.14-snmpd"
     name: "Package snmpd is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.14."
@@ -872,6 +1129,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' snmpd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package snmpd, unless the system needs it:
+
+      apt-get purge snmpd
   - id: "CIS-UBUNTU18-2.1.15-port_25_local_only"
     name: "port 25 local only: ss -lntu | grep -E ':25\\s' | grep -E -v '\\s(127.0.0.1|::1):25\\s'"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.15."
@@ -891,6 +1152,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' rsync 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package rsync, unless the system needs it:
+
+      apt-get purge rsync
   - id: "CIS-UBUNTU18-2.1.17-nis"
     name: "Package nis is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.1.17."
@@ -899,6 +1164,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' nis 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package nis, unless the system needs it:
+
+      apt-get purge nis
   - id: "CIS-UBUNTU18-2.2.1-nis"
     name: "Package nis is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.2.1."
@@ -907,6 +1176,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' nis 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package nis, unless the system needs it:
+
+      apt-get purge nis
   - id: "CIS-UBUNTU18-2.2.2-rsh-client"
     name: "Package rsh-client is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.2.2."
@@ -915,6 +1188,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' rsh-client 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package rsh-client, unless the system needs it:
+
+      apt-get purge rsh-client
   - id: "CIS-UBUNTU18-2.2.3-talk"
     name: "Package talk is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.2.3."
@@ -923,6 +1200,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' talk 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package talk, unless the system needs it:
+
+      apt-get purge talk
   - id: "CIS-UBUNTU18-2.2.4-telnet"
     name: "Package telnet is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.2.4."
@@ -931,6 +1212,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' telnet 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package telnet, unless the system needs it:
+
+      apt-get purge telnet
   - id: "CIS-UBUNTU18-2.2.5-ldap-utils"
     name: "Package ldap-utils is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.2.5."
@@ -939,6 +1224,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ldap-utils 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package ldap-utils, unless the system needs it:
+
+      apt-get purge ldap-utils
   - id: "CIS-UBUNTU18-2.2.6-rpcbind"
     name: "Package rpcbind is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.2.6."
@@ -947,6 +1236,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' rpcbind 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package rpcbind, unless the system needs it:
+
+      apt-get purge rpcbind
   - id: "CIS-UBUNTU18-2.3-non_essen_svcs"
     name: "non essen svcs: echo \"Manual -  checking of services that are not required are removed or masked\""
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.3."
@@ -980,6 +1273,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.send_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.send_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.send_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.send_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.2.1-net.ipv4.conf.default.send_redirects"
     name: "Kernel parameter net.ipv4.conf.default.send_redirects is 0"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.2.1."
@@ -991,6 +1291,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.send_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.send_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.send_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.send_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.2.1-ipv4_disable_all_redirect"
     name: "ipv4 disable all redirect: grep -E \"^\\s*net\\.ipv4\\.conf\\.all\\.send_redirects\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.2.1."
@@ -1024,6 +1331,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.ip_forward to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.ip_forward=0'
+      printf '%s\n' 'net.ipv4.ip_forward = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.ip_forward from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.2.2-net.ipv6.conf.all.forwarding"
     name: "Kernel parameter net.ipv6.conf.all.forwarding is 0"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.2.2."
@@ -1035,6 +1349,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.forwarding to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.forwarding=0'
+      printf '%s\n' 'net.ipv6.conf.all.forwarding = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.forwarding from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.2.2-ipv4_ip_forward"
     name: "ipv4 ip forward: grep -E \"^\\s*net\\.ipv4\\.ip_forward\" /etc/sysctl.conf /etc/sysctl.d/*.conf /usr/lib/sysctl…"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.2.2."
@@ -1068,6 +1389,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.accept_source_route=0'
+      printf '%s\n' 'net.ipv4.conf.all.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.1-net.ipv4.conf.default.accept_source_rout"
     name: "Kernel parameter net.ipv4.conf.default.accept_source_route is 0"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.1."
@@ -1079,6 +1407,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.accept_source_route=0'
+      printf '%s\n' 'net.ipv4.conf.default.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.1-ipv4_all_source_route"
     name: "ipv4 all source route: grep \"net\\.ipv4\\.conf\\.all\\.accept_source_route\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.1."
@@ -1112,6 +1447,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.accept_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.2-net.ipv4.conf.default.accept_redirects"
     name: "Kernel parameter net.ipv4.conf.default.accept_redirects is 0"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.2."
@@ -1123,6 +1465,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.accept_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.2-ipv4_all_icmp_redirects"
     name: "ipv4 all icmp redirects: grep \"net\\.ipv4\\.conf\\.all\\.accept_redirects\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.2."
@@ -1156,6 +1505,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.secure_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.secure_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.secure_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.secure_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.2.3-net.ipv4.conf.default.secure_redirects"
     name: "Kernel parameter net.ipv4.conf.default.secure_redirects is 0"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.2.3."
@@ -1167,6 +1523,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.secure_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.secure_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.secure_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.secure_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.3-ipv4_all_sec_redirects"
     name: "ipv4 all sec redirects: grep \"net\\.ipv4\\.conf\\.all\\.secure_redirects\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.3."
@@ -1194,6 +1557,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.log_martians to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.log_martians=1'
+      printf '%s\n' 'net.ipv4.conf.all.log_martians = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.log_martians from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.4-net.ipv4.conf.default.log_martians"
     name: "Kernel parameter net.ipv4.conf.default.log_martians is 1"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.4."
@@ -1205,6 +1575,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.log_martians to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.log_martians=1'
+      printf '%s\n' 'net.ipv4.conf.default.log_martians = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.log_martians from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.4-ipv4_all_martians"
     name: "ipv4 all martians: grep \"net\\.ipv4\\.conf\\.all\\.log_martians\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.4."
@@ -1238,6 +1615,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.icmp_echo_ignore_broadcasts to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.icmp_echo_ignore_broadcasts=1'
+      printf '%s\n' 'net.ipv4.icmp_echo_ignore_broadcasts = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.icmp_echo_ignore_broadcasts from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.5-ipv4_ignore_icmp_broadcast"
     name: "ipv4 ignore icmp broadcast: grep \"net\\.ipv4\\.icmp_echo_ignore_broadcasts\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.5."
@@ -1260,6 +1644,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.icmp_ignore_bogus_error_responses to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.icmp_ignore_bogus_error_responses=1'
+      printf '%s\n' 'net.ipv4.icmp_ignore_bogus_error_responses = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.icmp_ignore_bogus_error_responses from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.6-ipv4_ignore_bogus"
     name: "ipv4 ignore bogus: grep \"net.ipv4.icmp_ignore_bogus_error_responses\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.6."
@@ -1282,6 +1673,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.rp_filter to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.rp_filter=1'
+      printf '%s\n' 'net.ipv4.conf.all.rp_filter = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.rp_filter from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.7-net.ipv4.conf.default.rp_filter"
     name: "Kernel parameter net.ipv4.conf.default.rp_filter is 1"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.7."
@@ -1293,6 +1691,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.rp_filter to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.rp_filter=1'
+      printf '%s\n' 'net.ipv4.conf.default.rp_filter = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.rp_filter from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.7-ipv4_all_rp_filter"
     name: "ipv4 all rp filter: grep \"net\\.ipv4\\.conf\\.all\\.rp_filter\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.7."
@@ -1326,6 +1731,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.tcp_syncookies to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.tcp_syncookies=1'
+      printf '%s\n' 'net.ipv4.tcp_syncookies = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.tcp_syncookies from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.8-ipv4_tcp_syncookies"
     name: "ipv4 tcp syncookies: grep \"net\\.ipv4\\.tcp_syncookies\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.8."
@@ -1348,6 +1760,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.accept_source_route=0'
+      printf '%s\n' 'net.ipv6.conf.all.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.1-net.ipv6.conf.default.accept_source_rout"
     name: "Kernel parameter net.ipv6.conf.default.accept_source_route is 0"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.1."
@@ -1359,6 +1778,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.accept_source_route=0'
+      printf '%s\n' 'net.ipv6.conf.default.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.1-ipv6_all_source_route"
     name: "ipv6 all source route: grep \"net\\.ipv6\\.conf\\.all\\.accept_source_route\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.1."
@@ -1392,6 +1818,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.accept_redirects=0'
+      printf '%s\n' 'net.ipv6.conf.all.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.2-net.ipv6.conf.default.accept_redirects"
     name: "Kernel parameter net.ipv6.conf.default.accept_redirects is 0"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.2."
@@ -1403,6 +1836,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.accept_redirects=0'
+      printf '%s\n' 'net.ipv6.conf.default.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.2-ipv6_all_icmp_redirects"
     name: "ipv6 all icmp redirects: grep \"net\\.ipv6\\.conf\\.all\\.accept_redirects\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.2."
@@ -1436,6 +1876,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.accept_ra to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.accept_ra=0'
+      printf '%s\n' 'net.ipv6.conf.all.accept_ra = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.accept_ra from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.9-net.ipv6.conf.default.accept_ra"
     name: "Kernel parameter net.ipv6.conf.default.accept_ra is 0"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.9."
@@ -1447,6 +1894,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.accept_ra to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.accept_ra=0'
+      printf '%s\n' 'net.ipv6.conf.default.accept_ra = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.accept_ra from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU18-3.3.9-ipv6_all_rtr_adverts"
     name: "ipv6 all rtr adverts: grep \"net\\.ipv6\\.conf\\.all\\.accept_ra\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.3.9."
@@ -1565,6 +2019,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package ufw:
+
+      apt-get install ufw
   - id: "CIS-UBUNTU18-3.5.1.2-iptables-persistent"
     name: "Package iptables-persistent is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.1.2."
@@ -1573,6 +2031,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' iptables-persistent 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package iptables-persistent, unless the system needs it:
+
+      apt-get purge iptables-persistent
   - id: "CIS-UBUNTU18-3.5.1.3-ufw-enabled"
     name: "Service ufw is enabled"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.1.3."
@@ -1581,6 +2043,10 @@ checks:
     run: |
       systemctl show -p UnitFileState ufw | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service ufw:
+
+      systemctl enable ufw
   - id: "CIS-UBUNTU18-3.5.1.3-ufw-running"
     name: "Service ufw is running"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.1.3."
@@ -1589,6 +2055,10 @@ checks:
     run: |
       systemctl show -p ActiveState ufw | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service ufw:
+
+      systemctl start ufw
   - id: "CIS-UBUNTU18-3.5.1.4-ufw_local"
     name: "ufw local: ufw status verbose"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.1.4."
@@ -1646,6 +2116,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' nftables 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package nftables:
+
+      apt-get install nftables
   - id: "CIS-UBUNTU18-3.5.2.2-ufw"
     name: "Package ufw is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.2.2."
@@ -1654,6 +2128,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package ufw, unless the system needs it:
+
+      apt-get purge ufw
   - id: "CIS-UBUNTU18-3.5.2.3-ip6tables_flushed"
     name: "ip6tables flushed: ip6tables -L"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.2.3."
@@ -1739,6 +2217,10 @@ checks:
     run: |
       systemctl show -p UnitFileState nftables | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service nftables:
+
+      systemctl enable nftables
   - id: "CIS-UBUNTU18-3.5.2.9-nftables-running"
     name: "Service nftables is running"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.2.9."
@@ -1747,6 +2229,10 @@ checks:
     run: |
       systemctl show -p ActiveState nftables | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service nftables:
+
+      systemctl start nftables
   - id: "CIS-UBUNTU18-3.5.2.10-etc_nftables.conf-attrs"
     name: "/etc/nftables.conf: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.2.10."
@@ -1756,6 +2242,8 @@ checks:
       f='/etc/nftables.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/nftables.conf.
   - id: "CIS-UBUNTU18-3.5.2.10-nft_rules"
     name: "nft rules: echo \"Manual - Please review nfttables configuration and matches site policy\""
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.2.10."
@@ -1775,6 +2263,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' iptables 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package iptables:
+
+      apt-get install iptables
   - id: "CIS-UBUNTU18-3.5.3.1.1-iptables-persistent"
     name: "Package iptables-persistent is installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.3.1.1."
@@ -1783,6 +2275,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' iptables-persistent 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package iptables-persistent:
+
+      apt-get install iptables-persistent
   - id: "CIS-UBUNTU18-3.5.3.1.2-nftables"
     name: "Package nftables is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.3.1.2."
@@ -1791,6 +2287,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' nftables 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package nftables, unless the system needs it:
+
+      apt-get purge nftables
   - id: "CIS-UBUNTU18-3.5.3.1.3-ufw"
     name: "Package ufw is not installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.3.1.3."
@@ -1799,6 +2299,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package ufw, unless the system needs it:
+
+      apt-get purge ufw
   - id: "CIS-UBUNTU18-3.5.3.2.1-ipt_def_deny"
     name: "ipt def deny: echo \"Manual - Please confirm iptables default denies are configured and matched site pol…"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.3.2.1."
@@ -1895,6 +2399,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' audispd-plugins 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package audispd-plugins:
+
+      apt-get install audispd-plugins
   - id: "CIS-UBUNTU18-4.1.1.1-auditd"
     name: "Package auditd is installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.1.1.1."
@@ -1903,6 +2411,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' auditd 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package auditd:
+
+      apt-get install auditd
   - id: "CIS-UBUNTU18-4.1.1.2-auditd-enabled"
     name: "Service auditd is enabled"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.1.1.2."
@@ -1911,6 +2423,10 @@ checks:
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service auditd:
+
+      systemctl enable auditd
   - id: "CIS-UBUNTU18-4.1.1.2-auditd-running"
     name: "Service auditd is running"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.1.1.2."
@@ -1919,6 +2435,10 @@ checks:
     run: |
       systemctl show -p ActiveState auditd | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service auditd:
+
+      systemctl start auditd
   - id: "CIS-UBUNTU18-4.1.1.3-etc_default_grub-attrs"
     name: "/etc/default/grub: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.1.1.3."
@@ -1928,6 +2448,8 @@ checks:
       f='/etc/default/grub'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/default/grub.
   - id: "CIS-UBUNTU18-4.1.1.3-etc_default_grub-content"
     name: "/etc/default/grub has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.1.1.3."
@@ -1939,6 +2461,11 @@ checks:
     expect:
       - { some: "~ ^GRUB_CMDLINE_LINUX=.*\"audit=1\"" }
       - { none: "~ audit=0" }
+    remediation: |
+      Edit /etc/default/grub so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^GRUB_CMDLINE_LINUX=.*"audit=1"
+      - no line matches audit=0
   - id: "CIS-UBUNTU18-4.1.1.3-auditd_grub"
     name: "auditd grub: grep \"^\\s*linux\" /boot/grub/grub.cfg | grep -Evc \"audit=1\""
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.1.1.3."
@@ -1959,6 +2486,8 @@ checks:
       f='/etc/default/grub'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/default/grub.
   - id: "CIS-UBUNTU18-4.1.1.4-etc_default_grub-content"
     name: "/etc/default/grub has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.1.1.4."
@@ -1970,6 +2499,11 @@ checks:
     expect:
       - { some: "~ GRUB_CMDLINE_LINUX=\".*audit_backlog_limit=2048" }
       - { some: "~ audit_backlog_limit=(819[2-9]|8[2-9]{2,}|9[0-9]{3,}|[1-9]{5,})" }
+    remediation: |
+      Edit /etc/default/grub so that its lines meet these conditions (regular expressions):
+
+      - a line matches GRUB_CMDLINE_LINUX=".*audit_backlog_limit=2048
+      - a line matches audit_backlog_limit=(819[2-9]|8[2-9]{2,}|9[0-9]{3,}|[1-9]{5,})
   - id: "CIS-UBUNTU18-4.1.1.4-auditd_grub_backlog"
     name: "auditd grub backlog: grep \"^\\s*linux\" /boot/grub/grub.cfg | grep -Evc \"audit_backlog_limit=\""
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.1.1.4."
@@ -1990,6 +2524,8 @@ checks:
       f='/etc/audit/auditd.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/audit/auditd.conf.
   - id: "CIS-UBUNTU18-4.1.2.1-etc_audit_auditd.conf-content"
     name: "/etc/audit/auditd.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.1.2.1."
@@ -1999,6 +2535,10 @@ checks:
       cat '/etc/audit/auditd.conf'
     allow_rc: any
     expect: { some: "~ max_log_file = /\\\\d/" }
+    remediation: |
+      Edit /etc/audit/auditd.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches max_log_file = /\\d/
   - id: "CIS-UBUNTU18-4.1.2.2-etc_audit_auditd.conf-attrs"
     name: "/etc/audit/auditd.conf: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.1.2.2."
@@ -2008,6 +2548,8 @@ checks:
       f='/etc/audit/auditd.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/audit/auditd.conf.
   - id: "CIS-UBUNTU18-4.1.2.2-etc_audit_auditd.conf-content"
     name: "/etc/audit/auditd.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.1.2.2."
@@ -2017,6 +2559,10 @@ checks:
       cat '/etc/audit/auditd.conf'
     allow_rc: any
     expect: { some: "~ max_log_file_action = keep_logs" }
+    remediation: |
+      Edit /etc/audit/auditd.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches max_log_file_action = keep_logs
   - id: "CIS-UBUNTU18-4.1.2.3-etc_audit_auditd.conf-attrs"
     name: "/etc/audit/auditd.conf: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.1.2.3."
@@ -2026,6 +2572,8 @@ checks:
       f='/etc/audit/auditd.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/audit/auditd.conf.
   - id: "CIS-UBUNTU18-4.1.2.3-etc_audit_auditd.conf-content"
     name: "/etc/audit/auditd.conf has the expected content (3 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.1.2.3."
@@ -2038,6 +2586,12 @@ checks:
       - { some: "~ space_left_action = email" }
       - { some: "~ action_mail_acct = root" }
       - { some: "~ ^admin_space_left_action = halt" }
+    remediation: |
+      Edit /etc/audit/auditd.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches space_left_action = email
+      - a line matches action_mail_acct = root
+      - a line matches ^admin_space_left_action = halt
   - id: "CIS-UBUNTU18-4.1.3-auditd_time_cnf"
     name: "auditd time cnf: grep time-change /etc/audit/rules.d/*.rules"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.1.3."
@@ -2393,6 +2947,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' rsyslog 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package rsyslog:
+
+      apt-get install rsyslog
   - id: "CIS-UBUNTU18-4.2.1.2-rsyslog-enabled"
     name: "Service rsyslog is enabled"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.2.1.2."
@@ -2401,6 +2959,10 @@ checks:
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service rsyslog:
+
+      systemctl enable rsyslog
   - id: "CIS-UBUNTU18-4.2.1.2-rsyslog-running"
     name: "Service rsyslog is running"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.2.1.2."
@@ -2409,6 +2971,10 @@ checks:
     run: |
       systemctl show -p ActiveState rsyslog | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service rsyslog:
+
+      systemctl start rsyslog
   - id: "CIS-UBUNTU18-4.2.1.3-etc_rsyslog.conf-attrs"
     name: "/etc/rsyslog.conf: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.2.1.3."
@@ -2418,6 +2984,8 @@ checks:
       f='/etc/rsyslog.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/rsyslog.conf.
   - id: "CIS-UBUNTU18-4.2.1.3-etc_rsyslog.conf-content"
     name: "/etc/rsyslog.conf has the expected content (16 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.2.1.3."
@@ -2443,6 +3011,25 @@ checks:
       - { some: "~ ^local4,local5.\\*\\s*                               -/var/log/localmessages" }
       - { some: "~ ^local6,local7.\\*\\s*                               -/var/log/localmessages" }
       - { some: "~ ^*.emerg\\s*                                        :omusrmsg:*" }
+    remediation: |
+      Edit /etc/rsyslog.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^mail.*                                            -/var/log/mail
+      - a line matches ^auth,authpriv.*\s*                                 /var/log/secure
+      - a line matches ^mail.info\s*                                      -/var/log/mail.info
+      - a line matches ^mail.warning\s*                                   -/var/log/mail.warn
+      - a line matches ^mail.err\s*                                        /var/log/mail.err
+      - a line matches ^news.err\s*                                       -/var/log/news/news.err
+      - a line matches ^news.crit\s*                                      -/var/log/news/news.crit
+      - a line matches ^news.notice\s*                                    -/var/log/news/news.notice
+      - a line matches ^*.=warning;\*.=err\s*                             -/var/log/warn
+      - a line matches ^*.crit\s*                                          /var/log/warn
+      - a line matches ^*.*;mail.none;news.none\s*                         /var/log/messages
+      - a line matches ^local0,local1.\*\s*                               -/var/log/localmessages
+      - a line matches ^local2,local3.\*\s*                               -/var/log/localmessages
+      - a line matches ^local4,local5.\*\s*                               -/var/log/localmessages
+      - a line matches ^local6,local7.\*\s*                               -/var/log/localmessages
+      - a line matches ^*.emerg\s*                                        :omusrmsg:*
   - id: "CIS-UBUNTU18-4.2.1.4-etc_rsyslog.conf-attrs"
     name: "/etc/rsyslog.conf: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.2.1.4."
@@ -2452,6 +3039,8 @@ checks:
       f='/etc/rsyslog.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/rsyslog.conf.
   - id: "CIS-UBUNTU18-4.2.1.4-etc_rsyslog.conf-content"
     name: "/etc/rsyslog.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.2.1.4."
@@ -2461,6 +3050,10 @@ checks:
       cat '/etc/rsyslog.conf'
     allow_rc: any
     expect: { some: "~ \\$FileCreateMode 0[0,6][0,4]0" }
+    remediation: |
+      Edit /etc/rsyslog.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches \$FileCreateMode 0[0,6][0,4]0
   - id: "CIS-UBUNTU18-4.2.1.4-rsyslog_d_perms"
     name: "rsyslog d perms: grep '\\$FileCreateMode' /etc/rsyslog.d/*.conf | grep -cv '\\$FileCreateMode 0[0,6][0,4]0'"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.2.1.4."
@@ -2515,6 +3108,8 @@ checks:
       f='/etc/systemd/journald.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/systemd/journald.conf.
   - id: "CIS-UBUNTU18-4.2.2.1-etc_systemd_journald.conf-content"
     name: "/etc/systemd/journald.conf has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.2.2.1."
@@ -2526,6 +3121,11 @@ checks:
     expect:
       - { some: "~ /\\^ForwardToSyslog=yes" }
       - { none: "~ ^ForwardToSyslog=[Nn][Oo]" }
+    remediation: |
+      Edit /etc/systemd/journald.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches /\^ForwardToSyslog=yes
+      - no line matches ^ForwardToSyslog=[Nn][Oo]
   - id: "CIS-UBUNTU18-4.2.2.2-etc_systemd_journald.conf-attrs"
     name: "/etc/systemd/journald.conf: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.2.2.2."
@@ -2535,6 +3135,8 @@ checks:
       f='/etc/systemd/journald.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/systemd/journald.conf.
   - id: "CIS-UBUNTU18-4.2.2.2-etc_systemd_journald.conf-content"
     name: "/etc/systemd/journald.conf has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.2.2.2."
@@ -2546,6 +3148,11 @@ checks:
     expect:
       - { some: "~ Compress=yes" }
       - { none: "~ Compress=[Nn][Oo]" }
+    remediation: |
+      Edit /etc/systemd/journald.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches Compress=yes
+      - no line matches Compress=[Nn][Oo]
   - id: "CIS-UBUNTU18-4.2.2.3-etc_systemd_journald.conf-attrs"
     name: "/etc/systemd/journald.conf: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.2.2.3."
@@ -2555,6 +3162,8 @@ checks:
       f='/etc/systemd/journald.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/systemd/journald.conf.
   - id: "CIS-UBUNTU18-4.2.2.3-etc_systemd_journald.conf-content"
     name: "/etc/systemd/journald.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.2.2.3."
@@ -2564,6 +3173,10 @@ checks:
       cat '/etc/systemd/journald.conf'
     allow_rc: any
     expect: { some: "~ Storage=persistent" }
+    remediation: |
+      Edit /etc/systemd/journald.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches Storage=persistent
   - id: "CIS-UBUNTU18-4.2.3-logfile_configured"
     name: "logfile configured: find /var/log -type f -perm /g+wx,o+rwx -exec ls -l {} \\;"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.2.3."
@@ -2595,6 +3208,8 @@ checks:
       f='/etc/logrotate.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/logrotate.conf.
   - id: "CIS-UBUNTU18-4.4-etc_logrotate.conf-content"
     name: "/etc/logrotate.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.4."
@@ -2604,6 +3219,10 @@ checks:
       cat '/etc/logrotate.conf'
     allow_rc: any
     expect: { some: "~ ^create 0640" }
+    remediation: |
+      Edit /etc/logrotate.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^create 0640
   - id: "CIS-UBUNTU18-4.4-logrotate_config"
     name: "logrotate config: grep -Es \"^\\s*create\\s+\\S+\" /etc/logrotate.conf /etc/logrotate.d/* | grep - E -v \"\\s(0)?[…"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.4."
@@ -2623,6 +3242,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' cron 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package cron:
+
+      apt-get install cron
   - id: "CIS-UBUNTU18-5.1.1-cron-enabled"
     name: "Service cron is enabled"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.1.1."
@@ -2631,6 +3254,10 @@ checks:
     run: |
       systemctl show -p UnitFileState cron | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service cron:
+
+      systemctl enable cron
   - id: "CIS-UBUNTU18-5.1.1-cron-running"
     name: "Service cron is running"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.1.1."
@@ -2639,6 +3266,10 @@ checks:
     run: |
       systemctl show -p ActiveState cron | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service cron:
+
+      systemctl start cron
   - id: "CIS-UBUNTU18-5.1.2-etc_crontab-attrs"
     name: "/etc/crontab: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.1.2."
@@ -2651,6 +3282,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/crontab if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/crontab'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/crontab'
   - id: "CIS-UBUNTU18-5.1.7-etc_cron.d-attrs"
     name: "/etc/cron.d: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.1.7."
@@ -2663,6 +3299,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.d if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.d'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.d'
   - id: "CIS-UBUNTU18-5.1.4-etc_cron.daily-attrs"
     name: "/etc/cron.daily: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.1.4."
@@ -2675,6 +3316,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.daily if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.daily'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.daily'
   - id: "CIS-UBUNTU18-5.1.3-etc_cron.hourly-attrs"
     name: "/etc/cron.hourly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.1.3."
@@ -2687,6 +3333,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.hourly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.hourly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.hourly'
   - id: "CIS-UBUNTU18-5.1.6-etc_cron.monthly-attrs"
     name: "/etc/cron.monthly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.1.6."
@@ -2699,6 +3350,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.monthly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.monthly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.monthly'
   - id: "CIS-UBUNTU18-5.1.5-etc_cron.weekly-attrs"
     name: "/etc/cron.weekly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.1.5."
@@ -2711,6 +3367,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.weekly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.weekly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.weekly'
   - id: "CIS-UBUNTU18-5.1.8-etc_cron.allow-attrs"
     name: "/etc/cron.allow: exists, mode 0640 or stricter, owner root, group root"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.1.8."
@@ -2723,6 +3384,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.allow if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.allow'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/cron.allow'
   - id: "CIS-UBUNTU18-5.1.8-etc_cron.deny-absent"
     name: "/etc/cron.deny does not exist"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.1.8."
@@ -2731,6 +3397,10 @@ checks:
     run: |
       test -e '/etc/cron.deny' || test -L '/etc/cron.deny'
     expect: false
+    remediation: |
+      Remove /etc/cron.deny, unless the system needs it:
+
+      rm '/etc/cron.deny'
   - id: "CIS-UBUNTU18-5.1.9-etc_at.allow-attrs"
     name: "/etc/at.allow: exists, mode 0640 or stricter, owner root, group root"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.1.9."
@@ -2743,6 +3413,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/at.allow if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/at.allow'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/at.allow'
   - id: "CIS-UBUNTU18-5.1.9-etc_at.deny-absent"
     name: "/etc/at.deny does not exist"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.1.9."
@@ -2751,6 +3426,10 @@ checks:
     run: |
       test -e '/etc/at.deny' || test -L '/etc/at.deny'
     expect: false
+    remediation: |
+      Remove /etc/at.deny, unless the system needs it:
+
+      rm '/etc/at.deny'
   - id: "CIS-UBUNTU18-5.2.1-sudo"
     name: "Package sudo is installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.2.1."
@@ -2759,6 +3438,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' sudo 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package sudo:
+
+      apt-get install sudo
   - id: "CIS-UBUNTU18-5.2.2-etc_sudoers-attrs"
     name: "/etc/sudoers: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.2.2."
@@ -2768,6 +3451,8 @@ checks:
       f='/etc/sudoers'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/sudoers.
   - id: "CIS-UBUNTU18-5.2.2-etc_sudoers-content"
     name: "/etc/sudoers has the expected content (1 rule)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.2.2."
@@ -2777,6 +3462,10 @@ checks:
       cat '/etc/sudoers'
     allow_rc: any
     expect: { some: "~ ^Defaults.*\\suse_pty" }
+    remediation: |
+      Edit /etc/sudoers so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^Defaults.*\suse_pty
   - id: "CIS-UBUNTU18-5.2.2-pty_sudoers_d"
     name: "pty sudoers d: ls -1 /etc/sudoers.d/* \u003e /dev/null 2\u003e\u00261; if [ '$?' = '0' ]; then grep -c '^Defaults.*\\sus…"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.2.2."
@@ -2797,6 +3486,8 @@ checks:
       f='/etc/sudoers'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/sudoers.
   - id: "CIS-UBUNTU18-5.2.3-etc_sudoers-content"
     name: "/etc/sudoers has the expected content (1 rule)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.2.3."
@@ -2806,6 +3497,10 @@ checks:
       cat '/etc/sudoers'
     allow_rc: any
     expect: { some: "~ ^Defaults\\s+logfile=\"/var/log/sudo.log\"" }
+    remediation: |
+      Edit /etc/sudoers so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^Defaults\s+logfile="/var/log/sudo.log"
   - id: "CIS-UBUNTU18-5.2.3-log_sudoers_d"
     name: "log sudoers d: grep -c '^Defaults logfile=/var/log/*.log' /etc/sudoers.d/.*/"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.2.3."
@@ -2829,6 +3524,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/ssh/sshd_config'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/ssh/sshd_config'
   - id: "CIS-UBUNTU18-5.3.2-etc_ssh_ssh_host_key_group"
     name: "/etc/ssh/ssh host key group: groupkeys=$(sudo find /etc/ssh/ -name *_key -type f ! -group root ); echo $groupkeys"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.2."
@@ -2904,6 +3604,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.5-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (3 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.5."
@@ -2916,6 +3618,12 @@ checks:
       - { some: "~ LogLevel VERBOSE" }
       - { some: "~ LogLevel INFO" }
       - { none: "~ ^LogLevel DEBUG" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches LogLevel VERBOSE
+      - a line matches LogLevel INFO
+      - no line matches ^LogLevel DEBUG
   - id: "CIS-UBUNTU18-5.3.6-etc_ssh_sshd_config-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.6."
@@ -2925,6 +3633,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.6-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.6."
@@ -2936,6 +3646,11 @@ checks:
     expect:
       - { some: "~ ^(?i)X11forwarding no" }
       - { none: "~ ^(?i)X11forwarding yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)X11forwarding no
+      - no line matches ^(?i)X11forwarding yes
   - id: "CIS-UBUNTU18-5.3.7-etc_ssh_sshd_config-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.7."
@@ -2945,6 +3660,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.7-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.7."
@@ -2956,6 +3673,11 @@ checks:
     expect:
       - { some: "~ (?i)maxauthtries [1-4]" }
       - { none: "~ (?i)maxauthtries ([5-9]|[1-9]{2,})" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches (?i)maxauthtries [1-4]
+      - no line matches (?i)maxauthtries ([5-9]|[1-9]{2,})
   - id: "CIS-UBUNTU18-5.3.8-etc_ssh_sshd_config-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.8."
@@ -2965,6 +3687,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.8-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.8."
@@ -2976,6 +3700,11 @@ checks:
     expect:
       - { some: "~ ^(?i)Ignorerhosts yes" }
       - { none: "~ ^(?i)Ignorerhosts no" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)Ignorerhosts yes
+      - no line matches ^(?i)Ignorerhosts no
   - id: "CIS-UBUNTU18-5.3.9-etc_ssh_sshd_config-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.9."
@@ -2985,6 +3714,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.9-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.9."
@@ -2996,6 +3727,11 @@ checks:
     expect:
       - { some: "~ ^(?i)HostbasedAuthentication no" }
       - { none: "~ ^(?i)HostbasedAuthentication yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)HostbasedAuthentication no
+      - no line matches ^(?i)HostbasedAuthentication yes
   - id: "CIS-UBUNTU18-5.3.10-etc_ssh_sshd_config-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.10."
@@ -3005,6 +3741,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.10-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.10."
@@ -3016,6 +3754,11 @@ checks:
     expect:
       - { some: "~ ^(?i)PermitRootLogin no" }
       - { none: "~ ^(?i)PermitRootLogin yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)PermitRootLogin no
+      - no line matches ^(?i)PermitRootLogin yes
   - id: "CIS-UBUNTU18-5.3.11-etc_ssh_sshd_config-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.11."
@@ -3025,6 +3768,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.11-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.11."
@@ -3036,6 +3781,11 @@ checks:
     expect:
       - { some: "~ ^(?i)PermitEmptyPasswords no" }
       - { none: "~ ^(?i)PermitEmptyPasswords yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)PermitEmptyPasswords no
+      - no line matches ^(?i)PermitEmptyPasswords yes
   - id: "CIS-UBUNTU18-5.3.12-etc_ssh_sshd_config-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.12."
@@ -3045,6 +3795,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.12-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.12."
@@ -3056,6 +3808,11 @@ checks:
     expect:
       - { some: "~ ^(?i)PermitUserEnvironment no" }
       - { none: "~ ^(?i)PermitUserEnvironment yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)PermitUserEnvironment no
+      - no line matches ^(?i)PermitUserEnvironment yes
   - id: "CIS-UBUNTU18-5.3.13-etc_ssh_sshd_config-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.13."
@@ -3065,6 +3822,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.13-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.13."
@@ -3074,6 +3833,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ Ciphers chacha20-poly1305@openssh\\.com,aes256-gcm@openssh\\.com,aes128-gcm@openssh\\.com,aes256-ctr,aes192-ctr,aes128-ctr" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches Ciphers chacha20-poly1305@openssh\.com,aes256-gcm@openssh\.com,aes128-gcm@openssh\.com,aes256-ctr,aes192-ctr,aes128-ctr
   - id: "CIS-UBUNTU18-5.3.14-etc_ssh_sshd_config-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.14."
@@ -3083,6 +3846,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.14-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.14."
@@ -3092,6 +3857,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ MACs hmac-sha2-512-etm@openssh\\.com,hmac-sha2-256-etm@openssh\\.com,hmac-sha2-512,hmac-sha2-256" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches MACs hmac-sha2-512-etm@openssh\.com,hmac-sha2-256-etm@openssh\.com,hmac-sha2-512,hmac-sha2-256
   - id: "CIS-UBUNTU18-5.3.15-etc_ssh_sshd_config-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.15."
@@ -3101,6 +3870,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.15-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.15."
@@ -3110,6 +3881,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ KexAlgorithms curve25519-sha256,curve25519-sha256@libssh\\.org,diffie-hellman-group14-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches KexAlgorithms curve25519-sha256,curve25519-sha256@libssh\.org,diffie-hellman-group14-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256
   - id: "CIS-UBUNTU18-5.3.16-etc_ssh_sshd_config-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.16."
@@ -3119,6 +3894,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.16-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (4 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.16."
@@ -3132,6 +3909,13 @@ checks:
       - { some: "~ ClientAliveCountMax 3" }
       - { some: "~ ClientAliveInterval ([1-9]|[1-2][0-9][0-9]|300)" }
       - { some: "~ ClientAliveCountMax [1-3]" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ClientAliveInterval 300
+      - a line matches ClientAliveCountMax 3
+      - a line matches ClientAliveInterval ([1-9]|[1-2][0-9][0-9]|300)
+      - a line matches ClientAliveCountMax [1-3]
   - id: "CIS-UBUNTU18-5.3.17-etc_ssh_sshd_config-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.17."
@@ -3141,6 +3925,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.17-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.17."
@@ -3150,6 +3936,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ ^(?i)LoginGraceTime ([1-9]|[1-5][0-9])$" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)LoginGraceTime ([1-9]|[1-5][0-9])$
   - id: "CIS-UBUNTU18-5.3.18-etc_ssh_sshd_config-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.18."
@@ -3159,6 +3949,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.18-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.18."
@@ -3170,6 +3962,11 @@ checks:
     expect:
       - { some: "~ Banner /etc/issue\\.net" }
       - { none: "~ ^Banner none" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches Banner /etc/issue\.net
+      - no line matches ^Banner none
   - id: "CIS-UBUNTU18-5.3.18-ssh_config_banner"
     name: "ssh config banner: grep -Eis '^\\s*Banner\\s+\"?none\\b'/etc/ssh/sshd_config.d/*.conf"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.18."
@@ -3190,6 +3987,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.19-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.19."
@@ -3201,6 +4000,11 @@ checks:
     expect:
       - { some: "~ UsePAM yes" }
       - { none: "~ ^UsePAM no" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches UsePAM yes
+      - no line matches ^UsePAM no
   - id: "CIS-UBUNTU18-5.3.20-etc_ssh_sshd_config-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.20."
@@ -3210,6 +4014,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.20-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.20."
@@ -3221,6 +4027,11 @@ checks:
     expect:
       - { some: "~ AllowTcpForwarding no" }
       - { none: "~ ^AllowTcpForwarding yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches AllowTcpForwarding no
+      - no line matches ^AllowTcpForwarding yes
   - id: "CIS-UBUNTU18-5.3.21-etc_ssh_sshd_config-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.21."
@@ -3230,6 +4041,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.21-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.21."
@@ -3239,6 +4052,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ MaxStartups 10:30:60" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches MaxStartups 10:30:60
   - id: "CIS-UBUNTU18-5.3.22-etc_ssh_sshd_config-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.22."
@@ -3248,6 +4065,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU18-5.3.22-etc_ssh_sshd_config-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.3.22."
@@ -3259,6 +4078,11 @@ checks:
     expect:
       - { some: "~ ^(?i)MaxSessions ([2-9]|10)" }
       - { none: "~ ^MaxSessions (1[1-9]|[2-9][0-9]|[1-9]{3,})" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)MaxSessions ([2-9]|10)
+      - no line matches ^MaxSessions (1[1-9]|[2-9][0-9]|[1-9]{3,})
   - id: "CIS-UBUNTU18-5.4.1-libpam-pwquality"
     name: "Package libpam-pwquality is installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.4.1."
@@ -3267,6 +4091,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' libpam-pwquality 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package libpam-pwquality:
+
+      apt-get install libpam-pwquality
   - id: "CIS-UBUNTU18-5.4.1-etc_security_pwquality.conf-attrs"
     name: "/etc/security/pwquality.conf: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.4.1."
@@ -3276,6 +4104,8 @@ checks:
       f='/etc/security/pwquality.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/pwquality.conf.
   - id: "CIS-UBUNTU18-5.4.1-etc_security_pwquality.conf-content"
     name: "/etc/security/pwquality.conf has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.4.1."
@@ -3287,6 +4117,11 @@ checks:
     expect:
       - { some: "~ 4" }
       - { some: "~ 14" }
+    remediation: |
+      Edit /etc/security/pwquality.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches 4
+      - a line matches 14
   - id: "CIS-UBUNTU18-5.4.2-etc_pam.d_common-auth-attrs"
     name: "/etc/pam.d/common-auth: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.4.2."
@@ -3296,6 +4131,8 @@ checks:
       f='/etc/pam.d/common-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-auth.
   - id: "CIS-UBUNTU18-5.4.2-etc_pam.d_common-auth-content"
     name: "/etc/pam.d/common-auth has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.4.2."
@@ -3307,6 +4144,11 @@ checks:
     expect:
       - { some: "~ ^account\\s*requisite\\s*deny.so" }
       - { some: "~ ^account\\s*required\\s*pam_tally2.so" }
+    remediation: |
+      Edit /etc/pam.d/common-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^account\s*requisite\s*deny.so
+      - a line matches ^account\s*required\s*pam_tally2.so
   - id: "CIS-UBUNTU18-5.4.3-etc_pam.d_common-password-attrs"
     name: "/etc/pam.d/common-password: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.4.3."
@@ -3316,6 +4158,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-UBUNTU18-5.4.3-etc_pam.d_common-password-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.4.3."
@@ -3325,6 +4169,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^password.*required.*pam_pwhistory.so.*remember=\\b(?:[1-5]\\d+|5)\\b" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^password.*required.*pam_pwhistory.so.*remember=\b(?:[1-5]\d+|5)\b
   - id: "CIS-UBUNTU18-5.4.4-etc_pam.d_common-password-attrs"
     name: "/etc/pam.d/common-password: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.4.4."
@@ -3334,6 +4182,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-UBUNTU18-5.4.4-etc_pam.d_common-password-content"
     name: "/etc/pam.d/common-password has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.4.4."
@@ -3345,6 +4195,11 @@ checks:
     expect:
       - { some: "~ ^password\\s+\\[success=1 default=ignore\\]\\s+pam_unix.so obscure.*\\ssha512" }
       - { none: "~ ^password.*md5" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^password\s+\[success=1 default=ignore\]\s+pam_unix.so obscure.*\ssha512
+      - no line matches ^password.*md5
   - id: "CIS-UBUNTU18-5.5.1.1-etc_login.defs-attrs"
     name: "/etc/login.defs: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.5.1.1."
@@ -3354,6 +4209,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-UBUNTU18-5.5.1.1-etc_login.defs-content"
     name: "/etc/login.defs has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.5.1.1."
@@ -3365,6 +4222,11 @@ checks:
     expect:
       - { some: "~ ^PASS_MIN_DAYS\\s*1" }
       - { none: "~ ^PASS_MIN_DAYS\\s*([2-9]|[1-9][0-9]{2,})" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_MIN_DAYS\s*1
+      - no line matches ^PASS_MIN_DAYS\s*([2-9]|[1-9][0-9]{2,})
   - id: "CIS-UBUNTU18-5.5.1.2-etc_login.defs-attrs"
     name: "/etc/login.defs: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.5.1.2."
@@ -3374,6 +4236,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-UBUNTU18-5.5.1.2-etc_login.defs-content"
     name: "/etc/login.defs has the expected content (3 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.5.1.2."
@@ -3386,6 +4250,12 @@ checks:
       - { some: "~ ^PASS_MAX_DAYS\\s*365" }
       - { none: "~ ^PASS_MAX_DAYS\\s*(36[6-9]|[4-9][0-9][0-9]|[1-9][0-9]{3,})" }
       - { none: "~ ^PASS_MAX_DAYS\\s*-1" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_MAX_DAYS\s*365
+      - no line matches ^PASS_MAX_DAYS\s*(36[6-9]|[4-9][0-9][0-9]|[1-9][0-9]{3,})
+      - no line matches ^PASS_MAX_DAYS\s*-1
   - id: "CIS-UBUNTU18-5.5.1.2-users_max_pw_expire"
     name: "users max pw expire: awk -F: '(/^[^:]+:[^!*]/ \u0026\u0026 ($5\u003e365 || $5~/([0-1]|-1|\\s*)/)){print $1 \" \" $5}' /etc/shadow"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.5.1.2."
@@ -3406,6 +4276,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-UBUNTU18-5.5.1.3-etc_login.defs-content"
     name: "/etc/login.defs has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.5.1.3."
@@ -3417,6 +4289,11 @@ checks:
     expect:
       - { some: "~ ^PASS_WARN_AGE\\s*7" }
       - { none: "~ ^PASS_WARN_AGE\\s*[1-6]" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_WARN_AGE\s*7
+      - no line matches ^PASS_WARN_AGE\s*[1-6]
   - id: "CIS-UBUNTU18-5.5.1.3-user_expire_warn"
     name: "user expire warn: awk -F: '(/^[^:]+:[^!*]/ \u0026\u0026 $6\u003c7){print $1 \" \" $6}' /etc/shadow"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.5.1.3."
@@ -3464,6 +4341,11 @@ checks:
         if [ "$t" -gt "$now" ]; then echo "$usr: last password change $d is in the future"; fi
       done
     expect: empty
+    remediation: |
+      Check the system clock, then set the last password change of every listed user to today, or expire the password so it must be changed at the next login:
+
+      chage --lastday "$(date +%Y-%m-%d)" USER
+      chage --lastday 0 USER
   - id: "CIS-UBUNTU18-5.5.2-secure_system_LK"
     name: "secure system LK: /awk -F: '$3\u003c1000' /etc/passwd | egrep -wv 'root' | cut -d: -f1 | xargs -I '{}' passwd -S…"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.5.2."
@@ -3494,6 +4376,10 @@ checks:
     run: |
       getent passwd root
     expect: true
+    remediation: |
+      Create the user root:
+
+      useradd root
   - id: "CIS-UBUNTU18-5.5.4-etc_pam.d_common-session-attrs"
     name: "/etc/pam.d/common-session: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.5.4."
@@ -3503,6 +4389,8 @@ checks:
       f='/etc/pam.d/common-session'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-session.
   - id: "CIS-UBUNTU18-5.5.4-etc_pam.d_common-session-content"
     name: "/etc/pam.d/common-session has the expected content (3 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.5.4."
@@ -3515,6 +4403,12 @@ checks:
       - { some: "~ ^session\\s*optional\\s*pam_umask.so" }
       - { some: "~ ^\\s+umask\\s0(2|7)(2|7)" }
       - { none: "~ ^\\s+umask\\s[1-7][0-7][0-7]" }
+    remediation: |
+      Edit /etc/pam.d/common-session so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^session\s*optional\s*pam_umask.so
+      - a line matches ^\s+umask\s0(2|7)(2|7)
+      - no line matches ^\s+umask\s[1-7][0-7][0-7]
   - id: "CIS-UBUNTU18-5.5.4-umask_027"
     name: "umask 027: grep -RPi \"'(^|^[^#]*)\\s*umask\\s+([0-7][0-7][01][0-7]\\b|[0-7][0-7][0-7][0-6]\\b|[0-7][01][…"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.5.4."
@@ -3535,6 +4429,8 @@ checks:
       f='/etc/profile.d/tmout.sh'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/profile.d/tmout.sh.
   - id: "CIS-UBUNTU18-5.5.5-etc_profile.d_tmout.sh-content"
     name: "/etc/profile.d/tmout.sh has the expected content (2 rules)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.5.5."
@@ -3546,6 +4442,11 @@ checks:
     expect:
       - { some: "~ ^TMOUT=([1-8][0-9]{0,2}|900)" }
       - { some: "~ ^readonly TMOUT" }
+    remediation: |
+      Edit /etc/profile.d/tmout.sh so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^TMOUT=([1-8][0-9]{0,2}|900)
+      - a line matches ^readonly TMOUT
   - id: "CIS-UBUNTU18-5.6-root_system_console"
     name: "root system console: echo \"Manual check of valid terminal in /etc/securetty is required\""
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.6."
@@ -3566,6 +4467,8 @@ checks:
       f='/etc/group'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/group.
   - id: "CIS-UBUNTU18-5.7-etc_group-content"
     name: "/etc/group has the expected content (1 rule)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.7."
@@ -3575,6 +4478,10 @@ checks:
       cat '/etc/group'
     allow_rc: any
     expect: { some: "~ ^wheel:x:[1-9][0-9]{1,4}:$" }
+    remediation: |
+      Edit /etc/group so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^wheel:x:[1-9][0-9]{1,4}:$
   - id: "CIS-UBUNTU18-5.7-etc_pam.d_su-attrs"
     name: "/etc/pam.d/su: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.7."
@@ -3584,6 +4491,8 @@ checks:
       f='/etc/pam.d/su'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/su.
   - id: "CIS-UBUNTU18-5.7-etc_pam.d_su-content"
     name: "/etc/pam.d/su has the expected content (1 rule)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.7."
@@ -3593,6 +4502,10 @@ checks:
       cat '/etc/pam.d/su'
     allow_rc: any
     expect: { some: "~ ^auth.*required.*pam_wheel.so\\suse_uid" }
+    remediation: |
+      Edit /etc/pam.d/su so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^auth.*required.*pam_wheel.so\suse_uid
   - id: "CIS-UBUNTU18-6.1.1-rpm_filecheck"
     name: "rpm filecheck: echo \"Manual Check of packages required\""
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 6.1.1."
@@ -3762,6 +4675,8 @@ checks:
       f='/etc/passwd'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/passwd.
   - id: "CIS-UBUNTU18-6.2.1-etc_passwd-content"
     name: "/etc/passwd has the expected content (1 rule)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 6.2.1."
@@ -3771,6 +4686,10 @@ checks:
       cat '/etc/passwd'
     allow_rc: any
     expect: { some: "~ ^.*:x:" }
+    remediation: |
+      Edit /etc/passwd so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^.*:x:
   - id: "CIS-UBUNTU18-6.2.2-etc_shadow-attrs"
     name: "/etc/shadow: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 6.2.2."
@@ -3780,6 +4699,8 @@ checks:
       f='/etc/shadow'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/shadow.
   - id: "CIS-UBUNTU18-6.2.2-etc_shadow-content"
     name: "/etc/shadow has the expected content (1 rule)"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 6.2.2."
@@ -3789,6 +4710,10 @@ checks:
       cat '/etc/shadow'
     allow_rc: any
     expect: { none: "~ ^*.[a-z]::" }
+    remediation: |
+      Edit /etc/shadow so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^*.[a-z]::
   - id: "CIS-UBUNTU18-6.2.3-passwd_group_exist"
     name: "passwd group exist: awk -F: '{print $4}' /etc/passwd |sort -u \u003e /tmp/uid \u0026\u0026 awk -F: '{print $3}' /etc/group| …"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 6.2.3."

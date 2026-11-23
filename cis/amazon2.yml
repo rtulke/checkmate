@@ -119,6 +119,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/tmp'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /tmp on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data. A tmpfs mount on /tmp, e.g. with systemd's tmp.mount, counts as well.
   - id: "CIS-AMAZON2-1.1.2.1.2-tmp_nodev_option"
     name: "/tmp is a separate mount with nodev"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -130,6 +132,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /tmp with the option nodev: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.1.2-tmp_fstab_nodev_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -139,6 +147,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.1.2-tmp_fstab_nodev_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -148,6 +158,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*nodev
   - id: "CIS-AMAZON2-1.1.2.1.3-tmp_nosuid_option"
     name: "/tmp is a separate mount with nosuid"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -159,6 +173,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /tmp with the option nosuid: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.1.3-tmp_fstab_nosuid_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -168,6 +188,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.1.3-tmp_fstab_nosuid_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -177,6 +199,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*nosuid
   - id: "CIS-AMAZON2-1.1.2.1.4-tmp_noexec_option"
     name: "/tmp is a separate mount with noexec"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -188,6 +214,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /tmp with the option noexec: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.1.4-tmp_fstab_noexec_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -197,6 +229,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.1.4-tmp_fstab_noexec_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -206,6 +240,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*noexec" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*noexec
   - id: "CIS-AMAZON2-1.1.2.2.1-dev_shm_mount"
     name: "/dev/shm is a separate mount"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.2.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -217,6 +255,8 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ ^(tmpfs) "
+    remediation: |
+      Mount a tmpfs file system on /dev/shm with an entry in /etc/fstab or a systemd mount unit.
   - id: "CIS-AMAZON2-1.1.2.2.2-dev_shm_nodev_option"
     name: "/dev/shm is a separate mount with nodev"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -228,6 +268,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /dev/shm with the option nodev: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.2.2-dev_shm_fstab_nodev_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -237,6 +283,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.2.2-dev_shm_fstab_nodev_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -246,6 +294,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*nodev
   - id: "CIS-AMAZON2-1.1.2.2.3-dev_shm_nosuid_option"
     name: "/dev/shm is a separate mount with nosuid"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -257,6 +309,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /dev/shm with the option nosuid: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.2.3-dev_shm_fstab_nosuid_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -266,6 +324,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.2.3-dev_shm_fstab_nosuid_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -275,6 +335,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*nosuid
   - id: "CIS-AMAZON2-1.1.2.2.4-dev_shm_noexec_option"
     name: "/dev/shm is a separate mount with noexec"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -286,6 +350,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /dev/shm with the option noexec: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.2.4-dev_shm_fstab_noexec_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -295,6 +365,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.2.4-dev_shm_fstab_noexec_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -304,6 +376,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*noexec" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*noexec
   - id: "CIS-AMAZON2-1.1.2.3.1-home_mount"
     name: "/home is a separate mount"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.3.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -313,6 +389,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/home'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /home on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-AMAZON2-1.1.2.3.2-home_nodev_option"
     name: "/home is a separate mount with nodev"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -324,6 +402,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /home with the option nodev: add it to the options of /home in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/home'
+
+      If /home is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.3.2-home_fstab_nodev_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -333,6 +417,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.3.2-home_fstab_nodev_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -342,6 +428,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/home.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/home.*nodev
   - id: "CIS-AMAZON2-1.1.2.3.3-home_nosuid_option"
     name: "/home is a separate mount with nosuid"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -353,6 +443,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /home with the option nosuid: add it to the options of /home in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/home'
+
+      If /home is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.3.3-home_fstab_nosuid_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -362,6 +458,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.3.3-home_fstab_nosuid_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -371,6 +469,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/home.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/home.*nosuid
   - id: "CIS-AMAZON2-1.1.2.4.1-var_mount"
     name: "/var is a separate mount"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.4.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -380,6 +482,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-AMAZON2-1.1.2.4.2-var_nodev_option"
     name: "/var is a separate mount with nodev"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -391,6 +495,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var with the option nodev: add it to the options of /var in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var'
+
+      If /var is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.4.2-var_fstab_nodev_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -400,6 +510,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.4.2-var_fstab_nodev_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -409,6 +521,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\s.*nodev
   - id: "CIS-AMAZON2-1.1.2.4.3-var_nosuid_option"
     name: "/var is a separate mount with nosuid"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -420,6 +536,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var with the option nosuid: add it to the options of /var in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var'
+
+      If /var is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.4.3-var_fstab_nosuid_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -429,6 +551,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.4.3-var_fstab_nosuid_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -438,6 +562,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\s.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\s.*nosuid
   - id: "CIS-AMAZON2-1.1.2.5.1-var_tmp_mount"
     name: "/var/tmp is a separate mount"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.5.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -447,6 +575,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/tmp'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/tmp on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-AMAZON2-1.1.2.5.2-var_tmp_nodev_option"
     name: "/var/tmp is a separate mount with nodev"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -458,6 +588,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/tmp with the option nodev: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.5.2-var_tmp_fstab_nodev_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -467,6 +603,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.5.2-var_tmp_fstab_nodev_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -476,6 +614,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*nodev
   - id: "CIS-AMAZON2-1.1.2.5.3-var_tmp_nosuid_option"
     name: "/var/tmp is a separate mount with nosuid"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -487,6 +629,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/tmp with the option nosuid: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.5.3-var_tmp_fstab_nosuid_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -496,6 +644,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.5.3-var_tmp_fstab_nosuid_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -505,6 +655,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*nosuid
   - id: "CIS-AMAZON2-1.1.2.5.4-var_tmp_noexec_option"
     name: "/var/tmp is a separate mount with noexec"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -516,6 +670,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/tmp with the option noexec: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.5.4-var_tmp_fstab_noexec_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -525,6 +685,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.5.4-var_tmp_fstab_noexec_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -534,6 +696,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*noexec" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*noexec
   - id: "CIS-AMAZON2-1.1.2.6.1-var_log_mount"
     name: "/var/log is a separate mount"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.6.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -543,6 +709,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/log'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/log on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-AMAZON2-1.1.2.6.2-var_log_nodev_option"
     name: "/var/log is a separate mount with nodev"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -554,6 +722,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/log with the option nodev: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.6.2-var_log_fstab_nodev_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -563,6 +737,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.6.2-var_log_fstab_nodev_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -572,6 +748,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*nodev
   - id: "CIS-AMAZON2-1.1.2.6.3-var_log_nosuid_option"
     name: "/var/log is a separate mount with nosuid"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -583,6 +763,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/log with the option nosuid: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.6.3-var_log_fstab_nosuid_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -592,6 +778,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.6.3-var_log_fstab_nosuid_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -601,6 +789,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*nosuid
   - id: "CIS-AMAZON2-1.1.2.6.4-var_log_noexec_option"
     name: "/var/log is a separate mount with noexec"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -612,6 +804,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/log with the option noexec: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.6.4-var_log_fstab_noexec_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -621,6 +819,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.6.4-var_log_fstab_noexec_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -630,6 +830,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*noexec" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*noexec
   - id: "CIS-AMAZON2-1.1.2.7.1-var_log_audit_mount"
     name: "/var/log/audit is a separate mount"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.7.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -639,6 +843,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/log/audit'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/log/audit on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-AMAZON2-1.1.2.7.2-var_log_audit_nodev_option"
     name: "/var/log/audit is a separate mount with nodev"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -650,6 +856,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option nodev: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.7.2-var_log_audit_fstab_nodev_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -659,6 +871,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.7.2-var_log_audit_fstab_nodev_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -668,6 +882,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*nodev
   - id: "CIS-AMAZON2-1.1.2.7.3-var_log_audit_nosuid_option"
     name: "/var/log/audit is a separate mount with nosuid"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -679,6 +897,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option nosuid: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.7.3-var_log_audit_fstab_nosuid_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -688,6 +912,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.7.3-var_log_audit_fstab_nosuid_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -697,6 +923,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*nosuid
   - id: "CIS-AMAZON2-1.1.2.7.4-var_log_audit_noexec_option"
     name: "/var/log/audit is a separate mount with noexec"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -708,6 +938,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option noexec: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-AMAZON2-1.1.2.7.4-var_log_audit_fstab_noexec_option-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -717,6 +953,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-AMAZON2-1.1.2.7.4-var_log_audit_fstab_noexec_option-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -726,6 +964,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*noexec" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*noexec
   - id: "CIS-AMAZON2-1.2.1-gpg_keys"
     name: "gpg keys: rpm -q gpg-pubkey --qf '%{name}-%{version}-%{release} --\u003e %{summary}"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.2.1. NIST SP 800-53 Rev. 5: SI-2."
@@ -744,6 +986,8 @@ checks:
       f='/etc/yum.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/yum.conf.
   - id: "CIS-AMAZON2-1.2.2-gpg_check_conf-content"
     name: "/etc/yum.conf has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.2.2. NIST SP 800-53 Rev. 5: SI-2."
@@ -755,6 +999,11 @@ checks:
     expect:
       - { some: "~ ^gpgcheck\\s*=\\s*1" }
       - { none: "~ ^gpgcheck\\s*=\\s*0" }
+    remediation: |
+      Edit /etc/yum.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^gpgcheck\s*=\s*1
+      - no line matches ^gpgcheck\s*=\s*0
   - id: "CIS-AMAZON2-1.2.2-gpg_check_repo"
     name: "gpg check repo: if [[ $(grep -Ehw \"gpgcheck\\s*=\\s*0\" /etc/yum.repos.d/*) ]]; then echo FAIL; else echo PA…"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.2.2. NIST SP 800-53 Rev. 5: SI-2."
@@ -776,6 +1025,8 @@ checks:
       f='/etc/yum.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/yum.conf.
   - id: "CIS-AMAZON2-1.2.3-repogpg_check_conf-content"
     name: "/etc/yum.conf has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.2.3. NIST SP 800-53 Rev. 5: SI-2."
@@ -787,6 +1038,11 @@ checks:
     expect:
       - { some: "~ ^gpgcheck\\s*=\\s*1" }
       - { none: "~ ^gpgcheck\\s*=\\s*0" }
+    remediation: |
+      Edit /etc/yum.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^gpgcheck\s*=\s*1
+      - no line matches ^gpgcheck\s*=\s*0
   - id: "CIS-AMAZON2-1.2.3-repo_gpgcheck_repo"
     name: "repo gpgcheck repo: if [[ $(grep -Eh \"repo_gpgcheck\\s*=\\s*0\" /etc/yum.repos.d/*) ]]; then echo FAIL; else ech…"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.2.3. NIST SP 800-53 Rev. 5: SI-2."
@@ -858,6 +1114,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 2"
+    remediation: |
+      Set the kernel parameter kernel.randomize_va_space to 2, now and at boot:
+
+      sysctl -w 'kernel.randomize_va_space=2'
+      printf '%s\n' 'kernel.randomize_va_space = 2' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of kernel.randomize_va_space from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-1.4.1-aslr_enabled_2"
     name: "aslr enabled 2: grep -h \"kernel\\.randomize_va_space\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.4.1. NIST SP 800-53 Rev. 5: CM-6, CM-6b."
@@ -880,6 +1143,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter kernel.yama.ptrace_scope to 1, now and at boot:
+
+      sysctl -w 'kernel.yama.ptrace_scope=1'
+      printf '%s\n' 'kernel.yama.ptrace_scope = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of kernel.yama.ptrace_scope from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-1.4.2-ptrace_scope_conf"
     name: "ptrace scope conf: grep -h \"kernel\\.yama\\.ptrace_scope\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.4.2. NIST SP 800-53 Rev. 5: CM-6, CM-6b."
@@ -900,6 +1170,8 @@ checks:
       f='/etc/systemd/coredump.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/systemd/coredump.conf.
   - id: "CIS-AMAZON2-1.4.3-core_dumps_procsizemax-content"
     name: "/etc/systemd/coredump.conf has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.4.3. NIST SP 800-53 Rev. 5: CM-6b."
@@ -909,6 +1181,10 @@ checks:
       cat '/etc/systemd/coredump.conf'
     allow_rc: any
     expect: { some: "~ ^ProcessSizeMax\\s*=\\s*0" }
+    remediation: |
+      Edit /etc/systemd/coredump.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^ProcessSizeMax\s*=\s*0
   - id: "CIS-AMAZON2-1.4.4-core_dumps_storage-attrs"
     name: "/etc/systemd/coredump.conf: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.4.4."
@@ -918,6 +1194,8 @@ checks:
       f='/etc/systemd/coredump.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/systemd/coredump.conf.
   - id: "CIS-AMAZON2-1.4.4-core_dumps_storage-content"
     name: "/etc/systemd/coredump.conf has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.4.4."
@@ -927,6 +1205,10 @@ checks:
       cat '/etc/systemd/coredump.conf'
     allow_rc: any
     expect: { some: "~ ^Storage\\s*=\\s*none" }
+    remediation: |
+      Edit /etc/systemd/coredump.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^Storage\s*=\s*none
   - id: "CIS-AMAZON2-1.5.1.1-libselinux"
     name: "Package libselinux is installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.5.1.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -935,6 +1217,10 @@ checks:
     run: |
       rpm -q --quiet libselinux
     expect: true
+    remediation: |
+      Install the package libselinux:
+
+      yum install libselinux
   - id: "CIS-AMAZON2-1.5.1.2-selinux_disabled_boot"
     name: "selinux disabled boot: grep \"^\\s*linux\" /boot/grub2/grub.cfg | grep -E \"(selinux=0|enforcing=0)\""
     description: "CIS Amazon Linux 2 benchmark recommendation 1.5.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -955,6 +1241,8 @@ checks:
       f='/etc/selinux/config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/selinux/config.
   - id: "CIS-AMAZON2-1.5.1.3-selinux_policy-content"
     name: "/etc/selinux/config has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.5.1.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -964,6 +1252,10 @@ checks:
       cat '/etc/selinux/config'
     allow_rc: any
     expect: { some: "~ SELINUXTYPE=targeted" }
+    remediation: |
+      Edit /etc/selinux/config so that its lines meet these conditions (regular expressions):
+
+      - a line matches SELINUXTYPE=targeted
   - id: "CIS-AMAZON2-1.5.1.3-selinux_sestatus"
     name: "selinux sestatus: sestatus | grep 'Loaded policy'"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.5.1.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -984,6 +1276,8 @@ checks:
       f='/etc/selinux/config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/selinux/config.
   - id: "CIS-AMAZON2-1.5.1.4-selinux_state_config-content"
     name: "/etc/selinux/config has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.5.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -995,6 +1289,11 @@ checks:
     expect:
       - { some: "~ SELINUX=(enforcing|permissive)" }
       - { none: "~ ^SELINUX\\s*=\\s*disabled" }
+    remediation: |
+      Edit /etc/selinux/config so that its lines meet these conditions (regular expressions):
+
+      - a line matches SELINUX=(enforcing|permissive)
+      - no line matches ^SELINUX\s*=\s*disabled
   - id: "CIS-AMAZON2-1.5.1.4-selinux_running_mode"
     name: "selinux running mode: getenforce"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.5.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1016,6 +1315,8 @@ checks:
       f='/etc/selinux/config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/selinux/config.
   - id: "CIS-AMAZON2-1.5.1.5-selinux_enforcing_config-content"
     name: "/etc/selinux/config has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.5.1.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1027,6 +1328,11 @@ checks:
     expect:
       - { some: "~ SELINUX\\s*=\\s*enforcing" }
       - { none: "~ ^SELINUX\\s*=\\s*disabled" }
+    remediation: |
+      Edit /etc/selinux/config so that its lines meet these conditions (regular expressions):
+
+      - a line matches SELINUX\s*=\s*enforcing
+      - no line matches ^SELINUX\s*=\s*disabled
   - id: "CIS-AMAZON2-1.5.1.5-selinux_run_enforcing"
     name: "selinux run enforcing: getenforce"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.5.1.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1057,6 +1363,10 @@ checks:
     run: |
       rpm -q --quiet mcstrans
     expect: false
+    remediation: |
+      Remove the package mcstrans, unless the system needs it:
+
+      yum remove mcstrans
   - id: "CIS-AMAZON2-1.5.1.8-setroubleshoot"
     name: "Package setroubleshoot is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.5.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1065,6 +1375,10 @@ checks:
     run: |
       rpm -q --quiet setroubleshoot
     expect: false
+    remediation: |
+      Remove the package setroubleshoot, unless the system needs it:
+
+      yum remove setroubleshoot
   - id: "CIS-AMAZON2-1.6.1-motd-attrs"
     name: "/etc/motd: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -1077,6 +1391,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/motd if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/motd'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/motd'
   - id: "CIS-AMAZON2-1.6.1-motd-content"
     name: "/etc/motd has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -1088,6 +1407,11 @@ checks:
     expect:
       - { none: "~ (?i)(amazon|centos|fedora|redhat|linux)" }
       - { none: "~ x86_64" }
+    remediation: |
+      Edit /etc/motd so that its lines meet these conditions (regular expressions):
+
+      - no line matches (?i)(amazon|centos|fedora|redhat|linux)
+      - no line matches x86_64
   - id: "CIS-AMAZON2-1.6.2-etc_issue-attrs"
     name: "/etc/issue: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.6.2. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -1100,6 +1424,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue'
   - id: "CIS-AMAZON2-1.6.2-etc_issue-content"
     name: "/etc/issue has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.6.2. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -1111,6 +1440,11 @@ checks:
     expect:
       - { none: "~ (?i)(amazon|centos|fedora|redhat|linux)" }
       - { none: "~ x86_64" }
+    remediation: |
+      Edit /etc/issue so that its lines meet these conditions (regular expressions):
+
+      - no line matches (?i)(amazon|centos|fedora|redhat|linux)
+      - no line matches x86_64
   - id: "CIS-AMAZON2-1.6.3-etc_issue.net-attrs"
     name: "/etc/issue.net: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.6.3. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -1123,6 +1457,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue.net if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue.net'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue.net'
   - id: "CIS-AMAZON2-1.6.3-etc_issue.net-content"
     name: "/etc/issue.net has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.6.3. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -1134,6 +1473,11 @@ checks:
     expect:
       - { none: "~ (?i)(amazon|centos|fedora|redhat|linux)" }
       - { none: "~ x86_64" }
+    remediation: |
+      Edit /etc/issue.net so that its lines meet these conditions (regular expressions):
+
+      - no line matches (?i)(amazon|centos|fedora|redhat|linux)
+      - no line matches x86_64
   - id: "CIS-AMAZON2-1.6.4-motd_perms-attrs"
     name: "/etc/motd: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.6.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1146,6 +1490,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/motd if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/motd'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/motd'
   - id: "CIS-AMAZON2-1.6.5-etc_issue_perms-attrs"
     name: "/etc/issue: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.6.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1158,6 +1507,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue'
   - id: "CIS-AMAZON2-1.6.6-etc_issue.net_perms-attrs"
     name: "/etc/issue.net: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 1.6.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1170,6 +1524,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue.net if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue.net'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue.net'
   - id: "CIS-AMAZON2-2.1.1-chrony"
     name: "Package chrony is installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.1.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1178,6 +1537,10 @@ checks:
     run: |
       rpm -q --quiet chrony
     expect: true
+    remediation: |
+      Install the package chrony:
+
+      yum install chrony
   - id: "CIS-AMAZON2-2.1.2-chronyd-enabled"
     name: "Service chronyd is enabled"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.1.2. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1186,6 +1549,10 @@ checks:
     run: |
       systemctl show -p UnitFileState chronyd | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service chronyd:
+
+      systemctl enable chronyd
   - id: "CIS-AMAZON2-2.1.2-chronyd-running"
     name: "Service chronyd is running"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.1.2. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1194,6 +1561,10 @@ checks:
     run: |
       systemctl show -p ActiveState chronyd | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service chronyd:
+
+      systemctl start chronyd
   - id: "CIS-AMAZON2-2.1.2-chrony_conf-attrs"
     name: "/etc/chrony.conf: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.1.2. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1203,6 +1574,8 @@ checks:
       f='/etc/chrony.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/chrony.conf.
   - id: "CIS-AMAZON2-2.1.2-chrony_conf-content"
     name: "/etc/chrony.conf has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.1.2. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1212,6 +1585,10 @@ checks:
       cat '/etc/chrony.conf'
     allow_rc: any
     expect: { some: "~ ^server" }
+    remediation: |
+      Edit /etc/chrony.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^server
   - id: "CIS-AMAZON2-2.2.1-autofs_pkg"
     name: "Package autofs is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.1. NIST SP 800-53 Rev. 5: SI-3, MP-7."
@@ -1220,6 +1597,10 @@ checks:
     run: |
       rpm -q --quiet autofs
     expect: false
+    remediation: |
+      Remove the package autofs, unless the system needs it:
+
+      yum remove autofs
   - id: "CIS-AMAZON2-2.2.1-autofs_masked-attrs"
     name: "/etc/systemd/system/autofs.service: exists, is a symbolic link, links to /dev/null"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.1. NIST SP 800-53 Rev. 5: SI-3, MP-7."
@@ -1231,6 +1612,10 @@ checks:
       [ -L "$f" ] || echo "$f is not a symbolic link"
       [ "$(readlink "$f")" = '/dev/null' ] || echo "$f links to $(readlink "$f")"
     expect: empty
+    remediation: |
+      Create /etc/systemd/system/autofs.service if it is missing, then point the link to /dev/null:
+
+      ln -sfn '/dev/null' '/etc/systemd/system/autofs.service'
   - id: "CIS-AMAZON2-2.2.2-avahi_pkg"
     name: "Package avahi is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.2. NIST SP 800-53 Rev. 5: SI-4."
@@ -1239,6 +1624,10 @@ checks:
     run: |
       rpm -q --quiet avahi
     expect: false
+    remediation: |
+      Remove the package avahi, unless the system needs it:
+
+      yum remove avahi
   - id: "CIS-AMAZON2-2.2.3-dhcp_pkg"
     name: "Package dhcp-server is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -1247,6 +1636,10 @@ checks:
     run: |
       rpm -q --quiet dhcp-server
     expect: false
+    remediation: |
+      Remove the package dhcp-server, unless the system needs it:
+
+      yum remove dhcp-server
   - id: "CIS-AMAZON2-2.2.4-dns_pkg"
     name: "Package bind is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -1255,6 +1648,10 @@ checks:
     run: |
       rpm -q --quiet bind
     expect: false
+    remediation: |
+      Remove the package bind, unless the system needs it:
+
+      yum remove bind
   - id: "CIS-AMAZON2-2.2.5-dnsmasq_pkg"
     name: "Package dnsmasq is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -1263,6 +1660,10 @@ checks:
     run: |
       rpm -q --quiet dnsmasq
     expect: false
+    remediation: |
+      Remove the package dnsmasq, unless the system needs it:
+
+      yum remove dnsmasq
   - id: "CIS-AMAZON2-2.2.6-samba_pkg"
     name: "Package samba is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.6. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1271,6 +1672,10 @@ checks:
     run: |
       rpm -q --quiet samba
     expect: false
+    remediation: |
+      Remove the package samba, unless the system needs it:
+
+      yum remove samba
   - id: "CIS-AMAZON2-2.2.7-ftp_pkg"
     name: "Package vsftp is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.7. NIST SP 800-53 Rev. 5: CM-7."
@@ -1279,6 +1684,10 @@ checks:
     run: |
       rpm -q --quiet vsftp
     expect: false
+    remediation: |
+      Remove the package vsftp, unless the system needs it:
+
+      yum remove vsftp
   - id: "CIS-AMAZON2-2.2.8-cyrus_pkg"
     name: "Package cyrus-imapd is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -1287,6 +1696,10 @@ checks:
     run: |
       rpm -q --quiet cyrus-imapd
     expect: false
+    remediation: |
+      Remove the package cyrus-imapd, unless the system needs it:
+
+      yum remove cyrus-imapd
   - id: "CIS-AMAZON2-2.2.8-dovecot_pkg"
     name: "Package dovecot is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -1295,6 +1708,10 @@ checks:
     run: |
       rpm -q --quiet dovecot
     expect: false
+    remediation: |
+      Remove the package dovecot, unless the system needs it:
+
+      yum remove dovecot
   - id: "CIS-AMAZON2-2.2.9-nfs_pkg"
     name: "Package nfs-utils is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.9. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1303,6 +1720,10 @@ checks:
     run: |
       rpm -q --quiet nfs-utils
     expect: false
+    remediation: |
+      Remove the package nfs-utils, unless the system needs it:
+
+      yum remove nfs-utils
   - id: "CIS-AMAZON2-2.2.9-nfs_service_masked-attrs"
     name: "/etc/systemd/system/nfs-server.service: exists, is a symbolic link, links to /dev/null"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.9. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1314,6 +1735,10 @@ checks:
       [ -L "$f" ] || echo "$f is not a symbolic link"
       [ "$(readlink "$f")" = '/dev/null' ] || echo "$f links to $(readlink "$f")"
     expect: empty
+    remediation: |
+      Create /etc/systemd/system/nfs-server.service if it is missing, then point the link to /dev/null:
+
+      ln -sfn '/dev/null' '/etc/systemd/system/nfs-server.service'
   - id: "CIS-AMAZON2-2.2.11-cups_pkg"
     name: "Package cups is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.11. NIST SP 800-53 Rev. 5: CM-7."
@@ -1322,6 +1747,10 @@ checks:
     run: |
       rpm -q --quiet cups
     expect: false
+    remediation: |
+      Remove the package cups, unless the system needs it:
+
+      yum remove cups
   - id: "CIS-AMAZON2-2.2.12-rpcbind_pkg"
     name: "Package rpcbind is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.12. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1330,6 +1759,10 @@ checks:
     run: |
       rpm -q --quiet rpcbind
     expect: false
+    remediation: |
+      Remove the package rpcbind, unless the system needs it:
+
+      yum remove rpcbind
   - id: "CIS-AMAZON2-2.2.12-rpcbind_service_masked-attrs"
     name: "/etc/systemd/system/rpcbind.service: exists, is a symbolic link, links to /dev/null"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.12. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1341,6 +1774,10 @@ checks:
       [ -L "$f" ] || echo "$f is not a symbolic link"
       [ "$(readlink "$f")" = '/dev/null' ] || echo "$f links to $(readlink "$f")"
     expect: empty
+    remediation: |
+      Create /etc/systemd/system/rpcbind.service if it is missing, then point the link to /dev/null:
+
+      ln -sfn '/dev/null' '/etc/systemd/system/rpcbind.service'
   - id: "CIS-AMAZON2-2.2.12-rpcbind_socket_masked-attrs"
     name: "/etc/systemd/system/rpcbind.socket: exists, is a symbolic link, links to /dev/null"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.12. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1352,6 +1789,10 @@ checks:
       [ -L "$f" ] || echo "$f is not a symbolic link"
       [ "$(readlink "$f")" = '/dev/null' ] || echo "$f links to $(readlink "$f")"
     expect: empty
+    remediation: |
+      Create /etc/systemd/system/rpcbind.socket if it is missing, then point the link to /dev/null:
+
+      ln -sfn '/dev/null' '/etc/systemd/system/rpcbind.socket'
   - id: "CIS-AMAZON2-2.2.13-rsync_pkg"
     name: "Package rsync-daemon is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.13. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1360,6 +1801,10 @@ checks:
     run: |
       rpm -q --quiet rsync-daemon
     expect: false
+    remediation: |
+      Remove the package rsync-daemon, unless the system needs it:
+
+      yum remove rsync-daemon
   - id: "CIS-AMAZON2-2.2.14-snmp_pkg"
     name: "Package net-snmp is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.14. NIST SP 800-53 Rev. 5: CM-7."
@@ -1368,6 +1813,10 @@ checks:
     run: |
       rpm -q --quiet net-snmp
     expect: false
+    remediation: |
+      Remove the package net-snmp, unless the system needs it:
+
+      yum remove net-snmp
   - id: "CIS-AMAZON2-2.2.15-telnet_pkg"
     name: "Package telnet-server is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.15. NIST SP 800-53 Rev. 5: CM-7, CM-11."
@@ -1376,6 +1825,10 @@ checks:
     run: |
       rpm -q --quiet telnet-server
     expect: false
+    remediation: |
+      Remove the package telnet-server, unless the system needs it:
+
+      yum remove telnet-server
   - id: "CIS-AMAZON2-2.2.16-tftp_pkg"
     name: "Package tftp-server is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.16. NIST SP 800-53 Rev. 5: CM-7."
@@ -1384,6 +1837,10 @@ checks:
     run: |
       rpm -q --quiet tftp-server
     expect: false
+    remediation: |
+      Remove the package tftp-server, unless the system needs it:
+
+      yum remove tftp-server
   - id: "CIS-AMAZON2-2.2.17-squid_pkg"
     name: "Package squid is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.17. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1392,6 +1849,10 @@ checks:
     run: |
       rpm -q --quiet squid
     expect: false
+    remediation: |
+      Remove the package squid, unless the system needs it:
+
+      yum remove squid
   - id: "CIS-AMAZON2-2.2.18-httpd_pkg"
     name: "Package httpd is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.18. NIST SP 800-53 Rev. 5: CM-7."
@@ -1400,6 +1861,10 @@ checks:
     run: |
       rpm -q --quiet httpd
     expect: false
+    remediation: |
+      Remove the package httpd, unless the system needs it:
+
+      yum remove httpd
   - id: "CIS-AMAZON2-2.2.18-nginx_pkg"
     name: "Package nginx is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.18. NIST SP 800-53 Rev. 5: CM-7."
@@ -1408,6 +1873,10 @@ checks:
     run: |
       rpm -q --quiet nginx
     expect: false
+    remediation: |
+      Remove the package nginx, unless the system needs it:
+
+      yum remove nginx
   - id: "CIS-AMAZON2-2.2.19-xinetd_pkg"
     name: "Package xinetd is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.19. NIST SP 800-53 Rev. 5: CM-7."
@@ -1416,6 +1885,10 @@ checks:
     run: |
       rpm -q --quiet xinetd
     expect: false
+    remediation: |
+      Remove the package xinetd, unless the system needs it:
+
+      yum remove xinetd
   - id: "CIS-AMAZON2-2.2.20-xwindow_pkg"
     name: "Package xorg-x11-server-common is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.20. NIST SP 800-53 Rev. 5: CM-11."
@@ -1424,6 +1897,10 @@ checks:
     run: |
       rpm -q --quiet xorg-x11-server-common
     expect: false
+    remediation: |
+      Remove the package xorg-x11-server-common, unless the system needs it:
+
+      yum remove xorg-x11-server-common
   - id: "CIS-AMAZON2-2.2.22-manual_listening_ports"
     name: "manual listening ports: echo \"Manual!! - Please check only approved services are listening\""
     description: "CIS Amazon Linux 2 benchmark recommendation 2.2.22. NIST SP 800-53 Rev. 5: CM-7."
@@ -1443,6 +1920,10 @@ checks:
     run: |
       rpm -q --quiet ftp
     expect: false
+    remediation: |
+      Remove the package ftp, unless the system needs it:
+
+      yum remove ftp
   - id: "CIS-AMAZON2-2.3.2-ldap_client"
     name: "Package openldap-clients is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.3.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -1451,6 +1932,10 @@ checks:
     run: |
       rpm -q --quiet openldap-clients
     expect: false
+    remediation: |
+      Remove the package openldap-clients, unless the system needs it:
+
+      yum remove openldap-clients
   - id: "CIS-AMAZON2-2.3.3-nis_client"
     name: "Package ypbind is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.3.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -1459,6 +1944,10 @@ checks:
     run: |
       rpm -q --quiet ypbind
     expect: false
+    remediation: |
+      Remove the package ypbind, unless the system needs it:
+
+      yum remove ypbind
   - id: "CIS-AMAZON2-2.3.4-telnet_client"
     name: "Package telnet is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.3.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -1467,6 +1956,10 @@ checks:
     run: |
       rpm -q --quiet telnet
     expect: false
+    remediation: |
+      Remove the package telnet, unless the system needs it:
+
+      yum remove telnet
   - id: "CIS-AMAZON2-2.3.5-tftp_client"
     name: "Package tftp is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.3.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -1475,6 +1968,10 @@ checks:
     run: |
       rpm -q --quiet tftp
     expect: false
+    remediation: |
+      Remove the package tftp, unless the system needs it:
+
+      yum remove tftp
   - id: "CIS-AMAZON2-3.1.1-net.ipv6.conf.all.disable_ipv6"
     name: "Kernel parameter net.ipv6.conf.all.disable_ipv6 is 1"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.1.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -1486,6 +1983,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.disable_ipv6 to 1, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.disable_ipv6=1'
+      printf '%s\n' 'net.ipv6.conf.all.disable_ipv6 = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.disable_ipv6 from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.1.1-net.ipv6.conf.default.disable_ipv6"
     name: "Kernel parameter net.ipv6.conf.default.disable_ipv6 is 1"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.1.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -1497,6 +2001,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.disable_ipv6 to 1, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.disable_ipv6=1'
+      printf '%s\n' 'net.ipv6.conf.default.disable_ipv6 = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.disable_ipv6 from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.1.1-etc_default_grub-attrs"
     name: "/etc/default/grub: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.1.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -1506,6 +2017,8 @@ checks:
       f='/etc/default/grub'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/default/grub.
   - id: "CIS-AMAZON2-3.1.1-etc_default_grub-content"
     name: "/etc/default/grub has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.1.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -1515,6 +2028,10 @@ checks:
       cat '/etc/default/grub'
     allow_rc: any
     expect: { none: "~ (\\S+\\s(ipv6\\.disable=1.*)$)^GRUB_CMDLINE_LINUX=\"" }
+    remediation: |
+      Edit /etc/default/grub so that its lines meet these conditions (regular expressions):
+
+      - no line matches (\S+\s(ipv6\.disable=1.*)$)^GRUB_CMDLINE_LINUX="
   - id: "CIS-AMAZON2-3.1.1-ipv6_grub"
     name: "ipv6 grub: grep \"^\\s*linux\" /boot/grub2/grub.cfg | grep ipv6.disable=1"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.1.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -1542,6 +2059,10 @@ checks:
     run: |
       rpm -q --quiet bluetooth
     expect: false
+    remediation: |
+      Remove the package bluetooth, unless the system needs it:
+
+      yum remove bluetooth
   - id: "CIS-AMAZON2-3.2.1-modprobe_dccp"
     name: "modprobe dccp: grep -Rh dccp /etc/modprobe.d/"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.2.1. NIST SP 800-53 Rev. 5: CM-7, SI-4."
@@ -1601,6 +2122,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.ip_forward to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.ip_forward=0'
+      printf '%s\n' 'net.ipv4.ip_forward = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.ip_forward from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.2-net.ipv4.conf.all.send_redirects"
     name: "Kernel parameter net.ipv4.conf.all.send_redirects is 0"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.2. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-5, CM-7, IA-5."
@@ -1612,6 +2140,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.send_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.send_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.send_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.send_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.2-net.ipv4.conf.default.send_redirects"
     name: "Kernel parameter net.ipv4.conf.default.send_redirects is 0"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.2. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-5, CM-7, IA-5."
@@ -1623,6 +2158,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.send_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.send_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.send_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.send_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.3-net.ipv4.icmp_ignore_bogus_error_respons"
     name: "Kernel parameter net.ipv4.icmp_ignore_bogus_error_responses is 1"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.3. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-5, CM-7, IA-5."
@@ -1634,6 +2176,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.icmp_ignore_bogus_error_responses to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.icmp_ignore_bogus_error_responses=1'
+      printf '%s\n' 'net.ipv4.icmp_ignore_bogus_error_responses = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.icmp_ignore_bogus_error_responses from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.4-net.ipv4.icmp_echo_ignore_broadcasts"
     name: "Kernel parameter net.ipv4.icmp_echo_ignore_broadcasts is 1"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.4. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-5, CM-7, IA-5."
@@ -1645,6 +2194,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.icmp_echo_ignore_broadcasts to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.icmp_echo_ignore_broadcasts=1'
+      printf '%s\n' 'net.ipv4.icmp_echo_ignore_broadcasts = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.icmp_echo_ignore_broadcasts from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.5-net.ipv4.conf.all.accept_redirects"
     name: "Kernel parameter net.ipv4.conf.all.accept_redirects is 0"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-5, CM-7, IA-5."
@@ -1656,6 +2212,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.accept_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.5-net.ipv4.conf.default.accept_redirects"
     name: "Kernel parameter net.ipv4.conf.default.accept_redirects is 0"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-5, CM-7, IA-5."
@@ -1667,6 +2230,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.accept_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.5-net.ipv6.conf.all.accept_redirects"
     name: "Kernel parameter net.ipv6.conf.all.accept_redirects is 0"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-5, CM-7, IA-5."
@@ -1678,6 +2248,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.accept_redirects=0'
+      printf '%s\n' 'net.ipv6.conf.all.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.5-net.ipv6.conf.default.accept_redirects"
     name: "Kernel parameter net.ipv6.conf.default.accept_redirects is 0"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-5, CM-7, IA-5."
@@ -1689,6 +2266,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.accept_redirects=0'
+      printf '%s\n' 'net.ipv6.conf.default.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.6-net.ipv4.conf.all.secure_redirects"
     name: "Kernel parameter net.ipv4.conf.all.secure_redirects is 0"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.6. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-5, CM-7, IA-5."
@@ -1700,6 +2284,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.secure_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.secure_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.secure_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.secure_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.6-net.ipv4.conf.default.secure_redirects"
     name: "Kernel parameter net.ipv4.conf.default.secure_redirects is 0"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.6. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-5, CM-7, IA-5."
@@ -1711,6 +2302,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.secure_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.secure_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.secure_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.secure_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.7-net.ipv4.conf.all.rp_filter"
     name: "Kernel parameter net.ipv4.conf.all.rp_filter is 1"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.7. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-5, CM-7, IA-5."
@@ -1722,6 +2320,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.rp_filter to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.rp_filter=1'
+      printf '%s\n' 'net.ipv4.conf.all.rp_filter = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.rp_filter from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.7-net.ipv4.conf.default.rp_filter"
     name: "Kernel parameter net.ipv4.conf.default.rp_filter is 1"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.7. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-5, CM-7, IA-5."
@@ -1733,6 +2338,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.rp_filter to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.rp_filter=1'
+      printf '%s\n' 'net.ipv4.conf.default.rp_filter = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.rp_filter from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.8-net.ipv4.conf.all.accept_source_route"
     name: "Kernel parameter net.ipv4.conf.all.accept_source_route is 0"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.8. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-5, CM-7, IA-5."
@@ -1744,6 +2356,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.accept_source_route=0'
+      printf '%s\n' 'net.ipv4.conf.all.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.8-net.ipv4.conf.default.accept_source_rout"
     name: "Kernel parameter net.ipv4.conf.default.accept_source_route is 0"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.8. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-5, CM-7, IA-5."
@@ -1755,6 +2374,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.accept_source_route=0'
+      printf '%s\n' 'net.ipv4.conf.default.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.8-net.ipv6.conf.all.accept_source_route"
     name: "Kernel parameter net.ipv6.conf.all.accept_source_route is 0"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.8. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-5, CM-7, IA-5."
@@ -1766,6 +2392,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.accept_source_route=0'
+      printf '%s\n' 'net.ipv6.conf.all.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.8-net.ipv6.conf.default.accept_source_rout"
     name: "Kernel parameter net.ipv6.conf.default.accept_source_route is 0"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.8. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-5, CM-7, IA-5."
@@ -1777,6 +2410,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.accept_source_route=0'
+      printf '%s\n' 'net.ipv6.conf.default.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.9-net.ipv4.conf.all.log_martians"
     name: "Kernel parameter net.ipv4.conf.all.log_martians is 1"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.9. NIST SP 800-53 Rev. 5: AU-3."
@@ -1788,6 +2428,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.log_martians to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.log_martians=1'
+      printf '%s\n' 'net.ipv4.conf.all.log_martians = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.log_martians from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.9-net.ipv4.conf.default.log_martians"
     name: "Kernel parameter net.ipv4.conf.default.log_martians is 1"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.9. NIST SP 800-53 Rev. 5: AU-3."
@@ -1799,6 +2446,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.log_martians to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.log_martians=1'
+      printf '%s\n' 'net.ipv4.conf.default.log_martians = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.log_martians from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.3.10-net.ipv4.tcp_syncookies"
     name: "Kernel parameter net.ipv4.tcp_syncookies is 1"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.3.10. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-5, CM-7, IA-5."
@@ -1810,6 +2464,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.tcp_syncookies to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.tcp_syncookies=1'
+      printf '%s\n' 'net.ipv4.tcp_syncookies = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.tcp_syncookies from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-AMAZON2-3.4.1.1-iptables_installed"
     name: "Package iptables is installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.1.1. NIST SP 800-53 Rev. 5: CA-9."
@@ -1818,6 +2479,10 @@ checks:
     run: |
       rpm -q --quiet iptables
     expect: true
+    remediation: |
+      Install the package iptables:
+
+      yum install iptables
   - id: "CIS-AMAZON2-3.4.1.2-fw_fwd_fwd_running-enabled"
     name: "Service firewalld is enabled"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.1.2."
@@ -1826,6 +2491,10 @@ checks:
     run: |
       systemctl show -p UnitFileState firewalld | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service firewalld:
+
+      systemctl enable firewalld
   - id: "CIS-AMAZON2-3.4.1.2-fw_fwd_fwd_running-running"
     name: "Service firewalld is running"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.1.2."
@@ -1834,6 +2503,10 @@ checks:
     run: |
       systemctl show -p ActiveState firewalld | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service firewalld:
+
+      systemctl start firewalld
   - id: "CIS-AMAZON2-3.4.1.2-fw_fwd_nft_stopped-enabled"
     name: "Service nftables is not enabled"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.1.2."
@@ -1842,6 +2515,12 @@ checks:
     run: |
       systemctl show -p UnitFileState nftables | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service nftables, unless the system needs it:
+
+      systemctl disable nftables
+
+      To keep other units from starting it, mask it instead: systemctl mask nftables
   - id: "CIS-AMAZON2-3.4.1.2-fw_fwd_nft_stopped-running"
     name: "Service nftables is not running"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.1.2."
@@ -1850,6 +2529,10 @@ checks:
     run: |
       systemctl show -p ActiveState nftables | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service nftables, unless the system needs it:
+
+      systemctl stop nftables
   - id: "CIS-AMAZON2-3.4.1.2-fw_iptables_ipt_stopped-enabled"
     name: "Service iptables is not enabled"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.1.2."
@@ -1858,6 +2541,12 @@ checks:
     run: |
       systemctl show -p UnitFileState iptables | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service iptables, unless the system needs it:
+
+      systemctl disable iptables
+
+      To keep other units from starting it, mask it instead: systemctl mask iptables
   - id: "CIS-AMAZON2-3.4.1.2-fw_iptables_ipt_stopped-running"
     name: "Service iptables is not running"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.1.2."
@@ -1866,6 +2555,10 @@ checks:
     run: |
       systemctl show -p ActiveState iptables | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service iptables, unless the system needs it:
+
+      systemctl stop iptables
   - id: "CIS-AMAZON2-3.4.1.2-fw_fwd_ipt_masked-attrs"
     name: "/etc/systemd/system/iptables.service: exists, is a symbolic link, links to /dev/null"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.1.2."
@@ -1877,6 +2570,10 @@ checks:
       [ -L "$f" ] || echo "$f is not a symbolic link"
       [ "$(readlink "$f")" = '/dev/null' ] || echo "$f links to $(readlink "$f")"
     expect: empty
+    remediation: |
+      Create /etc/systemd/system/iptables.service if it is missing, then point the link to /dev/null:
+
+      ln -sfn '/dev/null' '/etc/systemd/system/iptables.service'
   - id: "CIS-AMAZON2-3.4.1.2-fw_fwd_nft_masked-attrs"
     name: "/etc/systemd/system/nftables.service: exists, is a symbolic link, links to /dev/null"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.1.2."
@@ -1888,6 +2585,10 @@ checks:
       [ -L "$f" ] || echo "$f is not a symbolic link"
       [ "$(readlink "$f")" = '/dev/null' ] || echo "$f links to $(readlink "$f")"
     expect: empty
+    remediation: |
+      Create /etc/systemd/system/nftables.service if it is missing, then point the link to /dev/null:
+
+      ln -sfn '/dev/null' '/etc/systemd/system/nftables.service'
   - id: "CIS-AMAZON2-3.4.2.1-fwd_firewalld_installed"
     name: "Package firewalld is installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.2.1. NIST SP 800-53 Rev. 5: CA-9."
@@ -1896,6 +2597,10 @@ checks:
     run: |
       rpm -q --quiet firewalld
     expect: true
+    remediation: |
+      Install the package firewalld:
+
+      yum install firewalld
   - id: "CIS-AMAZON2-3.4.2.1-fwd_iptables_installed"
     name: "Package iptables is installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.2.1. NIST SP 800-53 Rev. 5: CA-9."
@@ -1904,6 +2609,10 @@ checks:
     run: |
       rpm -q --quiet iptables
     expect: true
+    remediation: |
+      Install the package iptables:
+
+      yum install iptables
   - id: "CIS-AMAZON2-3.4.2.2-fwd_firewalld_running-enabled"
     name: "Service firewalld is enabled"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.2.2. NIST SP 800-53 Rev. 5: CA-9."
@@ -1912,6 +2621,10 @@ checks:
     run: |
       systemctl show -p UnitFileState firewalld | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service firewalld:
+
+      systemctl enable firewalld
   - id: "CIS-AMAZON2-3.4.2.2-fwd_firewalld_running-running"
     name: "Service firewalld is running"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.2.2. NIST SP 800-53 Rev. 5: CA-9."
@@ -1920,6 +2633,10 @@ checks:
     run: |
       systemctl show -p ActiveState firewalld | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service firewalld:
+
+      systemctl start firewalld
   - id: "CIS-AMAZON2-3.4.3.1-nftables"
     name: "Package nftables is installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.3.1. NIST SP 800-53 Rev. 5: CA-9."
@@ -1928,6 +2645,10 @@ checks:
     run: |
       rpm -q --quiet nftables
     expect: true
+    remediation: |
+      Install the package nftables:
+
+      yum install nftables
   - id: "CIS-AMAZON2-3.4.3.2-iptables6_flushed"
     name: "iptables6 flushed: ip6tables -L"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.3.2. NIST SP 800-53 Rev. 5: CA-9."
@@ -2026,6 +2747,10 @@ checks:
     run: |
       systemctl show -p UnitFileState nftables | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service nftables:
+
+      systemctl enable nftables
   - id: "CIS-AMAZON2-3.4.3.8-nftables_running-running"
     name: "Service nftables is running"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.3.8. NIST SP 800-53 Rev. 5: CA-9."
@@ -2034,6 +2759,10 @@ checks:
     run: |
       systemctl show -p ActiveState nftables | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service nftables:
+
+      systemctl start nftables
   - id: "CIS-AMAZON2-3.4.3.9-nftables_rules_permenant"
     name: "nftables rules permenant: echo \" Manual Test for nft rule are permenant\""
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.3.9. NIST SP 800-53 Rev. 5: CA-9."
@@ -2053,6 +2782,10 @@ checks:
     run: |
       rpm -q --quiet iptables
     expect: true
+    remediation: |
+      Install the package iptables:
+
+      yum install iptables
   - id: "CIS-AMAZON2-3.4.4.1.1-iptables_services_installed"
     name: "Package iptables-services is installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.4.1.1. NIST SP 800-53 Rev. 5: CA-9."
@@ -2061,6 +2794,10 @@ checks:
     run: |
       rpm -q --quiet iptables-services
     expect: true
+    remediation: |
+      Install the package iptables-services:
+
+      yum install iptables-services
   - id: "CIS-AMAZON2-3.4.4.2.1-iptables_loopback"
     name: "iptables loopback: cat false"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.4.2.1. NIST SP 800-53 Rev. 5: CA-9."
@@ -2086,6 +2823,8 @@ checks:
       f='false'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create false.
   - id: "CIS-AMAZON2-3.4.4.2.6-iptables_running-enabled"
     name: "Service iptables is enabled"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.4.2.6. NIST SP 800-53 Rev. 5: CA-9."
@@ -2094,6 +2833,10 @@ checks:
     run: |
       systemctl show -p UnitFileState iptables | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service iptables:
+
+      systemctl enable iptables
   - id: "CIS-AMAZON2-3.4.4.2.6-iptables_running-running"
     name: "Service iptables is running"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.4.2.6. NIST SP 800-53 Rev. 5: CA-9."
@@ -2102,6 +2845,10 @@ checks:
     run: |
       systemctl show -p ActiveState iptables | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service iptables:
+
+      systemctl start iptables
   - id: "CIS-AMAZON2-3.4.4.3.1-iptables6_loopback"
     name: "iptables6 loopback: cat false"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.4.3.1. NIST SP 800-53 Rev. 5: CA-9."
@@ -2138,6 +2885,8 @@ checks:
       f='false'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create false.
   - id: "CIS-AMAZON2-3.4.4.3.6-ip6tables-enabled"
     name: "Service ip6tables is enabled"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.4.3.6."
@@ -2146,6 +2895,10 @@ checks:
     run: |
       systemctl show -p UnitFileState ip6tables | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service ip6tables:
+
+      systemctl enable ip6tables
   - id: "CIS-AMAZON2-3.4.4.3.6-ip6tables-running"
     name: "Service ip6tables is running"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.4.3.6."
@@ -2154,6 +2907,10 @@ checks:
     run: |
       systemctl show -p ActiveState ip6tables | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service ip6tables:
+
+      systemctl start ip6tables
   - id: "CIS-AMAZON2-4.1.1.1-cronie"
     name: "Package cronie is installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.1.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2162,6 +2919,10 @@ checks:
     run: |
       rpm -q --quiet cronie
     expect: true
+    remediation: |
+      Install the package cronie:
+
+      yum install cronie
   - id: "CIS-AMAZON2-4.1.1.1-crond-enabled"
     name: "Service crond is enabled"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.1.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2170,6 +2931,10 @@ checks:
     run: |
       systemctl show -p UnitFileState crond | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service crond:
+
+      systemctl enable crond
   - id: "CIS-AMAZON2-4.1.1.1-crond-running"
     name: "Service crond is running"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.1.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2178,6 +2943,10 @@ checks:
     run: |
       systemctl show -p ActiveState crond | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service crond:
+
+      systemctl start crond
   - id: "CIS-AMAZON2-4.1.1.2-etc_crontab-attrs"
     name: "/etc/crontab: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.1.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2190,6 +2959,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/crontab if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/crontab'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/crontab'
   - id: "CIS-AMAZON2-4.1.1.3-etc_cron.hourly-attrs"
     name: "/etc/cron.hourly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.1.1.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2202,6 +2976,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.hourly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.hourly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.hourly'
   - id: "CIS-AMAZON2-4.1.1.4-etc_cron.daily-attrs"
     name: "/etc/cron.daily: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.1.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2214,6 +2993,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.daily if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.daily'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.daily'
   - id: "CIS-AMAZON2-4.1.1.5-etc_cron.weekly-attrs"
     name: "/etc/cron.weekly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.1.1.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2226,6 +3010,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.weekly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.weekly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.weekly'
   - id: "CIS-AMAZON2-4.1.1.6-etc_cron.monthly-attrs"
     name: "/etc/cron.monthly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.1.1.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2238,6 +3027,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.monthly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.monthly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.monthly'
   - id: "CIS-AMAZON2-4.1.1.7-etc_cron.d-attrs"
     name: "/etc/cron.d: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.1.1.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2250,6 +3044,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.d if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.d'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.d'
   - id: "CIS-AMAZON2-4.1.1.8-etc_cron.allow-attrs"
     name: "/etc/cron.allow: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.1.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2262,6 +3061,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.allow if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.allow'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/cron.allow'
   - id: "CIS-AMAZON2-4.1.1.8-etc_cron.deny-absent"
     name: "/etc/cron.deny does not exist"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.1.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2270,6 +3074,10 @@ checks:
     run: |
       test -e '/etc/cron.deny' || test -L '/etc/cron.deny'
     expect: false
+    remediation: |
+      Remove /etc/cron.deny, unless the system needs it:
+
+      rm '/etc/cron.deny'
   - id: "CIS-AMAZON2-4.1.2.1-etc_at.allow-attrs"
     name: "/etc/at.allow: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.1.2.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2282,6 +3090,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/at.allow if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/at.allow'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/at.allow'
   - id: "CIS-AMAZON2-4.1.2.1-etc_at.deny-absent"
     name: "/etc/at.deny does not exist"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.1.2.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2290,6 +3103,10 @@ checks:
     run: |
       test -e '/etc/at.deny' || test -L '/etc/at.deny'
     expect: false
+    remediation: |
+      Remove /etc/at.deny, unless the system needs it:
+
+      rm '/etc/at.deny'
   - id: "CIS-AMAZON2-4.2.1-sshd_config_perms-attrs"
     name: "/etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2302,6 +3119,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/ssh/sshd_config'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/ssh/sshd_config'
   - id: "CIS-AMAZON2-4.2.2-etc_ssh_ssh_host_key_group"
     name: "/etc/ssh/ssh host key group: groupkeys=$(sudo find /etc/ssh/ -name *_key -type f ! -group root ); echo $groupkeys"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2391,6 +3213,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.5-ssh_banner-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2402,6 +3226,11 @@ checks:
     expect:
       - { some: "~ ^Banner /etc/issue.net" }
       - { none: "~ ^Banner none" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^Banner /etc/issue.net
+      - no line matches ^Banner none
   - id: "CIS-AMAZON2-4.2.6-sshd_ciphers-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.6. NIST SP 800-53 Rev. 5: SC-8."
@@ -2411,6 +3240,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.6-sshd_ciphers-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.6. NIST SP 800-53 Rev. 5: SC-8."
@@ -2420,6 +3251,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ Ciphers chacha20-poly1305@openssh\\.com,aes256-gcm@openssh\\.com,aes128-gcm@openssh\\.com,aes256-ctr,aes192-ctr,aes128-ctr" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches Ciphers chacha20-poly1305@openssh\.com,aes256-gcm@openssh\.com,aes128-gcm@openssh\.com,aes256-ctr,aes192-ctr,aes128-ctr
   - id: "CIS-AMAZON2-4.2.7-sshd_clientmax_alive-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.7. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2429,6 +3264,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.7-sshd_clientmax_alive-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.7. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2440,6 +3277,11 @@ checks:
     expect:
       - { some: "~ ^ClientAliveInterval 15" }
       - { some: "~ ^ClientAliveCountMax 3" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^ClientAliveInterval 15
+      - a line matches ^ClientAliveCountMax 3
   - id: "CIS-AMAZON2-4.2.8-sshd_forwarding-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -2449,6 +3291,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.8-sshd_forwarding-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -2460,6 +3304,11 @@ checks:
     expect:
       - { some: "~ ^DisableForwarding yes" }
       - { none: "~ ^DisableForwarding no" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^DisableForwarding yes
+      - no line matches ^DisableForwarding no
   - id: "CIS-AMAZON2-4.2.9-sshd_gssapiauth-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.9. NIST SP 800-53 Rev. 5: CM-7."
@@ -2469,6 +3318,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.9-sshd_gssapiauth-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.9. NIST SP 800-53 Rev. 5: CM-7."
@@ -2480,6 +3331,11 @@ checks:
     expect:
       - { some: "~ ^(?i)gssapiauthentication no" }
       - { none: "~ ^(?i)gssapiauthentication yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)gssapiauthentication no
+      - no line matches ^(?i)gssapiauthentication yes
   - id: "CIS-AMAZON2-4.2.10-sshd_hostbasedauth-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.10. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2489,6 +3345,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.10-sshd_hostbasedauth-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.10. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2500,6 +3358,11 @@ checks:
     expect:
       - { some: "~ ^(?i)HostbasedAuthentication no" }
       - { none: "~ ^(?i)HostbasedAuthentication yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)HostbasedAuthentication no
+      - no line matches ^(?i)HostbasedAuthentication yes
   - id: "CIS-AMAZON2-4.2.11-sshd_ignorerhosts-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.11. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2509,6 +3372,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.11-sshd_ignorerhosts-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.11. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2520,6 +3385,11 @@ checks:
     expect:
       - { some: "~ ^(?i)IgnoreRhosts yes" }
       - { none: "~ ^(?i)IgnoreRhosts no" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)IgnoreRhosts yes
+      - no line matches ^(?i)IgnoreRhosts no
   - id: "CIS-AMAZON2-4.2.12-sshd_kex-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.12. NIST SP 800-53 Rev. 5: SC-8."
@@ -2529,6 +3399,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.12-sshd_kex-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.12. NIST SP 800-53 Rev. 5: SC-8."
@@ -2538,6 +3410,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ KexAlgorithms curve25519-sha256,curve25519-sha256@libssh\\.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches KexAlgorithms curve25519-sha256,curve25519-sha256@libssh\.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256
   - id: "CIS-AMAZON2-4.2.13-sshd_gracetime-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.13. NIST SP 800-53 Rev. 5: CM-6."
@@ -2547,6 +3423,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.13-sshd_gracetime-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.13. NIST SP 800-53 Rev. 5: CM-6."
@@ -2556,6 +3434,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ ^(?i)LoginGraceTime ([1-9]|[1-5][0-9])" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)LoginGraceTime ([1-9]|[1-5][0-9])
   - id: "CIS-AMAZON2-4.2.14-sshd_loglevel-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.14. NIST SP 800-53 Rev. 5: AU-3, AU-12, SI-5."
@@ -2565,6 +3447,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.14-sshd_loglevel-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.14. NIST SP 800-53 Rev. 5: AU-3, AU-12, SI-5."
@@ -2576,6 +3460,11 @@ checks:
     expect:
       - { some: "~ ^(?i)LogLevel (VERBOSE|INFO)" }
       - { none: "~ ^(?i)LogLevel DEBUG" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)LogLevel (VERBOSE|INFO)
+      - no line matches ^(?i)LogLevel DEBUG
   - id: "CIS-AMAZON2-4.2.15-sshd_macs-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.15. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2585,6 +3474,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.15-sshd_macs-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.15. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2594,6 +3485,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ MACs hmac-sha2-512-etm@openssh\\.com,hmac-sha2-256-etm@openssh\\.com,hmac-sha2-512,hmac-sha2-256" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches MACs hmac-sha2-512-etm@openssh\.com,hmac-sha2-256-etm@openssh\.com,hmac-sha2-512,hmac-sha2-256
   - id: "CIS-AMAZON2-4.2.16-sshd_maxtries-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.16. NIST SP 800-53 Rev. 5: AU-3."
@@ -2603,6 +3498,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.16-sshd_maxtries-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.16. NIST SP 800-53 Rev. 5: AU-3."
@@ -2614,6 +3511,11 @@ checks:
     expect:
       - { some: "~ ^(?i)MaxAuthTries [1-4]" }
       - { none: "~ ^(?i)MaxAuthTries (0|[5-9])" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)MaxAuthTries [1-4]
+      - no line matches ^(?i)MaxAuthTries (0|[5-9])
   - id: "CIS-AMAZON2-4.2.17-sshd_maxsessions-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.17. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2623,6 +3525,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.17-sshd_maxsessions-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.17. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2634,6 +3538,11 @@ checks:
     expect:
       - { some: "~ ^(?i)MaxSessions ([2-9]|10)" }
       - { none: "~ ^(?i)MaxSessions (1[1-9]{2,5})" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)MaxSessions ([2-9]|10)
+      - no line matches ^(?i)MaxSessions (1[1-9]{2,5})
   - id: "CIS-AMAZON2-4.2.18-sshd_maxstartups-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.18. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2643,6 +3552,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.18-sshd_maxstartups-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.18. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2652,6 +3563,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ ^(?i)MaxStartups 10:30:60" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)MaxStartups 10:30:60
   - id: "CIS-AMAZON2-4.2.19-sshd_empty_passwds-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.19. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2661,6 +3576,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.19-sshd_empty_passwds-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.19. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2672,6 +3589,11 @@ checks:
     expect:
       - { some: "~ ^(?i)PermitEmptyPasswords no" }
       - { none: "~ ^(?i)PermitEmptyPasswords yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)PermitEmptyPasswords no
+      - no line matches ^(?i)PermitEmptyPasswords yes
   - id: "CIS-AMAZON2-4.2.20-sshd_rootlogin-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.20. NIST SP 800-53 Rev. 5: AC-5."
@@ -2681,6 +3603,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.20-sshd_rootlogin-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.20. NIST SP 800-53 Rev. 5: AC-5."
@@ -2692,6 +3616,11 @@ checks:
     expect:
       - { some: "~ ^(?i)PermitRootLogin no" }
       - { none: "~ ^(?i)PermitRootLogin yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)PermitRootLogin no
+      - no line matches ^(?i)PermitRootLogin yes
   - id: "CIS-AMAZON2-4.2.21-sshd_permituserenv-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.21. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2701,6 +3630,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.21-sshd_permituserenv-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.21. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2712,6 +3643,11 @@ checks:
     expect:
       - { some: "~ ^(?i)PermitUserEnvironment no" }
       - { none: "~ ^(?i)PermitUserEnvironment yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)PermitUserEnvironment no
+      - no line matches ^(?i)PermitUserEnvironment yes
   - id: "CIS-AMAZON2-4.2.22-sshd_use_pam-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.22. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2721,6 +3657,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-AMAZON2-4.2.22-sshd_use_pam-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.22. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2732,6 +3670,11 @@ checks:
     expect:
       - { some: "~ ^UsePAM yes" }
       - { none: "~ ^UsePAM no" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^UsePAM yes
+      - no line matches ^UsePAM no
   - id: "CIS-AMAZON2-4.3.1-sudo"
     name: "Package sudo is installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.3.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2740,6 +3683,10 @@ checks:
     run: |
       rpm -q --quiet sudo
     expect: true
+    remediation: |
+      Install the package sudo:
+
+      yum install sudo
   - id: "CIS-AMAZON2-4.3.2-sudoers_pty-attrs"
     name: "/etc/sudoers: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.3.2. NIST SP 800-53 Rev. 5: AC-6."
@@ -2749,6 +3696,8 @@ checks:
       f='/etc/sudoers'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/sudoers.
   - id: "CIS-AMAZON2-4.3.2-sudoers_pty-content"
     name: "/etc/sudoers has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.3.2. NIST SP 800-53 Rev. 5: AC-6."
@@ -2758,6 +3707,10 @@ checks:
       cat '/etc/sudoers'
     allow_rc: any
     expect: { some: "~ ^Defaults.*\\suse_pty" }
+    remediation: |
+      Edit /etc/sudoers so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^Defaults.*\suse_pty
   - id: "CIS-AMAZON2-4.3.2-pty_sudoers_d"
     name: "pty sudoers d: ls -1 /etc/sudoers.d/* \u003e /dev/null 2\u003e\u00261; if [ '$?' = '0' ]; then grep -c '^Defaults.*\\sus…"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.3.2. NIST SP 800-53 Rev. 5: AC-6."
@@ -2778,6 +3731,8 @@ checks:
       f='/etc/sudoers'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/sudoers.
   - id: "CIS-AMAZON2-4.3.3-sudoers_log_setting-content"
     name: "/etc/sudoers has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.3.3. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -2787,6 +3742,10 @@ checks:
       cat '/etc/sudoers'
     allow_rc: any
     expect: { some: "~ ^Defaults\\s+logfile=\"/var/log/sudo.log\"" }
+    remediation: |
+      Edit /etc/sudoers so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^Defaults\s+logfile="/var/log/sudo.log"
   - id: "CIS-AMAZON2-4.3.3-log_sudoers_d"
     name: "log sudoers d: grep -c '^Defaults logfile=/var/log/*.log' /etc/sudoers.d/.*/"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.3.3. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -2841,6 +3800,8 @@ checks:
       f='/etc/pam.d/su'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/su.
   - id: "CIS-AMAZON2-4.3.7-su_restricted-content"
     name: "/etc/pam.d/su has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.3.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2850,6 +3811,10 @@ checks:
       cat '/etc/pam.d/su'
     allow_rc: any
     expect: { some: "~ ^auth\\s+required\\s+pam_wheel.so\\suse_uid" }
+    remediation: |
+      Edit /etc/pam.d/su so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^auth\s+required\s+pam_wheel.so\suse_uid
   - id: "CIS-AMAZON2-4.4.1.1-pam_latest"
     name: "pam latest: yum update pam"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -2869,6 +3834,10 @@ checks:
     run: |
       rpm -q --quiet libpwquality
     expect: true
+    remediation: |
+      Install the package libpwquality:
+
+      yum install libpwquality
   - id: "CIS-AMAZON2-4.4.2.1.1-faillock_password_auth-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2878,6 +3847,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-AMAZON2-4.4.2.1.1-faillock_password_auth-content"
     name: "/etc/pam.d/password-auth has the expected content (3 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2890,6 +3861,12 @@ checks:
       - { some: "~ ^auth\\s+required\\s+pam_faillock.so\\s+preauth" }
       - { some: "~ ^auth\\s+\\[default=die\\]\\s+pam_faillock.so\\s+authfail" }
       - { some: "~ ^account\\s+required\\s+pam_faillock.so" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^auth\s+required\s+pam_faillock.so\s+preauth
+      - a line matches ^auth\s+\[default=die\]\s+pam_faillock.so\s+authfail
+      - a line matches ^account\s+required\s+pam_faillock.so
   - id: "CIS-AMAZON2-4.4.2.1.1-faillock_system_auth-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2899,6 +3876,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-AMAZON2-4.4.2.1.1-faillock_system_auth-content"
     name: "/etc/pam.d/system-auth has the expected content (3 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2911,6 +3890,12 @@ checks:
       - { some: "~ ^auth\\s+required\\s+pam_faillock.so\\s+preauth" }
       - { some: "~ ^auth\\s+\\[default=die\\]\\s+pam_faillock.so\\s+authfail" }
       - { some: "~ ^account\\s+required\\s+pam_faillock.so" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^auth\s+required\s+pam_faillock.so\s+preauth
+      - a line matches ^auth\s+\[default=die\]\s+pam_faillock.so\s+authfail
+      - a line matches ^account\s+required\s+pam_faillock.so
   - id: "CIS-AMAZON2-4.4.2.1.2-faillock_password_auth_deny-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -2920,6 +3905,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-AMAZON2-4.4.2.1.2-faillock_password_auth_deny-content"
     name: "/etc/pam.d/password-auth has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -2931,6 +3918,11 @@ checks:
     expect:
       - { some: "~ ^auth\\s+required\\s+pam_faillock.so\\s+preauth.*deny=[1-5]" }
       - { some: "~ ^auth\\s+\\[default=die\\]\\s+pam_faillock.so\\s+authfail.*deny=[1-5]" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^auth\s+required\s+pam_faillock.so\s+preauth.*deny=[1-5]
+      - a line matches ^auth\s+\[default=die\]\s+pam_faillock.so\s+authfail.*deny=[1-5]
   - id: "CIS-AMAZON2-4.4.2.1.2-faillock_system_auth_deny-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -2940,6 +3932,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-AMAZON2-4.4.2.1.2-faillock_system_auth_deny-content"
     name: "/etc/pam.d/system-auth has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -2951,6 +3945,11 @@ checks:
     expect:
       - { some: "~ ^auth\\s+required\\s+pam_faillock.so\\s+preauth.*deny=[1-5]" }
       - { some: "~ ^auth\\s+\\[default=die\\]\\s+pam_faillock.so\\s+authfail.*deny=[1-5]" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^auth\s+required\s+pam_faillock.so\s+preauth.*deny=[1-5]
+      - a line matches ^auth\s+\[default=die\]\s+pam_faillock.so\s+authfail.*deny=[1-5]
   - id: "CIS-AMAZON2-4.4.2.1.3-faillock_password_auth_unlock_time-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -2960,6 +3959,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-AMAZON2-4.4.2.1.3-faillock_password_auth_unlock_time-content"
     name: "/etc/pam.d/password-auth has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -2971,6 +3972,11 @@ checks:
     expect:
       - { some: "~ ^auth\\s+required\\s+pam_faillock.so\\s+preauth.*unlock_time=(0|9[0-9][0-9]|[1-9][0-9]{3,})\\b" }
       - { some: "~ ^auth\\s+\\[default=die\\]\\s+pam_faillock.so\\s+authfail.*unlock_time=(0|9[0-9][0-9]|[1-9][0-9]{3,})\\b" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^auth\s+required\s+pam_faillock.so\s+preauth.*unlock_time=(0|9[0-9][0-9]|[1-9][0-9]{3,})\b
+      - a line matches ^auth\s+\[default=die\]\s+pam_faillock.so\s+authfail.*unlock_time=(0|9[0-9][0-9]|[1-9][0-9]{3,})\b
   - id: "CIS-AMAZON2-4.4.2.1.3-faillock_system_auth_unlock_time-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -2980,6 +3986,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-AMAZON2-4.4.2.1.3-faillock_system_auth_unlock_time-content"
     name: "/etc/pam.d/system-auth has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -2991,6 +3999,11 @@ checks:
     expect:
       - { some: "~ ^auth\\s+required\\s+pam_faillock.so\\s+preauth.*unlock_time=(0|9[0-9][0-9]|[1-9][0-9]{3,})\\b" }
       - { some: "~ ^auth\\s+\\[default=die\\]\\s+pam_faillock.so\\s+authfail.*unlock_time=(0|9[0-9][0-9]|[1-9][0-9]{3,})\\b" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^auth\s+required\s+pam_faillock.so\s+preauth.*unlock_time=(0|9[0-9][0-9]|[1-9][0-9]{3,})\b
+      - a line matches ^auth\s+\[default=die\]\s+pam_faillock.so\s+authfail.*unlock_time=(0|9[0-9][0-9]|[1-9][0-9]{3,})\b
   - id: "CIS-AMAZON2-4.4.2.1.4-faillock_password_auth_root_lock-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.1.4. NIST SP 800-53 Rev. 5: NA."
@@ -3000,6 +4013,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-AMAZON2-4.4.2.1.4-faillock_password_auth_root_lock-content"
     name: "/etc/pam.d/password-auth has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.1.4. NIST SP 800-53 Rev. 5: NA."
@@ -3011,6 +4026,11 @@ checks:
     expect:
       - { some: "~ ^auth\\s+required\\s+pam_faillock.so\\s+preauth.*unlock_time=(0|9[0-9][0-9]|[1-9][0-9]{3,})\\b" }
       - { some: "~ ^auth\\s+\\[default=die\\]\\s+pam_faillock.so\\s+authfail.*(even_deny_root|root_unlock_time=([6-9][0-9]{1,}))\\b" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^auth\s+required\s+pam_faillock.so\s+preauth.*unlock_time=(0|9[0-9][0-9]|[1-9][0-9]{3,})\b
+      - a line matches ^auth\s+\[default=die\]\s+pam_faillock.so\s+authfail.*(even_deny_root|root_unlock_time=([6-9][0-9]{1,}))\b
   - id: "CIS-AMAZON2-4.4.2.1.4-faillock_system_auth_root_lock-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.1.4. NIST SP 800-53 Rev. 5: NA."
@@ -3020,6 +4040,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-AMAZON2-4.4.2.1.4-faillock_system_auth_root_lock-content"
     name: "/etc/pam.d/system-auth has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.1.4. NIST SP 800-53 Rev. 5: NA."
@@ -3031,6 +4053,11 @@ checks:
     expect:
       - { some: "~ ^auth\\s+required\\s+pam_faillock.so\\s+preauth.*unlock_time=(0|9[0-9][0-9]|[1-9][0-9]{3,})\\b" }
       - { some: "~ ^auth\\s+\\[default=die\\]\\s+pam_faillock.so\\s+authfail.*(even_deny_root|root_unlock_time=([6-9][0-9]{1,}))\\b" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^auth\s+required\s+pam_faillock.so\s+preauth.*unlock_time=(0|9[0-9][0-9]|[1-9][0-9]{3,})\b
+      - a line matches ^auth\s+\[default=die\]\s+pam_faillock.so\s+authfail.*(even_deny_root|root_unlock_time=([6-9][0-9]{1,}))\b
   - id: "CIS-AMAZON2-4.4.2.2.1-pwquality_password_auth-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3040,6 +4067,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-AMAZON2-4.4.2.2.1-pwquality_password_auth-content"
     name: "/etc/pam.d/password-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3049,6 +4078,10 @@ checks:
       cat '/etc/pam.d/password-auth'
     allow_rc: any
     expect: { some: "~ ^password\\s+requisite\\s+pam_pwquality.so" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^password\s+requisite\s+pam_pwquality.so
   - id: "CIS-AMAZON2-4.4.2.2.1-pwquality_system_auth-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3058,6 +4091,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-AMAZON2-4.4.2.2.1-pwquality_system_auth-content"
     name: "/etc/pam.d/system-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3067,6 +4102,10 @@ checks:
       cat '/etc/pam.d/system-auth'
     allow_rc: any
     expect: { some: "~ ^password\\s+requisite\\s+pam_pwquality.so" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^password\s+requisite\s+pam_pwquality.so
   - id: "CIS-AMAZON2-4.4.2.2.2-difok_pwquality-attrs"
     name: "/etc/security/pwquality.conf: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.2.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -3076,6 +4115,8 @@ checks:
       f='/etc/security/pwquality.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/pwquality.conf.
   - id: "CIS-AMAZON2-4.4.2.2.2-difok_pwquality-content"
     name: "/etc/security/pwquality.conf has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.2.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -3087,6 +4128,11 @@ checks:
     expect:
       - { some: "~ ^difok\\s*=\\s*([2-9]|[1-9][0-9]+)\\b" }
       - { none: "~ ^difok\\s*=\\s*[0-1]\\b" }
+    remediation: |
+      Edit /etc/security/pwquality.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^difok\s*=\s*([2-9]|[1-9][0-9]+)\b
+      - no line matches ^difok\s*=\s*[0-1]\b
   - id: "CIS-AMAZON2-4.4.2.2.3-minlen_pwquality-attrs"
     name: "/etc/security/pwquality.conf: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.2.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3096,6 +4142,8 @@ checks:
       f='/etc/security/pwquality.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/pwquality.conf.
   - id: "CIS-AMAZON2-4.4.2.2.3-minlen_pwquality-content"
     name: "/etc/security/pwquality.conf has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.2.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3107,6 +4155,11 @@ checks:
     expect:
       - { some: "~ ^minlen\\s*=\\s*(1[4-9]|[2-9][0-9]|[1-9][0-9]{2,})\\b" }
       - { none: "~ ^minlen\\s*=\\s*([0-9]|1[0-3])\\b" }
+    remediation: |
+      Edit /etc/security/pwquality.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^minlen\s*=\s*(1[4-9]|[2-9][0-9]|[1-9][0-9]{2,})\b
+      - no line matches ^minlen\s*=\s*([0-9]|1[0-3])\b
   - id: "CIS-AMAZON2-4.4.2.2.4-complex_pwquality-attrs"
     name: "/etc/security/pwquality.conf: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.2.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -3116,6 +4169,8 @@ checks:
       f='/etc/security/pwquality.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/pwquality.conf.
   - id: "CIS-AMAZON2-4.4.2.2.4-complex_pwquality-content"
     name: "/etc/security/pwquality.conf has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.2.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -3125,6 +4180,10 @@ checks:
       cat '/etc/security/pwquality.conf'
     allow_rc: any
     expect: { some: "~ ^minclass\\s*=\\s*([4-9])" }
+    remediation: |
+      Edit /etc/security/pwquality.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^minclass\s*=\s*([4-9])
   - id: "CIS-AMAZON2-4.4.2.2.5-minrepeat_pwquality-attrs"
     name: "/etc/security/pwquality.conf: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.2.5. NIST SP 800-53 Rev. 5: IA-5."
@@ -3134,6 +4193,8 @@ checks:
       f='/etc/security/pwquality.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/pwquality.conf.
   - id: "CIS-AMAZON2-4.4.2.2.5-minrepeat_pwquality-content"
     name: "/etc/security/pwquality.conf has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.2.5. NIST SP 800-53 Rev. 5: IA-5."
@@ -3145,6 +4206,11 @@ checks:
     expect:
       - { some: "~ ^maxrepeat\\s*=\\s*[1-3]\\b" }
       - { none: "~ ^maxrepeat\\s*=\\s*0\\b" }
+    remediation: |
+      Edit /etc/security/pwquality.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^maxrepeat\s*=\s*[1-3]\b
+      - no line matches ^maxrepeat\s*=\s*0\b
   - id: "CIS-AMAZON2-4.4.2.2.6-minsequence_pwquality-attrs"
     name: "/etc/security/pwquality.conf: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.2.6. NIST SP 800-53 Rev. 5: IA-5."
@@ -3154,6 +4220,8 @@ checks:
       f='/etc/security/pwquality.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/pwquality.conf.
   - id: "CIS-AMAZON2-4.4.2.2.6-minsequence_pwquality-content"
     name: "/etc/security/pwquality.conf has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.2.6. NIST SP 800-53 Rev. 5: IA-5."
@@ -3165,6 +4233,11 @@ checks:
     expect:
       - { some: "~ ^maxsequence\\s*=\\s*[1-3]\\b" }
       - { none: "~ ^maxsequence\\s*=\\s*0\\b" }
+    remediation: |
+      Edit /etc/security/pwquality.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^maxsequence\s*=\s*[1-3]\b
+      - no line matches ^maxsequence\s*=\s*0\b
   - id: "CIS-AMAZON2-4.4.2.2.7-dickchk_pwquality-attrs"
     name: "/etc/security/pwquality.conf: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.2.7. NIST SP 800-53 Rev. 5: IA-5."
@@ -3174,6 +4247,8 @@ checks:
       f='/etc/security/pwquality.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/pwquality.conf.
   - id: "CIS-AMAZON2-4.4.2.2.7-dickchk_pwquality-content"
     name: "/etc/security/pwquality.conf has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.2.7. NIST SP 800-53 Rev. 5: IA-5."
@@ -3183,6 +4258,10 @@ checks:
       cat '/etc/security/pwquality.conf'
     allow_rc: any
     expect: { none: "~ ^dictcheck\\s*=\\s*0\\b" }
+    remediation: |
+      Edit /etc/security/pwquality.conf so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^dictcheck\s*=\s*0\b
   - id: "CIS-AMAZON2-4.4.2.3.1-pwhistory_password_auth-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.3.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3192,6 +4271,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-AMAZON2-4.4.2.3.1-pwhistory_password_auth-content"
     name: "/etc/pam.d/password-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.3.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3201,6 +4282,10 @@ checks:
       cat '/etc/pam.d/password-auth'
     allow_rc: any
     expect: { some: "~ ^password\\s+required\\s+pam_pwhistory.so" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^password\s+required\s+pam_pwhistory.so
   - id: "CIS-AMAZON2-4.4.2.3.1-pwhistory_system_auth-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.3.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3210,6 +4295,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-AMAZON2-4.4.2.3.1-pwhistory_system_auth-content"
     name: "/etc/pam.d/system-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.3.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3219,6 +4306,10 @@ checks:
       cat '/etc/pam.d/system-auth'
     allow_rc: any
     expect: { some: "~ ^password\\s+required\\s+pam_pwhistory.so" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^password\s+required\s+pam_pwhistory.so
   - id: "CIS-AMAZON2-4.4.2.3.2-remember_pwhistory_system_auth-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.3.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -3228,6 +4319,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-AMAZON2-4.4.2.3.2-remember_pwhistory_system_auth-content"
     name: "/etc/pam.d/system-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.3.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -3237,6 +4330,10 @@ checks:
       cat '/etc/pam.d/system-auth'
     allow_rc: any
     expect: { some: "~ ^password\\s+required\\s+pam_pwhistory.so.*remember=(2[4-9]|[3-5][0-9])" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^password\s+required\s+pam_pwhistory.so.*remember=(2[4-9]|[3-5][0-9])
   - id: "CIS-AMAZON2-4.4.2.3.2-remember_pwquality_password_auth-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.3.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -3246,6 +4343,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-AMAZON2-4.4.2.3.2-remember_pwquality_password_auth-content"
     name: "/etc/pam.d/password-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.3.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -3255,6 +4354,10 @@ checks:
       cat '/etc/pam.d/password-auth'
     allow_rc: any
     expect: { some: "~ ^password\\s+required\\s+pam_pwhistory.so.*remember=(2[4-9]|[3-5][0-9])" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^password\s+required\s+pam_pwhistory.so.*remember=(2[4-9]|[3-5][0-9])
   - id: "CIS-AMAZON2-4.4.2.3.3-enforce_root_pwhistory_system_auth-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.3.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3264,6 +4367,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-AMAZON2-4.4.2.3.3-enforce_root_pwhistory_system_auth-content"
     name: "/etc/pam.d/system-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.3.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3273,6 +4378,10 @@ checks:
       cat '/etc/pam.d/system-auth'
     allow_rc: any
     expect: { some: "~ ^password\\s+required\\s+pam_pwhistory.so.*enforce_for_root" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^password\s+required\s+pam_pwhistory.so.*enforce_for_root
   - id: "CIS-AMAZON2-4.4.2.3.3-enforce_root_pwquality_password_auth-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.3.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3282,6 +4391,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-AMAZON2-4.4.2.3.3-enforce_root_pwquality_password_auth-content"
     name: "/etc/pam.d/password-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.3.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3291,6 +4402,10 @@ checks:
       cat '/etc/pam.d/password-auth'
     allow_rc: any
     expect: { some: "~ ^password\\s+required\\s+pam_pwhistory.so.*enforce_for_root" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^password\s+required\s+pam_pwhistory.so.*enforce_for_root
   - id: "CIS-AMAZON2-4.4.2.3.4-authtok_pwhistory_system_auth-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.3.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -3300,6 +4415,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-AMAZON2-4.4.2.3.4-authtok_pwhistory_system_auth-content"
     name: "/etc/pam.d/system-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.3.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -3309,6 +4426,10 @@ checks:
       cat '/etc/pam.d/system-auth'
     allow_rc: any
     expect: { some: "~ ^password\\s+required\\s+pam_pwhistory.so.*use_authtok" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^password\s+required\s+pam_pwhistory.so.*use_authtok
   - id: "CIS-AMAZON2-4.4.2.3.4-authtok_pwquality_password_auth-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.3.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -3318,6 +4439,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-AMAZON2-4.4.2.3.4-authtok_pwquality_password_auth-content"
     name: "/etc/pam.d/password-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.3.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -3327,6 +4450,10 @@ checks:
       cat '/etc/pam.d/password-auth'
     allow_rc: any
     expect: { some: "~ ^password\\s+required\\s+pam_pwhistory.so.*use_authtok" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^password\s+required\s+pam_pwhistory.so.*use_authtok
   - id: "CIS-AMAZON2-4.4.2.4.1-nullok_pamunix_password_auth-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.4.1. NIST SP 800-53 Rev. 5: NA."
@@ -3336,6 +4463,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-AMAZON2-4.4.2.4.1-nullok_pamunix_password_auth-content"
     name: "/etc/pam.d/password-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.4.1. NIST SP 800-53 Rev. 5: NA."
@@ -3345,6 +4474,10 @@ checks:
       cat '/etc/pam.d/password-auth'
     allow_rc: any
     expect: { none: "~ ^(auth|account|password|session)\\s*(requisite|required|sufficient)\\s*pam_unix.*nullok" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^(auth|account|password|session)\s*(requisite|required|sufficient)\s*pam_unix.*nullok
   - id: "CIS-AMAZON2-4.4.2.4.1-nullok_pamunix_system_auth-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.4.1. NIST SP 800-53 Rev. 5: NA."
@@ -3354,6 +4487,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-AMAZON2-4.4.2.4.1-nullok_pamunix_system_auth-content"
     name: "/etc/pam.d/system-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.4.1. NIST SP 800-53 Rev. 5: NA."
@@ -3363,6 +4498,10 @@ checks:
       cat '/etc/pam.d/system-auth'
     allow_rc: any
     expect: { none: "~ ^(auth|account|password|session)\\s*(requisite|required|sufficient)\\s*pam_unix.*nullok" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^(auth|account|password|session)\s*(requisite|required|sufficient)\s*pam_unix.*nullok
   - id: "CIS-AMAZON2-4.4.2.4.2-remember_pamunix_password_auth-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.4.2. NIST SP 800-53 Rev. 5: NA."
@@ -3372,6 +4511,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-AMAZON2-4.4.2.4.2-remember_pamunix_password_auth-content"
     name: "/etc/pam.d/password-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.4.2. NIST SP 800-53 Rev. 5: NA."
@@ -3381,6 +4522,10 @@ checks:
       cat '/etc/pam.d/password-auth'
     allow_rc: any
     expect: { none: "~ ^(auth|account|password|session)\\s*(requisite|required|sufficient)\\s*pam_unix.*remember=" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^(auth|account|password|session)\s*(requisite|required|sufficient)\s*pam_unix.*remember=
   - id: "CIS-AMAZON2-4.4.2.4.2-remember_pamunix_system_auth-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.4.2. NIST SP 800-53 Rev. 5: NA."
@@ -3390,6 +4535,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-AMAZON2-4.4.2.4.2-remember_pamunix_system_auth-content"
     name: "/etc/pam.d/system-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.4.2. NIST SP 800-53 Rev. 5: NA."
@@ -3399,6 +4546,10 @@ checks:
       cat '/etc/pam.d/system-auth'
     allow_rc: any
     expect: { none: "~ ^(auth|account|password|session)\\s*(requisite|required|sufficient)\\s*pam_unix.*remember=" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^(auth|account|password|session)\s*(requisite|required|sufficient)\s*pam_unix.*remember=
   - id: "CIS-AMAZON2-4.4.2.4.3-strong_hash_pamunix_password_auth-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.4.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3408,6 +4559,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-AMAZON2-4.4.2.4.3-strong_hash_pamunix_password_auth-content"
     name: "/etc/pam.d/password-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.4.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3417,6 +4570,10 @@ checks:
       cat '/etc/pam.d/password-auth'
     allow_rc: any
     expect: { some: "~ ^(auth|account|password|session)\\s*(requisite|required|sufficient)\\s*pam_unix.*sha512" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(auth|account|password|session)\s*(requisite|required|sufficient)\s*pam_unix.*sha512
   - id: "CIS-AMAZON2-4.4.2.4.3-strong_hash_pamunix_system_auth-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.4.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3426,6 +4583,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-AMAZON2-4.4.2.4.3-strong_hash_pamunix_system_auth-content"
     name: "/etc/pam.d/system-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.4.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3435,6 +4594,10 @@ checks:
       cat '/etc/pam.d/system-auth'
     allow_rc: any
     expect: { some: "~ ^(auth|account|password|session)\\s*(requisite|required|sufficient)\\s*pam_unix.*sha512" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(auth|account|password|session)\s*(requisite|required|sufficient)\s*pam_unix.*sha512
   - id: "CIS-AMAZON2-4.4.2.4.4-authtok_pamunix_password_auth-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.4.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -3444,6 +4607,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-AMAZON2-4.4.2.4.4-authtok_pamunix_password_auth-content"
     name: "/etc/pam.d/password-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.4.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -3453,6 +4618,10 @@ checks:
       cat '/etc/pam.d/password-auth'
     allow_rc: any
     expect: { some: "~ ^(auth|account|password|session)\\s*(requisite|required|sufficient)\\s*pam_unix.*use_authtok" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(auth|account|password|session)\s*(requisite|required|sufficient)\s*pam_unix.*use_authtok
   - id: "CIS-AMAZON2-4.4.2.4.4-authtok_pamunix_system_auth-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.4.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -3462,6 +4631,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-AMAZON2-4.4.2.4.4-authtok_pamunix_system_auth-content"
     name: "/etc/pam.d/system-auth has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.4.2.4.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -3471,6 +4642,10 @@ checks:
       cat '/etc/pam.d/system-auth'
     allow_rc: any
     expect: { some: "~ ^(auth|account|password|session)\\s*(requisite|required|sufficient)\\s*pam_unix.*use_authtok" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(auth|account|password|session)\s*(requisite|required|sufficient)\s*pam_unix.*use_authtok
   - id: "CIS-AMAZON2-4.5.1.1-libuser_algorithm-attrs"
     name: "/etc/libuser.conf: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3480,6 +4655,8 @@ checks:
       f='/etc/libuser.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/libuser.conf.
   - id: "CIS-AMAZON2-4.5.1.1-libuser_algorithm-content"
     name: "/etc/libuser.conf has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3491,6 +4668,11 @@ checks:
     expect:
       - { some: "~ ^crypt_style\\s*=\\s*(sha512|yescrypt)" }
       - { none: "~ ^crypt_style\\s*=\\s*(md5|3des)" }
+    remediation: |
+      Edit /etc/libuser.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^crypt_style\s*=\s*(sha512|yescrypt)
+      - no line matches ^crypt_style\s*=\s*(md5|3des)
   - id: "CIS-AMAZON2-4.5.1.1-login_algorithm-attrs"
     name: "/etc/login.defs: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3500,6 +4682,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-AMAZON2-4.5.1.1-login_algorithm-content"
     name: "/etc/login.defs has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3511,6 +4695,11 @@ checks:
     expect:
       - { some: "~ ^ENCRYPT_METHOD\\s+(sha512|yescrypt)" }
       - { none: "~ ^ENCRYPT_METHOD\\s+(md5|3des)" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^ENCRYPT_METHOD\s+(sha512|yescrypt)
+      - no line matches ^ENCRYPT_METHOD\s+(md5|3des)
   - id: "CIS-AMAZON2-4.5.1.2-login_passwd_expire-attrs"
     name: "/etc/login.defs: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.1.2. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3520,6 +4709,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-AMAZON2-4.5.1.2-login_passwd_expire-content"
     name: "/etc/login.defs has the expected content (3 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.1.2. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3532,6 +4723,12 @@ checks:
       - { some: "~ ^PASS_MAX_DAYS\\s+365" }
       - { none: "~ ^PASS_MAX_DAYS\\s+(36[6-9]|[4-9][0-9][0-9]|[1-9][0-9][0-9][0-9]|[1-9][0-9][0-9][0-9][0-9])" }
       - { none: "~ ^PASS_MAX_DAYS\\s+-1" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_MAX_DAYS\s+365
+      - no line matches ^PASS_MAX_DAYS\s+(36[6-9]|[4-9][0-9][0-9]|[1-9][0-9][0-9][0-9]|[1-9][0-9][0-9][0-9][0-9])
+      - no line matches ^PASS_MAX_DAYS\s+-1
   - id: "CIS-AMAZON2-4.5.1.3-login_expire_warn-attrs"
     name: "/etc/login.defs: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3541,6 +4738,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-AMAZON2-4.5.1.3-login_expire_warn-content"
     name: "/etc/login.defs has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3552,6 +4751,11 @@ checks:
     expect:
       - { some: "~ ^PASS_WARN_AGE\\s*7" }
       - { none: "~ ^PASS_WARN_AGE\\s*[1-6]" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_WARN_AGE\s*7
+      - no line matches ^PASS_WARN_AGE\s*[1-6]
   - id: "CIS-AMAZON2-4.5.1.4-inactive_passwd"
     name: "inactive passwd: useradd -D | grep INACTIVE"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.1.4."
@@ -3588,6 +4792,11 @@ checks:
         if [ "$t" -gt "$now" ]; then echo "$usr: last password change $d is in the future"; fi
       done
     expect: empty
+    remediation: |
+      Check the system clock, then set the last password change of every listed user to today, or expire the password so it must be changed at the next login:
+
+      chage --lastday "$(date +%Y-%m-%d)" USER
+      chage --lastday 0 USER
   - id: "CIS-AMAZON2-4.5.2.1-root_gid"
     name: "User root_gid exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.2.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3596,6 +4805,10 @@ checks:
     run: |
       getent passwd root_gid
     expect: true
+    remediation: |
+      Create the user root_gid:
+
+      useradd root_gid
   - id: "CIS-AMAZON2-4.5.2.2-root_bash_profile-attrs"
     name: "/root/.bash_profile: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.2.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -3605,6 +4818,8 @@ checks:
       f='/root/.bash_profile'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /root/.bash_profile.
   - id: "CIS-AMAZON2-4.5.2.2-root_bash_profile-content"
     name: "/root/.bash_profile has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.2.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -3616,6 +4831,11 @@ checks:
     expect:
       - { some: "~ ^\\s+umask\\s0(2|7)(2|7)" }
       - { none: "~ ^\\s+umask\\s[1-7][0-7][0-7]" }
+    remediation: |
+      Edit /root/.bash_profile so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s+umask\s0(2|7)(2|7)
+      - no line matches ^\s+umask\s[1-7][0-7][0-7]
   - id: "CIS-AMAZON2-4.5.2.2-root_bashrc-attrs"
     name: "/root/.bashrc: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.2.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -3625,6 +4845,8 @@ checks:
       f='/root/.bashrc'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /root/.bashrc.
   - id: "CIS-AMAZON2-4.5.2.2-root_bashrc-content"
     name: "/root/.bashrc has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.2.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -3636,6 +4858,11 @@ checks:
     expect:
       - { some: "~ ^\\s+umask\\s0(2|7)(2|7)" }
       - { none: "~ ^\\s+umask\\s[1-7][0-7][0-7]" }
+    remediation: |
+      Edit /root/.bashrc so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s+umask\s0(2|7)(2|7)
+      - no line matches ^\s+umask\s[1-7][0-7][0-7]
   - id: "CIS-AMAZON2-4.5.2.3-secure_system_LK"
     name: "secure system LK: /awk -F: '$3\u003c1000' /etc/passwd | egrep -wv 'root' | cut -d: -f1 | xargs -I '{}' passwd -S…"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.2.3. NIST SP 800-53 Rev. 5: AC-2(5), AC-3, AC-11, MP-2."
@@ -3667,6 +4894,8 @@ checks:
       f='/etc/shells'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/shells.
   - id: "CIS-AMAZON2-4.5.3.1-shells_nologin-content"
     name: "/etc/shells has the expected content (1 rule)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.3.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3676,6 +4905,10 @@ checks:
       cat '/etc/shells'
     allow_rc: any
     expect: { none: "~ nologin" }
+    remediation: |
+      Edit /etc/shells so that its lines meet these conditions (regular expressions):
+
+      - no line matches nologin
   - id: "CIS-AMAZON2-4.5.3.2-etc_profile.d_tmout.sh-attrs"
     name: "/etc/profile.d/tmout.sh: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.3.2. NIST SP 800-53 Rev. 5: NA."
@@ -3685,6 +4918,8 @@ checks:
       f='/etc/profile.d/tmout.sh'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/profile.d/tmout.sh.
   - id: "CIS-AMAZON2-4.5.3.2-etc_profile.d_tmout.sh-content"
     name: "/etc/profile.d/tmout.sh has the expected content (3 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.3.2. NIST SP 800-53 Rev. 5: NA."
@@ -3697,6 +4932,12 @@ checks:
       - { some: "~ TMOUT=([1-8][0-9]{0,2}|900)" }
       - { some: "~ readonly TMOUT" }
       - { some: "~ export TMOUT" }
+    remediation: |
+      Edit /etc/profile.d/tmout.sh so that its lines meet these conditions (regular expressions):
+
+      - a line matches TMOUT=([1-8][0-9]{0,2}|900)
+      - a line matches readonly TMOUT
+      - a line matches export TMOUT
   - id: "CIS-AMAZON2-4.5.3.3-etc_bashrc_umask-attrs"
     name: "/etc/bashrc: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -3706,6 +4947,8 @@ checks:
       f='/etc/bashrc'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/bashrc.
   - id: "CIS-AMAZON2-4.5.3.3-etc_bashrc_umask-content"
     name: "/etc/bashrc has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -3717,6 +4960,11 @@ checks:
     expect:
       - { some: "~ ^(?i)\\s+umask\\s0(2|7)(2|7)" }
       - { none: "~ ^(?i)\\s+umask\\s[1-7][0-7][0-7]" }
+    remediation: |
+      Edit /etc/bashrc so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)\s+umask\s0(2|7)(2|7)
+      - no line matches ^(?i)\s+umask\s[1-7][0-7][0-7]
   - id: "CIS-AMAZON2-4.5.3.3-etc_login_defs_umask-attrs"
     name: "/etc/login.defs: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -3726,6 +4974,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-AMAZON2-4.5.3.3-etc_login_defs_umask-content"
     name: "/etc/login.defs has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -3737,6 +4987,11 @@ checks:
     expect:
       - { some: "~ ^(?i)\\s+umask\\s0(2|7)(2|7)" }
       - { none: "~ ^(?i)\\s+umask\\s[1-7][0-7][0-7]" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)\s+umask\s0(2|7)(2|7)
+      - no line matches ^(?i)\s+umask\s[1-7][0-7][0-7]
   - id: "CIS-AMAZON2-4.5.3.3-etc_profile_umask-attrs"
     name: "/etc/profile: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -3746,6 +5001,8 @@ checks:
       f='/etc/profile'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/profile.
   - id: "CIS-AMAZON2-4.5.3.3-etc_profile_umask-content"
     name: "/etc/profile has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.5.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -3757,6 +5014,11 @@ checks:
     expect:
       - { some: "~ ^(?i)\\s+umask\\s0(2|7)(2|7)" }
       - { none: "~ ^(?i)\\s+umask\\s[1-7][0-7][0-7]" }
+    remediation: |
+      Edit /etc/profile so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)\s+umask\s0(2|7)(2|7)
+      - no line matches ^(?i)\s+umask\s[1-7][0-7][0-7]
   - id: "CIS-AMAZON2-5.1.1.1-rsyslog"
     name: "Package rsyslog is installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.1.1. NIST SP 800-53 Rev. 5: AU-2, AU-12, SI-5."
@@ -3765,6 +5027,10 @@ checks:
     run: |
       rpm -q --quiet rsyslog
     expect: true
+    remediation: |
+      Install the package rsyslog:
+
+      yum install rsyslog
   - id: "CIS-AMAZON2-5.1.1.2-rsyslog-enabled"
     name: "Service rsyslog is enabled"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.1.2. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -3773,6 +5039,10 @@ checks:
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service rsyslog:
+
+      systemctl enable rsyslog
   - id: "CIS-AMAZON2-5.1.1.2-rsyslog-running"
     name: "Service rsyslog is running"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.1.2. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -3781,6 +5051,10 @@ checks:
     run: |
       systemctl show -p ActiveState rsyslog | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service rsyslog:
+
+      systemctl start rsyslog
   - id: "CIS-AMAZON2-5.1.1.3-journald_to_rsyslog-attrs"
     name: "/etc/systemd/journald.conf: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.1.3. NIST SP 800-53 Rev. 5: AC-3, AU-2, AU-4, AU-12, MP-2, SI-5."
@@ -3790,6 +5064,8 @@ checks:
       f='/etc/systemd/journald.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/systemd/journald.conf.
   - id: "CIS-AMAZON2-5.1.1.3-journald_to_rsyslog-content"
     name: "/etc/systemd/journald.conf has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.1.3. NIST SP 800-53 Rev. 5: AC-3, AU-2, AU-4, AU-12, MP-2, SI-5."
@@ -3801,6 +5077,11 @@ checks:
     expect:
       - { some: "~ ^ForwardToSyslog=yes" }
       - { none: "~ ForwardToSyslog=[Nn][Oo]" }
+    remediation: |
+      Edit /etc/systemd/journald.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^ForwardToSyslog=yes
+      - no line matches ForwardToSyslog=[Nn][Oo]
   - id: "CIS-AMAZON2-5.1.1.4-perms_rsyslog_d"
     name: "perms rsyslog d: grep -s ^\\$FileCreateMode /etc/rsyslog.conf /etc/rsyslog.d/*.conf | cut -f2 -d:"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.1.4. NIST SP 800-53 Rev. 5: NA."
@@ -3822,6 +5103,8 @@ checks:
       f='/etc/rsyslog.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/rsyslog.conf.
   - id: "CIS-AMAZON2-5.1.1.5-etc_rsyslog.conf-content"
     name: "/etc/rsyslog.conf has the expected content (14 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.1.5. NIST SP 800-53 Rev. 5: NA."
@@ -3845,6 +5128,23 @@ checks:
       - { some: "~ ^local2,local3.\\*\\s+-/var/log/localmessages" }
       - { some: "~ ^local4,local5.\\*\\s+-/var/log/localmessages" }
       - { some: "~ ^local6,local7.\\*\\s+-/var/log/localmessages" }
+    remediation: |
+      Edit /etc/rsyslog.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\*.emerg\s+:omusrmsg:\*
+      - a line matches auth,authpriv.\*\s+/var/log/secure
+      - a line matches ^mail.\*\s+-/var/log/mail
+      - a line matches ^mail.info\s+-/var/log/mail.info
+      - a line matches ^mail.warning\s+-/var/log/mail.warning
+      - a line matches ^mail.err\s+/var/log/mail.err
+      - a line matches ^cron.\*\s+/var/log/cron
+      - a line matches ^*.=warning;\*.=err\s+-/var/log/warn
+      - a line matches ^*.crit\s+/var/log/warn
+      - a line matches ^*.*;mail.none;news.none\s+/var/log/messages
+      - a line matches ^local0,local1.\*\s+-/var/log/localmessages
+      - a line matches ^local2,local3.\*\s+-/var/log/localmessages
+      - a line matches ^local4,local5.\*\s+-/var/log/localmessages
+      - a line matches ^local6,local7.\*\s+-/var/log/localmessages
   - id: "CIS-AMAZON2-5.1.1.6-remote_syslog"
     name: "remote syslog: grep -E \"action.*omfwd.*target\" /etc/rsyslog.conf /etc/rsyslog.d/*.conf"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.1.6. NIST SP 800-53 Rev. 5: NA."
@@ -3887,6 +5187,10 @@ checks:
     run: |
       rpm -q --quiet systemd-journal-remote
     expect: true
+    remediation: |
+      Install the package systemd-journal-remote:
+
+      yum install systemd-journal-remote
   - id: "CIS-AMAZON2-5.1.2.1.2-journal-upload.conf_configured-attrs"
     name: "/etc/systemd/journal-upload.conf: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.2.1.2. NIST SP 800-53 Rev. 5: AU-2, AU-12, SI-5."
@@ -3896,6 +5200,8 @@ checks:
       f='/etc/systemd/journal-upload.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/systemd/journal-upload.conf.
   - id: "CIS-AMAZON2-5.1.2.1.2-journal-upload.conf_configured-content"
     name: "/etc/systemd/journal-upload.conf has the expected content (4 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.2.1.2. NIST SP 800-53 Rev. 5: AU-2, AU-12, SI-5."
@@ -3909,6 +5215,13 @@ checks:
       - { some: "~ /ServerKeyFile=\\.\\*\\.pem" }
       - { some: "~ /ServerCertificateFile=\\.\\*\\.pem" }
       - { some: "~ /TrustedCertificateFile=\\.\\*\\.pem" }
+    remediation: |
+      Edit /etc/systemd/journal-upload.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^URL=
+      - a line matches /ServerKeyFile=\.\*\.pem
+      - a line matches /ServerCertificateFile=\.\*\.pem
+      - a line matches /TrustedCertificateFile=\.\*\.pem
   - id: "CIS-AMAZON2-5.1.2.1.3-systemd-journal-upload-enabled"
     name: "Service systemd-journal-upload.service is enabled"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.2.1.3. NIST SP 800-53 Rev. 5: AU-2, AU-12, CM-7, SI-5."
@@ -3917,6 +5230,10 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journal-upload.service | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service systemd-journal-upload.service:
+
+      systemctl enable systemd-journal-upload.service
   - id: "CIS-AMAZON2-5.1.2.1.3-systemd-journal-upload-running"
     name: "Service systemd-journal-upload.service is running"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.2.1.3. NIST SP 800-53 Rev. 5: AU-2, AU-12, CM-7, SI-5."
@@ -3925,6 +5242,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journal-upload.service | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service systemd-journal-upload.service:
+
+      systemctl start systemd-journal-upload.service
   - id: "CIS-AMAZON2-5.1.2.1.4-systemd-journal-remote.stopped-enabled"
     name: "Service systemd-journal-remote.socket is not enabled"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.2.1.4. NIST SP 800-53 Rev. 5: NA."
@@ -3933,6 +5254,12 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journal-remote.socket | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service systemd-journal-remote.socket, unless the system needs it:
+
+      systemctl disable systemd-journal-remote.socket
+
+      To keep other units from starting it, mask it instead: systemctl mask systemd-journal-remote.socket
   - id: "CIS-AMAZON2-5.1.2.1.4-systemd-journal-remote.stopped-running"
     name: "Service systemd-journal-remote.socket is not running"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.2.1.4. NIST SP 800-53 Rev. 5: NA."
@@ -3941,6 +5268,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journal-remote.socket | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service systemd-journal-remote.socket, unless the system needs it:
+
+      systemctl stop systemd-journal-remote.socket
   - id: "CIS-AMAZON2-5.1.2.1.4-journald_socket_masked"
     name: "journald socket masked: systemctl is-enabled systemd-journal-remote.socket"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.2.1.4."
@@ -3960,6 +5291,10 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journald | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service systemd-journald:
+
+      systemctl enable systemd-journald
   - id: "CIS-AMAZON2-5.1.2.2-journald_enabled-running"
     name: "Service systemd-journald is running"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.2.2. NIST SP 800-53 Rev. 5: NA."
@@ -3968,6 +5303,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journald | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service systemd-journald:
+
+      systemctl start systemd-journald
   - id: "CIS-AMAZON2-5.1.2.3-journald_compress"
     name: "journald compress: grep -i \"compress\" /etc/systemd/journald.conf"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.2.3. NIST SP 800-53 Rev. 5: NA."
@@ -4049,6 +5388,10 @@ checks:
     run: |
       rpm -q --quiet audit-libs
     expect: true
+    remediation: |
+      Install the package audit-libs:
+
+      yum install audit-libs
   - id: "CIS-AMAZON2-5.2.1.1-audit_installed"
     name: "Package audit is installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.2.1.1. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12, SI-5."
@@ -4057,6 +5400,10 @@ checks:
     run: |
       rpm -q --quiet audit
     expect: true
+    remediation: |
+      Install the package audit:
+
+      yum install audit
   - id: "CIS-AMAZON2-5.2.1.2-boot_audit_on"
     name: "boot audit on: grep \"audit=\" /boot/grub2/grub.cfg"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.2.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -4111,6 +5458,10 @@ checks:
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service auditd:
+
+      systemctl enable auditd
   - id: "CIS-AMAZON2-5.2.1.4-auditd_enabled-running"
     name: "Service auditd is running"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.2.1.4. NIST SP 800-53 Rev. 5: AU-2, AU-12, SI-5."
@@ -4119,6 +5470,10 @@ checks:
     run: |
       systemctl show -p ActiveState auditd | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service auditd:
+
+      systemctl start auditd
   - id: "CIS-AMAZON2-5.2.2.1-auditd_max_log_file"
     name: "auditd max log file: grep -E \"^max_log_file\" /etc/audit/auditd.conf"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.2.2.1. NIST SP 800-53 Rev. 5: AU-8."
@@ -4150,6 +5505,8 @@ checks:
       f='/etc/audit/auditd.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/audit/auditd.conf.
   - id: "CIS-AMAZON2-5.2.2.3-auditd_disable_full-content"
     name: "/etc/audit/auditd.conf has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.2.2.3. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12, SI-5."
@@ -4161,6 +5518,11 @@ checks:
     expect:
       - { some: "~ ^disk_full_action = (halt|single)" }
       - { some: "~ ^disk_error_action = (syslog|single|halt)" }
+    remediation: |
+      Edit /etc/audit/auditd.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^disk_full_action = (halt|single)
+      - a line matches ^disk_error_action = (syslog|single|halt)
   - id: "CIS-AMAZON2-5.2.2.4-auditd_space_left-attrs"
     name: "/etc/audit/auditd.conf: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.2.2.4. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12, SI-5."
@@ -4170,6 +5532,8 @@ checks:
       f='/etc/audit/auditd.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/audit/auditd.conf.
   - id: "CIS-AMAZON2-5.2.2.4-auditd_space_left-content"
     name: "/etc/audit/auditd.conf has the expected content (2 rules)"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.2.2.4. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12, SI-5."
@@ -4181,6 +5545,11 @@ checks:
     expect:
       - { some: "~ ^space_left_action\\s*=\\s*(email|exec|single|halt)" }
       - { some: "~ ^admin_space_left_action\\s*=\\s*(single|halt)" }
+    remediation: |
+      Edit /etc/audit/auditd.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^space_left_action\s*=\s*(email|exec|single|halt)
+      - a line matches ^admin_space_left_action\s*=\s*(single|halt)
   - id: "CIS-AMAZON2-5.2.3.1-auditd_admin_scope_cnf"
     name: "auditd admin scope cnf: grep scope /etc/audit/rules.d/*.rules"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.2.3.1. NIST SP 800-53 Rev. 5: NA."
@@ -4679,6 +6048,10 @@ checks:
       [ -d "$f" ] || echo "$f is not a directory"
       if [ -n "$(find -H "$f" -maxdepth 0 -perm /7027)" ]; then echo "$f has mode $(stat -L -c %a "$f")"; fi
     expect: empty
+    remediation: |
+      Create /var/log/audit if it is missing, then make it a directory and remove the permissions u-s,g-ws,o-rwx,a-t:
+
+      chmod u-s,g-ws,o-rwx,a-t '/var/log/audit'
   - id: "CIS-AMAZON2-5.2.4.2-audit_logfile_perms"
     name: "audit logfile perms: for file in `grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }'`; do stat -Lc \"%…"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.2.4.2. NIST SP 800-53 Rev. 5: NA."
@@ -4797,6 +6170,10 @@ checks:
     run: |
       rpm -q --quiet aide
     expect: true
+    remediation: |
+      Install the package aide:
+
+      yum install aide
   - id: "CIS-AMAZON2-5.3.2-aide_cron"
     name: "aide cron: grep -rs aide /etc/cron.* /etc/crontab /var/spool/cron/*"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.3.2. NIST SP 800-53 Rev. 5: AU-2."
@@ -4820,6 +6197,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/passwd if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/passwd'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/passwd'
   - id: "CIS-AMAZON2-6.1.2-etc_passwd-_perms-attrs"
     name: "/etc/passwd-: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 6.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4832,6 +6214,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/passwd- if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/passwd-'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/passwd-'
   - id: "CIS-AMAZON2-6.1.3-etc_group_perms-attrs"
     name: "/etc/group: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 6.1.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4844,6 +6231,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/group if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/group'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/group'
   - id: "CIS-AMAZON2-6.1.4-etc_group-_perms-attrs"
     name: "/etc/group-: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 6.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4856,6 +6248,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/group- if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/group-'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/group-'
   - id: "CIS-AMAZON2-6.1.5-etc_shadow_perms-attrs"
     name: "/etc/shadow: exists, mode 0000 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 6.1.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4868,6 +6265,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shadow if it is missing, then set owner root and group root and remove the permissions u-rwxs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/shadow'
+      chmod u-rwxs,g-rwxs,o-rwx,a-t '/etc/shadow'
   - id: "CIS-AMAZON2-6.1.6-etc_shadow-_perms-attrs"
     name: "/etc/shadow-: exists, mode 0000 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 6.1.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4880,6 +6282,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shadow- if it is missing, then set owner root and group root and remove the permissions u-rwxs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/shadow-'
+      chmod u-rwxs,g-rwxs,o-rwx,a-t '/etc/shadow-'
   - id: "CIS-AMAZON2-6.1.7-etc_gshadow-attrs"
     name: "/etc/gshadow: exists, mode 0000 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 6.1.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4892,6 +6299,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/gshadow if it is missing, then set owner root and group root and remove the permissions u-rwxs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/gshadow'
+      chmod u-rwxs,g-rwxs,o-rwx,a-t '/etc/gshadow'
   - id: "CIS-AMAZON2-6.1.8-etc_gshadow-_perms-attrs"
     name: "/etc/gshadow-: exists, mode 0000 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 6.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4904,6 +6316,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/gshadow- if it is missing, then set owner root and group root and remove the permissions u-rwxs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/gshadow-'
+      chmod u-rwxs,g-rwxs,o-rwx,a-t '/etc/gshadow-'
   - id: "CIS-AMAZON2-6.1.9-etc_shells_perms-attrs"
     name: "/etc/shells: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 6.1.9. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4916,6 +6333,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shells if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/shells'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/shells'
   - id: "CIS-AMAZON2-6.1.10-etc_security_opasswd_perms-attrs"
     name: "/etc/security/opasswd: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Amazon Linux 2 benchmark recommendation 6.1.10. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4928,6 +6350,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/security/opasswd if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/security/opasswd'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/security/opasswd'
   - id: "CIS-AMAZON2-6.1.11-world_writable"
     name: "world writable: df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type d \\( -p…"
     description: "CIS Amazon Linux 2 benchmark recommendation 6.1.11. NIST SP 800-53 Rev. 5: AC-3, MP-2."

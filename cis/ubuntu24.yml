@@ -23,6 +23,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU24-1.1.1.1-cramfs_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -32,6 +34,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist cramfs" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist cramfs
   - id: "CIS-UBUNTU24-1.1.1.1-cramfs_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -41,6 +47,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU24-1.1.1.1-cramfs_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -50,6 +58,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install cramfs /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install cramfs /bin/(true|false)
   - id: "CIS-UBUNTU24-1.1.1.2-freevxfs_blacklist-attrs"
     name: "/etc/modprobe.d/blacklist.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -59,6 +71,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU24-1.1.1.2-freevxfs_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -68,6 +82,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist freevxfs" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist freevxfs
   - id: "CIS-UBUNTU24-1.1.1.2-freevxfs_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -77,6 +95,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU24-1.1.1.2-freevxfs_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -86,6 +106,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install freevxfs /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install freevxfs /bin/(true|false)
   - id: "CIS-UBUNTU24-1.1.1.3-hfs_blacklist-attrs"
     name: "/etc/modprobe.d/blacklist.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -95,6 +119,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU24-1.1.1.3-hfs_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -104,6 +130,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist hfs" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist hfs
   - id: "CIS-UBUNTU24-1.1.1.3-hfs_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -113,6 +143,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU24-1.1.1.3-hfs_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -122,6 +154,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install hfs /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install hfs /bin/(true|false)
   - id: "CIS-UBUNTU24-1.1.1.4-hfsplus_blacklist-attrs"
     name: "/etc/modprobe.d/blacklist.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -131,6 +167,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU24-1.1.1.4-hfsplus_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -140,6 +178,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist hfsplus" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist hfsplus
   - id: "CIS-UBUNTU24-1.1.1.4-hfsplus_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -149,6 +191,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU24-1.1.1.4-hfsplus_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -158,6 +202,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install hfsplus /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install hfsplus /bin/(true|false)
   - id: "CIS-UBUNTU24-1.1.1.5-jffs2_blacklist-attrs"
     name: "/etc/modprobe.d/blacklist.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -167,6 +215,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU24-1.1.1.5-jffs2_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -176,6 +226,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist jffs2" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist jffs2
   - id: "CIS-UBUNTU24-1.1.1.5-jffs2_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -185,6 +239,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU24-1.1.1.5-jffs2_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -194,6 +250,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install jffs2 /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install jffs2 /bin/(true|false)
   - id: "CIS-UBUNTU24-1.1.1.6-overlayfs_blacklist-attrs"
     name: "/etc/modprobe.d/blacklist.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.6. NIST SP 800-53 Rev. 5: CM-7."
@@ -203,6 +263,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU24-1.1.1.6-overlayfs_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.6. NIST SP 800-53 Rev. 5: CM-7."
@@ -212,6 +274,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist overlay(fs)?$" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist overlay(fs)?$
   - id: "CIS-UBUNTU24-1.1.1.6-overlayfs_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.6. NIST SP 800-53 Rev. 5: CM-7."
@@ -221,6 +287,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU24-1.1.1.6-overlayfs_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.6. NIST SP 800-53 Rev. 5: CM-7."
@@ -230,6 +298,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install overlay(fs)? /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install overlay(fs)? /bin/(true|false)
   - id: "CIS-UBUNTU24-1.1.1.7-squashfs_blacklist-attrs"
     name: "/etc/modprobe.d/blacklist.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.7. NIST SP 800-53 Rev. 5: CM-7."
@@ -239,6 +311,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU24-1.1.1.7-squashfs_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.7. NIST SP 800-53 Rev. 5: CM-7."
@@ -248,6 +322,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist squashfs" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist squashfs
   - id: "CIS-UBUNTU24-1.1.1.7-squashfs_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.7. NIST SP 800-53 Rev. 5: CM-7."
@@ -257,6 +335,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU24-1.1.1.7-squashfs_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.7. NIST SP 800-53 Rev. 5: CM-7."
@@ -266,6 +346,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install squashfs /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install squashfs /bin/(true|false)
   - id: "CIS-UBUNTU24-1.1.1.8-udf_blacklist-attrs"
     name: "/etc/modprobe.d/blacklist.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -275,6 +359,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU24-1.1.1.8-udf_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -284,6 +370,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist udf" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist udf
   - id: "CIS-UBUNTU24-1.1.1.8-udf_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -293,6 +383,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU24-1.1.1.8-udf_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -302,6 +394,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install udf /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install udf /bin/(true|false)
   - id: "CIS-UBUNTU24-1.1.1.9-firewire-core_blacklist-attrs"
     name: "/etc/modprobe.d/blacklist.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.9. NIST SP 800-53 Rev. 5: CM-7."
@@ -311,6 +407,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU24-1.1.1.9-firewire-core_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.9. NIST SP 800-53 Rev. 5: CM-7."
@@ -320,6 +418,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist firewire[-_]core$" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist firewire[-_]core$
   - id: "CIS-UBUNTU24-1.1.1.9-firewire-core_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.9. NIST SP 800-53 Rev. 5: CM-7."
@@ -329,6 +431,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU24-1.1.1.9-firewire-core_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.9. NIST SP 800-53 Rev. 5: CM-7."
@@ -338,6 +442,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install firewire[-_]core /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install firewire[-_]core /bin/(true|false)
   - id: "CIS-UBUNTU24-1.1.1.10-usb-storage_blacklist-attrs"
     name: "/etc/modprobe.d/blacklist.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.10. NIST SP 800-53 Rev. 5: SI-3."
@@ -347,6 +455,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU24-1.1.1.10-usb-storage_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.10. NIST SP 800-53 Rev. 5: SI-3."
@@ -356,6 +466,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist usb[-_]storage$" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist usb[-_]storage$
   - id: "CIS-UBUNTU24-1.1.1.10-usb-storage_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.10. NIST SP 800-53 Rev. 5: SI-3."
@@ -365,6 +479,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU24-1.1.1.10-usb-storage_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.10. NIST SP 800-53 Rev. 5: SI-3."
@@ -374,6 +490,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install usb[-_]storage /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install usb[-_]storage /bin/(true|false)
   - id: "CIS-UBUNTU24-1.1.1.11-cve_fs"
     name: "cve fs: /var/fs_with_cves.sh"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.1.11. NIST SP 800-53 Rev. 5: NA."
@@ -394,6 +514,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/tmp'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /tmp on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data. A tmpfs mount on /tmp, e.g. with systemd's tmp.mount, counts as well.
   - id: "CIS-UBUNTU24-1.1.2.1.2-tmp_nodev_options"
     name: "/tmp is a separate mount with nodev"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -405,6 +527,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /tmp with the option nodev: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.1.2-tmp_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -414,6 +542,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.1.2-tmp_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -423,6 +553,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*nodev
   - id: "CIS-UBUNTU24-1.1.2.1.3-tmp_nosuid_options"
     name: "/tmp is a separate mount with nosuid"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -434,6 +568,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /tmp with the option nosuid: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.1.3-tmp_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -443,6 +583,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.1.3-tmp_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -452,6 +594,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*nosuid.*
   - id: "CIS-UBUNTU24-1.1.2.1.4-tmp_noexec_options"
     name: "/tmp is a separate mount with noexec"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -463,6 +609,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /tmp with the option noexec: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.1.4-tmp_fstab_noexec_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -472,6 +624,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.1.4-tmp_fstab_noexec_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -481,6 +635,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*noexec.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*noexec.*
   - id: "CIS-UBUNTU24-1.1.2.2.1-dev_shm_mount"
     name: "/dev/shm is a separate mount"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.2.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -492,6 +650,8 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ ^(tmpfs) "
+    remediation: |
+      Mount a tmpfs file system on /dev/shm with an entry in /etc/fstab or a systemd mount unit.
   - id: "CIS-UBUNTU24-1.1.2.2.2-dev_shm_nodev_options"
     name: "/dev/shm is a separate mount with nodev"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -503,6 +663,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /dev/shm with the option nodev: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.2.2-dev_shm_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -512,6 +678,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.2.2-dev_shm_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -521,6 +689,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*nodev
   - id: "CIS-UBUNTU24-1.1.2.2.3-dev_shm_nosuid_options"
     name: "/dev/shm is a separate mount with nosuid"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -532,6 +704,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /dev/shm with the option nosuid: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.2.3-dev_shm_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -541,6 +719,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.2.3-dev_shm_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -550,6 +730,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*nosuid.*
   - id: "CIS-UBUNTU24-1.1.2.2.4-dev_shm_noexec_options"
     name: "/dev/shm is a separate mount with noexec"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -561,6 +745,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /dev/shm with the option noexec: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.2.4-dev_shm_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -570,6 +760,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.2.4-dev_shm_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -579,6 +771,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*noexec.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*noexec.*
   - id: "CIS-UBUNTU24-1.1.2.3.1-home_mount"
     name: "/home is a separate mount"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.3.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -588,6 +784,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/home'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /home on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-UBUNTU24-1.1.2.3.2-home_nodev_options"
     name: "/home is a separate mount with nodev"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -599,6 +797,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /home with the option nodev: add it to the options of /home in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/home'
+
+      If /home is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.3.2-home_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -608,6 +812,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.3.2-home_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -617,6 +823,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/home.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/home.*nodev
   - id: "CIS-UBUNTU24-1.1.2.3.3-home_nosuid_options"
     name: "/home is a separate mount with nosuid"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -628,6 +838,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /home with the option nosuid: add it to the options of /home in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/home'
+
+      If /home is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.3.3-home_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -637,6 +853,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.3.3-home_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -646,6 +864,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/home.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/home.*nosuid.*
   - id: "CIS-UBUNTU24-1.1.2.4.1-var_mount"
     name: "/var is a separate mount"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.4.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -655,6 +877,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-UBUNTU24-1.1.2.4.2-var_nodev_options"
     name: "/var is a separate mount with nodev"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -666,6 +890,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var with the option nodev: add it to the options of /var in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var'
+
+      If /var is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.4.2-var_fstab_nodev_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -675,6 +905,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.4.2-var_fstab_nodev_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -684,6 +916,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\s.*nodev
   - id: "CIS-UBUNTU24-1.1.2.4.3-var_nosuid_options"
     name: "/var is a separate mount with nosuid"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -695,6 +931,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var with the option nosuid: add it to the options of /var in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var'
+
+      If /var is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.4.3-var_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -704,6 +946,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.4.3-var_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -713,6 +957,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\s.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\s.*nosuid.*
   - id: "CIS-UBUNTU24-1.1.2.5.1-var_tmp_mount"
     name: "/var/tmp is a separate mount"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.5.1."
@@ -722,6 +970,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/tmp'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/tmp on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-UBUNTU24-1.1.2.5.2-var_tmp_nodev_options"
     name: "/var/tmp is a separate mount with nodev"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -733,6 +983,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/tmp with the option nodev: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.5.2-var_tmp_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -742,6 +998,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.5.2-var_tmp_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -751,6 +1009,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*nodev
   - id: "CIS-UBUNTU24-1.1.2.5.3-var_tmp_nosuid_options"
     name: "/var/tmp is a separate mount with nosuid"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -762,6 +1024,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/tmp with the option nosuid: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.5.3-var_tmp_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -771,6 +1039,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.5.3-var_tmp_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -780,6 +1050,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*nosuid.*
   - id: "CIS-UBUNTU24-1.1.2.5.4-var_tmp_noexec_options"
     name: "/var/tmp is a separate mount with noexec"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -791,6 +1065,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/tmp with the option noexec: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.5.4-var_tmp_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -800,6 +1080,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.5.4-var_tmp_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -809,6 +1091,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*noexec.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*noexec.*
   - id: "CIS-UBUNTU24-1.1.2.6.1-var_log_mount"
     name: "/var/log is a separate mount"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.6.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -818,6 +1104,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/log'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/log on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-UBUNTU24-1.1.2.6.2-var_log_nodev_options"
     name: "/var/log is a separate mount with nodev"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -829,6 +1117,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/log with the option nodev: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.6.2-var_log_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -838,6 +1132,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.6.2-var_log_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -847,6 +1143,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*nodev
   - id: "CIS-UBUNTU24-1.1.2.6.3-var_log_nosuid_options"
     name: "/var/log is a separate mount with nosuid"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -858,6 +1158,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/log with the option nosuid: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.6.3-var_log_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -867,6 +1173,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.6.3-var_log_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -876,6 +1184,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*nosuid.*
   - id: "CIS-UBUNTU24-1.1.2.6.4-var_log_noexec_options"
     name: "/var/log is a separate mount with noexec"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -887,6 +1199,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/log with the option noexec: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.6.4-var_log_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -896,6 +1214,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.6.4-var_log_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -905,6 +1225,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*noexec.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*noexec.*
   - id: "CIS-UBUNTU24-1.1.2.7.1-var_log_audit_mount"
     name: "/var/log/audit is a separate mount"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.7.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -914,6 +1238,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/log/audit'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/log/audit on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-UBUNTU24-1.1.2.7.2-var_log_nodev_audit_options"
     name: "/var/log/audit is a separate mount with nodev"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -925,6 +1251,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option nodev: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.7.2-var_log_audit_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -934,6 +1266,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.7.2-var_log_audit_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -943,6 +1277,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*nodev
   - id: "CIS-UBUNTU24-1.1.2.7.3-var_log_audit_options"
     name: "/var/log/audit is a separate mount with nosuid"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -954,6 +1292,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option nosuid: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.7.3-var_log_audit_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -963,6 +1307,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.7.3-var_log_audit_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -972,6 +1318,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*nosuid.*
   - id: "CIS-UBUNTU24-1.1.2.7.4-var_log_audit_noexec_options"
     name: "/var/log/audit is a separate mount with noexec"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -983,6 +1333,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option noexec: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU24-1.1.2.7.4-var_log_audit_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -992,6 +1348,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU24-1.1.2.7.4-var_log_audit_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -1001,6 +1359,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*noexec.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*noexec.*
   - id: "CIS-UBUNTU24-1.2.1.1-apt_signed_by"
     name: "apt signed by: for f in /etc/apt/sources.list /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.s…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.2.1.1. NIST SP 800-53 Rev. 5: SI-2."
@@ -1056,6 +1418,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/apt/trusted.gpg.d if it is missing, then make it a directory, set owner root and group root and remove the permissions u-s,g-ws,o-w,a-t:
+
+      chown root:root '/etc/apt/trusted.gpg.d'
+      chmod u-s,g-ws,o-w,a-t '/etc/apt/trusted.gpg.d'
   - id: "CIS-UBUNTU24-1.2.1.5-apt_auth_conf_d-attrs"
     name: "/etc/apt/auth.conf.d: exists, is a directory, mode 0755 or stricter, owner root, group root"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.2.1.5. NIST SP 800-53 Rev. 5: AC-6."
@@ -1069,6 +1436,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/apt/auth.conf.d if it is missing, then make it a directory, set owner root and group root and remove the permissions u-s,g-ws,o-w,a-t:
+
+      chown root:root '/etc/apt/auth.conf.d'
+      chmod u-s,g-ws,o-w,a-t '/etc/apt/auth.conf.d'
   - id: "CIS-UBUNTU24-1.2.1.6-apt_auth_conf_d_files"
     name: "apt auth conf d files: find -L /etc/apt/auth.conf.d/ -type f \\( ! -user root -o ! -group root -o -perm /0137 \\) …"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.2.1.6. NIST SP 800-53 Rev. 5: AC-6."
@@ -1093,6 +1465,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /usr/share/keyrings if it is missing, then make it a directory, set owner root and group root and remove the permissions u-s,g-ws,o-w,a-t:
+
+      chown root:root '/usr/share/keyrings'
+      chmod u-s,g-ws,o-w,a-t '/usr/share/keyrings'
   - id: "CIS-UBUNTU24-1.2.1.8-apt_sources_list_d-attrs"
     name: "/etc/apt/sources.list.d: exists, is a directory, mode 0755 or stricter, owner root, group root"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.2.1.8. NIST SP 800-53 Rev. 5: AC-6."
@@ -1106,6 +1483,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/apt/sources.list.d if it is missing, then make it a directory, set owner root and group root and remove the permissions u-s,g-ws,o-w,a-t:
+
+      chown root:root '/etc/apt/sources.list.d'
+      chmod u-s,g-ws,o-w,a-t '/etc/apt/sources.list.d'
   - id: "CIS-UBUNTU24-1.2.1.9-apt_sources_list_d_files"
     name: "apt sources list d files: find -L /etc/apt/sources.list.d/ -type f \\( ! -user root -o ! -group root -o -perm /0133 …"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.2.1.9. NIST SP 800-53 Rev. 5: AC-6."
@@ -1137,6 +1519,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' apparmor 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package apparmor:
+
+      apt-get install apparmor
   - id: "CIS-UBUNTU24-1.3.1.1-apparmor-utils"
     name: "Package apparmor-utils is installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.3.1.1. NIST SP 800-53 Rev. 5: AC-3."
@@ -1145,6 +1531,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' apparmor-utils 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package apparmor-utils:
+
+      apt-get install apparmor-utils
   - id: "CIS-UBUNTU24-1.3.1.2-apparmor_boot_grub-attrs"
     name: "/boot/grub/grub.cfg: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.3.1.2. NIST SP 800-53 Rev. 5: AC-3."
@@ -1154,6 +1544,8 @@ checks:
       f='/boot/grub/grub.cfg'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /boot/grub/grub.cfg.
   - id: "CIS-UBUNTU24-1.3.1.2-apparmor_boot_grub-content"
     name: "/boot/grub/grub.cfg has the expected content (3 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.3.1.2. NIST SP 800-53 Rev. 5: AC-3."
@@ -1166,6 +1558,12 @@ checks:
       - { some: "~ apparmor=1" }
       - { some: "~ security=apparmor" }
       - { none: "~ apparmor=0" }
+    remediation: |
+      Edit /boot/grub/grub.cfg so that its lines meet these conditions (regular expressions):
+
+      - a line matches apparmor=1
+      - a line matches security=apparmor
+      - no line matches apparmor=0
   - id: "CIS-UBUNTU24-1.3.1.2-grub_app_armor-attrs"
     name: "/etc/default/grub: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.3.1.2. NIST SP 800-53 Rev. 5: AC-3."
@@ -1175,6 +1573,8 @@ checks:
       f='/etc/default/grub'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/default/grub.
   - id: "CIS-UBUNTU24-1.3.1.2-grub_app_armor-content"
     name: "/etc/default/grub has the expected content (3 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.3.1.2. NIST SP 800-53 Rev. 5: AC-3."
@@ -1187,6 +1587,12 @@ checks:
       - { some: "~ ^GRUB_CMDLINE_LINUX.*apparmor=1" }
       - { some: "~ ^GRUB_CMDLINE_LINUX.*security=apparmor" }
       - { none: "~ apparmor=0" }
+    remediation: |
+      Edit /etc/default/grub so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^GRUB_CMDLINE_LINUX.*apparmor=1
+      - a line matches ^GRUB_CMDLINE_LINUX.*security=apparmor
+      - no line matches apparmor=0
   - id: "CIS-UBUNTU24-1.3.1.3-apparmor_enf_only"
     name: "apparmor enf only: apparmor_status 2\u003e/dev/null | grep -E '^[0-9]+ (profiles are loaded|profiles are in compl…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.3.1.3. NIST SP 800-53 Rev. 5: AC-3."
@@ -1211,6 +1617,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter kernel.apparmor_restrict_unprivileged_unconfined to 1, now and at boot:
+
+      sysctl -w 'kernel.apparmor_restrict_unprivileged_unconfined=1'
+      printf '%s\n' 'kernel.apparmor_restrict_unprivileged_unconfined = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of kernel.apparmor_restrict_unprivileged_unconfined from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-1.3.1.4-apparmor_restrict_unconfined_conf"
     name: "apparmor restrict unconfined conf: grep -r \"kernel\\.apparmor_restrict_unprivileged_unconfined\" /etc/sysctl.conf /etc/sysctl.…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.3.1.4. NIST SP 800-53 Rev. 5: AC-3."
@@ -1231,6 +1644,8 @@ checks:
       f='/etc/grub.d/00_user'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/grub.d/00_user.
   - id: "CIS-UBUNTU24-1.4.1-bootloader_password_set-content"
     name: "/etc/grub.d/00_user has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.4.1. NIST SP 800-53 Rev. 5: AC-3."
@@ -1242,6 +1657,11 @@ checks:
     expect:
       - { some: "~ set superusers=\"root\"" }
       - { some: "~ password_pbkdf2 root grub.pbkdf2.sha512.changethispassword" }
+    remediation: |
+      Edit /etc/grub.d/00_user so that its lines meet these conditions (regular expressions):
+
+      - a line matches set superusers="root"
+      - a line matches password_pbkdf2 root grub.pbkdf2.sha512.changethispassword
   - id: "CIS-UBUNTU24-1.4.2-default_grub_perms-attrs"
     name: "/boot/grub/grub.cfg: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.4.2. NIST SP 800-53 Rev. 5: AC-3."
@@ -1254,6 +1674,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /boot/grub/grub.cfg if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/boot/grub/grub.cfg'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/boot/grub/grub.cfg'
   - id: "CIS-UBUNTU24-1.5.1-fs.protected_hardlinks"
     name: "Kernel parameter fs.protected_hardlinks is 1"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.5.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -1265,6 +1690,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter fs.protected_hardlinks to 1, now and at boot:
+
+      sysctl -w 'fs.protected_hardlinks=1'
+      printf '%s\n' 'fs.protected_hardlinks = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of fs.protected_hardlinks from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-1.5.1-protected_hardlinks_configured"
     name: "protected hardlinks configured: grep \"fs\\.protected_hardlinks\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.5.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -1288,6 +1720,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter fs.protected_symlinks to 1, now and at boot:
+
+      sysctl -w 'fs.protected_symlinks=1'
+      printf '%s\n' 'fs.protected_symlinks = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of fs.protected_symlinks from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-1.5.2-protected_symlinks_configured"
     name: "protected symlinks configured: grep \"fs\\.protected_symlinks\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.5.2. NIST SP 800-53 Rev. 5: CM-6."
@@ -1311,6 +1750,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter kernel.yama.ptrace_scope to 1, now and at boot:
+
+      sysctl -w 'kernel.yama.ptrace_scope=1'
+      printf '%s\n' 'kernel.yama.ptrace_scope = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of kernel.yama.ptrace_scope from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-1.5.3-ptrace_restrict_2"
     name: "ptrace restrict 2: grep \"kernel\\.yama\\.ptrace_scope\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.5.3. NIST SP 800-53 Rev. 5: CM-6."
@@ -1334,6 +1780,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter fs.suid_dumpable to 0, now and at boot:
+
+      sysctl -w 'fs.suid_dumpable=0'
+      printf '%s\n' 'fs.suid_dumpable = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of fs.suid_dumpable from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-1.5.4-suid_dumpable_2"
     name: "suid dumpable 2: grep \"fs\\.suid_dumpable\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.5.4. NIST SP 800-53 Rev. 5: CM-6."
@@ -1357,6 +1810,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter kernel.dmesg_restrict to 1, now and at boot:
+
+      sysctl -w 'kernel.dmesg_restrict=1'
+      printf '%s\n' 'kernel.dmesg_restrict = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of kernel.dmesg_restrict from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-1.5.5-dmesg_restrict_configured"
     name: "dmesg restrict configured: grep \"kernel\\.dmesg_restrict\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.5.5. NIST SP 800-53 Rev. 5: CM-6."
@@ -1377,6 +1837,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' prelink 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package prelink, unless the system needs it:
+
+      apt-get purge prelink
   - id: "CIS-UBUNTU24-1.5.7-apport_not_enabled"
     name: "apport not enabled: dpkg-query -s apport \u003e/dev/null 2\u003e\u00261 \u0026\u0026 grep -Psi -- '^\\h*enabled\\h*=\\h*[^0]\\b' /etc/defa…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.5.7. NIST SP 800-53 Rev. 5: NA."
@@ -1401,6 +1865,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter kernel.kptr_restrict to 1, now and at boot:
+
+      sysctl -w 'kernel.kptr_restrict=1'
+      printf '%s\n' 'kernel.kptr_restrict = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of kernel.kptr_restrict from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-1.5.8-kptr_restrict_configured"
     name: "kptr restrict configured: grep \"kernel\\.kptr_restrict\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.5.8. NIST SP 800-53 Rev. 5: CM-6."
@@ -1424,6 +1895,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 2"
+    remediation: |
+      Set the kernel parameter kernel.randomize_va_space to 2, now and at boot:
+
+      sysctl -w 'kernel.randomize_va_space=2'
+      printf '%s\n' 'kernel.randomize_va_space = 2' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of kernel.randomize_va_space from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-1.5.9-aslr_enabled_2"
     name: "aslr enabled 2: grep \"kernel\\.randomize_va_space\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.5.9. NIST SP 800-53 Rev. 5: CM-6."
@@ -1457,6 +1935,8 @@ checks:
       f='/etc/systemd/coredump.conf.d/60-coredump.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/systemd/coredump.conf.d/60-coredump.conf.
   - id: "CIS-UBUNTU24-1.5.11-coredump_processsizemax-content"
     name: "/etc/systemd/coredump.conf.d/60-coredump.conf has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.5.11. NIST SP 800-53 Rev. 5: CM-6."
@@ -1468,6 +1948,11 @@ checks:
     expect:
       - { some: "~ ^\\[Coredump\\]" }
       - { some: "~ ^ProcessSizeMax=0" }
+    remediation: |
+      Edit /etc/systemd/coredump.conf.d/60-coredump.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\[Coredump\]
+      - a line matches ^ProcessSizeMax=0
   - id: "CIS-UBUNTU24-1.5.12-coredump_storage-attrs"
     name: "/etc/systemd/coredump.conf.d/60-coredump.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.5.12. NIST SP 800-53 Rev. 5: CM-6."
@@ -1477,6 +1962,8 @@ checks:
       f='/etc/systemd/coredump.conf.d/60-coredump.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/systemd/coredump.conf.d/60-coredump.conf.
   - id: "CIS-UBUNTU24-1.5.12-coredump_storage-content"
     name: "/etc/systemd/coredump.conf.d/60-coredump.conf has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.5.12. NIST SP 800-53 Rev. 5: CM-6."
@@ -1488,6 +1975,11 @@ checks:
     expect:
       - { some: "~ ^\\[Coredump\\]" }
       - { some: "~ ^Storage=none" }
+    remediation: |
+      Edit /etc/systemd/coredump.conf.d/60-coredump.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\[Coredump\]
+      - a line matches ^Storage=none
   - id: "CIS-UBUNTU24-1.6.1-etc_motd_content-attrs"
     name: "/etc/motd: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
@@ -1497,6 +1989,8 @@ checks:
       f='/etc/motd'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/motd.
   - id: "CIS-UBUNTU24-1.6.1-etc_motd_content-content"
     name: "/etc/motd has the expected content (4 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
@@ -1510,6 +2004,13 @@ checks:
       - { none: "~ (\\\\v|\\\\r|\\\\m|\\\\s)" }
       - { none: "~ \\/etc\\/os-release" }
       - { none: "~ (?i)ubuntu" }
+    remediation: |
+      Edit /etc/motd so that its lines meet these conditions (regular expressions):
+
+      - a line matches Authorized users only\. All activity may be monitored and reported\.
+      - no line matches (\\v|\\r|\\m|\\s)
+      - no line matches \/etc\/os-release
+      - no line matches (?i)ubuntu
   - id: "CIS-UBUNTU24-1.6.1-pam_motd_dynamic_disabled_login-attrs"
     name: "/etc/pam.d/login: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
@@ -1519,6 +2020,8 @@ checks:
       f='/etc/pam.d/login'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/login.
   - id: "CIS-UBUNTU24-1.6.1-pam_motd_dynamic_disabled_login-content"
     name: "/etc/pam.d/login has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
@@ -1530,6 +2033,11 @@ checks:
     expect:
       - { none: "~ ^\\s*session\\s+(required|optional)\\s+pam_motd\\.so\\s+.*\\bmotd=\\/run\\/motd\\.dynamic\\b" }
       - { none: "~ ^\\s*session\\s+(required|optional)\\s+pam_motd\\.so\\s+noupdate\\b" }
+    remediation: |
+      Edit /etc/pam.d/login so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^\s*session\s+(required|optional)\s+pam_motd\.so\s+.*\bmotd=\/run\/motd\.dynamic\b
+      - no line matches ^\s*session\s+(required|optional)\s+pam_motd\.so\s+noupdate\b
   - id: "CIS-UBUNTU24-1.6.1-pam_motd_dynamic_disabled_sshd-attrs"
     name: "/etc/pam.d/sshd: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
@@ -1539,6 +2047,8 @@ checks:
       f='/etc/pam.d/sshd'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/sshd.
   - id: "CIS-UBUNTU24-1.6.1-pam_motd_dynamic_disabled_sshd-content"
     name: "/etc/pam.d/sshd has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
@@ -1550,6 +2060,11 @@ checks:
     expect:
       - { none: "~ ^\\s*session\\s+(required|optional)\\s+pam_motd\\.so\\s+.*\\bmotd=\\/run\\/motd\\.dynamic\\b" }
       - { none: "~ ^\\s*session\\s+(required|optional)\\s+pam_motd\\.so\\s+noupdate\\b" }
+    remediation: |
+      Edit /etc/pam.d/sshd so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^\s*session\s+(required|optional)\s+pam_motd\.so\s+.*\bmotd=\/run\/motd\.dynamic\b
+      - no line matches ^\s*session\s+(required|optional)\s+pam_motd\.so\s+noupdate\b
   - id: "CIS-UBUNTU24-1.6.1-pam_motd_dynamic_disabled_su-attrs"
     name: "/etc/pam.d/su: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
@@ -1559,6 +2074,8 @@ checks:
       f='/etc/pam.d/su'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/su.
   - id: "CIS-UBUNTU24-1.6.1-pam_motd_dynamic_disabled_su-content"
     name: "/etc/pam.d/su has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
@@ -1570,6 +2087,11 @@ checks:
     expect:
       - { none: "~ ^\\s*session\\s+(required|optional)\\s+pam_motd\\.so\\s+.*\\bmotd=\\/run\\/motd\\.dynamic\\b" }
       - { none: "~ ^\\s*session\\s+(required|optional)\\s+pam_motd\\.so\\s+noupdate\\b" }
+    remediation: |
+      Edit /etc/pam.d/su so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^\s*session\s+(required|optional)\s+pam_motd\.so\s+.*\bmotd=\/run\/motd\.dynamic\b
+      - no line matches ^\s*session\s+(required|optional)\s+pam_motd\.so\s+noupdate\b
   - id: "CIS-UBUNTU24-1.6.1-motd_static_files_content"
     name: "motd static files content: grep -Psi -- \"(\\\\\\v|\\\\\\r|\\\\\\m|\\\\\\s|\\b$(grep '^ID=' /etc/os-release | cut -d= -f2 | sed -e…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
@@ -1635,6 +2157,8 @@ checks:
       f='/etc/issue.net'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/issue.net.
   - id: "CIS-UBUNTU24-1.6.5-sshd_warning_banner_content-content"
     name: "/etc/issue.net has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.6.5. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
@@ -1646,6 +2170,11 @@ checks:
     expect:
       - { none: "~ (\\\\v|\\\\r|\\\\m|\\\\s)" }
       - { none: "~ (?i)ubuntu" }
+    remediation: |
+      Edit /etc/issue.net so that its lines meet these conditions (regular expressions):
+
+      - no line matches (\\v|\\r|\\m|\\s)
+      - no line matches (?i)ubuntu
   - id: "CIS-UBUNTU24-1.6.6-etc_motd_perms"
     name: "etc motd perms: find -L /etc/motd /run/motd /usr/lib/motd /etc/motd.d /run/motd.d /usr/lib/motd.d -maxdep…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.6.6. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
@@ -1669,6 +2198,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue'
   - id: "CIS-UBUNTU24-1.6.8-etc_issue_net_perms-attrs"
     name: "/etc/issue.net: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.6.8. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
@@ -1681,6 +2215,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue.net if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue.net'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue.net'
   - id: "CIS-UBUNTU24-1.6.9-pam_motd_perms"
     name: "pam motd perms: grep -hPo 'motd=\\K\\S+' /etc/pam.d/* 2\u003e/dev/null | tr -d \"\\\"'\" | sort -u | while IFS= read…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.6.9. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
@@ -1707,6 +2246,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue.net if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue.net'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue.net'
   - id: "CIS-UBUNTU24-2.1.1-autofs_pkg"
     name: "Package autofs is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.1. NIST SP 800-53 Rev. 5: SI-3, MP-7."
@@ -1715,6 +2259,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' autofs 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package autofs, unless the system needs it:
+
+      apt-get purge autofs
   - id: "CIS-UBUNTU24-2.1.2-mta_listening_ports"
     name: "mta listening ports: ss -plntu | grep -P -- ':(25|465|587)\\b' | grep -Pv -- '\\h+(127\\.0\\.0\\.1|\\[?::1\\]?):(25|4…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -1748,6 +2296,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' avahi-daemon 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package avahi-daemon, unless the system needs it:
+
+      apt-get purge avahi-daemon
   - id: "CIS-UBUNTU24-2.1.4-manual_listening_ports"
     name: "manual listening ports: echo \"Manual!! - Please check only approved services are listening\""
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -1767,6 +2319,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' kea-dhcp-ddns-server 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package kea-dhcp-ddns-server, unless the system needs it:
+
+      apt-get purge kea-dhcp-ddns-server
   - id: "CIS-UBUNTU24-2.1.5-kea_dhcp4_pkg"
     name: "Package kea-dhcp4-server is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -1775,6 +2331,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' kea-dhcp4-server 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package kea-dhcp4-server, unless the system needs it:
+
+      apt-get purge kea-dhcp4-server
   - id: "CIS-UBUNTU24-2.1.5-kea_dhcp6_pkg"
     name: "Package kea-dhcp6-server is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -1783,6 +2343,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' kea-dhcp6-server 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package kea-dhcp6-server, unless the system needs it:
+
+      apt-get purge kea-dhcp6-server
   - id: "CIS-UBUNTU24-2.1.5-kea_pkg"
     name: "Package kea is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -1791,6 +2355,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' kea 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package kea, unless the system needs it:
+
+      apt-get purge kea
   - id: "CIS-UBUNTU24-2.1.6-apache2_pkg"
     name: "Package apache2 is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.6. NIST SP 800-53 Rev. 5: CM-7."
@@ -1799,6 +2367,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' apache2 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package apache2, unless the system needs it:
+
+      apt-get purge apache2
   - id: "CIS-UBUNTU24-2.1.6-nginx_pkg"
     name: "Package nginx is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.6. NIST SP 800-53 Rev. 5: CM-7."
@@ -1807,6 +2379,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' nginx 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package nginx, unless the system needs it:
+
+      apt-get purge nginx
   - id: "CIS-UBUNTU24-2.1.7-dns_pkg"
     name: "Package bind9 is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.7. NIST SP 800-53 Rev. 5: CM-7."
@@ -1815,6 +2391,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' bind9 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package bind9, unless the system needs it:
+
+      apt-get purge bind9
   - id: "CIS-UBUNTU24-2.1.8-ftp_pkg"
     name: "Package vsftpd is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -1823,6 +2403,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' vsftpd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package vsftpd, unless the system needs it:
+
+      apt-get purge vsftpd
   - id: "CIS-UBUNTU24-2.1.9-dnsmasq_pkg"
     name: "Package dnsmasq is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.9. NIST SP 800-53 Rev. 5: CM-7."
@@ -1831,6 +2415,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' dnsmasq 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package dnsmasq, unless the system needs it:
+
+      apt-get purge dnsmasq
   - id: "CIS-UBUNTU24-2.1.10-ldap_pkg"
     name: "Package slapd is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.10. NIST SP 800-53 Rev. 5: CM-7."
@@ -1839,6 +2427,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' slapd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package slapd, unless the system needs it:
+
+      apt-get purge slapd
   - id: "CIS-UBUNTU24-2.1.11-dovecot_imapd_pkg"
     name: "Package dovecot-imapd is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.11. NIST SP 800-53 Rev. 5: CM-7."
@@ -1847,6 +2439,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' dovecot-imapd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package dovecot-imapd, unless the system needs it:
+
+      apt-get purge dovecot-imapd
   - id: "CIS-UBUNTU24-2.1.11-dovecot_pop3d_pkg"
     name: "Package dovecot-pop3d is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.11. NIST SP 800-53 Rev. 5: CM-7."
@@ -1855,6 +2451,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' dovecot-pop3d 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package dovecot-pop3d, unless the system needs it:
+
+      apt-get purge dovecot-pop3d
   - id: "CIS-UBUNTU24-2.1.14-cups_pkg"
     name: "Package cups is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.14. NIST SP 800-53 Rev. 5: CM-7."
@@ -1863,6 +2463,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' cups 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package cups, unless the system needs it:
+
+      apt-get purge cups
   - id: "CIS-UBUNTU24-2.1.16-rsync_pkg"
     name: "Package rsync is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.16. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1871,6 +2475,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' rsync 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package rsync, unless the system needs it:
+
+      apt-get purge rsync
   - id: "CIS-UBUNTU24-2.1.17-samba_pkg"
     name: "Package samba is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.17. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1879,6 +2487,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' samba 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package samba, unless the system needs it:
+
+      apt-get purge samba
   - id: "CIS-UBUNTU24-2.1.18-snmp_pkg"
     name: "Package snmpd is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.18. NIST SP 800-53 Rev. 5: CM-7."
@@ -1887,6 +2499,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' snmpd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package snmpd, unless the system needs it:
+
+      apt-get purge snmpd
   - id: "CIS-UBUNTU24-2.1.19-telnetd_pkg"
     name: "Package telnetd is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.19. NIST SP 800-53 Rev. 5: CM-7."
@@ -1895,6 +2511,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' telnetd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package telnetd, unless the system needs it:
+
+      apt-get purge telnetd
   - id: "CIS-UBUNTU24-2.1.20-tftp_pkg"
     name: "Package tftpd-hpa is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.20. NIST SP 800-53 Rev. 5: CM-7."
@@ -1903,6 +2523,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' tftpd-hpa 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package tftpd-hpa, unless the system needs it:
+
+      apt-get purge tftpd-hpa
   - id: "CIS-UBUNTU24-2.1.21-squid_pkg"
     name: "Package squid is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.21. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1911,6 +2535,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' squid 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package squid, unless the system needs it:
+
+      apt-get purge squid
   - id: "CIS-UBUNTU24-2.1.22-xinetd_pkg"
     name: "Package xinetd is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.22. NIST SP 800-53 Rev. 5: CM-7."
@@ -1919,6 +2547,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' xinetd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package xinetd, unless the system needs it:
+
+      apt-get purge xinetd
   - id: "CIS-UBUNTU24-2.1.23-xwindow_pkg"
     name: "Package xserver-common is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.23. NIST SP 800-53 Rev. 5: CM-11."
@@ -1927,6 +2559,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' xserver-common 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package xserver-common, unless the system needs it:
+
+      apt-get purge xserver-common
   - id: "CIS-UBUNTU24-2.2.1-nis_client"
     name: "Package nis is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.2.1. NIST SP 800-53 Rev. 5: CM-7, CM-11."
@@ -1935,6 +2571,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' nis 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package nis, unless the system needs it:
+
+      apt-get purge nis
   - id: "CIS-UBUNTU24-2.2.2-rsh-client"
     name: "Package rsh-client is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.2.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -1943,6 +2583,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' rsh-client 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package rsh-client, unless the system needs it:
+
+      apt-get purge rsh-client
   - id: "CIS-UBUNTU24-2.2.3-talk"
     name: "Package talk is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.2.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -1951,6 +2595,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' talk 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package talk, unless the system needs it:
+
+      apt-get purge talk
   - id: "CIS-UBUNTU24-2.2.4-inetutils-telnet"
     name: "Package inetutils-telnet is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.2.4. NIST SP 800-53 Rev. 5: CM-7, CM-11."
@@ -1959,6 +2607,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' inetutils-telnet 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package inetutils-telnet, unless the system needs it:
+
+      apt-get purge inetutils-telnet
   - id: "CIS-UBUNTU24-2.2.4-telnet"
     name: "Package telnet is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.2.4. NIST SP 800-53 Rev. 5: CM-7, CM-11."
@@ -1967,6 +2619,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' telnet 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package telnet, unless the system needs it:
+
+      apt-get purge telnet
   - id: "CIS-UBUNTU24-2.2.5-ldap-utils"
     name: "Package ldap-utils is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.2.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -1975,6 +2631,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ldap-utils 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package ldap-utils, unless the system needs it:
+
+      apt-get purge ldap-utils
   - id: "CIS-UBUNTU24-2.2.6-ftp_client"
     name: "Package ftp is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.2.6. NIST SP 800-53 Rev. 5: CM-7, CM-11."
@@ -1983,6 +2643,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ftp 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package ftp, unless the system needs it:
+
+      apt-get purge ftp
   - id: "CIS-UBUNTU24-2.2.6-tnftp_client"
     name: "Package tnftp is not installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.2.6. NIST SP 800-53 Rev. 5: CM-7, CM-11."
@@ -1991,6 +2655,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' tnftp 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package tnftp, unless the system needs it:
+
+      apt-get purge tnftp
   - id: "CIS-UBUNTU24-2.3.1.1-chrony"
     name: "Package chrony is installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.3.1.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1999,6 +2667,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' chrony 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package chrony:
+
+      apt-get install chrony
   - id: "CIS-UBUNTU24-2.3.3.1-chrony_pool-attrs"
     name: "/etc/chrony/sources.d/pool.sources: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.3.3.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -2008,6 +2680,8 @@ checks:
       f='/etc/chrony/sources.d/pool.sources'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/chrony/sources.d/pool.sources.
   - id: "CIS-UBUNTU24-2.3.3.1-chrony_pool-content"
     name: "/etc/chrony/sources.d/pool.sources has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.3.3.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -2017,6 +2691,10 @@ checks:
       cat '/etc/chrony/sources.d/pool.sources'
     allow_rc: any
     expect: { some: "~ ^pool time.nist.gov \u003cno value\u003e" }
+    remediation: |
+      Edit /etc/chrony/sources.d/pool.sources so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^pool time.nist.gov <no value>
   - id: "CIS-UBUNTU24-2.3.3.1-chrony_timeservers-attrs"
     name: "/etc/chrony/sources.d/server.sources: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.3.3.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -2026,6 +2704,8 @@ checks:
       f='/etc/chrony/sources.d/server.sources'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/chrony/sources.d/server.sources.
   - id: "CIS-UBUNTU24-2.3.3.1-chrony_timeservers-content"
     name: "/etc/chrony/sources.d/server.sources has the expected content (3 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.3.3.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -2038,6 +2718,12 @@ checks:
       - { some: "~ ^server time-a-g.nist.gov iburst" }
       - { some: "~ ^server time-b-g.nist.gov iburst" }
       - { some: "~ ^server time-c-g.nist.gov iburst" }
+    remediation: |
+      Edit /etc/chrony/sources.d/server.sources so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^server time-a-g.nist.gov iburst
+      - a line matches ^server time-b-g.nist.gov iburst
+      - a line matches ^server time-c-g.nist.gov iburst
   - id: "CIS-UBUNTU24-2.3.3.2-chrony_user-attrs"
     name: "/etc/chrony/chrony.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.3.3.2. NIST SP 800-53 Rev. 5: AU-8."
@@ -2047,6 +2733,8 @@ checks:
       f='/etc/chrony/chrony.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/chrony/chrony.conf.
   - id: "CIS-UBUNTU24-2.3.3.2-chrony_user-content"
     name: "/etc/chrony/chrony.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.3.3.2. NIST SP 800-53 Rev. 5: AU-8."
@@ -2056,6 +2744,10 @@ checks:
       cat '/etc/chrony/chrony.conf'
     allow_rc: any
     expect: { some: "~ ^user _chrony" }
+    remediation: |
+      Edit /etc/chrony/chrony.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^user _chrony
   - id: "CIS-UBUNTU24-2.3.3.3-chronyd-enabled"
     name: "Service chronyd is enabled"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.3.3.3. NIST SP 800-53 Rev. 5: AU-8."
@@ -2064,6 +2756,10 @@ checks:
     run: |
       systemctl show -p UnitFileState chronyd | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service chronyd:
+
+      systemctl enable chronyd
   - id: "CIS-UBUNTU24-2.3.3.3-chronyd-running"
     name: "Service chronyd is running"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.3.3.3. NIST SP 800-53 Rev. 5: AU-8."
@@ -2072,6 +2768,10 @@ checks:
     run: |
       systemctl show -p ActiveState chronyd | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service chronyd:
+
+      systemctl start chronyd
   - id: "CIS-UBUNTU24-2.4.1.1-cron"
     name: "Package cron is installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2080,6 +2780,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' cron 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package cron:
+
+      apt-get install cron
   - id: "CIS-UBUNTU24-2.4.1.1-cron-enabled"
     name: "Service cron is enabled"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2088,6 +2792,10 @@ checks:
     run: |
       systemctl show -p UnitFileState cron | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service cron:
+
+      systemctl enable cron
   - id: "CIS-UBUNTU24-2.4.1.1-cron-running"
     name: "Service cron is running"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2096,6 +2804,10 @@ checks:
     run: |
       systemctl show -p ActiveState cron | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service cron:
+
+      systemctl start cron
   - id: "CIS-UBUNTU24-2.4.1.2-crontab_perms-attrs"
     name: "/etc/crontab: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.4.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2108,6 +2820,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/crontab if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/crontab'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/crontab'
   - id: "CIS-UBUNTU24-2.4.1.3-cron_hourly_perms-attrs"
     name: "/etc/cron.hourly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.4.1.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2120,6 +2837,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.hourly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.hourly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.hourly'
   - id: "CIS-UBUNTU24-2.4.1.4-cron_daily_perms-attrs"
     name: "/etc/cron.daily: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.4.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2132,6 +2854,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.daily if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.daily'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.daily'
   - id: "CIS-UBUNTU24-2.4.1.5-cron_weekly_perms-attrs"
     name: "/etc/cron.weekly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.4.1.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2144,6 +2871,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.weekly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.weekly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.weekly'
   - id: "CIS-UBUNTU24-2.4.1.6-cron_monthly_perms-attrs"
     name: "/etc/cron.monthly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.4.1.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2156,6 +2888,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.monthly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.monthly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.monthly'
   - id: "CIS-UBUNTU24-2.4.1.7-cron_yearly_perms-attrs"
     name: "/etc/cron.yearly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.4.1.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2168,6 +2905,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.yearly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.yearly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.yearly'
   - id: "CIS-UBUNTU24-2.4.1.8-cron_d_perms-attrs"
     name: "/etc/cron.d: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.4.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2180,6 +2922,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.d if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.d'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.d'
   - id: "CIS-UBUNTU24-2.4.1.9-etc_cron.allow-attrs"
     name: "/etc/cron.allow: exists, mode 0640 or stricter, owner root, group root or crontab"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.4.1.9. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2192,6 +2939,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root'|'crontab') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.allow if it is missing, then set owner root and group root or crontab and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.allow'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/cron.allow'
   - id: "CIS-UBUNTU24-2.4.1.9-cron_deny_absent-absent"
     name: "/etc/cron.deny does not exist"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.4.1.9. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2200,6 +2952,10 @@ checks:
     run: |
       test -e '/etc/cron.deny' || test -L '/etc/cron.deny'
     expect: false
+    remediation: |
+      Remove /etc/cron.deny, unless the system needs it:
+
+      rm '/etc/cron.deny'
   - id: "CIS-UBUNTU24-2.4.2.1-etc_at.allow-attrs"
     name: "/etc/at.allow: exists, mode 0640 or stricter, owner root, group root or daemon"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.4.2.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2212,6 +2968,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root'|'daemon') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/at.allow if it is missing, then set owner root and group root or daemon and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/at.allow'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/at.allow'
   - id: "CIS-UBUNTU24-2.4.2.1-at_deny_absent-absent"
     name: "/etc/at.deny does not exist"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.4.2.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2220,6 +2981,10 @@ checks:
     run: |
       test -e '/etc/at.deny' || test -L '/etc/at.deny'
     expect: false
+    remediation: |
+      Remove /etc/at.deny, unless the system needs it:
+
+      rm '/etc/at.deny'
   - id: "CIS-UBUNTU24-3.1.2-wireless_disabled"
     name: "wireless disabled: if [ $(find /sys/class/net/*/ -type d -name wireless) ]; then echo MANUAL; else echo OK; …"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.1.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -2240,6 +3005,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' bluez 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package bluez, unless the system needs it:
+
+      apt-get purge bluez
   - id: "CIS-UBUNTU24-3.2.1-lsmod_atm"
     name: "lsmod atm: lsmod | grep -i atm"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.2.1. NIST SP 800-53 Rev. 5: CM-7, SI-4."
@@ -2383,6 +3152,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.ip_forward to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.ip_forward=0'
+      printf '%s\n' 'net.ipv4.ip_forward = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.ip_forward from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.1-ipv4_ip_forward"
     name: "ipv4 ip forward: grep \"net\\.ipv4\\.ip_forward\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2405,6 +3181,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.forwarding to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.forwarding=0'
+      printf '%s\n' 'net.ipv4.conf.all.forwarding = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.forwarding from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.2-ipv4_all_forwarding"
     name: "ipv4 all forwarding: grep \"net\\.ipv4\\.conf\\.all\\.forwarding\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.2. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2427,6 +3210,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.forwarding to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.forwarding=0'
+      printf '%s\n' 'net.ipv4.conf.default.forwarding = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.forwarding from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.3-ipv4_def_forwarding"
     name: "ipv4 def forwarding: grep \"net\\.ipv4\\.conf\\.default\\.forwarding\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.3. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2449,6 +3239,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.send_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.send_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.send_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.send_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.4-ipv4_all_send_redirects"
     name: "ipv4 all send redirects: grep \"net\\.ipv4\\.conf\\.all\\.send_redirects\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.4. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2471,6 +3268,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.send_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.send_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.send_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.send_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.5-ipv4_def_send_redirects"
     name: "ipv4 def send redirects: grep \"net\\.ipv4\\.conf\\.default\\.send_redirects\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2493,6 +3297,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.icmp_ignore_bogus_error_responses to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.icmp_ignore_bogus_error_responses=1'
+      printf '%s\n' 'net.ipv4.icmp_ignore_bogus_error_responses = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.icmp_ignore_bogus_error_responses from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.6-ipv4_ignore_bogus"
     name: "ipv4 ignore bogus: grep \"net\\.ipv4\\.icmp_ignore_bogus_error_responses\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.6. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2515,6 +3326,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.icmp_echo_ignore_broadcasts to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.icmp_echo_ignore_broadcasts=1'
+      printf '%s\n' 'net.ipv4.icmp_echo_ignore_broadcasts = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.icmp_echo_ignore_broadcasts from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.7-ipv4_ignore_broadcasts"
     name: "ipv4 ignore broadcasts: grep \"net\\.ipv4\\.icmp_echo_ignore_broadcasts\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.7. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2537,6 +3355,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.accept_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.8-ipv4_all_accept_redirects"
     name: "ipv4 all accept redirects: grep \"net\\.ipv4\\.conf\\.all\\.accept_redirects\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.8. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2559,6 +3384,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.accept_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.9-ipv4_def_accept_redirects"
     name: "ipv4 def accept redirects: grep \"net\\.ipv4\\.conf\\.default\\.accept_redirects\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.9. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2581,6 +3413,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.secure_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.secure_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.secure_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.secure_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.10-ipv4_all_secure_redirects"
     name: "ipv4 all secure redirects: grep \"net\\.ipv4\\.conf\\.all\\.secure_redirects\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.10. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2603,6 +3442,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.secure_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.secure_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.secure_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.secure_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.11-ipv4_def_secure_redirects"
     name: "ipv4 def secure redirects: grep \"net\\.ipv4\\.conf\\.default\\.secure_redirects\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.11. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2625,6 +3471,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.rp_filter to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.rp_filter=1'
+      printf '%s\n' 'net.ipv4.conf.all.rp_filter = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.rp_filter from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.12-ipv4_all_rp_filter"
     name: "ipv4 all rp filter: grep \"net\\.ipv4\\.conf\\.all\\.rp_filter\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.12. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2647,6 +3500,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.rp_filter to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.rp_filter=1'
+      printf '%s\n' 'net.ipv4.conf.default.rp_filter = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.rp_filter from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.13-ipv4_def_rp_filter"
     name: "ipv4 def rp filter: grep \"net\\.ipv4\\.conf\\.default\\.rp_filter\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.13. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2669,6 +3529,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.accept_source_route=0'
+      printf '%s\n' 'net.ipv4.conf.all.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.14-ipv4_all_source_route"
     name: "ipv4 all source route: grep \"net\\.ipv4\\.conf\\.all\\.accept_source_route\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.14. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2691,6 +3558,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.accept_source_route=0'
+      printf '%s\n' 'net.ipv4.conf.default.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.15-ipv4_def_source_route"
     name: "ipv4 def source route: grep \"net\\.ipv4\\.conf\\.default\\.accept_source_route\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.15. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2713,6 +3587,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.log_martians to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.log_martians=1'
+      printf '%s\n' 'net.ipv4.conf.all.log_martians = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.log_martians from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.16-ipv4_all_martians"
     name: "ipv4 all martians: grep \"net\\.ipv4\\.conf\\.all\\.log_martians\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.16. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2735,6 +3616,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.log_martians to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.log_martians=1'
+      printf '%s\n' 'net.ipv4.conf.default.log_martians = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.log_martians from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.17-ipv4_def_martians"
     name: "ipv4 def martians: grep \"net\\.ipv4\\.conf\\.default\\.log_martians\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.17. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2757,6 +3645,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.tcp_syncookies to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.tcp_syncookies=1'
+      printf '%s\n' 'net.ipv4.tcp_syncookies = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.tcp_syncookies from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.1.18-ipv4_tcp_syncookies"
     name: "ipv4 tcp syncookies: grep \"net\\.ipv4\\.tcp_syncookies\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.1.18. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2779,6 +3674,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.forwarding to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.forwarding=0'
+      printf '%s\n' 'net.ipv6.conf.all.forwarding = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.forwarding from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.2.1-ipv6_all_forwarding"
     name: "ipv6 all forwarding: grep \"net\\.ipv6\\.conf\\.all\\.forwarding\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.2.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2801,6 +3703,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.forwarding to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.forwarding=0'
+      printf '%s\n' 'net.ipv6.conf.default.forwarding = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.forwarding from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.2.2-ipv6_def_forwarding"
     name: "ipv6 def forwarding: grep \"net\\.ipv6\\.conf\\.default\\.forwarding\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.2.2. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2823,6 +3732,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.accept_redirects=0'
+      printf '%s\n' 'net.ipv6.conf.all.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.2.3-ipv6_all_accept_redirects"
     name: "ipv6 all accept redirects: grep \"net\\.ipv6\\.conf\\.all\\.accept_redirects\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.2.3. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2845,6 +3761,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.accept_redirects=0'
+      printf '%s\n' 'net.ipv6.conf.default.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.2.4-ipv6_def_accept_redirects"
     name: "ipv6 def accept redirects: grep \"net\\.ipv6\\.conf\\.default\\.accept_redirects\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.2.4. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2867,6 +3790,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.accept_source_route=0'
+      printf '%s\n' 'net.ipv6.conf.all.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.2.5-ipv6_all_source_route"
     name: "ipv6 all source route: grep \"net\\.ipv6\\.conf\\.all\\.accept_source_route\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.2.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2889,6 +3819,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.accept_source_route=0'
+      printf '%s\n' 'net.ipv6.conf.default.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.2.6-ipv6_def_source_route"
     name: "ipv6 def source route: grep \"net\\.ipv6\\.conf\\.default\\.accept_source_route\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.2.6. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2911,6 +3848,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.accept_ra to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.accept_ra=0'
+      printf '%s\n' 'net.ipv6.conf.all.accept_ra = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.accept_ra from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.2.7-ipv6_all_accept_ra"
     name: "ipv6 all accept ra: grep \"net\\.ipv6\\.conf\\.all\\.accept_ra\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.2.7. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2933,6 +3877,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.accept_ra to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.accept_ra=0'
+      printf '%s\n' 'net.ipv6.conf.default.accept_ra = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.accept_ra from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU24-3.3.2.8-ipv6_def_accept_ra"
     name: "ipv6 def accept ra: grep \"net\\.ipv6\\.conf\\.default\\.accept_ra\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 3.3.2.8. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2952,6 +3903,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package ufw:
+
+      apt-get install ufw
   - id: "CIS-UBUNTU24-4.1.2-ufw-enabled"
     name: "Service ufw is enabled"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 4.1.2. NIST SP 800-53 Rev. 5: SC-7."
@@ -2960,6 +3915,10 @@ checks:
     run: |
       systemctl show -p UnitFileState ufw | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service ufw:
+
+      systemctl enable ufw
   - id: "CIS-UBUNTU24-4.1.2-ufw-running"
     name: "Service ufw is running"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 4.1.2. NIST SP 800-53 Rev. 5: SC-7."
@@ -2968,6 +3927,10 @@ checks:
     run: |
       systemctl show -p ActiveState ufw | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service ufw:
+
+      systemctl start ufw
   - id: "CIS-UBUNTU24-4.1.2-ufw_status_active"
     name: "ufw status active: ufw status"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 4.1.2. NIST SP 800-53 Rev. 5: SC-7."
@@ -3024,6 +3987,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/ssh/sshd_config'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/ssh/sshd_config'
   - id: "CIS-UBUNTU24-5.1.1-sshd_config_d_perms"
     name: "sshd config d perms: find /etc/ssh/sshd_config.d/ -xdev -type f -name '*.conf' \\( -perm /077 -o ! -user root -…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.1.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -3110,6 +4078,8 @@ checks:
       f='/etc/ssh/sshd_config.d/00-cis-sshd.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.d/00-cis-sshd.conf.
   - id: "CIS-UBUNTU24-5.1.4-sshd_access_limited-content"
     name: "/etc/ssh/sshd_config.d/00-cis-sshd.conf has the expected content (4 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -3123,6 +4093,13 @@ checks:
       - { some: "~ AllowGroups" }
       - { some: "~ DenyUsers" }
       - { some: "~ DenyGroups" }
+    remediation: |
+      Edit /etc/ssh/sshd_config.d/00-cis-sshd.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches AllowUsers
+      - a line matches AllowGroups
+      - a line matches DenyUsers
+      - a line matches DenyGroups
   - id: "CIS-UBUNTU24-5.1.5-ssh_banner"
     name: "ssh banner: sshd -T 2\u003e/dev/null | grep -Ei '^(banner) '"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.1.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3361,6 +4338,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' sudo 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package sudo:
+
+      apt-get install sudo
   - id: "CIS-UBUNTU24-5.2.2-sudoers_use_pty-attrs"
     name: "/etc/sudoers: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.2.2. NIST SP 800-53 Rev. 5: AC-6."
@@ -3370,6 +4351,8 @@ checks:
       f='/etc/sudoers'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/sudoers.
   - id: "CIS-UBUNTU24-5.2.2-sudoers_use_pty-content"
     name: "/etc/sudoers has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.2.2. NIST SP 800-53 Rev. 5: AC-6."
@@ -3379,6 +4362,10 @@ checks:
       cat '/etc/sudoers'
     allow_rc: any
     expect: { some: "~ ^Defaults.*\\suse_pty" }
+    remediation: |
+      Edit /etc/sudoers so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^Defaults.*\suse_pty
   - id: "CIS-UBUNTU24-5.2.2-pty_sudoers_d"
     name: "pty sudoers d: grep -rPi -- '^\\h*Defaults\\h+([^#\\n\\r]+,\\h*)?!use_pty\\b' /etc/sudoers /etc/sudoers.d/"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.2.2. NIST SP 800-53 Rev. 5: AC-6."
@@ -3444,6 +4431,8 @@ checks:
       f='/etc/pam.d/su'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/su.
   - id: "CIS-UBUNTU24-5.2.7-su_conf-content"
     name: "/etc/pam.d/su has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.2.7. NIST SP 800-53 Rev. 5: AC-6."
@@ -3453,6 +4442,10 @@ checks:
       cat '/etc/pam.d/su'
     allow_rc: any
     expect: { some: "~ ^auth\\s+required\\s+pam_wheel.so use_uid group=nosugroup" }
+    remediation: |
+      Edit /etc/pam.d/su so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^auth\s+required\s+pam_wheel.so use_uid group=nosugroup
   - id: "CIS-UBUNTU24-5.2.7-sugroup_etc_group"
     name: "sugroup etc group: grep '^nosugroup:' /etc/group | awk -F':' '{print $NF}'"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.2.7. NIST SP 800-53 Rev. 5: AC-6."
@@ -3472,6 +4465,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' libpam-runtime 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package libpam-runtime:
+
+      apt-get install libpam-runtime
   - id: "CIS-UBUNTU24-5.3.1.1-libpam_runtime_upgradable"
     name: "libpam runtime upgradable: apt list --upgradable 2\u003e/dev/null | grep -P '^libpam-runtime\\b'"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -3491,6 +4488,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' libpam-modules 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package libpam-modules:
+
+      apt-get install libpam-modules
   - id: "CIS-UBUNTU24-5.3.1.2-libpam_modules_upgradable"
     name: "libpam modules upgradable: apt list --upgradable 2\u003e/dev/null | grep -P '^libpam-modules\\b'"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -3510,6 +4511,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' libpam-pwquality 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package libpam-pwquality:
+
+      apt-get install libpam-pwquality
   - id: "CIS-UBUNTU24-5.3.1.3-libpam_pwquality_upgradable"
     name: "libpam pwquality upgradable: apt list --upgradable 2\u003e/dev/null | grep -P '^libpam-pwquality\\b'"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3529,6 +4534,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' cracklib-runtime 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package cracklib-runtime:
+
+      apt-get install cracklib-runtime
   - id: "CIS-UBUNTU24-5.3.1.4-cracklib_runtime_upgradable"
     name: "cracklib runtime upgradable: apt list --upgradable 2\u003e/dev/null | grep -P '^cracklib-runtime\\b'"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.1.4. NIST SP 800-53 Rev. 5: NA."
@@ -3549,6 +4558,8 @@ checks:
       f='/etc/pam.d/common-account'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-account.
   - id: "CIS-UBUNTU24-5.3.2.1-pam_unix_enabled_common_act-content"
     name: "/etc/pam.d/common-account has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3558,6 +4569,10 @@ checks:
       cat '/etc/pam.d/common-account'
     allow_rc: any
     expect: { some: "~ ^account\\s*\\[success=\\d new_authtok_reqd=done default=ignore\\]\\s*pam_unix.so" }
+    remediation: |
+      Edit /etc/pam.d/common-account so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^account\s*\[success=\d new_authtok_reqd=done default=ignore\]\s*pam_unix.so
   - id: "CIS-UBUNTU24-5.3.2.1-pam_unix_enabled_common_auth-attrs"
     name: "/etc/pam.d/common-auth: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3567,6 +4582,8 @@ checks:
       f='/etc/pam.d/common-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-auth.
   - id: "CIS-UBUNTU24-5.3.2.1-pam_unix_enabled_common_auth-content"
     name: "/etc/pam.d/common-auth has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3576,6 +4593,10 @@ checks:
       cat '/etc/pam.d/common-auth'
     allow_rc: any
     expect: { some: "~ ^\\s*auth\\s+\\[success=\\d default=.*\\]\\s+pam_unix.so" }
+    remediation: |
+      Edit /etc/pam.d/common-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*auth\s+\[success=\d default=.*\]\s+pam_unix.so
   - id: "CIS-UBUNTU24-5.3.2.1-pam_unix_enabled_common_password-attrs"
     name: "/etc/pam.d/common-password: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3585,6 +4606,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-UBUNTU24-5.3.2.1-pam_unix_enabled_common_password-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3594,6 +4617,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s+\\[success=\\d default=.*\\]\\s+pam_unix.so" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s+\[success=\d default=.*\]\s+pam_unix.so
   - id: "CIS-UBUNTU24-5.3.2.1-pam_unix_enabled_common_session-attrs"
     name: "/etc/pam.d/common-session: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3603,6 +4630,8 @@ checks:
       f='/etc/pam.d/common-session'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-session.
   - id: "CIS-UBUNTU24-5.3.2.1-pam_unix_enabled_common_session-content"
     name: "/etc/pam.d/common-session has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3612,6 +4641,10 @@ checks:
       cat '/etc/pam.d/common-session'
     allow_rc: any
     expect: { some: "~ ^\\s*session\\s*required\\s+pam_unix.so" }
+    remediation: |
+      Edit /etc/pam.d/common-session so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*session\s*required\s+pam_unix.so
   - id: "CIS-UBUNTU24-5.3.2.1-pam_unix_enabled_common_session_nonint-attrs"
     name: "/etc/pam.d/common-session-noninteractive: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3621,6 +4654,8 @@ checks:
       f='/etc/pam.d/common-session-noninteractive'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-session-noninteractive.
   - id: "CIS-UBUNTU24-5.3.2.1-pam_unix_enabled_common_session_nonint-content"
     name: "/etc/pam.d/common-session-noninteractive has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3630,6 +4665,10 @@ checks:
       cat '/etc/pam.d/common-session-noninteractive'
     allow_rc: any
     expect: { some: "~ ^\\s*session\\s+required\\s+pam_unix.so" }
+    remediation: |
+      Edit /etc/pam.d/common-session-noninteractive so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*session\s+required\s+pam_unix.so
   - id: "CIS-UBUNTU24-5.3.2.2-pam_faillock_enabled_common_act-attrs"
     name: "/etc/pam.d/common-account: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.2.2. NIST SP 800-53 Rev. 5: NA."
@@ -3639,6 +4678,8 @@ checks:
       f='/etc/pam.d/common-account'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-account.
   - id: "CIS-UBUNTU24-5.3.2.2-pam_faillock_enabled_common_act-content"
     name: "/etc/pam.d/common-account has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.2.2. NIST SP 800-53 Rev. 5: NA."
@@ -3648,6 +4689,10 @@ checks:
       cat '/etc/pam.d/common-account'
     allow_rc: any
     expect: { some: "~ ^\\s*account\\s+(requisite|required)\\s+pam_faillock.so" }
+    remediation: |
+      Edit /etc/pam.d/common-account so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*account\s+(requisite|required)\s+pam_faillock.so
   - id: "CIS-UBUNTU24-5.3.2.2-pam_faillock_enabled_common_auth-attrs"
     name: "/etc/pam.d/common-auth: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.2.2. NIST SP 800-53 Rev. 5: NA."
@@ -3657,6 +4702,8 @@ checks:
       f='/etc/pam.d/common-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-auth.
   - id: "CIS-UBUNTU24-5.3.2.2-pam_faillock_enabled_common_auth-content"
     name: "/etc/pam.d/common-auth has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.2.2. NIST SP 800-53 Rev. 5: NA."
@@ -3668,6 +4715,11 @@ checks:
     expect:
       - { some: "~ ^\\s*auth\\s+(requisite|required)\\s+pam_faillock.so\\s+preauth" }
       - { some: "~ ^auth\\s*\\[default=die\\]\\s+pam_faillock.so\\s+authfail" }
+    remediation: |
+      Edit /etc/pam.d/common-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*auth\s+(requisite|required)\s+pam_faillock.so\s+preauth
+      - a line matches ^auth\s*\[default=die\]\s+pam_faillock.so\s+authfail
   - id: "CIS-UBUNTU24-5.3.2.3-pam_pwquality_enabled_common_passwd-attrs"
     name: "/etc/pam.d/common-password: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.2.3. NIST SP 800-53 Rev. 5: NA."
@@ -3677,6 +4729,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-UBUNTU24-5.3.2.3-pam_pwquality_enabled_common_passwd-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.2.3. NIST SP 800-53 Rev. 5: NA."
@@ -3686,6 +4740,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s+(required|requisite)\\s+pam_pwquality.so" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s+(required|requisite)\s+pam_pwquality.so
   - id: "CIS-UBUNTU24-5.3.2.4-pam_pwhistory_enabled_common_passwd-attrs"
     name: "/etc/pam.d/common-password: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.2.4. NIST SP 800-53 Rev. 5: NA."
@@ -3695,6 +4753,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-UBUNTU24-5.3.2.4-pam_pwhistory_enabled_common_passwd-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.2.4. NIST SP 800-53 Rev. 5: NA."
@@ -3704,6 +4764,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s+(required|requisite)\\s+pam_pwhistory.so" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s+(required|requisite)\s+pam_pwhistory.so
   - id: "CIS-UBUNTU24-5.3.3.1.1-faillock_attempts_deny-attrs"
     name: "/etc/security/faillock.conf: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.3.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -3713,6 +4777,8 @@ checks:
       f='/etc/security/faillock.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/faillock.conf.
   - id: "CIS-UBUNTU24-5.3.3.1.1-faillock_attempts_deny-content"
     name: "/etc/security/faillock.conf has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.3.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -3724,6 +4790,11 @@ checks:
     expect:
       - { some: "~ ^deny\\s*=\\s*[1-5]$" }
       - { none: "~ ^deny\\s*=\\s*(0|[6-9]|[0-9]{2,})\\s*$" }
+    remediation: |
+      Edit /etc/security/faillock.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^deny\s*=\s*[1-5]$
+      - no line matches ^deny\s*=\s*(0|[6-9]|[0-9]{2,})\s*$
   - id: "CIS-UBUNTU24-5.3.3.1.1-faillock_attempts_deny_removed"
     name: "faillock attempts deny removed: grep -Pl -- '\\bpam_faillock\\.so\\h+([^#\\n\\r]+\\h+)?deny\\b' /usr/share/pam-configs/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.3.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -3744,6 +4815,8 @@ checks:
       f='/etc/security/faillock.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/faillock.conf.
   - id: "CIS-UBUNTU24-5.3.3.1.2-faillock_unlock_time-content"
     name: "/etc/security/faillock.conf has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.3.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -3755,6 +4828,11 @@ checks:
     expect:
       - { some: "~ ^unlock_time\\s*=\\s*(0|9[0-9][0-9]|[1-9][0-9]{3,})\\s*$" }
       - { none: "~ ^unlock_time\\s*=\\s*([1-9]|[1-9][0-9]|[1-8][0-9][0-9])\\s*$" }
+    remediation: |
+      Edit /etc/security/faillock.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^unlock_time\s*=\s*(0|9[0-9][0-9]|[1-9][0-9]{3,})\s*$
+      - no line matches ^unlock_time\s*=\s*([1-9]|[1-9][0-9]|[1-8][0-9][0-9])\s*$
   - id: "CIS-UBUNTU24-5.3.3.1.2-faillock_unlock_time_removed"
     name: "faillock unlock time removed: grep -Pl -- '\\bpam_faillock\\.so\\h+([^#\\n\\r]+\\h+)?unlock_time\\b' /usr/share/pam-configs/*"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.3.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -3775,6 +4853,8 @@ checks:
       f='/etc/security/faillock.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/faillock.conf.
   - id: "CIS-UBUNTU24-5.3.3.1.3-faillock_even_root-content"
     name: "/etc/security/faillock.conf has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.3.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3786,6 +4866,11 @@ checks:
     expect:
       - { some: "~ ^\\s*(even_deny_root|root_unlock_time\\s*=\\s*([6-9][0-9]|[1-9][0-9]{2,}))\\b" }
       - { none: "~ ^\\s*root_unlock_time\\s*=\\s*([1-9]|[1-5][0-9])\\s*$" }
+    remediation: |
+      Edit /etc/security/faillock.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*(even_deny_root|root_unlock_time\s*=\s*([6-9][0-9]|[1-9][0-9]{2,}))\b
+      - no line matches ^\s*root_unlock_time\s*=\s*([1-9]|[1-5][0-9])\s*$
   - id: "CIS-UBUNTU24-5.3.3.1.3-faillock_even_root_removed"
     name: "faillock even root removed: grep -Pl -- '\\bpam_faillock\\.so\\h+([^#\\n\\r]+\\h+)?(even_deny_root|root_unlock_time)' /usr/…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.3.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3806,6 +4891,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-UBUNTU24-5.3.3.2.1-passwd_change_not_pamd-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3815,6 +4902,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { none: "~ ^\\s*password\\s+(requisite|required|sufficient)\\s+pam_pwquality\\.so\\s+([^#\\n\\r]+\\s+)?difok\\s*=\\s*([0-1])\\b" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^\s*password\s+(requisite|required|sufficient)\s+pam_pwquality\.so\s+([^#\n\r]+\s+)?difok\s*=\s*([0-1])\b
   - id: "CIS-UBUNTU24-5.3.3.2.1-password_character_changed"
     name: "password character changed: grep -Psi -- '^\\h*difok\\h*=\\h*([2-9]|[1-9][0-9]+)\\b' /etc/security/pwquality.conf /etc/se…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3985,6 +5076,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-UBUNTU24-5.3.3.3.1-pwhistory_remember_common_passwd-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.3.3.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3994,6 +5087,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s*(requisite|required)\\s*pam_pwhistory.so.*remember\\s*=\\s*(2[4-9]|[3-9][0-9]|[1-9][0-9]{2,})\\b" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s*(requisite|required)\s*pam_pwhistory.so.*remember\s*=\s*(2[4-9]|[3-9][0-9]|[1-9][0-9]{2,})\b
   - id: "CIS-UBUNTU24-5.3.3.3.1-pwhistory_remember_pam_configs"
     name: "pwhistory remember pam configs: for file in `awk '/Password-Type:/{ f = 1;next } /-Type:/{ f = 0 } f {if (/pam_pwhistory\\…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.3.3.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -4014,6 +5111,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-UBUNTU24-5.3.3.3.2-pwhistory_enforce_for_root-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.3.3.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -4023,6 +5122,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s*(requisite|required)\\s*pam_pwhistory.so.*enforce_for_root" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s*(requisite|required)\s*pam_pwhistory.so.*enforce_for_root
   - id: "CIS-UBUNTU24-5.3.3.3.2-pwhistory_enforce_for_root_pam_configs"
     name: "pwhistory enforce for root pam configs: for file in `awk '/Password-Type:/{ f = 1;next } /-Type:/{ f = 0 } f {if (/pam_pwhistory\\…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.3.3.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -4043,6 +5146,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-UBUNTU24-5.3.3.3.3-pwhistory_use_authtok-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.3.3.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -4052,6 +5157,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s*(requisite|required)\\s*pam_pwhistory.so.*use_authtok" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s*(requisite|required)\s*pam_pwhistory.so.*use_authtok
   - id: "CIS-UBUNTU24-5.3.3.3.3-pwhistory_use_authtok_pam_configs"
     name: "pwhistory use authtok pam configs: for file in `awk '/Password-Type:/{ f = 1;next } /-Type:/{ f = 0 } f {if (/pam_pwhistory\\…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.3.3.3.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -4116,6 +5225,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-UBUNTU24-5.4.1.1-login_defs_PASS_MAX_DAYS-content"
     name: "/etc/login.defs has the expected content (3 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -4128,6 +5239,12 @@ checks:
       - { some: "~ ^PASS_MAX_DAYS\\s*365" }
       - { none: "~ ^PASS_MAX_DAYS\\s*(36[6-9]|[4-9][0-9][0-9]|[1-9][0-9]{3,})" }
       - { none: "~ ^PASS_MAX_DAYS\\s*-1" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_MAX_DAYS\s*365
+      - no line matches ^PASS_MAX_DAYS\s*(36[6-9]|[4-9][0-9][0-9]|[1-9][0-9]{3,})
+      - no line matches ^PASS_MAX_DAYS\s*-1
   - id: "CIS-UBUNTU24-5.4.1.1-users_max_pw_expire"
     name: "users max pw expire: awk -F: '($2~/^\\$.+\\$/) {if($5 \u003e 365 || $5 \u003c 1) print \"FAIL: \" $1 \" PASS_MAX_DAYS: \" $5}'…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -4150,6 +5267,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-UBUNTU24-5.4.1.2-login_defs_PASS_MIN_DAYS-content"
     name: "/etc/login.defs has the expected content (3 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.4.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -4162,6 +5281,12 @@ checks:
       - { some: "~ ^PASS_MIN_DAYS\\s1" }
       - { some: "~ ^PASS_MIN_DAYS\\s([1-9]|[1-9][0-9]{2,})" }
       - { none: "~ ^PASS_MIN_DAYS\\s*(-[1-9]|0)" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_MIN_DAYS\s1
+      - a line matches ^PASS_MIN_DAYS\s([1-9]|[1-9][0-9]{2,})
+      - no line matches ^PASS_MIN_DAYS\s*(-[1-9]|0)
   - id: "CIS-UBUNTU24-5.4.1.2-users_min_pw_expire"
     name: "users min pw expire: awk -F: '($2~/^\\$.+\\$/) {if($4 \u003c 1) print \"FAIL: \" $1 \" PASS_MIN_DAYS: \" $4}' /etc/shadow"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.4.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -4184,6 +5309,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-UBUNTU24-5.4.1.3-login_def_PASS_WARN_AGE-content"
     name: "/etc/login.defs has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.4.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -4195,6 +5322,11 @@ checks:
     expect:
       - { some: "~ ^PASS_WARN_AGE\\s*7" }
       - { none: "~ ^PASS_WARN_AGE\\s*([0-6]|-1)\\s*$" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_WARN_AGE\s*7
+      - no line matches ^PASS_WARN_AGE\s*([0-6]|-1)\s*$
   - id: "CIS-UBUNTU24-5.4.1.3-user_expire_warn"
     name: "user expire warn: awk -F: '($2~/^\\$.+\\$/) {if($6 \u003c 7) print \"FAIL: \" $1 \" PASS_WARN_AGE: \" $6}' /etc/shadow"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.4.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -4217,6 +5349,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-UBUNTU24-5.4.1.4-yescrypt_login_defs-content"
     name: "/etc/login.defs has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.4.1.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -4228,6 +5362,11 @@ checks:
     expect:
       - { some: "~ ^ENCRYPT_METHOD (YESCRYPT|SHA512)" }
       - { none: "~ ^ENCRYPT_METHOD (md5|bigcrypt|sha256|blowfish)" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^ENCRYPT_METHOD (YESCRYPT|SHA512)
+      - no line matches ^ENCRYPT_METHOD (md5|bigcrypt|sha256|blowfish)
   - id: "CIS-UBUNTU24-5.4.1.5-inactive_passwd"
     name: "inactive passwd: useradd -D | grep INACTIVE"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.4.1.5. NIST SP 800-53 Rev. 5: NA."
@@ -4267,6 +5406,11 @@ checks:
         if [ "$t" -gt "$now" ]; then echo "$usr: last password change $d is in the future"; fi
       done
     expect: empty
+    remediation: |
+      Check the system clock, then set the last password change of every listed user to today, or expire the password so it must be changed at the next login:
+
+      chage --lastday "$(date +%Y-%m-%d)" USER
+      chage --lastday 0 USER
   - id: "CIS-UBUNTU24-5.4.2.1-root_only_uid_0"
     name: "root only uid 0: awk -F: '($3 == 0 \u0026\u0026 $1 != \"root\") { print $1 }' /etc/passwd"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.4.2.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -4376,6 +5520,8 @@ checks:
       f='/etc/shells'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/shells.
   - id: "CIS-UBUNTU24-5.4.3.1-nologin_not_in_shells-content"
     name: "/etc/shells has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.4.3.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -4385,6 +5531,10 @@ checks:
       cat '/etc/shells'
     allow_rc: any
     expect: { none: "~ .*nologin" }
+    remediation: |
+      Edit /etc/shells so that its lines meet these conditions (regular expressions):
+
+      - no line matches .*nologin
   - id: "CIS-UBUNTU24-5.4.3.2-check_timeout"
     name: "check timeout: grep TMOUT /etc/profile.d/*.sh /etc/profile /etc/profile.d/*.sh| cut -d \":\" -f2"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 5.4.3.2. NIST SP 800-53 Rev. 5: NA."
@@ -4418,6 +5568,10 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journald | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service systemd-journald:
+
+      systemctl enable systemd-journald
   - id: "CIS-UBUNTU24-6.1.1.1.1-systemd-journald-running"
     name: "Service systemd-journald is running"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.1.1.1.1. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -4426,6 +5580,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journald | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service systemd-journald:
+
+      systemctl start systemd-journald
   - id: "CIS-UBUNTU24-6.1.1.1.2-systemd-journal-remote.service-running"
     name: "Service systemd-journal-remote.service is not running"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.1.1.1.2. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -4434,6 +5592,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journal-remote.service | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service systemd-journal-remote.service, unless the system needs it:
+
+      systemctl stop systemd-journal-remote.service
   - id: "CIS-UBUNTU24-6.1.1.1.2-systemd-journal-remote.socket-enabled"
     name: "Service systemd-journal-remote.socket is not enabled"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.1.1.1.2. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -4442,6 +5604,12 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journal-remote.socket | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service systemd-journal-remote.socket, unless the system needs it:
+
+      systemctl disable systemd-journal-remote.socket
+
+      To keep other units from starting it, mask it instead: systemctl mask systemd-journal-remote.socket
   - id: "CIS-UBUNTU24-6.1.1.1.2-systemd-journal-remote.socket-running"
     name: "Service systemd-journal-remote.socket is not running"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.1.1.1.2. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -4450,6 +5618,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journal-remote.socket | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service systemd-journal-remote.socket, unless the system needs it:
+
+      systemctl stop systemd-journal-remote.socket
   - id: "CIS-UBUNTU24-6.1.1.1.2-journald_remote_not_active"
     name: "journald remote not active: systemctl is-active systemd-journal-remote.socket systemd-journal-remote.service 2\u003e/dev/n…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.1.1.1.2. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -4588,6 +5760,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' audispd-plugins 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package audispd-plugins:
+
+      apt-get install audispd-plugins
   - id: "CIS-UBUNTU24-6.2.1.1-audit_packages"
     name: "Package auditd is installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.2.1.1. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12, SI-5."
@@ -4596,6 +5772,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' auditd 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package auditd:
+
+      apt-get install auditd
   - id: "CIS-UBUNTU24-6.2.1.2-auditd-enabled"
     name: "Service auditd is enabled"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.2.1.2. NIST SP 800-53 Rev. 5: AU-2, AU-12, SI-5."
@@ -4604,6 +5784,10 @@ checks:
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service auditd:
+
+      systemctl enable auditd
   - id: "CIS-UBUNTU24-6.2.1.2-auditd-running"
     name: "Service auditd is running"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.2.1.2. NIST SP 800-53 Rev. 5: AU-2, AU-12, SI-5."
@@ -4612,6 +5796,10 @@ checks:
     run: |
       systemctl show -p ActiveState auditd | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service auditd:
+
+      systemctl start auditd
   - id: "CIS-UBUNTU24-6.2.1.3-grub_audit_start-attrs"
     name: "/etc/default/grub: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.2.1.3. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12."
@@ -4621,6 +5809,8 @@ checks:
       f='/etc/default/grub'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/default/grub.
   - id: "CIS-UBUNTU24-6.2.1.3-grub_audit_start-content"
     name: "/etc/default/grub has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.2.1.3. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12."
@@ -4632,6 +5822,11 @@ checks:
     expect:
       - { some: "~ ^GRUB_CMDLINE_LINUX=.*audit=1" }
       - { none: "~ audit=0" }
+    remediation: |
+      Edit /etc/default/grub so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^GRUB_CMDLINE_LINUX=.*audit=1
+      - no line matches audit=0
   - id: "CIS-UBUNTU24-6.2.1.3-auditd_grub"
     name: "auditd grub: grep \"^\\s*linux\" /boot/grub/grub.cfg | grep -Evc \"audit=1\""
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.2.1.3. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12."
@@ -4652,6 +5847,8 @@ checks:
       f='/etc/default/grub'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/default/grub.
   - id: "CIS-UBUNTU24-6.2.1.4-grub_audit_backlog-content"
     name: "/etc/default/grub has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.2.1.4. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12."
@@ -4663,6 +5860,11 @@ checks:
     expect:
       - { some: "~ GRUB_CMDLINE_LINUX=\".*audit_backlog_limit=8192" }
       - { some: "~ audit_backlog_limit=(819[2-9]|8[2-9][0-9]{2}|9[0-9]{3}|[1-9][0-9]{4,})\\b" }
+    remediation: |
+      Edit /etc/default/grub so that its lines meet these conditions (regular expressions):
+
+      - a line matches GRUB_CMDLINE_LINUX=".*audit_backlog_limit=8192
+      - a line matches audit_backlog_limit=(819[2-9]|8[2-9][0-9]{2}|9[0-9]{3}|[1-9][0-9]{4,})\b
   - id: "CIS-UBUNTU24-6.2.1.4-auditd_grub_backlog"
     name: "auditd grub backlog: grep \"^\\s*linux\" /boot/grub/grub.cfg | grep -Evc \"audit_backlog_limit=\""
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.2.1.4. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12."
@@ -4705,6 +5907,8 @@ checks:
       f='/etc/audit/auditd.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/audit/auditd.conf.
   - id: "CIS-UBUNTU24-6.2.2.3-auditd_space_actions-content"
     name: "/etc/audit/auditd.conf has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.2.2.3. NIST SP 800-53 Rev. 5: AU-2, AU-8, AU-12, SI-5."
@@ -4716,6 +5920,11 @@ checks:
     expect:
       - { some: "~ (?i)^\\s*disk_full_action\\s*=\\s*(halt|single)\\b" }
       - { some: "~ (?i)^\\s*disk_error_action\\s*=\\s*(syslog|single|halt)\\b" }
+    remediation: |
+      Edit /etc/audit/auditd.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches (?i)^\s*disk_full_action\s*=\s*(halt|single)\b
+      - a line matches (?i)^\s*disk_error_action\s*=\s*(syslog|single|halt)\b
   - id: "CIS-UBUNTU24-6.2.2.4-auditd_space_actions"
     name: "auditd space actions: grep -E \"action\" /etc/audit/auditd.conf"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.2.2.4. NIST SP 800-53 Rev. 5: AU-2, AU-8, AU-12, SI-5."
@@ -5553,6 +6762,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' aide 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package aide:
+
+      apt-get install aide
   - id: "CIS-UBUNTU24-6.3.1-aide-common"
     name: "Package aide-common is installed"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.3.1. NIST SP 800-53 Rev. 5: AU-2."
@@ -5561,6 +6774,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' aide-common 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package aide-common:
+
+      apt-get install aide-common
   - id: "CIS-UBUNTU24-6.3.2-dailyaidecheck.timer-enabled"
     name: "Service dailyaidecheck.timer is enabled"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.3.2. NIST SP 800-53 Rev. 5: NA."
@@ -5569,6 +6786,10 @@ checks:
     run: |
       systemctl show -p UnitFileState dailyaidecheck.timer | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service dailyaidecheck.timer:
+
+      systemctl enable dailyaidecheck.timer
   - id: "CIS-UBUNTU24-6.3.2-dailyaidecheck.timer-running"
     name: "Service dailyaidecheck.timer is running"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.3.2. NIST SP 800-53 Rev. 5: NA."
@@ -5577,6 +6798,10 @@ checks:
     run: |
       systemctl show -p ActiveState dailyaidecheck.timer | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service dailyaidecheck.timer:
+
+      systemctl start dailyaidecheck.timer
   - id: "CIS-UBUNTU24-6.3.2-dailyaidecheck_service"
     name: "dailyaidecheck service: systemctl is-enabled dailyaidecheck.service"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 6.3.2. NIST SP 800-53 Rev. 5: NA."
@@ -5616,6 +6841,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/passwd if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/passwd'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/passwd'
   - id: "CIS-UBUNTU24-7.1.2-passwd-_perms-attrs"
     name: "/etc/passwd-: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 7.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5628,6 +6858,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/passwd- if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/passwd-'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/passwd-'
   - id: "CIS-UBUNTU24-7.1.3-group_perms-attrs"
     name: "/etc/group: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 7.1.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5640,6 +6875,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/group if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/group'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/group'
   - id: "CIS-UBUNTU24-7.1.4-group-_perms-attrs"
     name: "/etc/group-: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 7.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5652,6 +6892,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/group- if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/group-'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/group-'
   - id: "CIS-UBUNTU24-7.1.5-shadow_perms-attrs"
     name: "/etc/shadow: exists, mode 0640 or stricter, owner root, group root or shadow"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 7.1.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5664,6 +6909,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root'|'shadow') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shadow if it is missing, then set owner root and group root or shadow and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/shadow'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/shadow'
   - id: "CIS-UBUNTU24-7.1.6-shadow-_perms-attrs"
     name: "/etc/shadow-: exists, mode 0640 or stricter, owner root, group root or shadow"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 7.1.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5676,6 +6926,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root'|'shadow') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shadow- if it is missing, then set owner root and group root or shadow and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/shadow-'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/shadow-'
   - id: "CIS-UBUNTU24-7.1.7-gshadow_perms-attrs"
     name: "/etc/gshadow: exists, mode 0640 or stricter, owner root, group root or shadow"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 7.1.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5688,6 +6943,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root'|'shadow') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/gshadow if it is missing, then set owner root and group root or shadow and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/gshadow'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/gshadow'
   - id: "CIS-UBUNTU24-7.1.8-gshadow-_perms-attrs"
     name: "/etc/gshadow-: exists, mode 0640 or stricter, owner root, group root or shadow"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 7.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5700,6 +6960,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root'|'shadow') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/gshadow- if it is missing, then set owner root and group root or shadow and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/gshadow-'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/gshadow-'
   - id: "CIS-UBUNTU24-7.1.9-etc_shells_perms-attrs"
     name: "/etc/shells: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 7.1.9. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5712,6 +6977,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shells if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/shells'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/shells'
   - id: "CIS-UBUNTU24-7.1.10-etc_security_opasswd_perms-attrs"
     name: "/etc/security/opasswd: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 7.1.10. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5724,6 +6994,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/security/opasswd if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/security/opasswd'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/security/opasswd'
   - id: "CIS-UBUNTU24-7.1.11-world_writable"
     name: "world writable: df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 7.1.11. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5784,6 +7059,8 @@ checks:
       f='/etc/passwd'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/passwd.
   - id: "CIS-UBUNTU24-7.2.1-shadowed_passwds-content"
     name: "/etc/passwd has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 7.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -5795,6 +7072,11 @@ checks:
     expect:
       - { some: "~ ^[^:]+:x:" }
       - { none: "~ ^[^:]*:([^:x][^:]*|x[^:]+)?:" }
+    remediation: |
+      Edit /etc/passwd so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^[^:]+:x:
+      - no line matches ^[^:]*:([^:x][^:]*|x[^:]+)?:
   - id: "CIS-UBUNTU24-7.2.2-passwd_fields_not_empty_shadow-attrs"
     name: "/etc/shadow: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 7.2.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -5804,6 +7086,8 @@ checks:
       f='/etc/shadow'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/shadow.
   - id: "CIS-UBUNTU24-7.2.2-passwd_fields_not_empty_shadow-content"
     name: "/etc/shadow has the expected content (1 rule)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 7.2.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -5813,6 +7097,10 @@ checks:
       cat '/etc/shadow'
     allow_rc: any
     expect: { none: "~ ^[^:]+::" }
+    remediation: |
+      Edit /etc/shadow so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^[^:]+::
   - id: "CIS-UBUNTU24-7.2.3-passwd_group_exist"
     name: "passwd group exist: awk -F: '{print $4}' /etc/passwd |sort -u \u003e /tmp/uid \u0026\u0026 awk -F: '{print $3}' /etc/group| …"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 7.2.3. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -5833,6 +7121,8 @@ checks:
       f='/etc/group'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/group.
   - id: "CIS-UBUNTU24-7.2.4-shadow_group_empty-content"
     name: "/etc/group has the expected content (2 rules)"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 7.2.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -5844,6 +7134,11 @@ checks:
     expect:
       - { some: "~ ^shadow:x:\\d{2,}:$" }
       - { none: "~ ^shadow:x:\\d{2,}:." }
+    remediation: |
+      Edit /etc/group so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^shadow:x:\d{2,}:$
+      - no line matches ^shadow:x:\d{2,}:.
   - id: "CIS-UBUNTU24-7.2.4-shadow_group_primary"
     name: "shadow group primary: awk -F: -v g=\"$(getent group shadow | cut -d: -f3)\" '(g != \"\" \u0026\u0026 $4 == g) {print $1}' /et…"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 7.2.4. NIST SP 800-53 Rev. 5: IA-5."

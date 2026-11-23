@@ -60,6 +60,12 @@ checks:
       - "~ [ ,]noexec(,|$)"
       - "~ [ ,]nodev(,|$)"
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /dev/shm with the options noexec,nodev,nosuid: add them to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-RHEL7-1.1.18-home"
     name: "/home is a separate mount with nodev"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.1.18. CIS Controls v8: 3.3, 4.1."
@@ -71,6 +77,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /home with the option nodev: add it to the options of /home in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/home'
+
+      If /home is not a separate file system yet, create one first.
   - id: "CIS-RHEL7-1.1.17-home_2"
     name: "/home is a separate mount"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.1.17. CIS Controls v8: 4.1."
@@ -80,6 +92,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/home'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /home on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-RHEL7-1.1.2-tmp"
     name: "/tmp is a separate mount with noexec, nodev, nosuid"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.1.2. CIS Controls v8: 3.3, 4.1."
@@ -93,6 +107,12 @@ checks:
       - "~ [ ,]noexec(,|$)"
       - "~ [ ,]nodev(,|$)"
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /tmp with the options noexec,nodev,nosuid: add them to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-RHEL7-1.1.10-var"
     name: "/var is a separate mount"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.1.10. CIS Controls v8: 4.1."
@@ -102,6 +122,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-RHEL7-1.1.15-var_log"
     name: "/var/log is a separate mount"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.1.15. CIS Controls v8: 4.1, 8.3."
@@ -111,6 +133,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/log'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/log on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-RHEL7-1.1.16-var_log_audit"
     name: "/var/log/audit is a separate mount"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.1.16. CIS Controls v8: 8.3."
@@ -120,6 +144,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/log/audit'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/log/audit on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-RHEL7-1.1.12-var_tmp"
     name: "/var/tmp is a separate mount with noexec, nodev, nosuid"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.1.12. CIS Controls v8: 3.3, 4.1."
@@ -133,6 +159,12 @@ checks:
       - "~ [ ,]noexec(,|$)"
       - "~ [ ,]nodev(,|$)"
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/tmp with the options noexec,nodev,nosuid: add them to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-RHEL7-1.1.11-var_tmp_2"
     name: "/var/tmp is a separate mount"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.1.11. CIS Controls v8: 3.3, 4.1."
@@ -142,6 +174,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/tmp'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/tmp on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-RHEL7-1.1.20-cdrom_nodev"
     name: "cdrom nodev: if [ `grep -c -i cdrom /etc/fstab` = 1 ] ; then if [ `grep -c -E 'cdrom.*nodev' /etc/fsta…"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.1.20. CIS Controls v8: 3.3, 4.1."
@@ -228,6 +262,12 @@ checks:
     run: |
       systemctl show -p UnitFileState autofs | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service autofs, unless the system needs it:
+
+      systemctl disable autofs
+
+      To keep other units from starting it, mask it instead: systemctl mask autofs
   - id: "CIS-RHEL7-1.1.23-autofs-running"
     name: "Service autofs is not running"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.1.23. CIS Controls v8: 10.3."
@@ -236,6 +276,10 @@ checks:
     run: |
       systemctl show -p ActiveState autofs | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service autofs, unless the system needs it:
+
+      systemctl stop autofs
   - id: "CIS-RHEL7-1.1.24-cramfs"
     name: "cramfs: modprobe -n -v usb-storage | grep -E '(usb-storage|install)'"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.1.24. CIS Controls v8: 4.1."
@@ -302,6 +346,12 @@ checks:
     run: |
       systemctl show -p UnitFileState rhnsd | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service rhnsd, unless the system needs it:
+
+      systemctl disable rhnsd
+
+      To keep other units from starting it, mask it instead: systemctl mask rhnsd
   - id: "CIS-RHEL7-1.2.5-rhnsd-running"
     name: "Service rhnsd is not running"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.2.5. CIS Controls v8: 4.8."
@@ -310,6 +360,10 @@ checks:
     run: |
       systemctl show -p ActiveState rhnsd | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service rhnsd, unless the system needs it:
+
+      systemctl stop rhnsd
   - id: "CIS-RHEL7-1.3.1-aide"
     name: "Package aide is installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.3.1. CIS Controls v8: 3.14."
@@ -318,6 +372,10 @@ checks:
     run: |
       rpm -q --quiet aide
     expect: true
+    remediation: |
+      Install the package aide:
+
+      yum install aide
   - id: "CIS-RHEL7-1.3.2-aide_cron"
     name: "aide cron: grep -rs aide /etc/cron.* /etc/crontab /var/spool/cron/*"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.3.2. CIS Controls v8: 3.14."
@@ -341,6 +399,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /boot/grub2/user.cfg if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/boot/grub2/user.cfg'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/boot/grub2/user.cfg'
   - id: "CIS-RHEL7-1.4.2-boot_grub2_grub.cfg-attrs"
     name: "/boot/grub2/grub.cfg: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.4.2. CIS Controls v8: 4.1."
@@ -353,6 +416,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /boot/grub2/grub.cfg if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/boot/grub2/grub.cfg'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/boot/grub2/grub.cfg'
   - id: "CIS-RHEL7-1.4.3-single_user_1"
     name: "single user 1: grep /sbin/sulogin /usr/lib/systemd/system/rescue.service"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.4.3. CIS Controls v8: 4.1."
@@ -386,6 +454,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter fs.suid_dumpable to 0, now and at boot:
+
+      sysctl -w 'fs.suid_dumpable=0'
+      printf '%s\n' 'fs.suid_dumpable = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of fs.suid_dumpable from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-1.5.1-coredump-enabled"
     name: "Service coredump is not enabled"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.5.1. CIS Controls v8: 4.1."
@@ -394,6 +469,12 @@ checks:
     run: |
       systemctl show -p UnitFileState coredump | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service coredump, unless the system needs it:
+
+      systemctl disable coredump
+
+      To keep other units from starting it, mask it instead: systemctl mask coredump
   - id: "CIS-RHEL7-1.5.1-coredump-running"
     name: "Service coredump is not running"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.5.1. CIS Controls v8: 4.1."
@@ -402,6 +483,10 @@ checks:
     run: |
       systemctl show -p ActiveState coredump | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service coredump, unless the system needs it:
+
+      systemctl stop coredump
   - id: "CIS-RHEL7-1.5.1-etc_systemd_coredump.conf-attrs"
     name: "/etc/systemd/coredump.conf: exists"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.5.1. CIS Controls v8: 4.1."
@@ -411,6 +496,8 @@ checks:
       f='/etc/systemd/coredump.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/systemd/coredump.conf.
   - id: "CIS-RHEL7-1.5.1-etc_systemd_coredump.conf-content"
     name: "/etc/systemd/coredump.conf has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.5.1. CIS Controls v8: 4.1."
@@ -422,6 +509,11 @@ checks:
     expect:
       - { some: "~ ^Storage=none" }
       - { some: "~ ^ProcessSizeMax=0" }
+    remediation: |
+      Edit /etc/systemd/coredump.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^Storage=none
+      - a line matches ^ProcessSizeMax=0
   - id: "CIS-RHEL7-1.5.1-core_dumps_limits"
     name: "core dumps limits: grep -E \"\\*.*hard.*core.*0\" /etc/security/limits.conf /etc/security/limits.d/*"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.5.1. CIS Controls v8: 4.1."
@@ -466,6 +558,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 2"
+    remediation: |
+      Set the kernel parameter kernel.randomize_va_space to 2, now and at boot:
+
+      sysctl -w 'kernel.randomize_va_space=2'
+      printf '%s\n' 'kernel.randomize_va_space = 2' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of kernel.randomize_va_space from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-1.5.3-aslr_enabled_2"
     name: "aslr enabled 2: grep \"kernel\\.randomize_va_space\" /etc/sysctl.conf /etc/sysctl.d/* | cut -d \":\" -f2"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.5.3. CIS Controls v8: 10.5."
@@ -485,6 +584,10 @@ checks:
     run: |
       rpm -q --quiet prelink
     expect: false
+    remediation: |
+      Remove the package prelink, unless the system needs it:
+
+      yum remove prelink
   - id: "CIS-RHEL7-1.6.1.1-libselinux"
     name: "Package libselinux is installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.6.1.1. CIS Controls v8: 3.3."
@@ -493,6 +596,10 @@ checks:
     run: |
       rpm -q --quiet libselinux
     expect: true
+    remediation: |
+      Install the package libselinux:
+
+      yum install libselinux
   - id: "CIS-RHEL7-1.6.1.5-selinux_config_enforcing"
     name: "selinux config enforcing: grep -Ei \"^\\s*SELINUX=[Ee]nforcing\" /etc/selinux/config"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.6.1.5. CIS Controls v8: 3.3."
@@ -586,6 +693,10 @@ checks:
     run: |
       rpm -q --quiet mcstrans
     expect: false
+    remediation: |
+      Remove the package mcstrans, unless the system needs it:
+
+      yum remove mcstrans
   - id: "CIS-RHEL7-1.6.1.7-setroubleshoot"
     name: "Package setroubleshoot is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.6.1.7. CIS Controls v8: 4.8."
@@ -594,6 +705,10 @@ checks:
     run: |
       rpm -q --quiet setroubleshoot
     expect: false
+    remediation: |
+      Remove the package setroubleshoot, unless the system needs it:
+
+      yum remove setroubleshoot
   - id: "CIS-RHEL7-1.7.2-etc_issue-attrs"
     name: "/etc/issue: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.7.2. CIS Controls v8: 3.3, 4.8."
@@ -606,6 +721,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue'
   - id: "CIS-RHEL7-1.7.2-etc_issue-content"
     name: "/etc/issue has the expected content (5 rules)"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.7.2. CIS Controls v8: 3.3, 4.8."
@@ -620,6 +740,14 @@ checks:
       - { none: "~ \\[Rr\\]ed\\[Hh\\]at" }
       - { none: "~ x86_64" }
       - { none: "~ \\[Ll\\]inux" }
+    remediation: |
+      Edit /etc/issue so that its lines meet these conditions (regular expressions):
+
+      - no line matches \[Cc\]ent\[Oo\]\[Ss\]
+      - no line matches \[Rr\]hel
+      - no line matches \[Rr\]ed\[Hh\]at
+      - no line matches x86_64
+      - no line matches \[Ll\]inux
   - id: "CIS-RHEL7-1.7.3-etc_issue.net-attrs"
     name: "/etc/issue.net: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.7.3. CIS Controls v8: 3.3, 4.8."
@@ -632,6 +760,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue.net if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue.net'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue.net'
   - id: "CIS-RHEL7-1.7.3-etc_issue.net-content"
     name: "/etc/issue.net has the expected content (5 rules)"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.7.3. CIS Controls v8: 3.3, 4.8."
@@ -646,6 +779,14 @@ checks:
       - { none: "~ \\[Rr\\]ed\\[Hh\\]at" }
       - { none: "~ x86_64" }
       - { none: "~ \\[Ll\\]inux" }
+    remediation: |
+      Edit /etc/issue.net so that its lines meet these conditions (regular expressions):
+
+      - no line matches \[Cc\]ent\[Oo\]\[Ss\]
+      - no line matches \[Rr\]hel
+      - no line matches \[Rr\]ed\[Hh\]at
+      - no line matches x86_64
+      - no line matches \[Ll\]inux
   - id: "CIS-RHEL7-1.7.1-etc_motd-attrs"
     name: "/etc/motd: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.7.1. CIS Controls v8: 3.3, 4.8."
@@ -658,6 +799,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/motd if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/motd'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/motd'
   - id: "CIS-RHEL7-1.7.1-etc_motd-content"
     name: "/etc/motd has the expected content (5 rules)"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.7.1. CIS Controls v8: 3.3, 4.8."
@@ -672,6 +818,14 @@ checks:
       - { none: "~ \\[Rr\\]ed\\[Hh\\]at" }
       - { none: "~ x86_64" }
       - { none: "~ \\[Ll\\]inux" }
+    remediation: |
+      Edit /etc/motd so that its lines meet these conditions (regular expressions):
+
+      - no line matches \[Cc\]ent\[Oo\]\[Ss\]
+      - no line matches \[Rr\]hel
+      - no line matches \[Rr\]ed\[Hh\]at
+      - no line matches x86_64
+      - no line matches \[Ll\]inux
   - id: "CIS-RHEL7-1.8.1-gdm"
     name: "Package gdm is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.8.1. CIS Controls v8: 4.8."
@@ -680,6 +834,10 @@ checks:
     run: |
       rpm -q --quiet gdm
     expect: false
+    remediation: |
+      Remove the package gdm, unless the system needs it:
+
+      yum remove gdm
   - id: "CIS-RHEL7-1.9-security-updates"
     name: "security updates: yum check-update"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 1.9. CIS Controls v8: 7.3, 7.4."
@@ -700,6 +858,10 @@ checks:
     run: |
       rpm -q --quiet xinetd
     expect: false
+    remediation: |
+      Remove the package xinetd, unless the system needs it:
+
+      yum remove xinetd
   - id: "CIS-RHEL7-2.2.2-xorgs-x11-servers"
     name: "Package xorgs-x11-servers is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.2. CIS Controls v8: 4.8."
@@ -708,6 +870,10 @@ checks:
     run: |
       rpm -q --quiet xorgs-x11-servers
     expect: false
+    remediation: |
+      Remove the package xorgs-x11-servers, unless the system needs it:
+
+      yum remove xorgs-x11-servers
   - id: "CIS-RHEL7-2.2.3-avahi"
     name: "Package avahi is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.3. CIS Controls v8: 4.8."
@@ -716,6 +882,10 @@ checks:
     run: |
       rpm -q --quiet avahi
     expect: false
+    remediation: |
+      Remove the package avahi, unless the system needs it:
+
+      yum remove avahi
   - id: "CIS-RHEL7-2.2.4-cups"
     name: "Package cups is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.4. CIS Controls v8: 4.8."
@@ -724,6 +894,10 @@ checks:
     run: |
       rpm -q --quiet cups
     expect: false
+    remediation: |
+      Remove the package cups, unless the system needs it:
+
+      yum remove cups
   - id: "CIS-RHEL7-2.2.5-dhcp"
     name: "Package dhcp is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.5. CIS Controls v8: 4.8."
@@ -732,6 +906,10 @@ checks:
     run: |
       rpm -q --quiet dhcp
     expect: false
+    remediation: |
+      Remove the package dhcp, unless the system needs it:
+
+      yum remove dhcp
   - id: "CIS-RHEL7-2.2.6-openldap-servers"
     name: "Package openldap-servers is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.6. CIS Controls v8: 4.8."
@@ -740,6 +918,10 @@ checks:
     run: |
       rpm -q --quiet openldap-servers
     expect: false
+    remediation: |
+      Remove the package openldap-servers, unless the system needs it:
+
+      yum remove openldap-servers
   - id: "CIS-RHEL7-2.2.7-bind"
     name: "Package bind is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.7. CIS Controls v8: 4.8."
@@ -748,6 +930,10 @@ checks:
     run: |
       rpm -q --quiet bind
     expect: false
+    remediation: |
+      Remove the package bind, unless the system needs it:
+
+      yum remove bind
   - id: "CIS-RHEL7-2.2.8-vsftpd"
     name: "Package vsftpd is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.8. CIS Controls v8: 4.8."
@@ -756,6 +942,10 @@ checks:
     run: |
       rpm -q --quiet vsftpd
     expect: false
+    remediation: |
+      Remove the package vsftpd, unless the system needs it:
+
+      yum remove vsftpd
   - id: "CIS-RHEL7-2.2.9-httpd"
     name: "Package httpd is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.9. CIS Controls v8: 4.8."
@@ -764,6 +954,10 @@ checks:
     run: |
       rpm -q --quiet httpd
     expect: false
+    remediation: |
+      Remove the package httpd, unless the system needs it:
+
+      yum remove httpd
   - id: "CIS-RHEL7-2.2.10-dovecot"
     name: "Package dovecot is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.10. CIS Controls v8: 4.8."
@@ -772,6 +966,10 @@ checks:
     run: |
       rpm -q --quiet dovecot
     expect: false
+    remediation: |
+      Remove the package dovecot, unless the system needs it:
+
+      yum remove dovecot
   - id: "CIS-RHEL7-2.2.11-samba"
     name: "Package samba is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.11. CIS Controls v8: 4.8."
@@ -780,6 +978,10 @@ checks:
     run: |
       rpm -q --quiet samba
     expect: false
+    remediation: |
+      Remove the package samba, unless the system needs it:
+
+      yum remove samba
   - id: "CIS-RHEL7-2.2.12-squid"
     name: "Package squid is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.12. CIS Controls v8: 4.8."
@@ -788,6 +990,10 @@ checks:
     run: |
       rpm -q --quiet squid
     expect: false
+    remediation: |
+      Remove the package squid, unless the system needs it:
+
+      yum remove squid
   - id: "CIS-RHEL7-2.2.13-net-snmp"
     name: "Package net-snmp is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.13. CIS Controls v8: 4.8."
@@ -796,6 +1002,10 @@ checks:
     run: |
       rpm -q --quiet net-snmp
     expect: false
+    remediation: |
+      Remove the package net-snmp, unless the system needs it:
+
+      yum remove net-snmp
   - id: "CIS-RHEL7-2.2.14-ypserver"
     name: "Package ypserver is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.14. CIS Controls v8: 4.8."
@@ -804,6 +1014,10 @@ checks:
     run: |
       rpm -q --quiet ypserver
     expect: false
+    remediation: |
+      Remove the package ypserver, unless the system needs it:
+
+      yum remove ypserver
   - id: "CIS-RHEL7-2.2.15-telnet-server"
     name: "Package telnet-server is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.15. CIS Controls v8: 4.8."
@@ -812,6 +1026,10 @@ checks:
     run: |
       rpm -q --quiet telnet-server
     expect: false
+    remediation: |
+      Remove the package telnet-server, unless the system needs it:
+
+      yum remove telnet-server
   - id: "CIS-RHEL7-2.2.16-mta_installed"
     name: "mta installed: ss -lntu | grep -E \":25\\s\" | grep -E -v \"\\s(127.0.0.1|\\[?::1\\]?):25\\s\""
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.16. CIS Controls v8: 4.8."
@@ -831,6 +1049,10 @@ checks:
     run: |
       rpm -q --quiet chrony
     expect: true
+    remediation: |
+      Install the package chrony:
+
+      yum install chrony
   - id: "CIS-RHEL7-2.2.1.2-chronyd-enabled"
     name: "Service chronyd is enabled"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.1.2. CIS Controls v8: 8.4."
@@ -839,6 +1061,10 @@ checks:
     run: |
       systemctl show -p UnitFileState chronyd | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service chronyd:
+
+      systemctl enable chronyd
   - id: "CIS-RHEL7-2.2.1.2-chronyd-running"
     name: "Service chronyd is running"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.1.2. CIS Controls v8: 8.4."
@@ -847,6 +1073,10 @@ checks:
     run: |
       systemctl show -p ActiveState chronyd | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service chronyd:
+
+      systemctl start chronyd
   - id: "CIS-RHEL7-2.2.1.2-etc_chrony.conf-attrs"
     name: "/etc/chrony.conf: exists"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.1.2. CIS Controls v8: 8.4."
@@ -856,6 +1086,8 @@ checks:
       f='/etc/chrony.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/chrony.conf.
   - id: "CIS-RHEL7-2.2.1.2-etc_chrony.conf-content"
     name: "/etc/chrony.conf has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.1.2. CIS Controls v8: 8.4."
@@ -865,6 +1097,10 @@ checks:
       cat '/etc/chrony.conf'
     allow_rc: any
     expect: { some: "~ server" }
+    remediation: |
+      Edit /etc/chrony.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches server
   - id: "CIS-RHEL7-2.2.1.2-etc_sysconfig_chronyd-attrs"
     name: "/etc/sysconfig/chronyd: exists"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.1.2. CIS Controls v8: 8.4."
@@ -874,6 +1110,8 @@ checks:
       f='/etc/sysconfig/chronyd'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/sysconfig/chronyd.
   - id: "CIS-RHEL7-2.2.1.2-etc_sysconfig_chronyd-content"
     name: "/etc/sysconfig/chronyd has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.2.1.2. CIS Controls v8: 8.4."
@@ -883,6 +1121,10 @@ checks:
       cat '/etc/sysconfig/chronyd'
     allow_rc: any
     expect: { some: "~ OPTIONS=\"-u chrony\"" }
+    remediation: |
+      Edit /etc/sysconfig/chronyd so that its lines meet these conditions (regular expressions):
+
+      - a line matches OPTIONS="-u chrony"
   - id: "CIS-RHEL7-2.3.5-openldap-clients"
     name: "Package openldap-clients is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.3.5. CIS Controls v8: 4.8."
@@ -891,6 +1133,10 @@ checks:
     run: |
       rpm -q --quiet openldap-clients
     expect: false
+    remediation: |
+      Remove the package openldap-clients, unless the system needs it:
+
+      yum remove openldap-clients
   - id: "CIS-RHEL7-2.3.2-rsh"
     name: "Package rsh is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.3.2. CIS Controls v8: 4.8."
@@ -899,6 +1145,10 @@ checks:
     run: |
       rpm -q --quiet rsh
     expect: false
+    remediation: |
+      Remove the package rsh, unless the system needs it:
+
+      yum remove rsh
   - id: "CIS-RHEL7-2.3.3-talk"
     name: "Package talk is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.3.3. CIS Controls v8: 4.8."
@@ -907,6 +1157,10 @@ checks:
     run: |
       rpm -q --quiet talk
     expect: false
+    remediation: |
+      Remove the package talk, unless the system needs it:
+
+      yum remove talk
   - id: "CIS-RHEL7-2.3.4-telnet"
     name: "Package telnet is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.3.4. CIS Controls v8: 4.8."
@@ -915,6 +1169,10 @@ checks:
     run: |
       rpm -q --quiet telnet
     expect: false
+    remediation: |
+      Remove the package telnet, unless the system needs it:
+
+      yum remove telnet
   - id: "CIS-RHEL7-2.3.1-ypbind"
     name: "Package ypbind is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 2.3.1. CIS Controls v8: 4.8."
@@ -923,6 +1181,10 @@ checks:
     run: |
       rpm -q --quiet ypbind
     expect: false
+    remediation: |
+      Remove the package ypbind, unless the system needs it:
+
+      yum remove ypbind
   - id: "CIS-RHEL7-3.1.1-net.ipv6.conf.all.disable_ipv6"
     name: "Kernel parameter net.ipv6.conf.all.disable_ipv6 is 1"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.1.1. CIS Controls v8: 4.8."
@@ -934,6 +1196,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.disable_ipv6 to 1, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.disable_ipv6=1'
+      printf '%s\n' 'net.ipv6.conf.all.disable_ipv6 = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.disable_ipv6 from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.1.1-net.ipv6.conf.default.disable_ipv6"
     name: "Kernel parameter net.ipv6.conf.default.disable_ipv6 is 1"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.1.1. CIS Controls v8: 4.8."
@@ -945,6 +1214,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.disable_ipv6 to 1, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.disable_ipv6=1'
+      printf '%s\n' 'net.ipv6.conf.default.disable_ipv6 = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.disable_ipv6 from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.1.1-ipv6_boot_grub"
     name: "ipv6 boot grub: grep \"^\\s*linux\" /boot/grub2/grub.cfg | grep -v ipv6.disable=1"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.1.1. CIS Controls v8: 4.8."
@@ -986,6 +1262,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.send_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.send_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.send_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.send_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.2.2-net.ipv4.conf.default.send_redirects"
     name: "Kernel parameter net.ipv4.conf.default.send_redirects is 0"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.2.2. CIS Controls v8: 4.1."
@@ -997,6 +1280,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.send_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.send_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.send_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.send_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.2.1-net.ipv4.ip_forward"
     name: "Kernel parameter net.ipv4.ip_forward is 0"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.2.1. CIS Controls v8: 4.1."
@@ -1008,6 +1298,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.ip_forward to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.ip_forward=0'
+      printf '%s\n' 'net.ipv4.ip_forward = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.ip_forward from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.3.1-net.ipv4.conf.all.accept_source_route"
     name: "Kernel parameter net.ipv4.conf.all.accept_source_route is 0"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.3.1. CIS Controls v8: 4.1."
@@ -1019,6 +1316,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.accept_source_route=0'
+      printf '%s\n' 'net.ipv4.conf.all.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.3.1-net.ipv4.conf.default.accept_source_rout"
     name: "Kernel parameter net.ipv4.conf.default.accept_source_route is 0"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.3.1. CIS Controls v8: 4.1."
@@ -1030,6 +1334,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.accept_source_route=0'
+      printf '%s\n' 'net.ipv4.conf.default.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.3.2-net.ipv4.conf.all.accept_redirects"
     name: "Kernel parameter net.ipv4.conf.all.accept_redirects is 0"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.3.2. CIS Controls v8: 4.1."
@@ -1041,6 +1352,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.accept_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.3.2-net.ipv4.conf.default.accept_redirects"
     name: "Kernel parameter net.ipv4.conf.default.accept_redirects is 0"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.3.2. CIS Controls v8: 4.1."
@@ -1052,6 +1370,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.accept_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.3.3-net.ipv4.conf.all.secure_redirects"
     name: "Kernel parameter net.ipv4.conf.all.secure_redirects is 0"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.3.3. CIS Controls v8: 4.1."
@@ -1063,6 +1388,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.secure_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.secure_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.secure_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.secure_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.3.3-net.ipv4.conf.default.secure_redirects"
     name: "Kernel parameter net.ipv4.conf.default.secure_redirects is 0"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.3.3. CIS Controls v8: 4.1."
@@ -1074,6 +1406,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.secure_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.secure_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.secure_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.secure_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.3.4-net.ipv4.conf.all.log_martians"
     name: "Kernel parameter net.ipv4.conf.all.log_martians is 1"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.3.4. CIS Controls v8: 8.5."
@@ -1085,6 +1424,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.log_martians to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.log_martians=1'
+      printf '%s\n' 'net.ipv4.conf.all.log_martians = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.log_martians from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.3.4-net.ipv4.conf.default.log_martians"
     name: "Kernel parameter net.ipv4.conf.default.log_martians is 1"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.3.4. CIS Controls v8: 8.5."
@@ -1096,6 +1442,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.log_martians to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.log_martians=1'
+      printf '%s\n' 'net.ipv4.conf.default.log_martians = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.log_martians from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.3.5-net.ipv4.icmp_echo_ignore_broadcasts"
     name: "Kernel parameter net.ipv4.icmp_echo_ignore_broadcasts is 1"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.3.5. CIS Controls v8: 4.1."
@@ -1107,6 +1460,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.icmp_echo_ignore_broadcasts to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.icmp_echo_ignore_broadcasts=1'
+      printf '%s\n' 'net.ipv4.icmp_echo_ignore_broadcasts = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.icmp_echo_ignore_broadcasts from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.3.6-net.ipv4.icmp_ignore_bogus_error_respons"
     name: "Kernel parameter net.ipv4.icmp_ignore_bogus_error_responses is 1"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.3.6. CIS Controls v8: 4.1."
@@ -1118,6 +1478,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.icmp_ignore_bogus_error_responses to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.icmp_ignore_bogus_error_responses=1'
+      printf '%s\n' 'net.ipv4.icmp_ignore_bogus_error_responses = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.icmp_ignore_bogus_error_responses from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.3.7-net.ipv4.conf.all.rp_filter"
     name: "Kernel parameter net.ipv4.conf.all.rp_filter is 1"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.3.7. CIS Controls v8: 4.1."
@@ -1129,6 +1496,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.rp_filter to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.rp_filter=1'
+      printf '%s\n' 'net.ipv4.conf.all.rp_filter = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.rp_filter from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.3.7-net.ipv4.conf.all.rp_filter_2"
     name: "Kernel parameter net.ipv4.conf.all.rp_filter#2 is 1"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.3.7. CIS Controls v8: 4.1."
@@ -1140,6 +1514,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.rp_filter#2 to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.rp_filter#2=1'
+      printf '%s\n' 'net.ipv4.conf.all.rp_filter#2 = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.rp_filter#2 from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.3.8-net.ipv4.tcp_syncookies"
     name: "Kernel parameter net.ipv4.tcp_syncookies is 1"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.3.8. CIS Controls v8: 4.1."
@@ -1151,6 +1532,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.tcp_syncookies to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.tcp_syncookies=1'
+      printf '%s\n' 'net.ipv4.tcp_syncookies = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.tcp_syncookies from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL7-3.4.1-modprobe_dccp"
     name: "modprobe dccp: modprobe -n -v dccp"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.4.1. CIS Controls v8: 4.8."
@@ -1181,6 +1569,10 @@ checks:
     run: |
       rpm -q --quiet firewalld
     expect: true
+    remediation: |
+      Install the package firewalld:
+
+      yum install firewalld
   - id: "CIS-RHEL7-3.5.1.1-iptables"
     name: "Package iptables is installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.5.1.1. CIS Controls v8: 4.4."
@@ -1189,6 +1581,10 @@ checks:
     run: |
       rpm -q --quiet iptables
     expect: true
+    remediation: |
+      Install the package iptables:
+
+      yum install iptables
   - id: "CIS-RHEL7-3.5.1.2-iptables-services"
     name: "Package iptables-services is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.5.1.2. CIS Controls v8: 4.4, 4.8."
@@ -1197,6 +1593,10 @@ checks:
     run: |
       rpm -q --quiet iptables-services
     expect: false
+    remediation: |
+      Remove the package iptables-services, unless the system needs it:
+
+      yum remove iptables-services
   - id: "CIS-RHEL7-3.5.1.3-nftables"
     name: "Package nftables is not installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.5.1.3. CIS Controls v8: 4.4, 4.8."
@@ -1205,6 +1605,10 @@ checks:
     run: |
       rpm -q --quiet nftables
     expect: false
+    remediation: |
+      Remove the package nftables, unless the system needs it:
+
+      yum remove nftables
   - id: "CIS-RHEL7-3.5.1.4-firewalld-enabled"
     name: "Service firewalld is enabled"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.5.1.4. CIS Controls v8: 4.4."
@@ -1213,6 +1617,10 @@ checks:
     run: |
       systemctl show -p UnitFileState firewalld | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service firewalld:
+
+      systemctl enable firewalld
   - id: "CIS-RHEL7-3.5.1.4-firewalld-running"
     name: "Service firewalld is running"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.5.1.4. CIS Controls v8: 4.4."
@@ -1221,6 +1629,10 @@ checks:
     run: |
       systemctl show -p ActiveState firewalld | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service firewalld:
+
+      systemctl start firewalld
   - id: "CIS-RHEL7-3.5.1.3-nftables-enabled"
     name: "Service nftables is not enabled"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.5.1.3. CIS Controls v8: 4.4, 4.8."
@@ -1229,6 +1641,12 @@ checks:
     run: |
       systemctl show -p UnitFileState nftables | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service nftables, unless the system needs it:
+
+      systemctl disable nftables
+
+      To keep other units from starting it, mask it instead: systemctl mask nftables
   - id: "CIS-RHEL7-3.5.1.3-nftables-running"
     name: "Service nftables is not running"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.5.1.3. CIS Controls v8: 4.4, 4.8."
@@ -1237,6 +1655,10 @@ checks:
     run: |
       systemctl show -p ActiveState nftables | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service nftables, unless the system needs it:
+
+      systemctl stop nftables
   - id: "CIS-RHEL7-3.5.1.5-default_zone"
     name: "default zone: firewall-cmd --get-default-zone"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 3.5.1.5. CIS Controls v8: 4.4."
@@ -1268,6 +1690,10 @@ checks:
     run: |
       rpm -q --quiet audit
     expect: true
+    remediation: |
+      Install the package audit:
+
+      yum install audit
   - id: "CIS-RHEL7-4.1.1.1-audit-libs"
     name: "Package audit-libs is installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 4.1.1.1. CIS Controls v8: 8.2."
@@ -1276,6 +1702,10 @@ checks:
     run: |
       rpm -q --quiet audit-libs
     expect: true
+    remediation: |
+      Install the package audit-libs:
+
+      yum install audit-libs
   - id: "CIS-RHEL7-4.1.1.2-auditd-enabled"
     name: "Service auditd is enabled"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 4.1.1.2. CIS Controls v8: 8.2."
@@ -1284,6 +1714,10 @@ checks:
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service auditd:
+
+      systemctl enable auditd
   - id: "CIS-RHEL7-4.1.1.2-auditd-running"
     name: "Service auditd is running"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 4.1.1.2. CIS Controls v8: 8.2."
@@ -1292,6 +1726,10 @@ checks:
     run: |
       systemctl show -p ActiveState auditd | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service auditd:
+
+      systemctl start auditd
   - id: "CIS-RHEL7-4.1.1.3-auditd_grub"
     name: "auditd grub: grep \"^\\s*linux\" /boot/grub2/grub.cfg | grep -Evc \"(audit=1|rescue)\""
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 4.1.1.3. CIS Controls v8: 8.2."
@@ -1728,6 +2166,10 @@ checks:
     run: |
       rpm -q --quiet rsyslog
     expect: true
+    remediation: |
+      Install the package rsyslog:
+
+      yum install rsyslog
   - id: "CIS-RHEL7-4.2.1.1-rsyslog-enabled"
     name: "Service rsyslog is enabled"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 4.2.1.1. CIS Controls v8: 8.2."
@@ -1736,6 +2178,10 @@ checks:
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service rsyslog:
+
+      systemctl enable rsyslog
   - id: "CIS-RHEL7-4.2.1.1-rsyslog-running"
     name: "Service rsyslog is running"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 4.2.1.1. CIS Controls v8: 8.2."
@@ -1744,6 +2190,10 @@ checks:
     run: |
       systemctl show -p ActiveState rsyslog | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service rsyslog:
+
+      systemctl start rsyslog
   - id: "CIS-RHEL7-4.2.1.3-rsyslog_d_perms"
     name: "rsyslog d perms: grep '\\$FileCreateMode' /etc/rsyslog.conf /etc/rsyslog.d/*.conf | grep -cv '\\$FileCreateM…"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 4.2.1.3. CIS Controls v8: 3.3."
@@ -1765,6 +2215,8 @@ checks:
       f='/etc/rsyslog.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/rsyslog.conf.
   - id: "CIS-RHEL7-4.2.1.4-etc_rsyslog.conf-content"
     name: "/etc/rsyslog.conf has the expected content (16 rules)"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 4.2.1.4. CIS Controls v8: 8.2."
@@ -1790,6 +2242,25 @@ checks:
       - { some: "~ ^local4,local5.\\*\\s*                               -/var/log/localmessages" }
       - { some: "~ ^local6,local7.\\*\\s*                               -/var/log/localmessages" }
       - { some: "~ ^*.emerg\\s*                                        :omusrmsg:*" }
+    remediation: |
+      Edit /etc/rsyslog.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^mail.*                                            -/var/log/mail
+      - a line matches ^auth,authpriv.*\s*                                 /var/log/secure
+      - a line matches ^mail.info\s*                                      -/var/log/mail.info
+      - a line matches ^mail.warning\s*                                   -/var/log/mail.warn
+      - a line matches ^mail.err\s*                                        /var/log/mail.err
+      - a line matches ^news.err\s*                                       -/var/log/news/news.err
+      - a line matches ^news.crit\s*                                      -/var/log/news/news.crit
+      - a line matches ^news.notice\s*                                    -/var/log/news/news.notice
+      - a line matches ^*.=warning;\*.=err\s*                             -/var/log/warn
+      - a line matches ^*.crit\s*                                          /var/log/warn
+      - a line matches ^*.*;mail.none;news.none\s*                         /var/log/messages
+      - a line matches ^local0,local1.\*\s*                               -/var/log/localmessages
+      - a line matches ^local2,local3.\*\s*                               -/var/log/localmessages
+      - a line matches ^local4,local5.\*\s*                               -/var/log/localmessages
+      - a line matches ^local6,local7.\*\s*                               -/var/log/localmessages
+      - a line matches ^*.emerg\s*                                        :omusrmsg:*
   - id: "CIS-RHEL7-4.2.1.5-remote_syslog"
     name: "remote syslog: grep \"^*.*[^I][^I]*@\" /etc/rsyslog.conf /etc/rsyslog.d/*.conf"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 4.2.1.5. CIS Controls v8: 8.9."
@@ -1855,6 +2326,10 @@ checks:
     run: |
       rpm -q --quiet cronie
     expect: true
+    remediation: |
+      Install the package cronie:
+
+      yum install cronie
   - id: "CIS-RHEL7-5.1.1-crond-enabled"
     name: "Service crond is enabled"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.1.1. CIS Controls v8: 4.1."
@@ -1863,6 +2338,10 @@ checks:
     run: |
       systemctl show -p UnitFileState crond | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service crond:
+
+      systemctl enable crond
   - id: "CIS-RHEL7-5.1.1-crond-running"
     name: "Service crond is running"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.1.1. CIS Controls v8: 4.1."
@@ -1871,6 +2350,10 @@ checks:
     run: |
       systemctl show -p ActiveState crond | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service crond:
+
+      systemctl start crond
   - id: "CIS-RHEL7-5.1.2-etc_crontab-attrs"
     name: "/etc/crontab: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.1.2. CIS Controls v8: 3.3."
@@ -1883,6 +2366,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/crontab if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/crontab'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/crontab'
   - id: "CIS-RHEL7-5.1.7-etc_cron.d-attrs"
     name: "/etc/cron.d: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.1.7. CIS Controls v8: 3.3."
@@ -1895,6 +2383,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.d if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.d'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.d'
   - id: "CIS-RHEL7-5.1.4-etc_cron.daily-attrs"
     name: "/etc/cron.daily: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.1.4. CIS Controls v8: 3.3."
@@ -1907,6 +2400,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.daily if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.daily'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.daily'
   - id: "CIS-RHEL7-5.1.3-etc_cron.hourly-attrs"
     name: "/etc/cron.hourly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.1.3. CIS Controls v8: 3.3."
@@ -1919,6 +2417,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.hourly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.hourly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.hourly'
   - id: "CIS-RHEL7-5.1.6-etc_cron.monthly-attrs"
     name: "/etc/cron.monthly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.1.6. CIS Controls v8: 3.3."
@@ -1931,6 +2434,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.monthly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.monthly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.monthly'
   - id: "CIS-RHEL7-5.1.5-etc_cron.weekly-attrs"
     name: "/etc/cron.weekly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.1.5. CIS Controls v8: 3.3."
@@ -1943,6 +2451,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.weekly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.weekly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.weekly'
   - id: "CIS-RHEL7-5.1.8-etc_cron.allow-attrs"
     name: "/etc/cron.allow: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.1.8. CIS Controls v8: 3.3."
@@ -1955,6 +2468,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.allow if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.allow'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/cron.allow'
   - id: "CIS-RHEL7-5.1.8-etc_cron.deny-absent"
     name: "/etc/cron.deny does not exist"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.1.8. CIS Controls v8: 3.3."
@@ -1963,6 +2481,10 @@ checks:
     run: |
       test -e '/etc/cron.deny' || test -L '/etc/cron.deny'
     expect: false
+    remediation: |
+      Remove /etc/cron.deny, unless the system needs it:
+
+      rm '/etc/cron.deny'
   - id: "CIS-RHEL7-5.1.9-etc_at.allow-attrs"
     name: "/etc/at.allow: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.1.9. CIS Controls v8: 3.3."
@@ -1975,6 +2497,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/at.allow if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/at.allow'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/at.allow'
   - id: "CIS-RHEL7-5.1.9-etc_at.deny-absent"
     name: "/etc/at.deny does not exist"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.1.9. CIS Controls v8: 3.3."
@@ -1983,6 +2510,10 @@ checks:
     run: |
       test -e '/etc/at.deny' || test -L '/etc/at.deny'
     expect: false
+    remediation: |
+      Remove /etc/at.deny, unless the system needs it:
+
+      rm '/etc/at.deny'
   - id: "CIS-RHEL7-5.2.1-sudo"
     name: "Package sudo is installed"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.2.1. CIS Controls v8: 4.1."
@@ -1991,6 +2522,10 @@ checks:
     run: |
       rpm -q --quiet sudo
     expect: true
+    remediation: |
+      Install the package sudo:
+
+      yum install sudo
   - id: "CIS-RHEL7-5.2.2-pty_sudoers_d"
     name: "pty sudoers d: ls -1 /etc/sudoers.d/* \u003e /dev/null 2\u003e\u00261; if [ '$?' = '0' ]; then grep -c '^Defaults.*\\sus…"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.2.2. CIS Controls v8: 4.1."
@@ -2047,6 +2582,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/ssh/sshd_config'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/ssh/sshd_config'
   - id: "CIS-RHEL7-5.3.2-etc_ssh_ssh_host_prv_key_group"
     name: "/etc/ssh/ssh host prv key group: groupkeys=$(sudo find /etc/ssh/ -name *_key -type f ! -group root ); echo $groupkeys"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.3.2. CIS Controls v8: 8.5."
@@ -2316,6 +2856,8 @@ checks:
       f='/etc/security/pwquality.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/pwquality.conf.
   - id: "CIS-RHEL7-5.4.1-etc_security_pwquality.conf-content"
     name: "/etc/security/pwquality.conf has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.4.1. CIS Controls v8: 5.2."
@@ -2325,6 +2867,10 @@ checks:
       cat '/etc/security/pwquality.conf'
     allow_rc: any
     expect: { some: "~ minclass = 4" }
+    remediation: |
+      Edit /etc/security/pwquality.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches minclass = 4
   - id: "CIS-RHEL7-5.4.2-password_auth_accountlock"
     name: "password auth accountlock: grep -E \"account\\s+required\" /etc/pam.d/password-auth"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.4.2. CIS Controls v8: 4.1."
@@ -2443,6 +2989,11 @@ checks:
         if [ "$t" -gt "$now" ]; then echo "$usr: last password change $d is in the future"; fi
       done
     expect: empty
+    remediation: |
+      Check the system clock, then set the last password change of every listed user to today, or expire the password so it must be changed at the next login:
+
+      chage --lastday "$(date +%Y-%m-%d)" USER
+      chage --lastday 0 USER
   - id: "CIS-RHEL7-5.5.2-secure_system_LK"
     name: "secure system LK: /awk -F: '$3\u003c1000' /etc/passwd | egrep -wv 'root' | cut -d: -f1 | xargs -I '{}' passwd -S…"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.5.2. CIS Controls v8: 3.3."
@@ -2473,6 +3024,10 @@ checks:
     run: |
       getent passwd root
     expect: true
+    remediation: |
+      Create the user root:
+
+      useradd root
   - id: "CIS-RHEL7-5.5.4-etc_profile.d_tmout.sh-attrs"
     name: "/etc/profile.d/tmout.sh: exists"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.5.4. CIS Controls v8: 4.3."
@@ -2482,6 +3037,8 @@ checks:
       f='/etc/profile.d/tmout.sh'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/profile.d/tmout.sh.
   - id: "CIS-RHEL7-5.5.4-etc_profile.d_tmout.sh-content"
     name: "/etc/profile.d/tmout.sh has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.5.4. CIS Controls v8: 4.3."
@@ -2493,6 +3050,11 @@ checks:
     expect:
       - { some: "~ ^TMOUT=([1-8][0-9]{0,2}|900)" }
       - { some: "~ ^readonly TMOUT" }
+    remediation: |
+      Edit /etc/profile.d/tmout.sh so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^TMOUT=([1-8][0-9]{0,2}|900)
+      - a line matches ^readonly TMOUT
   - id: "CIS-RHEL7-5.5.5-etc_profile-attrs"
     name: "/etc/profile: exists"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.5.5. CIS Controls v8: 3.3."
@@ -2502,6 +3064,8 @@ checks:
       f='/etc/profile'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/profile.
   - id: "CIS-RHEL7-5.5.5-etc_profile-content"
     name: "/etc/profile has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.5.5. CIS Controls v8: 3.3."
@@ -2513,6 +3077,11 @@ checks:
     expect:
       - { some: "~ ^\\s+umask\\s0(2|7)(2|7)" }
       - { none: "~ ^\\s+umask\\s[1-7][0-7][0-7]" }
+    remediation: |
+      Edit /etc/profile so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s+umask\s0(2|7)(2|7)
+      - no line matches ^\s+umask\s[1-7][0-7][0-7]
   - id: "CIS-RHEL7-5.7-etc_group-attrs"
     name: "/etc/group: exists"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.7. CIS Controls v8: 3.3."
@@ -2522,6 +3091,8 @@ checks:
       f='/etc/group'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/group.
   - id: "CIS-RHEL7-5.7-etc_group-content"
     name: "/etc/group has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.7. CIS Controls v8: 3.3."
@@ -2531,6 +3102,10 @@ checks:
       cat '/etc/group'
     allow_rc: any
     expect: { some: "~ ^wheel:x:10:vagrant,root$" }
+    remediation: |
+      Edit /etc/group so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^wheel:x:10:vagrant,root$
   - id: "CIS-RHEL7-5.7-etc_pam.d_su-attrs"
     name: "/etc/pam.d/su: exists"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.7. CIS Controls v8: 3.3."
@@ -2540,6 +3115,8 @@ checks:
       f='/etc/pam.d/su'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/su.
   - id: "CIS-RHEL7-5.7-etc_pam.d_su-content"
     name: "/etc/pam.d/su has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 5.7. CIS Controls v8: 3.3."
@@ -2549,6 +3126,10 @@ checks:
       cat '/etc/pam.d/su'
     allow_rc: any
     expect: { some: "~ ^auth.*required.*pam_wheel.so\\suse_uid" }
+    remediation: |
+      Edit /etc/pam.d/su so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^auth.*required.*pam_wheel.so\suse_uid
   - id: "CIS-RHEL7-6.1.1-rpm_filecheck"
     name: "rpm filecheck: rpm -Va --nomtime --nosize --nomd5 --nolinkto \u003e /tmp/cis_rpmcheck | grep -vw c \u0026\u0026 cat /tm…"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 6.1.1. CIS Controls v8: 3.3."
@@ -2718,6 +3299,8 @@ checks:
       f='/etc/passwd'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/passwd.
   - id: "CIS-RHEL7-6.2.1-etc_passwd-content"
     name: "/etc/passwd has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 6.2.1. CIS Controls v8: 3.11."
@@ -2729,6 +3312,11 @@ checks:
     expect:
       - { some: "~ ^.*:x:*" }
       - { none: "~ /\\^\\.\\*:\\[a-w\\]\\[y-z\\]:\\.\\*" }
+    remediation: |
+      Edit /etc/passwd so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^.*:x:*
+      - no line matches /\^\.\*:\[a-w\]\[y-z\]:\.\*
   - id: "CIS-RHEL7-6.2.2-etc_shadow-attrs"
     name: "/etc/shadow: exists"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 6.2.2. CIS Controls v8: 5.2."
@@ -2738,6 +3326,8 @@ checks:
       f='/etc/shadow'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/shadow.
   - id: "CIS-RHEL7-6.2.2-etc_shadow-content"
     name: "/etc/shadow has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 6.2.2. CIS Controls v8: 5.2."
@@ -2747,6 +3337,10 @@ checks:
       cat '/etc/shadow'
     allow_rc: any
     expect: { none: "~ ^.*:\\!\\!:.*" }
+    remediation: |
+      Edit /etc/shadow so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^.*:\!\!:.*
   - id: "CIS-RHEL7-6.2.3-passwd_group_exist"
     name: "passwd group exist: pwck -r | grep 'no group' | awk '{ gsub(\"[:\\47]\",\"\"); print $2}'"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 6.2.3. CIS Controls v8: 3.3."
@@ -2766,6 +3360,10 @@ checks:
     run: |
       getent group shadow
     expect: false
+    remediation: |
+      Remove the group shadow, unless the system needs it:
+
+      groupdel shadow
   - id: "CIS-RHEL7-6.2.5-no_dup_username"
     name: "no dup username: cat /etc/passwd | cut -d: -f1 | uniq -d"
     description: "CIS Red Hat Enterprise Linux 7 benchmark recommendation 6.2.5. CIS Controls v8: 4.1."

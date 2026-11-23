@@ -367,7 +367,7 @@ func convert(src string, b benchmark, out string) (stats, error) {
 		if len(e.roles) < len(roles) {
 			c.When = append(c.When, windowsRoleCondition(e.roles))
 		}
-		if _, taken := seen[c.ID]; taken && len(e.roles) == 1 {
+		if _, taken := seen[c.ID]; taken && roleRendering && len(e.roles) == 1 {
 			c.ID += "-" + windowsRoleNames[e.roles[0]]
 		}
 		c.ID = uniqueID(seen, c.ID)
@@ -573,7 +573,11 @@ func render(path string, vars map[string]any) ([]byte, error) {
 // convertResource translates one goss resource.
 func convertResource(b benchmark, kind, name string, attrs map[string]any, m ruleMeta) []check {
 	idName := name
-	if b.windows() && kind == "registry" {
+	if b.windows() && kind == "registry" && strings.HasSuffix(name, `\`) {
+		// A trailing backslash names a registry key instead of a value.
+		key := strings.TrimSuffix(name, `\`)
+		idName = key[strings.LastIndex(key, `\`)+1:] + "-key"
+	} else if b.windows() && kind == "registry" {
 		idName = name[strings.LastIndex(name, `\`)+1:]
 	} else if b.windows() {
 		idName = winRuleName.ReplaceAllString(name, "")
@@ -652,6 +656,7 @@ func commandCheck(c check, name string, attrs map[string]any) []check {
 			c.Run = f.run
 			c.Name = f.name
 			c.Expect = f.expect
+			c.Remediation = f.remediation
 			c.AllowAnyRC = false
 			return []check{c}
 		}
@@ -687,6 +692,7 @@ func fileChecks(base check, name string, attrs map[string]any) []check {
 		c.Name = path + " does not exist"
 		c.Run = fmt.Sprintf("test -e %s || test -L %s", q, q)
 		c.Expect = []string{"false"}
+		c.Remediation = fileAbsentRemediation(path)
 		return []check{c}
 	}
 	lines = append(lines, fmt.Sprintf("f=%s", q))
@@ -694,20 +700,27 @@ func fileChecks(base check, name string, attrs map[string]any) []check {
 	if hasExists {
 		parts = append(parts, "exists")
 	}
+	var fixType, fixTarget string
+	var fixOwners, fixGroups []string
+	var fixMask int64
 	switch str(attrs["filetype"]) {
 	case "symlink":
 		lines = append(lines, `[ -L "$f" ] || echo "$f is not a symbolic link"`)
 		parts = append(parts, "is a symbolic link")
+		fixType = "symbolic link"
 	case "directory":
 		lines = append(lines, `[ -d "$f" ] || echo "$f is not a directory"`)
 		parts = append(parts, "is a directory")
+		fixType = "directory"
 	case "file":
 		lines = append(lines, `[ -f "$f" ] || echo "$f is not a regular file"`)
 		parts = append(parts, "is a regular file")
+		fixType = "regular file"
 	}
 	if target := str(attrs["linked-to"]); target != "" {
 		lines = append(lines, fmt.Sprintf(`[ "$(readlink "$f")" = %s ] || echo "$f links to $(readlink "$f")"`, shellQuote(target)))
 		parts = append(parts, "links to "+target)
+		fixTarget = target
 	}
 	if modes := stringList(attrs["mode"]); len(modes) > 0 {
 		var allowed int64
@@ -718,16 +731,19 @@ func fileChecks(base check, name string, attrs map[string]any) []check {
 			}
 		}
 		mask := ^allowed & 0o7777
+		fixMask = mask
 		lines = append(lines, fmt.Sprintf(`if [ -n "$(find -H "$f" -maxdepth 0 -perm /%04o)" ]; then echo "$f has mode $(stat -L -c %%a "$f")"; fi`, mask))
 		parts = append(parts, fmt.Sprintf("mode %04o or stricter", allowed))
 	}
 	if owners := stringList(attrs["owner"]); len(owners) > 0 {
 		lines = append(lines, fmt.Sprintf(`case "$(stat -L -c %%U "$f")" in %s) ;; *) echo "$f is owned by $(stat -L -c %%U "$f")" ;; esac`, strings.Join(quoteAll(owners), "|")))
 		parts = append(parts, "owner "+strings.Join(owners, " or "))
+		fixOwners = owners
 	}
 	if groups := stringList(attrs["group"]); len(groups) > 0 {
 		lines = append(lines, fmt.Sprintf(`case "$(stat -L -c %%G "$f")" in %s) ;; *) echo "$f has group $(stat -L -c %%G "$f")" ;; esac`, strings.Join(quoteAll(groups), "|")))
 		parts = append(parts, "group "+strings.Join(groups, " or "))
+		fixGroups = groups
 	}
 	if len(parts) > 0 {
 		c := base
@@ -735,6 +751,7 @@ func fileChecks(base check, name string, attrs map[string]any) []check {
 		c.Name = path + ": " + strings.Join(parts, ", ")
 		c.Run = strings.Join(lines, "\n")
 		c.Expect = []string{"empty"}
+		c.Remediation = fileAttrRemediation(path, fixType, fixTarget, fixOwners, fixGroups, fixMask)
 		out = append(out, c)
 	}
 
@@ -754,6 +771,11 @@ func fileChecks(base check, name string, attrs map[string]any) []check {
 		}
 		c.AllowAnyRC = true
 		c.Expect = conds
+		patched := make([]string, len(conds))
+		for i, e := range conds {
+			patched[i] = applyPatches(e)
+		}
+		c.Remediation = contentRemediation(path, patched)
 		out = append(out, c)
 	}
 	return out
@@ -780,6 +802,7 @@ func packageChecks(c check, b benchmark, name string, attrs map[string]any) []ch
 		c.Name = "Package " + pkg + " is not installed"
 		c.Expect = []string{"false"}
 	}
+	c.Remediation = packageRemediation(b, pkg, installed)
 	out := []check{c}
 	if v, ok := attrs["versions"].(map[string]any); ok && installed {
 		if constraint := str(v["semver-constraint"]); constraint != "" {
@@ -795,6 +818,7 @@ func packageChecks(c check, b benchmark, name string, attrs map[string]any) []ch
 			vc.As = "version"
 			vc.AllowAnyRC = true
 			vc.Expect = []string{`{ rc: "== 0" }`, yamlString(op + " " + ver)}
+			vc.Remediation = packageVersionRemediation(b, pkg, op, ver)
 			out = append(out, vc)
 		}
 	}
@@ -813,9 +837,11 @@ func serviceChecks(base check, name string, attrs map[string]any) []check {
 		if v {
 			c.Name = "Service " + name + " is enabled"
 			c.Expect = []string{yamlString("~ ^enabled")}
+			c.Remediation = unitRemediation(name, "enabled")
 		} else {
 			c.Name = "Service " + name + " is not enabled"
 			c.Expect = []string{yamlString("!~ ^enabled")}
+			c.Remediation = unitRemediation(name, "not enabled")
 		}
 		out = append(out, c)
 	}
@@ -826,9 +852,11 @@ func serviceChecks(base check, name string, attrs map[string]any) []check {
 		if v {
 			c.Name = "Service " + name + " is running"
 			c.Expect = []string{yamlString("== active")}
+			c.Remediation = unitRemediation(name, "running")
 		} else {
 			c.Name = "Service " + name + " is not running"
 			c.Expect = []string{yamlString("!= active")}
+			c.Remediation = unitRemediation(name, "not running")
 		}
 		out = append(out, c)
 	}
@@ -844,6 +872,7 @@ func mountChecks(c check, name string, attrs map[string]any) []check {
 		c.Name = mp + " is not a separate mount"
 		c.Run = "findmnt -n " + shellQuote(mp)
 		c.Expect = []string{"false"}
+		c.Remediation = fmt.Sprintf("Unmount %s and remove its entry from /etc/fstab (or its systemd mount unit), so it is part of the parent file system.", mp)
 		return []check{c}
 	}
 	opts := stringList(attrs["opts"])
@@ -867,6 +896,7 @@ func mountChecks(c check, name string, attrs map[string]any) []check {
 		c.Expect = append(c.Expect, yamlString("~ ^("+strings.Join(fs, "|")+") "))
 	}
 	c.Name = desc
+	c.Remediation = mountRemediation(mp, opts, fs)
 	return []check{c}
 }
 
@@ -882,6 +912,7 @@ func kernelParamCheck(c check, name string, attrs map[string]any) []check {
 	c.Run = "sysctl -n " + name
 	c.AllowAnyRC = true
 	c.Expect = []string{`{ rc: "== 0" }`, yamlString("== " + value)}
+	c.Remediation = sysctlRemediation(name, value)
 	return []check{c}
 }
 
@@ -905,6 +936,7 @@ func accountCheck(c check, kind, name string, attrs map[string]any) []check {
 		c.Name = fmt.Sprintf("%s %s does not exist", strings.Title(kind), name)
 		c.Expect = []string{"false"}
 	}
+	c.Remediation = accountRemediation(kind, name, exists)
 	return []check{c}
 }
 
@@ -1175,11 +1207,12 @@ var patches = []patch{
 
 // commandFix replaces an upstream command that gives wrong results.
 type commandFix struct {
-	why    string
-	match  func(name, exec string) bool
-	name   string
-	run    string
-	expect []string
+	why         string
+	match       func(name, exec string) bool
+	name        string
+	run         string
+	expect      []string
+	remediation string
 }
 
 var commandFixes = []commandFix{
@@ -1191,15 +1224,18 @@ var commandFixes = []commandFix{
 		name:   "Accounts with a password have a minimum password lifetime of at least one day",
 		run:    `awk -F: '$2 ~ /^\$/ && $4 < 1 {print $1 " " $4}' /etc/shadow`,
 		expect: []string{"empty"},
+		remediation: "Set a minimum password lifetime of one day for every listed account:\n\nchage --mindays 1 USER\n\n" +
+			"Set PASS_MIN_DAYS 1 in /etc/login.defs for new accounts.",
 	},
 	{
 		why: "upstream runs the /etc/shadow command of another rule instead of looking for NOPASSWD",
 		match: func(name, exec string) bool {
 			return strings.Contains(name, "sudoers_nopasswd") && strings.Contains(exec, "/etc/shadow")
 		},
-		name:   "sudo requires a password: no NOPASSWD rules",
-		run:    `grep -rhiE '^[^#]*NOPASSWD' /etc/sudoers /etc/sudoers.d 2>/dev/null || true`,
-		expect: []string{"empty"},
+		name:        "sudo requires a password: no NOPASSWD rules",
+		run:         `grep -rhiE '^[^#]*NOPASSWD' /etc/sudoers /etc/sudoers.d 2>/dev/null || true`,
+		expect:      []string{"empty"},
+		remediation: "Remove NOPASSWD from the listed rules in /etc/sudoers and /etc/sudoers.d/, with visudo (visudo -f FILE for a file in /etc/sudoers.d/).",
 	},
 	{
 		why: "stat fails without interactive users, and comparing modes as decimal numbers misses e.g. 705",
@@ -1210,7 +1246,8 @@ var commandFixes = []commandFix{
 		run: `awk -F: '($3>=1000)&&($7 !~ /nologin/){print $6}' /etc/passwd | while read -r d; do
   if [ -d "$d" ]; then find "$d" -maxdepth 0 -perm /027 -printf '%m %p\n'; fi
 done`,
-		expect: []string{"empty"},
+		expect:      []string{"empty"},
+		remediation: "Remove write permission for the group and all permissions for others from every listed home directory:\n\nchmod g-w,o-rwx DIRECTORY",
 	},
 	{
 		why: "upstream variants compare dates as strings, or turn 'never' into an error that passes",
@@ -1226,6 +1263,8 @@ for usr in $(cut -d: -f1 /etc/shadow); do
   if [ "$t" -gt "$now" ]; then echo "$usr: last password change $d is in the future"; fi
 done`,
 		expect: []string{"empty"},
+		remediation: "Check the system clock, then set the last password change of every listed user to today, or expire the password so it must be changed at the next login:\n\n" +
+			"chage --lastday \"$(date +%Y-%m-%d)\" USER\nchage --lastday 0 USER",
 	},
 	{
 		why: "stat fails without an operand when no banner is configured",
@@ -1237,6 +1276,8 @@ done`,
 if [ -z "$b" ] || [ "$b" = none ]; then echo "no banner configured"; exit 0; fi
 stat -Lc '%a %U %G' "$b"`,
 		expect: []string{`{ any: [ { some: "~ ^no banner configured$" }, { some: "~ ^[0-6][04][04] root root$" } ] }`},
+		remediation: "Give the banner file named by the Banner setting of sshd owner and group root, and remove execute permission for the owner and write and execute permission for group and others:\n\n" +
+			"chown root:root FILE\nchmod u-x,go-wx FILE",
 	},
 }
 

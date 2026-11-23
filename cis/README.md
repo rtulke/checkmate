@@ -71,6 +71,15 @@ selects single recommendations or whole sections.
 | `mount` | `findmnt` with the required options |
 | `kernel-param` | `sysctl -n` |
 
+Checks converted from a package, service, kernel parameter, mount, file or
+account resource carry a remediation generated from that resource: the
+package manager command of the platform, `systemctl`, `sysctl` and the
+`/etc/sysctl.d` entry, the mount options, `chown` and a `chmod` that only
+removes the permissions the check does not allow, or the conditions the
+lines of a file must meet. Command checks run arbitrary upstream commands;
+what fixes them cannot be derived from the command, so most of them have no
+remediation yet.
+
 For macOS, mSCP rules tagged `cis_lvl1`/`cis_lvl2` are taken over with their
 check script and expected result; organization-defined values use the CIS
 value. Many of them read managed preferences, so on a Mac without a
@@ -93,6 +102,16 @@ uses `cis_windows_domain_joined` for the password and lockout rules a domain
 policy sets. The Server 2016 audit is not converted: it depends on
 pre-generated gpresult and audit files.
 
+Every Windows check carries a remediation generated from the data of the
+check: the registry value with its type and a PowerShell command, the
+security policy setting or user right with its Group Policy path and the
+required value or accounts (well-known SIDs are named), the `auditpol`
+command and Group Policy path of an audit subcategory, the service or the
+firewall profile setting. The remediation never guesses: the converter
+reports every check whose expectation it cannot translate. The CIS
+benchmark text is not used, so the Windows and Linux checks have no
+rationale.
+
 Deviations from the Ansible Lockdown content, each applied deliberately:
 
 - A disabled kernel module may point to `/bin/true` or `/bin/false`.
@@ -105,6 +124,11 @@ Deviations from the Ansible Lockdown content, each applied deliberately:
 - The SSH banner file check reports "no banner configured" instead of failing
   in `stat` when no banner is set.
 - Commands that are not valid shell code upstream are left out and listed by the converter.
+- Windows: a registry value given as a regular expression (`match-regexp`,
+  the logon message text) is matched as one; the hardened UNC path values
+  (`HardenedPaths::\\*\NETLOGON`) are read under their own key; a registry
+  name ending in `\` is checked as a key (Windows 11 18.9.19.7). Before,
+  these checks could never pass or never fail.
 
 ## Accepted deviations
 

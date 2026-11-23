@@ -254,6 +254,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/tmp'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /tmp on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data. A tmpfs mount on /tmp, e.g. with systemd's tmp.mount, counts as well.
   - id: "CIS-RHEL10-1.1.2.1.2-tmp_nodev_options"
     name: "/tmp is a separate mount with nodev"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -265,6 +267,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /tmp with the option nodev: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.1.2-tmp_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -274,6 +282,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.1.2-tmp_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -283,6 +293,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*nodev
   - id: "CIS-RHEL10-1.1.2.1.3-tmp_nosuid_options"
     name: "/tmp is a separate mount with nosuid"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -294,6 +308,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /tmp with the option nosuid: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.1.3-tmp_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -303,6 +323,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.1.3-tmp_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -312,6 +334,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*nosuid
   - id: "CIS-RHEL10-1.1.2.1.4-tmp_noexec_options"
     name: "/tmp is a separate mount with noexec"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -323,6 +349,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /tmp with the option noexec: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.1.4-tmp_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -332,6 +364,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.1.4-tmp_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -341,6 +375,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*noexec" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*noexec
   - id: "CIS-RHEL10-1.1.2.2.1-dev_shm_mount"
     name: "/dev/shm is a separate mount"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.2.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -352,6 +390,8 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ ^(tmpfs) "
+    remediation: |
+      Mount a tmpfs file system on /dev/shm with an entry in /etc/fstab or a systemd mount unit.
   - id: "CIS-RHEL10-1.1.2.2.2-dev_shm_nodev_options"
     name: "/dev/shm is a separate mount with nodev"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -363,6 +403,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /dev/shm with the option nodev: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.2.2-dev_shm_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -372,6 +418,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.2.2-dev_shm_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -381,6 +429,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*nodev
   - id: "CIS-RHEL10-1.1.2.2.3-dev_shm_nosuid_options"
     name: "/dev/shm is a separate mount with nosuid"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -392,6 +444,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /dev/shm with the option nosuid: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.2.3-dev_shm_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -401,6 +459,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.2.3-dev_shm_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -410,6 +470,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*nosuid
   - id: "CIS-RHEL10-1.1.2.2.4-dev_shm_noexec_options"
     name: "/dev/shm is a separate mount with noexec"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -421,6 +485,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /dev/shm with the option noexec: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.2.4-dev_shm_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -430,6 +500,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.2.4-dev_shm_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -439,6 +511,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*noexec" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*noexec
   - id: "CIS-RHEL10-1.1.2.3.1-home_mount"
     name: "/home is a separate mount"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.3.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -448,6 +524,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/home'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /home on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-RHEL10-1.1.2.3.2-home_nodev_options"
     name: "/home is a separate mount with nodev"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -459,6 +537,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /home with the option nodev: add it to the options of /home in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/home'
+
+      If /home is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.3.2-home_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -468,6 +552,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.3.2-home_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -477,6 +563,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/home.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/home.*nodev
   - id: "CIS-RHEL10-1.1.2.3.3-home_nosuid_options"
     name: "/home is a separate mount with nosuid"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -488,6 +578,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /home with the option nosuid: add it to the options of /home in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/home'
+
+      If /home is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.3.3-home_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -497,6 +593,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.3.3-home_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -506,6 +604,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/home.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/home.*nosuid.*
   - id: "CIS-RHEL10-1.1.2.4.1-var_mount"
     name: "/var is a separate mount"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.4.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -515,6 +617,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-RHEL10-1.1.2.4.2-var_nodev_options"
     name: "/var is a separate mount with nodev"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -526,6 +630,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var with the option nodev: add it to the options of /var in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var'
+
+      If /var is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.4.2-var_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -535,6 +645,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.4.2-var_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -544,6 +656,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\s.*nodev
   - id: "CIS-RHEL10-1.1.2.4.3-var_nosuid_options"
     name: "/var is a separate mount with nosuid"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -555,6 +671,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var with the option nosuid: add it to the options of /var in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var'
+
+      If /var is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.4.3-var_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -564,6 +686,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.4.3-var_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -573,6 +697,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\s.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\s.*nosuid
   - id: "CIS-RHEL10-1.1.2.5.1-var_tmp_mount"
     name: "/var/tmp is a separate mount"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -582,6 +710,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/tmp'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/tmp on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-RHEL10-1.1.2.5.2-var_tmp_nodev_options"
     name: "/var/tmp is a separate mount with nodev"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -593,6 +723,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/tmp with the option nodev: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.5.2-var_tmp_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -602,6 +738,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.5.2-var_tmp_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -611,6 +749,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*nodev
   - id: "CIS-RHEL10-1.1.2.5.3-var_tmp_nosuid_options"
     name: "/var/tmp is a separate mount with nosuid"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -622,6 +764,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/tmp with the option nosuid: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.5.3-var_tmp_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -631,6 +779,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.5.3-var_tmp_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -640,6 +790,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*nosuid
   - id: "CIS-RHEL10-1.1.2.5.4-var_tmp_noexec_options"
     name: "/var/tmp is a separate mount with noexec"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -651,6 +805,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/tmp with the option noexec: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.5.4-var_tmp_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -660,6 +820,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.5.4-var_tmp_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -669,6 +831,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*noexec" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*noexec
   - id: "CIS-RHEL10-1.1.2.6.1-var_log_mount"
     name: "/var/log is a separate mount"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.1. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -678,6 +844,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/log'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/log on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-RHEL10-1.1.2.6.2-var_log_nodev_options"
     name: "/var/log is a separate mount with nodev"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -689,6 +857,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/log with the option nodev: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.6.2-var_log_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -698,6 +872,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.6.2-var_log_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -707,6 +883,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*nodev
   - id: "CIS-RHEL10-1.1.2.6.3-var_log_nosuid_options"
     name: "/var/log is a separate mount with nosuid"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -718,6 +898,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/log with the option nosuid: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.6.3-var_log_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -727,6 +913,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.6.3-var_log_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -736,6 +924,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*nosuid
   - id: "CIS-RHEL10-1.1.2.6.4-var_log_noexec_options"
     name: "/var/log is a separate mount with noexec"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -747,6 +939,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/log with the option noexec: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.6.4-var_log_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -756,6 +954,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.6.4-var_log_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -765,6 +965,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*noexec" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*noexec
   - id: "CIS-RHEL10-1.1.2.7.1-var_log_audit_mount"
     name: "/var/log/audit is a separate mount"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.1. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -774,6 +978,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/log/audit'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/log/audit on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-RHEL10-1.1.2.7.2-var_log_audit_nodev_options"
     name: "/var/log/audit is a separate mount with nodev"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -785,6 +991,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option nodev: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.7.2-var_log_audit_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -794,6 +1006,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.7.2-var_log_audit_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -803,6 +1017,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*nodev
   - id: "CIS-RHEL10-1.1.2.7.3-var_log_audit_nosuid_options"
     name: "/var/log/audit is a separate mount with nosuid"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -814,6 +1032,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option nosuid: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.7.3-var_log_audit_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -823,6 +1047,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.7.3-var_log_audit_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -832,6 +1058,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*nosuid" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*nosuid
   - id: "CIS-RHEL10-1.1.2.7.4-var_log_audit_noexec_options"
     name: "/var/log/audit is a separate mount with noexec"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: AC-3, MP-2, CM-7."
@@ -843,6 +1073,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option noexec: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-RHEL10-1.1.2.7.4-var_log_audit_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: AC-3, MP-2, CM-7."
@@ -852,6 +1088,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.7.4-var_log_audit_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: AC-3, MP-2, CM-7."
@@ -861,6 +1099,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*noexec" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*noexec
   - id: "CIS-RHEL10-1.2.1.1-gpg_keys"
     name: "gpg keys: rpm -q gpg-pubkey --qf '%{name}-%{version}-%{release} --\u003e %{summary}"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.2.1.1. NIST SP 800-53 Rev. 5: SI-2."
@@ -954,6 +1196,10 @@ checks:
     run: |
       rpm -q --quiet libselinux
     expect: true
+    remediation: |
+      Install the package libselinux:
+
+      dnf install libselinux
   - id: "CIS-RHEL10-1.3.1.2-selinux_disabled_boot"
     name: "selinux disabled boot: grubby --info=ALL | grep -Po '(selinux|enforcing)=0\\b'"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.3.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1007,6 +1253,8 @@ checks:
       f='/etc/selinux/config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/selinux/config.
   - id: "CIS-RHEL10-1.3.1.5-etc_selinux_config-content"
     name: "/etc/selinux/config has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.3.1.5. NIST SP 800-53 Rev. 5: SC-3."
@@ -1016,6 +1264,10 @@ checks:
       cat '/etc/selinux/config'
     allow_rc: any
     expect: { some: "~ ^SELINUX\\s*=\\s*enforcing" }
+    remediation: |
+      Edit /etc/selinux/config so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^SELINUX\s*=\s*enforcing
   - id: "CIS-RHEL10-1.3.1.5-getenforce_enforcing"
     name: "getenforce enforcing: getenforce"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.3.1.5. NIST SP 800-53 Rev. 5: SC-3."
@@ -1046,6 +1298,10 @@ checks:
     run: |
       rpm -q --quiet mctrans
     expect: false
+    remediation: |
+      Remove the package mctrans, unless the system needs it:
+
+      dnf remove mctrans
   - id: "CIS-RHEL10-1.3.1.8-setroubleshoot"
     name: "Package setroubleshoot is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.3.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1054,6 +1310,10 @@ checks:
     run: |
       rpm -q --quiet setroubleshoot
     expect: false
+    remediation: |
+      Remove the package setroubleshoot, unless the system needs it:
+
+      dnf remove setroubleshoot
   - id: "CIS-RHEL10-1.4.2-grub_bootloaders_perms-attrs"
     name: "/boot/grub2/grub.cfg: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.4.2. NIST SP 800-53 Rev. 5: CM-6."
@@ -1066,6 +1326,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /boot/grub2/grub.cfg if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/boot/grub2/grub.cfg'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/boot/grub2/grub.cfg'
   - id: "CIS-RHEL10-1.4.2-grub_user_perms-attrs"
     name: "/boot/grub2/user.cfg: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.4.2. NIST SP 800-53 Rev. 5: CM-6."
@@ -1078,6 +1343,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /boot/grub2/user.cfg if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/boot/grub2/user.cfg'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/boot/grub2/user.cfg'
   - id: "CIS-RHEL10-1.4.2-grubenv_perms-attrs"
     name: "/boot/grub2/grubenv: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.4.2. NIST SP 800-53 Rev. 5: CM-6."
@@ -1090,6 +1360,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /boot/grub2/grubenv if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/boot/grub2/grubenv'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/boot/grub2/grubenv'
   - id: "CIS-RHEL10-1.5.1-core_size"
     name: "core size: grep -Psi -- '^\\s*\\S+\\s+hard\\s+core\\b' /etc/security/limits.conf /etc/security/limits.d/*"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.5.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -1228,6 +1503,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== map[or:[1 2 3]]"
+    remediation: |
+      Set the kernel parameter kernel.yama.ptrace_scope to map[or:[1 2 3]], now and at boot:
+
+      sysctl -w 'kernel.yama.ptrace_scope=map[or:[1 2 3]]'
+      printf '%s\n' 'kernel.yama.ptrace_scope = map[or:[1 2 3]]' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of kernel.yama.ptrace_scope from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-1.5.7-ptrace_restricted_2"
     name: "ptrace restricted 2: grep \"kernel\\.yama\\.ptrace_scope\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.5.7. NIST SP 800-53 Rev. 5: CM-6."
@@ -1250,6 +1532,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 2"
+    remediation: |
+      Set the kernel parameter kernel.randomize_va_space to 2, now and at boot:
+
+      sysctl -w 'kernel.randomize_va_space=2'
+      printf '%s\n' 'kernel.randomize_va_space = 2' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of kernel.randomize_va_space from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-1.5.8-aslr_enabled_2"
     name: "aslr enabled 2: grep \"kernel\\.randomize_va_space\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.5.8. NIST SP 800-53 Rev. 5: SI-16."
@@ -1305,6 +1594,8 @@ checks:
       f='/etc/crypto-policies/state/CURRENT.pol'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/crypto-policies/state/CURRENT.pol.
   - id: "CIS-RHEL10-1.6.2-crypto_policies_no_sha1_current-content"
     name: "/etc/crypto-policies/state/CURRENT.pol has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.6.2. NIST SP 800-53 Rev. 5: SC-8."
@@ -1316,6 +1607,11 @@ checks:
     expect:
       - { some: "~ ^sha1_in_certs\\s*=\\s*0" }
       - { none: "~ ^(hash|sign)\\s*=\\s*SHA1" }
+    remediation: |
+      Edit /etc/crypto-policies/state/CURRENT.pol so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^sha1_in_certs\s*=\s*0
+      - no line matches ^(hash|sign)\s*=\s*SHA1
   - id: "CIS-RHEL10-1.6.3-crypto_policies_no_weakmacs-attrs"
     name: "/etc/crypto-policies/state/CURRENT.pol: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.6.3. NIST SP 800-53 Rev. 5: SC-8."
@@ -1325,6 +1621,8 @@ checks:
       f='/etc/crypto-policies/state/CURRENT.pol'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/crypto-policies/state/CURRENT.pol.
   - id: "CIS-RHEL10-1.6.3-crypto_policies_no_weakmacs-content"
     name: "/etc/crypto-policies/state/CURRENT.pol has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.6.3. NIST SP 800-53 Rev. 5: SC-8."
@@ -1334,6 +1632,10 @@ checks:
       cat '/etc/crypto-policies/state/CURRENT.pol'
     allow_rc: any
     expect: { none: "~ ^mac\\s*=\\s*.*128" }
+    remediation: |
+      Edit /etc/crypto-policies/state/CURRENT.pol so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^mac\s*=\s*.*128
   - id: "CIS-RHEL10-1.6.4-crypto_policies_no_ssh_cbc-attrs"
     name: "/etc/crypto-policies/state/CURRENT.pol: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.6.4. NIST SP 800-53 Rev. 5: SC-8."
@@ -1343,6 +1645,8 @@ checks:
       f='/etc/crypto-policies/state/CURRENT.pol'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/crypto-policies/state/CURRENT.pol.
   - id: "CIS-RHEL10-1.6.4-crypto_policies_no_ssh_cbc-content"
     name: "/etc/crypto-policies/state/CURRENT.pol has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.6.4. NIST SP 800-53 Rev. 5: SC-8."
@@ -1352,6 +1656,10 @@ checks:
       cat '/etc/crypto-policies/state/CURRENT.pol'
     allow_rc: any
     expect: { none: "~ /\\^cipher@/\\(lib\\|open\\)ssh\\(-server\\|-client\\)\\?\\\\s\\*=\\\\s\\*\\(\\[\\^#\\\\n\\\\r\\]\\+\\)\\?-CBC\\\\b" }
+    remediation: |
+      Edit /etc/crypto-policies/state/CURRENT.pol so that its lines meet these conditions (regular expressions):
+
+      - no line matches /\^cipher@/\(lib\|open\)ssh\(-server\|-client\)\?\\s\*=\\s\*\(\[\^#\\n\\r\]\+\)\?-CBC\\b
   - id: "CIS-RHEL10-1.7.1-motd_config-attrs"
     name: "/etc/motd: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.7.1. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -1364,6 +1672,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/motd if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/motd'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/motd'
   - id: "CIS-RHEL10-1.7.1-motd_config-content"
     name: "/etc/motd has the expected content (7 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.7.1. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -1380,6 +1693,16 @@ checks:
       - { none: "~ [Aa]lma.*" }
       - { none: "~ x86_64" }
       - { none: "~ /\\[Ll\\]inux" }
+    remediation: |
+      Edit /etc/motd so that its lines meet these conditions (regular expressions):
+
+      - no line matches [Cc]ent[Oo][Ss].*
+      - no line matches [Rr]hel.*
+      - no line matches [Rr]ed[Hh]at.*
+      - no line matches [Rr]ocky.*
+      - no line matches [Aa]lma.*
+      - no line matches x86_64
+      - no line matches /\[Ll\]inux
   - id: "CIS-RHEL10-1.7.2-etc_issue_config-attrs"
     name: "/etc/issue: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.7.2. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -1392,6 +1715,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue'
   - id: "CIS-RHEL10-1.7.2-etc_issue_config-content"
     name: "/etc/issue has the expected content (8 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.7.2. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -1409,6 +1737,17 @@ checks:
       - { none: "~ x86_64" }
       - { none: "~ [Ll]inux" }
       - { some: "~ Authorized users only\\. All activity may be monitored and reported\\." }
+    remediation: |
+      Edit /etc/issue so that its lines meet these conditions (regular expressions):
+
+      - no line matches [Cc]ent[Oo][Ss].*
+      - no line matches [Rr]hel.*
+      - no line matches [Rr]ed[Hh]at.*
+      - no line matches [Rr]ocky.*
+      - no line matches [Aa]lma.*
+      - no line matches x86_64
+      - no line matches [Ll]inux
+      - a line matches Authorized users only\. All activity may be monitored and reported\.
   - id: "CIS-RHEL10-1.7.3-etc_issue_net_config-attrs"
     name: "/etc/issue.net: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.7.3. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -1421,6 +1760,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue.net if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue.net'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue.net'
   - id: "CIS-RHEL10-1.7.3-etc_issue_net_config-content"
     name: "/etc/issue.net has the expected content (7 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.7.3. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -1437,6 +1781,16 @@ checks:
       - { none: "~ [Aa]lma.*" }
       - { none: "~ x86_64" }
       - { none: "~ /\\[Ll\\]inux" }
+    remediation: |
+      Edit /etc/issue.net so that its lines meet these conditions (regular expressions):
+
+      - no line matches [Cc]ent[Oo][Ss].*
+      - no line matches [Rr]hel.*
+      - no line matches [Rr]ed[Hh]at.*
+      - no line matches [Rr]ocky.*
+      - no line matches [Aa]lma.*
+      - no line matches x86_64
+      - no line matches /\[Ll\]inux
   - id: "CIS-RHEL10-1.7.4-motd_perms-attrs"
     name: "/etc/motd: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.7.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1449,6 +1803,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/motd if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/motd'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/motd'
   - id: "CIS-RHEL10-1.7.5-issue_perms-attrs"
     name: "/etc/issue: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.7.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1461,6 +1820,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue'
   - id: "CIS-RHEL10-1.7.6-issue_net_perms-attrs"
     name: "/etc/issue.net: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.7.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1473,6 +1837,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue.net if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue.net'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue.net'
   - id: "CIS-RHEL10-2.1.1-autofs_pkg"
     name: "Package autofs is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.1. NIST SP 800-53 Rev. 5: SI-3, MP-7."
@@ -1481,6 +1850,10 @@ checks:
     run: |
       rpm -q --quiet autofs
     expect: false
+    remediation: |
+      Remove the package autofs, unless the system needs it:
+
+      dnf remove autofs
   - id: "CIS-RHEL10-2.1.2-avahi_pkg"
     name: "Package avahi is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.2. NIST SP 800-53 Rev. 5: SI-4."
@@ -1489,6 +1862,10 @@ checks:
     run: |
       rpm -q --quiet avahi
     expect: false
+    remediation: |
+      Remove the package avahi, unless the system needs it:
+
+      dnf remove avahi
   - id: "CIS-RHEL10-2.1.3-cockpit_pkg"
     name: "Package cockpit-ws is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -1497,6 +1874,10 @@ checks:
     run: |
       rpm -q --quiet cockpit-ws
     expect: false
+    remediation: |
+      Remove the package cockpit-ws, unless the system needs it:
+
+      dnf remove cockpit-ws
   - id: "CIS-RHEL10-2.1.4-dhcp_pkg"
     name: "Package kea is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -1505,6 +1886,10 @@ checks:
     run: |
       rpm -q --quiet kea
     expect: false
+    remediation: |
+      Remove the package kea, unless the system needs it:
+
+      dnf remove kea
   - id: "CIS-RHEL10-2.1.5-dns_pkg"
     name: "Package bind is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -1513,6 +1898,10 @@ checks:
     run: |
       rpm -q --quiet bind
     expect: false
+    remediation: |
+      Remove the package bind, unless the system needs it:
+
+      dnf remove bind
   - id: "CIS-RHEL10-2.1.6-dnsmasq_pkg"
     name: "Package dnsmasq is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.6. NIST SP 800-53 Rev. 5: CM-7."
@@ -1521,6 +1910,10 @@ checks:
     run: |
       rpm -q --quiet dnsmasq
     expect: false
+    remediation: |
+      Remove the package dnsmasq, unless the system needs it:
+
+      dnf remove dnsmasq
   - id: "CIS-RHEL10-2.1.7-ftp_pkg"
     name: "Package vsftpd is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.7. NIST SP 800-53 Rev. 5: CM-7."
@@ -1529,6 +1922,10 @@ checks:
     run: |
       rpm -q --quiet vsftpd
     expect: false
+    remediation: |
+      Remove the package vsftpd, unless the system needs it:
+
+      dnf remove vsftpd
   - id: "CIS-RHEL10-2.1.8-cyrus_imapd_pkg"
     name: "Package cyrus-imapd is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -1537,6 +1934,10 @@ checks:
     run: |
       rpm -q --quiet cyrus-imapd
     expect: false
+    remediation: |
+      Remove the package cyrus-imapd, unless the system needs it:
+
+      dnf remove cyrus-imapd
   - id: "CIS-RHEL10-2.1.8-dovecot_pkg"
     name: "Package dovecot is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -1545,6 +1946,10 @@ checks:
     run: |
       rpm -q --quiet dovecot
     expect: false
+    remediation: |
+      Remove the package dovecot, unless the system needs it:
+
+      dnf remove dovecot
   - id: "CIS-RHEL10-2.1.10-cups_pkg"
     name: "Package cups is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.10. NIST SP 800-53 Rev. 5: CM-7."
@@ -1553,6 +1958,10 @@ checks:
     run: |
       rpm -q --quiet cups
     expect: false
+    remediation: |
+      Remove the package cups, unless the system needs it:
+
+      dnf remove cups
   - id: "CIS-RHEL10-2.1.12-rsync_pkg"
     name: "Package rsync-daemon is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.12. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1561,6 +1970,10 @@ checks:
     run: |
       rpm -q --quiet rsync-daemon
     expect: false
+    remediation: |
+      Remove the package rsync-daemon, unless the system needs it:
+
+      dnf remove rsync-daemon
   - id: "CIS-RHEL10-2.1.13-samba_pkg"
     name: "Package samba is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.13. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1569,6 +1982,10 @@ checks:
     run: |
       rpm -q --quiet samba
     expect: false
+    remediation: |
+      Remove the package samba, unless the system needs it:
+
+      dnf remove samba
   - id: "CIS-RHEL10-2.1.14-snmp_pkg"
     name: "Package net-snmp is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.14. NIST SP 800-53 Rev. 5: CM-7."
@@ -1577,6 +1994,10 @@ checks:
     run: |
       rpm -q --quiet net-snmp
     expect: false
+    remediation: |
+      Remove the package net-snmp, unless the system needs it:
+
+      dnf remove net-snmp
   - id: "CIS-RHEL10-2.1.15-telnet_pkg"
     name: "Package telnet-server is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.15. NIST SP 800-53 Rev. 5: CM-7, CM-11."
@@ -1585,6 +2006,10 @@ checks:
     run: |
       rpm -q --quiet telnet-server
     expect: false
+    remediation: |
+      Remove the package telnet-server, unless the system needs it:
+
+      dnf remove telnet-server
   - id: "CIS-RHEL10-2.1.16-tftp_pkg"
     name: "Package tftp-server is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.16. NIST SP 800-53 Rev. 5: CM-7."
@@ -1593,6 +2018,10 @@ checks:
     run: |
       rpm -q --quiet tftp-server
     expect: false
+    remediation: |
+      Remove the package tftp-server, unless the system needs it:
+
+      dnf remove tftp-server
   - id: "CIS-RHEL10-2.1.17-squid_pkg"
     name: "Package squid is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.17. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1601,6 +2030,10 @@ checks:
     run: |
       rpm -q --quiet squid
     expect: false
+    remediation: |
+      Remove the package squid, unless the system needs it:
+
+      dnf remove squid
   - id: "CIS-RHEL10-2.1.18-httpd_pkg"
     name: "Package httpd is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.18. NIST SP 800-53 Rev. 5: CM-7."
@@ -1609,6 +2042,10 @@ checks:
     run: |
       rpm -q --quiet httpd
     expect: false
+    remediation: |
+      Remove the package httpd, unless the system needs it:
+
+      dnf remove httpd
   - id: "CIS-RHEL10-2.1.18-nginx_pkg"
     name: "Package nginx is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.18. NIST SP 800-53 Rev. 5: CM-7."
@@ -1617,6 +2054,10 @@ checks:
     run: |
       rpm -q --quiet nginx
     expect: false
+    remediation: |
+      Remove the package nginx, unless the system needs it:
+
+      dnf remove nginx
   - id: "CIS-RHEL10-2.1.19-gdm_pkg"
     name: "Package gdm is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.19. NIST SP 800-53 Rev. 5: CM-7."
@@ -1625,6 +2066,10 @@ checks:
     run: |
       rpm -q --quiet gdm
     expect: false
+    remediation: |
+      Remove the package gdm, unless the system needs it:
+
+      dnf remove gdm
   - id: "CIS-RHEL10-2.1.20-xwindow_pkg"
     name: "Package xorg-x11-server-common is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.20. NIST SP 800-53 Rev. 5: CM-11."
@@ -1633,6 +2078,10 @@ checks:
     run: |
       rpm -q --quiet xorg-x11-server-common
     expect: false
+    remediation: |
+      Remove the package xorg-x11-server-common, unless the system needs it:
+
+      dnf remove xorg-x11-server-common
   - id: "CIS-RHEL10-2.1.22-manual_listening_ports"
     name: "manual listening ports: echo \"Manual!! - Please check only approved services are listening\""
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.22. NIST SP 800-53 Rev. 5: CM-7."
@@ -1652,6 +2101,10 @@ checks:
     run: |
       rpm -q --quiet ftp
     expect: false
+    remediation: |
+      Remove the package ftp, unless the system needs it:
+
+      dnf remove ftp
   - id: "CIS-RHEL10-2.2.2-openldap-clients"
     name: "Package openldap-clients is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.2.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -1660,6 +2113,10 @@ checks:
     run: |
       rpm -q --quiet openldap-clients
     expect: false
+    remediation: |
+      Remove the package openldap-clients, unless the system needs it:
+
+      dnf remove openldap-clients
   - id: "CIS-RHEL10-2.2.3-telnet_client"
     name: "Package telnet is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.2.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -1668,6 +2125,10 @@ checks:
     run: |
       rpm -q --quiet telnet
     expect: false
+    remediation: |
+      Remove the package telnet, unless the system needs it:
+
+      dnf remove telnet
   - id: "CIS-RHEL10-2.2.4-tftp_client"
     name: "Package tftp is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.2.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -1676,6 +2137,10 @@ checks:
     run: |
       rpm -q --quiet tftp
     expect: false
+    remediation: |
+      Remove the package tftp, unless the system needs it:
+
+      dnf remove tftp
   - id: "CIS-RHEL10-2.3.1-chrony_installed"
     name: "Package chrony is installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.3.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1684,6 +2149,10 @@ checks:
     run: |
       rpm -q --quiet chrony
     expect: true
+    remediation: |
+      Install the package chrony:
+
+      dnf install chrony
   - id: "CIS-RHEL10-2.3.2-chrony_servers_pools-attrs"
     name: "/etc/chrony.conf: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.3.2. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1693,6 +2162,8 @@ checks:
       f='/etc/chrony.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/chrony.conf.
   - id: "CIS-RHEL10-2.3.2-chrony_servers_pools-content"
     name: "/etc/chrony.conf has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.3.2. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1702,6 +2173,10 @@ checks:
       cat '/etc/chrony.conf'
     allow_rc: any
     expect: { some: "~ ^(server|pool)\\s.*" }
+    remediation: |
+      Edit /etc/chrony.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(server|pool)\s.*
   - id: "CIS-RHEL10-2.3.3-chrony_sysconfig-attrs"
     name: "/etc/sysconfig/chronyd: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.3.3. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1711,6 +2186,8 @@ checks:
       f='/etc/sysconfig/chronyd'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/sysconfig/chronyd.
   - id: "CIS-RHEL10-2.3.3-chrony_sysconfig-content"
     name: "/etc/sysconfig/chronyd has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.3.3. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1722,6 +2199,11 @@ checks:
     expect:
       - { some: "~ ^OPTIONS=\".*-u chrony.*\"" }
       - { none: "~ ^OPTIONS=\".*-u root.*\"" }
+    remediation: |
+      Edit /etc/sysconfig/chronyd so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^OPTIONS=".*-u chrony.*"
+      - no line matches ^OPTIONS=".*-u root.*"
   - id: "CIS-RHEL10-2.4.1.1-crond-enabled"
     name: "Service crond is enabled"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1730,6 +2212,10 @@ checks:
     run: |
       systemctl show -p UnitFileState crond | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service crond:
+
+      systemctl enable crond
   - id: "CIS-RHEL10-2.4.1.1-crond-running"
     name: "Service crond is running"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1738,6 +2224,10 @@ checks:
     run: |
       systemctl show -p ActiveState crond | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service crond:
+
+      systemctl start crond
   - id: "CIS-RHEL10-2.4.1.2-crontab_perms-attrs"
     name: "/etc/crontab: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.4.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1750,6 +2240,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/crontab if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/crontab'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/crontab'
   - id: "CIS-RHEL10-2.4.1.3-cron_hourly_perms-attrs"
     name: "/etc/cron.hourly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.4.1.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1762,6 +2257,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.hourly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.hourly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.hourly'
   - id: "CIS-RHEL10-2.4.1.4-cron_daily_perms-attrs"
     name: "/etc/cron.daily: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.4.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1774,6 +2274,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.daily if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.daily'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.daily'
   - id: "CIS-RHEL10-2.4.1.5-cron_weekly_perms-attrs"
     name: "/etc/cron.weekly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.4.1.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1786,6 +2291,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.weekly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.weekly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.weekly'
   - id: "CIS-RHEL10-2.4.1.6-cron_month_perms-attrs"
     name: "/etc/cron.monthly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.4.1.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1798,6 +2308,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.monthly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.monthly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.monthly'
   - id: "CIS-RHEL10-2.4.1.7-cron_yearly_perms-attrs"
     name: "/etc/cron.yearly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.4.1.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1810,6 +2325,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.yearly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.yearly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.yearly'
   - id: "CIS-RHEL10-2.4.1.8-crond_perms-attrs"
     name: "/etc/cron.d: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.4.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1822,6 +2342,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.d if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.d'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.d'
   - id: "CIS-RHEL10-2.4.1.9-cron_allow_users-attrs"
     name: "/etc/cron.allow: exists, mode 0640 or stricter, owner root, group root or crontab"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.4.1.9. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1834,6 +2359,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root'|'crontab') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.allow if it is missing, then set owner root and group root or crontab and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.allow'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/cron.allow'
   - id: "CIS-RHEL10-2.4.1.9-cron_deny_users-absent"
     name: "/etc/cron.deny does not exist"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.4.1.9. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1842,6 +2372,10 @@ checks:
     run: |
       test -e '/etc/cron.deny' || test -L '/etc/cron.deny'
     expect: false
+    remediation: |
+      Remove /etc/cron.deny, unless the system needs it:
+
+      rm '/etc/cron.deny'
   - id: "CIS-RHEL10-2.4.2.1-at_allow_users-attrs"
     name: "/etc/at.allow: exists, mode 0640 or stricter, owner root, group root or daemon"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.4.2.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1854,6 +2388,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root'|'daemon') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/at.allow if it is missing, then set owner root and group root or daemon and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/at.allow'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/at.allow'
   - id: "CIS-RHEL10-2.4.2.1-at_deny_users-absent"
     name: "/etc/at.deny does not exist"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.4.2.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1862,6 +2401,10 @@ checks:
     run: |
       test -e '/etc/at.deny' || test -L '/etc/at.deny'
     expect: false
+    remediation: |
+      Remove /etc/at.deny, unless the system needs it:
+
+      rm '/etc/at.deny'
   - id: "CIS-RHEL10-3.1.1-ipv6_required"
     name: "ipv6 required: if [ `grep 0 /proc/sys/net/ipv6/conf/all/disable_ipv6` ] || [ `grep 0 /proc/sys/net/ipv6/…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.1.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -1896,6 +2439,10 @@ checks:
     run: |
       rpm -q --quiet bluez
     expect: false
+    remediation: |
+      Remove the package bluez, unless the system needs it:
+
+      dnf remove bluez
   - id: "CIS-RHEL10-3.2.1-lsmod_atm"
     name: "lsmod atm: lsmod | grep -i atm"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.2.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -2039,6 +2586,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.ip_forward to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.ip_forward=0'
+      printf '%s\n' 'net.ipv4.ip_forward = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.ip_forward from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.1-ip4_forward_conf"
     name: "ip4 forward conf: grep net.ipv4.ip_forward /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /usr/…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -2062,6 +2616,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.forwarding to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.forwarding=0'
+      printf '%s\n' 'net.ipv4.conf.all.forwarding = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.forwarding from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.2-ip4_all_forwarding"
     name: "ip4 all forwarding: grep forwarding /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /usr/local/lib…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.2. NIST SP 800-53 Rev. 5: CM-6."
@@ -2085,6 +2646,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.forwarding to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.forwarding=0'
+      printf '%s\n' 'net.ipv4.conf.default.forwarding = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.forwarding from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.3-ip4_default_forwarding"
     name: "ip4 default forwarding: grep forwarding /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /usr/local/lib…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.3. NIST SP 800-53 Rev. 5: CM-6."
@@ -2108,6 +2676,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.send_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.send_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.send_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.send_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.4-ip4_all_send_redirects"
     name: "ip4 all send redirects: grep send_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /usr/local…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.4. NIST SP 800-53 Rev. 5: CM-6."
@@ -2131,6 +2706,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.send_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.send_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.send_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.send_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.5-ip4_default_send_redirects"
     name: "ip4 default send redirects: grep send_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /usr/local…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.5. NIST SP 800-53 Rev. 5: CM-6."
@@ -2154,6 +2736,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.icmp_ignore_bogus_error_responses to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.icmp_ignore_bogus_error_responses=1'
+      printf '%s\n' 'net.ipv4.icmp_ignore_bogus_error_responses = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.icmp_ignore_bogus_error_responses from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.6-ipv4_ignore_bogus"
     name: "ipv4 ignore bogus: grep net.ipv4.icmp_ignore_bogus_error_responses /etc/sysctl.conf /etc/sysctl.d/*.conf /ru…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.6. NIST SP 800-53 Rev. 5: CM-6."
@@ -2177,6 +2766,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.icmp_echo_ignore_broadcasts to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.icmp_echo_ignore_broadcasts=1'
+      printf '%s\n' 'net.ipv4.icmp_echo_ignore_broadcasts = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.icmp_echo_ignore_broadcasts from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.7-ipv4_echo_ignore_broadcasts"
     name: "ipv4 echo ignore broadcasts: grep net.ipv4.icmp_echo_ignore_broadcasts /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysc…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.7. NIST SP 800-53 Rev. 5: CM-6."
@@ -2200,6 +2796,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.accept_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.8-ipv4_all_accept_redirects"
     name: "ipv4 all accept redirects: grep net.ipv4.conf.all.accept_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.8. NIST SP 800-53 Rev. 5: CM-6."
@@ -2223,6 +2826,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.accept_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.9-ipv4_default_accept_redirects"
     name: "ipv4 default accept redirects: grep net.ipv4.conf.default.accept_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sy…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.9. NIST SP 800-53 Rev. 5: CM-6."
@@ -2246,6 +2856,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.secure_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.secure_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.secure_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.secure_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.10-ipv4_all_secure_redirects"
     name: "ipv4 all secure redirects: grep net.ipv4.conf.all.secure_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.10. NIST SP 800-53 Rev. 5: CM-6."
@@ -2269,6 +2886,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.secure_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.secure_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.secure_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.secure_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.11-ipv4_default_secure_redirects"
     name: "ipv4 default secure redirects: grep net.ipv4.conf.default.secure_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sy…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.11. NIST SP 800-53 Rev. 5: CM-6."
@@ -2292,6 +2916,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.rp_filter to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.rp_filter=1'
+      printf '%s\n' 'net.ipv4.conf.all.rp_filter = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.rp_filter from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.12-ipv4_all_rp_filter"
     name: "ipv4 all rp filter: grep net.ipv4.conf.all.rp_filter /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.co…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.12. NIST SP 800-53 Rev. 5: CM-6."
@@ -2315,6 +2946,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.rp_filter to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.rp_filter=1'
+      printf '%s\n' 'net.ipv4.conf.default.rp_filter = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.rp_filter from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.13-ipv4_default_rp_filter"
     name: "ipv4 default rp filter: grep net.ipv4.conf.default.rp_filter /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.13. NIST SP 800-53 Rev. 5: CM-6."
@@ -2338,6 +2976,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.accept_source_route=0'
+      printf '%s\n' 'net.ipv4.conf.all.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.14-ipv4_all_source_routed"
     name: "ipv4 all source routed: grep net.ipv4.conf.all.accept_source_route /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sys…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.14. NIST SP 800-53 Rev. 5: CM-6."
@@ -2361,6 +3006,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.accept_source_route=0'
+      printf '%s\n' 'net.ipv4.conf.default.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.15-ipv4_default_source_routed"
     name: "ipv4 default source routed: grep net.ipv4.conf.default.accept_source_route /etc/sysctl.conf /etc/sysctl.d/*.conf /run…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.15. NIST SP 800-53 Rev. 5: CM-6."
@@ -2384,6 +3036,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.log_martians to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.log_martians=1'
+      printf '%s\n' 'net.ipv4.conf.all.log_martians = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.log_martians from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.16-ipv4_all_log_martians"
     name: "ipv4 all log martians: grep net.ipv4.conf.all.log_martians /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.16. NIST SP 800-53 Rev. 5: AU-3."
@@ -2407,6 +3066,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.log_martians to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.log_martians=1'
+      printf '%s\n' 'net.ipv4.conf.default.log_martians = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.log_martians from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.17-ipv4_default_log_martians"
     name: "ipv4 default log martians: grep net.ipv4.conf.default.log_martians /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.17. NIST SP 800-53 Rev. 5: AU-3."
@@ -2430,6 +3096,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.tcp_syncookies to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.tcp_syncookies=1'
+      printf '%s\n' 'net.ipv4.tcp_syncookies = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.tcp_syncookies from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.1.18-ipv4_tcp_syn_cookies"
     name: "ipv4 tcp syn cookies: grep net.ipv4.tcp_syncookies /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.1.18. NIST SP 800-53 Rev. 5: SC-5."
@@ -2453,6 +3126,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.forwarding to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.forwarding=0'
+      printf '%s\n' 'net.ipv6.conf.all.forwarding = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.forwarding from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.2.1-ipv6_all_forwarding_conf"
     name: "ipv6 all forwarding conf: grep net.ipv6.conf.all.forwarding /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.c…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.2.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -2476,6 +3156,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.forwarding to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.forwarding=0'
+      printf '%s\n' 'net.ipv6.conf.default.forwarding = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.forwarding from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.2.2-ipv6_default_forwarding_conf"
     name: "ipv6 default forwarding conf: grep net.ipv6.conf.default.forwarding /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.2.2. NIST SP 800-53 Rev. 5: CM-6."
@@ -2499,6 +3186,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.accept_redirects=0'
+      printf '%s\n' 'net.ipv6.conf.all.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.2.3-ipv6_all_accept_redirects"
     name: "ipv6 all accept redirects: grep net.ipv6.conf.all.accept_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.2.3. NIST SP 800-53 Rev. 5: CM-6."
@@ -2522,6 +3216,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.accept_redirects=0'
+      printf '%s\n' 'net.ipv6.conf.default.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.2.4-ipv6_default_accept_redirects"
     name: "ipv6 default accept redirects: grep net.ipv6.conf.default.accept_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sy…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.2.4. NIST SP 800-53 Rev. 5: CM-6."
@@ -2545,6 +3246,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.accept_source_route=0'
+      printf '%s\n' 'net.ipv6.conf.all.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.2.5-ipv6_all_source_routed"
     name: "ipv6 all source routed: grep net.ipv6.conf.all.accept_source_route /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sys…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.2.5. NIST SP 800-53 Rev. 5: CM-6."
@@ -2568,6 +3276,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.accept_source_route=0'
+      printf '%s\n' 'net.ipv6.conf.default.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.2.6-ipv6_default_source_routed"
     name: "ipv6 default source routed: grep net.ipv6.conf.default.accept_source_route /etc/sysctl.conf /etc/sysctl.d/*.conf /run…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.2.6. NIST SP 800-53 Rev. 5: CM-6."
@@ -2591,6 +3306,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.accept_ra to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.accept_ra=0'
+      printf '%s\n' 'net.ipv6.conf.all.accept_ra = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.accept_ra from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.2.7-ipv6_all_accept_ra"
     name: "ipv6 all accept ra: grep net.ipv6.conf.all.accept_ra /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.co…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.2.7. NIST SP 800-53 Rev. 5: CM-6."
@@ -2614,6 +3336,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.accept_ra to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.accept_ra=0'
+      printf '%s\n' 'net.ipv6.conf.default.accept_ra = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.accept_ra from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-RHEL10-3.3.2.8-ipv6_default_accept_ra"
     name: "ipv6 default accept ra: grep net.ipv6.conf.default.accept_ra /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 3.3.2.8. NIST SP 800-53 Rev. 5: CM-6."
@@ -2634,6 +3363,10 @@ checks:
     run: |
       rpm -q --quiet firewalld
     expect: true
+    remediation: |
+      Install the package firewalld:
+
+      dnf install firewalld
   - id: "CIS-RHEL10-4.1.2-firewalld-attrs"
     name: "/etc/firewalld/firewalld.conf: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 4.1.2. NIST SP 800-53 Rev. 5: CA-9."
@@ -2643,6 +3376,8 @@ checks:
       f='/etc/firewalld/firewalld.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/firewalld/firewalld.conf.
   - id: "CIS-RHEL10-4.1.2-firewalld-content"
     name: "/etc/firewalld/firewalld.conf has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 4.1.2. NIST SP 800-53 Rev. 5: CA-9."
@@ -2654,6 +3389,11 @@ checks:
     expect:
       - { some: "~ ^FirewallBackend\\s*=\\s*nftables" }
       - { none: "~ ^FirewallBackend\\s*=\\s*iptables" }
+    remediation: |
+      Edit /etc/firewalld/firewalld.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^FirewallBackend\s*=\s*nftables
+      - no line matches ^FirewallBackend\s*=\s*iptables
   - id: "CIS-RHEL10-4.1.3-firewalld-enabled"
     name: "Service firewalld.service is enabled"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 4.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -2662,6 +3402,10 @@ checks:
     run: |
       systemctl show -p UnitFileState firewalld.service | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service firewalld.service:
+
+      systemctl enable firewalld.service
   - id: "CIS-RHEL10-4.1.3-firewalld-running"
     name: "Service firewalld.service is running"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 4.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -2670,6 +3414,10 @@ checks:
     run: |
       systemctl show -p ActiveState firewalld.service | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service firewalld.service:
+
+      systemctl start firewalld.service
   - id: "CIS-RHEL10-4.1.4-active_firewalld"
     name: "active firewalld: for fw in `firewall-cmd --get-active-zones | grep -P -B 4  'interfaces: (?!lo|virbr)' | h…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 4.1.4. NIST SP 800-53 Rev. 5: NA."
@@ -2733,6 +3481,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/ssh/sshd_config'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/ssh/sshd_config'
   - id: "CIS-RHEL10-5.1.2-ssh_host_private_key_access"
     name: "ssh host private key access: l_ssh_group=\"\""
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2810,6 +3563,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-RHEL10-5.1.5-sshd_banner-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2821,6 +3576,11 @@ checks:
     expect:
       - { some: "~ ^Banner /etc/issue.net" }
       - { none: "~ ^Banner none" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^Banner /etc/issue.net
+      - no line matches ^Banner none
   - id: "CIS-RHEL10-5.1.5-ssh_configd_banner"
     name: "ssh configd banner: grep -Eis '^\\s*Banner\\s+\"?none\\b'/etc/ssh/sshd_config.d/*.conf"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2852,6 +3612,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-RHEL10-5.1.7-sshd_clientalive-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.7. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2863,6 +3625,11 @@ checks:
     expect:
       - { some: "~ ^ClientAliveInterval ([1-9]|[1-9][0-9]|[1-8][0-9][0-9]|900)" }
       - { some: "~ ^ClientAliveCountMax [1-4]" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^ClientAliveInterval ([1-9]|[1-9][0-9]|[1-8][0-9][0-9]|900)
+      - a line matches ^ClientAliveCountMax [1-4]
   - id: "CIS-RHEL10-5.1.7-sshd_clientalive_live"
     name: "sshd clientalive live: sshd -T | grep clientalive"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.7. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2884,6 +3651,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-RHEL10-5.1.8-sshd_disable_forward-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -2895,6 +3664,11 @@ checks:
     expect:
       - { some: "~ ^(?i)disableforwarding yes" }
       - { none: "~ ^(?i)disableforwarding no" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)disableforwarding yes
+      - no line matches ^(?i)disableforwarding no
   - id: "CIS-RHEL10-5.1.8-ssh_disable_forward_live"
     name: "ssh disable forward live: sshd -T | grep disableforwarding"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -2916,6 +3690,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-RHEL10-5.1.9-sshd_gssapi-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.9. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2927,6 +3703,11 @@ checks:
     expect:
       - { some: "~ ^(?i)gssapiauthentication no" }
       - { none: "~ ^(?i)gssapiauthentication yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)gssapiauthentication no
+      - no line matches ^(?i)gssapiauthentication yes
   - id: "CIS-RHEL10-5.1.9-ssh_gssapi_live"
     name: "ssh gssapi live: sshd -T | grep -i gssapiauthentication"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.9. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2948,6 +3729,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-RHEL10-5.1.10-ssh_hostbased_auth-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.10. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2959,6 +3742,11 @@ checks:
     expect:
       - { some: "~ ^HostbasedAuthentication no" }
       - { none: "~ ^HostbasedAuthentication yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^HostbasedAuthentication no
+      - no line matches ^HostbasedAuthentication yes
   - id: "CIS-RHEL10-5.1.10-ssh_hostbased_auth_live"
     name: "ssh hostbased auth live: sshd -T | grep hostbasedauthentication"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.10. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2980,6 +3768,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-RHEL10-5.1.11-ssh_rhosts-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.11. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2991,6 +3781,11 @@ checks:
     expect:
       - { some: "~ ^IgnoreRhosts yes" }
       - { none: "~ ^IgnoreRhosts no" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^IgnoreRhosts yes
+      - no line matches ^IgnoreRhosts no
   - id: "CIS-RHEL10-5.1.11-ssh_rhosts_live"
     name: "ssh rhosts live: sshd -T | grep ignorerhosts"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.11. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3023,6 +3818,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-RHEL10-5.1.13-sshd_logingrace-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.13. NIST SP 800-53 Rev. 5: CM-6."
@@ -3034,6 +3831,11 @@ checks:
     expect:
       - { some: "~ ^LoginGraceTime ([1-9]|[1-5][0-9]|60)" }
       - { none: "~ ^LoginGraceTime (6[1-9]|[7-9][0-9]|[1-9][0-9]{2,})" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^LoginGraceTime ([1-9]|[1-5][0-9]|60)
+      - no line matches ^LoginGraceTime (6[1-9]|[7-9][0-9]|[1-9][0-9]{2,})
   - id: "CIS-RHEL10-5.1.13-ssh_logingrace_live"
     name: "ssh logingrace live: sshd -T | grep logingracetime"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.13. NIST SP 800-53 Rev. 5: CM-6."
@@ -3055,6 +3857,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-RHEL10-5.1.14-sshd_loglevel-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.14. NIST SP 800-53 Rev. 5: AU-3, AU-12, SI-5."
@@ -3066,6 +3870,11 @@ checks:
     expect:
       - { some: "~ ^LogLevel\\s(VERBOSE|INFO)" }
       - { none: "~ ^LogLevel DEBUG" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^LogLevel\s(VERBOSE|INFO)
+      - no line matches ^LogLevel DEBUG
   - id: "CIS-RHEL10-5.1.14-ssh_loglevel_live"
     name: "ssh loglevel live: sshd -T | grep loglevel"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.14. NIST SP 800-53 Rev. 5: AU-3, AU-12, SI-5."
@@ -3098,6 +3907,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-RHEL10-5.1.16-sshd_authtries-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.16. NIST SP 800-53 Rev. 5: AU-3."
@@ -3109,6 +3920,11 @@ checks:
     expect:
       - { some: "~ ^MaxAuthTries [1-4]" }
       - { none: "~ ^MaxAuthTries [5-9]" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^MaxAuthTries [1-4]
+      - no line matches ^MaxAuthTries [5-9]
   - id: "CIS-RHEL10-5.1.16-sshd_authtries_live"
     name: "sshd authtries live: sshd -T | grep maxauthtries"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.16. NIST SP 800-53 Rev. 5: AU-3."
@@ -3130,6 +3946,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-RHEL10-5.1.17-sshd_maxstartups-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.17. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3139,6 +3957,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ MaxStartups 10:30:60" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches MaxStartups 10:30:60
   - id: "CIS-RHEL10-5.1.17-ssh_maxstartups_live"
     name: "ssh maxstartups live: sshd -T | grep maxstartups"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.17. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3159,6 +3981,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-RHEL10-5.1.18-sshd_maxsessions-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.18. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3170,6 +3994,11 @@ checks:
     expect:
       - { some: "~ ^MaxSessions ([1-9]|10)" }
       - { none: "~ ^MaxSessions (1[1-9]|[2-9][0-9]|[1-9]{3,})" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^MaxSessions ([1-9]|10)
+      - no line matches ^MaxSessions (1[1-9]|[2-9][0-9]|[1-9]{3,})
   - id: "CIS-RHEL10-5.1.18-ssh_maxsessions_live"
     name: "ssh maxsessions live: sshd -T | grep maxsessions"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.18. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3191,6 +4020,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-RHEL10-5.1.19-sshs_permitempty_passwd-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.19. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3202,6 +4033,11 @@ checks:
     expect:
       - { some: "~ ^PermitEmptyPasswords no" }
       - { none: "~ ^PermitEmptyPasswords yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PermitEmptyPasswords no
+      - no line matches ^PermitEmptyPasswords yes
   - id: "CIS-RHEL10-5.1.19-ssh_empty_passwd_live"
     name: "ssh empty passwd live: sshd -T | grep permitemptypasswords"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.19. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3223,6 +4059,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-RHEL10-5.1.20-sshd_permit_root-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.20. NIST SP 800-53 Rev. 5: AC-6."
@@ -3234,6 +4072,11 @@ checks:
     expect:
       - { some: "~ ^PermitRootLogin no" }
       - { none: "~ ^PermitRootLogin yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PermitRootLogin no
+      - no line matches ^PermitRootLogin yes
   - id: "CIS-RHEL10-5.1.20-ssh_permit_root_live"
     name: "ssh permit root live: sshd -T | grep permitrootlogin"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.20. NIST SP 800-53 Rev. 5: AC-6."
@@ -3255,6 +4098,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-RHEL10-5.1.21-sshd_userenv-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.21. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3266,6 +4111,11 @@ checks:
     expect:
       - { some: "~ ^PermitUserEnvironment no" }
       - { none: "~ ^PermitUserEnvironment yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PermitUserEnvironment no
+      - no line matches ^PermitUserEnvironment yes
   - id: "CIS-RHEL10-5.1.21-ssh_userenv_live"
     name: "ssh userenv live: sshd -T | grep permituserenvironment"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.21. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3287,6 +4137,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-RHEL10-5.1.22-sshd_usepam-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.22. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3298,6 +4150,11 @@ checks:
     expect:
       - { some: "~ ^UsePAM yes" }
       - { none: "~ ^UsePAM no" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^UsePAM yes
+      - no line matches ^UsePAM no
   - id: "CIS-RHEL10-5.1.22-ssh_usepam_live"
     name: "ssh usepam live: sshd -T | grep usepam"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.22. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3318,6 +4175,10 @@ checks:
     run: |
       rpm -q --quiet sudo
     expect: true
+    remediation: |
+      Install the package sudo:
+
+      dnf install sudo
   - id: "CIS-RHEL10-5.2.2-pty_sudoers_d"
     name: "pty sudoers d: export PTY=`grep -q -Ei '^\\s*Defaults\\s+(\\[^#]+,\\s*)?use_pty' /etc/sudoers /etc/sudoers.d…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.2.2. NIST SP 800-53 Rev. 5: AC-6."
@@ -3383,6 +4244,8 @@ checks:
       f='/etc/pam.d/su'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/su.
   - id: "CIS-RHEL10-5.2.7-restrict_su-content"
     name: "/etc/pam.d/su has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.2.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -3392,6 +4255,10 @@ checks:
       cat '/etc/pam.d/su'
     allow_rc: any
     expect: { some: "~ ^auth.*required.*pam_wheel.so\\suse_uid\\sgroup=sugroup" }
+    remediation: |
+      Edit /etc/pam.d/su so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^auth.*required.*pam_wheel.so\suse_uid\sgroup=sugroup
   - id: "CIS-RHEL10-5.2.7-sugroup_etc_group"
     name: "sugroup etc group: grep sugroup /etc/group"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.2.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -3413,6 +4280,8 @@ checks:
       f='/etc/authselect/custom/cis_example_profile/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/authselect/custom/cis_example_profile/password-auth.
   - id: "CIS-RHEL10-5.3.1.1-passwd_auth_authselect_modules-content"
     name: "/etc/authselect/custom/cis_example_profile/password-auth has the expected content (9 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -3431,6 +4300,18 @@ checks:
       - { some: "~ password\\s*(required|requisite)\\s*pam_pwhistory.so\\s*use_authtok" }
       - { some: "~ password\\s*sufficient\\s*pam_unix.so\\s*sha512\\s*shadow\\s*{if not \"without-nullok\":nullok} use_authtok" }
       - { some: "~ session\\s*required\\s*pam_unix.so" }
+    remediation: |
+      Edit /etc/authselect/custom/cis_example_profile/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches auth\s*required\s*pam_faillock.so\s*preauth silent\s*{include if "with-faillock"}
+      - a line matches auth\s*sufficient\s*pam_unix.so\s*{if not "without-nullok":nullok}
+      - a line matches auth\s*required\s*pam_faillock.so\s*authfail\s*{include if "with-faillock"}
+      - a line matches account\s*required\s*pam_faillock.so\s*{include if "with-faillock"}
+      - a line matches account\s*required\s*pam_unix.so
+      - a line matches password\s*requisite\s*pam_pwquality.so\s*local_users_only
+      - a line matches password\s*(required|requisite)\s*pam_pwhistory.so\s*use_authtok
+      - a line matches password\s*sufficient\s*pam_unix.so\s*sha512\s*shadow\s*{if not "without-nullok":nullok} use_authtok
+      - a line matches session\s*required\s*pam_unix.so
   - id: "CIS-RHEL10-5.3.1.1-system_auth_authselect_modules-attrs"
     name: "/etc/authselect/custom/cis_example_profile/system-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -3440,6 +4321,8 @@ checks:
       f='/etc/authselect/custom/cis_example_profile/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/authselect/custom/cis_example_profile/system-auth.
   - id: "CIS-RHEL10-5.3.1.1-system_auth_authselect_modules-content"
     name: "/etc/authselect/custom/cis_example_profile/system-auth has the expected content (9 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -3458,6 +4341,18 @@ checks:
       - { some: "~ password\\s*(required|requisite)\\s*pam_pwhistory.so\\s*use_authtok" }
       - { some: "~ password\\s*sufficient\\s*pam_unix.so\\s*sha512\\s*shadow\\s*{if not \"without-nullok\":nullok} use_authtok" }
       - { some: "~ session\\s*required\\s*pam_unix.so" }
+    remediation: |
+      Edit /etc/authselect/custom/cis_example_profile/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches auth\s*required\s*pam_faillock.so\s*preauth silent\s*{include if "with-faillock"}
+      - a line matches auth\s*sufficient\s*pam_unix.so\s*{if not "without-nullok":nullok}
+      - a line matches auth\s*required\s*pam_faillock.so\s*authfail\s*{include if "with-faillock"}
+      - a line matches account\s*required\s*pam_faillock.so\s*{include if "with-faillock"}
+      - a line matches account\s*required\s*pam_unix.so
+      - a line matches password\s*requisite\s*pam_pwquality.so\s*local_users_only
+      - a line matches password\s*(required|requisite)\s*pam_pwhistory.so\s*use_authtok
+      - a line matches password\s*sufficient\s*pam_unix.so\s*sha512\s*shadow\s*{if not "without-nullok":nullok} use_authtok
+      - a line matches session\s*required\s*pam_unix.so
   - id: "CIS-RHEL10-5.3.1.2-passwd_auth_faillock-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.2. NIST SP 800-53 Rev. 5: AC-7."
@@ -3467,6 +4362,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-RHEL10-5.3.1.2-passwd_auth_faillock-content"
     name: "/etc/pam.d/password-auth has the expected content (3 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.2. NIST SP 800-53 Rev. 5: AC-7."
@@ -3479,6 +4376,12 @@ checks:
       - { some: "~ auth\\s+required\\s+pam_faillock.so preauth silent" }
       - { some: "~ auth\\s+required\\s+pam_faillock.so authfail" }
       - { some: "~ account\\s+required\\s+pam_faillock.so" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches auth\s+required\s+pam_faillock.so preauth silent
+      - a line matches auth\s+required\s+pam_faillock.so authfail
+      - a line matches account\s+required\s+pam_faillock.so
   - id: "CIS-RHEL10-5.3.1.2-system_auth_faillock-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.2. NIST SP 800-53 Rev. 5: AC-7."
@@ -3488,6 +4391,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-RHEL10-5.3.1.2-system_auth_faillock-content"
     name: "/etc/pam.d/system-auth has the expected content (3 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.2. NIST SP 800-53 Rev. 5: AC-7."
@@ -3500,6 +4405,12 @@ checks:
       - { some: "~ auth\\s+required\\s+pam_faillock.so preauth silent" }
       - { some: "~ auth\\s+required\\s+pam_faillock.so authfail" }
       - { some: "~ account\\s+required\\s+pam_faillock.so" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches auth\s+required\s+pam_faillock.so preauth silent
+      - a line matches auth\s+required\s+pam_faillock.so authfail
+      - a line matches account\s+required\s+pam_faillock.so
   - id: "CIS-RHEL10-5.3.1.3-passwd_auth_pwquality-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.3. NIST SP 800-53 Rev. 5: CM-6."
@@ -3509,6 +4420,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-RHEL10-5.3.1.3-passwd_auth_pwquality-content"
     name: "/etc/pam.d/password-auth has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.3. NIST SP 800-53 Rev. 5: CM-6."
@@ -3518,6 +4431,10 @@ checks:
       cat '/etc/pam.d/password-auth'
     allow_rc: any
     expect: { some: "~ password\\s+requisite\\s+pam_pwquality.so local_users_only" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches password\s+requisite\s+pam_pwquality.so local_users_only
   - id: "CIS-RHEL10-5.3.1.3-system_auth_pwquality-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.3. NIST SP 800-53 Rev. 5: CM-6."
@@ -3527,6 +4444,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-RHEL10-5.3.1.3-system_auth_pwquality-content"
     name: "/etc/pam.d/system-auth has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.3. NIST SP 800-53 Rev. 5: CM-6."
@@ -3536,6 +4455,10 @@ checks:
       cat '/etc/pam.d/system-auth'
     allow_rc: any
     expect: { some: "~ password\\s+requisite\\s+pam_pwquality.so local_users_only" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches password\s+requisite\s+pam_pwquality.so local_users_only
   - id: "CIS-RHEL10-5.3.1.4-passwd_auth_pwhistory-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -3545,6 +4468,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-RHEL10-5.3.1.4-passwd_auth_pwhistory-content"
     name: "/etc/pam.d/password-auth has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -3554,6 +4479,10 @@ checks:
       cat '/etc/pam.d/password-auth'
     allow_rc: any
     expect: { some: "~ password\\s+(required|requisite)\\s+pam_pwhistory.so use_authtok" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches password\s+(required|requisite)\s+pam_pwhistory.so use_authtok
   - id: "CIS-RHEL10-5.3.1.4-system_auth_pwhistory-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -3563,6 +4492,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-RHEL10-5.3.1.4-system_auth_pwhistory-content"
     name: "/etc/pam.d/system-auth has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -3572,6 +4503,10 @@ checks:
       cat '/etc/pam.d/system-auth'
     allow_rc: any
     expect: { some: "~ password\\s+(required|requisite)\\s+pam_pwhistory.so use_authtok" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches password\s+(required|requisite)\s+pam_pwhistory.so use_authtok
   - id: "CIS-RHEL10-5.3.1.5-passwd_auth_pam_unix-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.5. NIST SP 800-53 Rev. 5: IA-5."
@@ -3581,6 +4516,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-RHEL10-5.3.1.5-passwd_auth_pam_unix-content"
     name: "/etc/pam.d/password-auth has the expected content (4 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.5. NIST SP 800-53 Rev. 5: IA-5."
@@ -3594,6 +4531,13 @@ checks:
       - { some: "~ account\\s+required\\s+pam_unix.so" }
       - { some: "~ password\\s+sufficient\\s+pam_unix.so sha512 shadow ({if not \"without-nullok\":nullok}|) use_authtok" }
       - { some: "~ session\\s+required\\s+pam_unix.so" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches auth\s+sufficient\s+pam_unix.so
+      - a line matches account\s+required\s+pam_unix.so
+      - a line matches password\s+sufficient\s+pam_unix.so sha512 shadow ({if not "without-nullok":nullok}|) use_authtok
+      - a line matches session\s+required\s+pam_unix.so
   - id: "CIS-RHEL10-5.3.1.5-system_auth_pam_unix-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.5. NIST SP 800-53 Rev. 5: IA-5."
@@ -3603,6 +4547,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-RHEL10-5.3.1.5-system_auth_pam_unix-content"
     name: "/etc/pam.d/system-auth has the expected content (4 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.5. NIST SP 800-53 Rev. 5: IA-5."
@@ -3616,6 +4562,13 @@ checks:
       - { some: "~ account\\s+required\\s+pam_unix.so" }
       - { some: "~ password\\s+sufficient\\s+pam_unix.so sha512 shadow ({if not \"without-nullok\":nullok}|) use_authtok" }
       - { some: "~ session\\s+required\\s+pam_unix.so" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches auth\s+sufficient\s+pam_unix.so
+      - a line matches account\s+required\s+pam_unix.so
+      - a line matches password\s+sufficient\s+pam_unix.so sha512 shadow ({if not "without-nullok":nullok}|) use_authtok
+      - a line matches session\s+required\s+pam_unix.so
   - id: "CIS-RHEL10-5.3.2.1.1-faillock_attempts_deny-attrs"
     name: "/etc/security/faillock.conf: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -3625,6 +4578,8 @@ checks:
       f='/etc/security/faillock.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/faillock.conf.
   - id: "CIS-RHEL10-5.3.2.1.1-faillock_attempts_deny-content"
     name: "/etc/security/faillock.conf has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -3636,6 +4591,11 @@ checks:
     expect:
       - { some: "~ ^deny\\s*=\\s*[1-5]$" }
       - { none: "~ ^deny\\s*=\\s*([6-9]|[0-9]{2,})" }
+    remediation: |
+      Edit /etc/security/faillock.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^deny\s*=\s*[1-5]$
+      - no line matches ^deny\s*=\s*([6-9]|[0-9]{2,})
   - id: "CIS-RHEL10-5.3.2.1.1-faillock_attempts_deny_removed"
     name: "faillock attempts deny removed: grep -Pl -- '\\bpam_faillock\\.so\\s+([^#\\n\\r]+\\s+)?deny\\b' /etc/pam.d/system-auth /etc/pam.…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -3656,6 +4616,8 @@ checks:
       f='/etc/security/faillock.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/faillock.conf.
   - id: "CIS-RHEL10-5.3.2.1.2-faillock_unlock_time-content"
     name: "/etc/security/faillock.conf has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -3667,6 +4629,11 @@ checks:
     expect:
       - { some: "~ ^unlock_time\\s*=\\s*([1-9]|[1-9][0-9]|[1-8][0-9]{1,2}|900)$" }
       - { none: "~ ^unlock_time\\s*=\\s*(90[1-9]|9[1-9][0-9]|[1-9][0-9][0-9]{2,})" }
+    remediation: |
+      Edit /etc/security/faillock.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^unlock_time\s*=\s*([1-9]|[1-9][0-9]|[1-8][0-9]{1,2}|900)$
+      - no line matches ^unlock_time\s*=\s*(90[1-9]|9[1-9][0-9]|[1-9][0-9][0-9]{2,})
   - id: "CIS-RHEL10-5.3.2.1.2-faillock_unlock_time_removed"
     name: "faillock unlock time removed: grep -Pl -- '\\bpam_faillock\\.so\\s+([^#\\n\\r]+\\s+)?unlock_time\\b' /etc/pam.d/system-auth /e…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -3687,6 +4654,8 @@ checks:
       f='/etc/security/faillock.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/faillock.conf.
   - id: "CIS-RHEL10-5.3.2.1.3-faillock_even_root-content"
     name: "/etc/security/faillock.conf has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3696,6 +4665,10 @@ checks:
       cat '/etc/security/faillock.conf'
     allow_rc: any
     expect: { some: "~ ^(even_deny_root|root_unlock_time\\s*=\\s*([6-9][0-9]|[1-3][0-9]{2,2}))" }
+    remediation: |
+      Edit /etc/security/faillock.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(even_deny_root|root_unlock_time\s*=\s*([6-9][0-9]|[1-3][0-9]{2,2}))
   - id: "CIS-RHEL10-5.3.2.1.3-faillock_even_root_removed"
     name: "faillock even root removed: grep -Pl -- '\\bpam_faillock\\.so\\s+([^#\\n\\r]+\\s+)?(even_deny_root|root_unlock_time)' /etc/…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3864,6 +4837,8 @@ checks:
       f='/etc/security/pwhistory.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/pwhistory.conf.
   - id: "CIS-RHEL10-5.3.2.3.1-pwhistory_remember-content"
     name: "/etc/security/pwhistory.conf has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.3.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3873,6 +4848,10 @@ checks:
       cat '/etc/security/pwhistory.conf'
     allow_rc: any
     expect: { some: "~ ^remember\\s*=\\s*(2[4-9]|[3-9][0-9])" }
+    remediation: |
+      Edit /etc/security/pwhistory.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^remember\s*=\s*(2[4-9]|[3-9][0-9])
   - id: "CIS-RHEL10-5.3.2.3.1-pwhistory_remember_pam_configs"
     name: "pwhistory remember pam configs: grep -Pi -- '^\\s*password\\s+(requisite|required|sufficient)\\s+pam_pwhistory\\.so\\s+([^#\\n\\…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.3.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3893,6 +4872,8 @@ checks:
       f='/etc/security/pwhistory.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/pwhistory.conf.
   - id: "CIS-RHEL10-5.3.2.3.2-pwhistory_enforce_for_root-content"
     name: "/etc/security/pwhistory.conf has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.3.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -3902,6 +4883,10 @@ checks:
       cat '/etc/security/pwhistory.conf'
     allow_rc: any
     expect: { some: "~ ^enforce_for_root" }
+    remediation: |
+      Edit /etc/security/pwhistory.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^enforce_for_root
   - id: "CIS-RHEL10-5.3.2.3.3-pwhistory_use_authtok_password-auth-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.3.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3911,6 +4896,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-RHEL10-5.3.2.3.3-pwhistory_use_authtok_password-auth-content"
     name: "/etc/pam.d/password-auth has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.3.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3920,6 +4907,10 @@ checks:
       cat '/etc/pam.d/password-auth'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s*(requisite|required)\\s*pam_pwhistory.so.*use_authtok" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s*(requisite|required)\s*pam_pwhistory.so.*use_authtok
   - id: "CIS-RHEL10-5.3.2.3.3-pwhistory_use_authtok_system-auth-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.3.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3929,6 +4920,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-RHEL10-5.3.2.3.3-pwhistory_use_authtok_system-auth-content"
     name: "/etc/pam.d/system-auth has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.3.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3938,6 +4931,10 @@ checks:
       cat '/etc/pam.d/system-auth'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s*(requisite|required)\\s*pam_pwhistory.so.*use_authtok" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s*(requisite|required)\s*pam_pwhistory.so.*use_authtok
   - id: "CIS-RHEL10-5.3.2.4.1-pam_unix_nullok_password-auth-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.4.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -3947,6 +4944,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-RHEL10-5.3.2.4.1-pam_unix_nullok_password-auth-content"
     name: "/etc/pam.d/password-auth has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.4.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -3956,6 +4955,10 @@ checks:
       cat '/etc/pam.d/password-auth'
     allow_rc: any
     expect: { none: "~ .*pam_unix.so.*nullok" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - no line matches .*pam_unix.so.*nullok
   - id: "CIS-RHEL10-5.3.2.4.1-pam_unix_nullok_system-auth-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.4.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -3965,6 +4968,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-RHEL10-5.3.2.4.1-pam_unix_nullok_system-auth-content"
     name: "/etc/pam.d/system-auth has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.4.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -3974,6 +4979,10 @@ checks:
       cat '/etc/pam.d/system-auth'
     allow_rc: any
     expect: { none: "~ .*pam_unix.so.*nullok" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - no line matches .*pam_unix.so.*nullok
   - id: "CIS-RHEL10-5.3.2.4.2-pam_unix_remember_password-auth-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.4.2. NIST SP 800-53 Rev. 5: NA."
@@ -3983,6 +4992,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-RHEL10-5.3.2.4.2-pam_unix_remember_password-auth-content"
     name: "/etc/pam.d/password-auth has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.4.2. NIST SP 800-53 Rev. 5: NA."
@@ -3992,6 +5003,10 @@ checks:
       cat '/etc/pam.d/password-auth'
     allow_rc: any
     expect: { none: "~ .*pam_unix.so.*remember" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - no line matches .*pam_unix.so.*remember
   - id: "CIS-RHEL10-5.3.2.4.2-pam_unix_remember_system-auth-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.4.2. NIST SP 800-53 Rev. 5: NA."
@@ -4001,6 +5016,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-RHEL10-5.3.2.4.2-pam_unix_remember_system-auth-content"
     name: "/etc/pam.d/system-auth has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.4.2. NIST SP 800-53 Rev. 5: NA."
@@ -4010,6 +5027,10 @@ checks:
       cat '/etc/pam.d/system-auth'
     allow_rc: any
     expect: { none: "~ .*pam_unix.so.*remember" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - no line matches .*pam_unix.so.*remember
   - id: "CIS-RHEL10-5.3.2.4.3-pam_unix_strong_password_password-auth-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.4.3. NIST SP 800-53 Rev. 5: NA."
@@ -4019,6 +5040,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-RHEL10-5.3.2.4.3-pam_unix_strong_password_password-auth-content"
     name: "/etc/pam.d/password-auth has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.4.3. NIST SP 800-53 Rev. 5: NA."
@@ -4028,6 +5051,10 @@ checks:
       cat '/etc/pam.d/password-auth'
     allow_rc: any
     expect: { some: "~ password\\s+.*\\s+pam_unix.so.*(yescrypt|sha512)" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches password\s+.*\s+pam_unix.so.*(yescrypt|sha512)
   - id: "CIS-RHEL10-5.3.2.4.3-pam_unix_strong_password_system-auth-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.4.3. NIST SP 800-53 Rev. 5: NA."
@@ -4037,6 +5064,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-RHEL10-5.3.2.4.3-pam_unix_strong_password_system-auth-content"
     name: "/etc/pam.d/system-auth has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.4.3. NIST SP 800-53 Rev. 5: NA."
@@ -4046,6 +5075,10 @@ checks:
       cat '/etc/pam.d/system-auth'
     allow_rc: any
     expect: { some: "~ password\\s+.*\\s+pam_unix.so.*(yescrypt|sha512)" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches password\s+.*\s+pam_unix.so.*(yescrypt|sha512)
   - id: "CIS-RHEL10-5.3.2.4.4-pam_unix_use_authtok_password-auth-attrs"
     name: "/etc/pam.d/password-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.4.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -4055,6 +5088,8 @@ checks:
       f='/etc/pam.d/password-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/password-auth.
   - id: "CIS-RHEL10-5.3.2.4.4-pam_unix_use_authtok_password-auth-content"
     name: "/etc/pam.d/password-auth has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.4.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -4064,6 +5099,10 @@ checks:
       cat '/etc/pam.d/password-auth'
     allow_rc: any
     expect: { some: "~ password\\s+([^#\\n\\r]+)\\s+pam_unix\\.so.*use_authtok" }
+    remediation: |
+      Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches password\s+([^#\n\r]+)\s+pam_unix\.so.*use_authtok
   - id: "CIS-RHEL10-5.3.2.4.4-pam_unix_use_authtok_system-auth-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.4.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -4073,6 +5112,8 @@ checks:
       f='/etc/pam.d/system-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/system-auth.
   - id: "CIS-RHEL10-5.3.2.4.4-pam_unix_use_authtok_system-auth-content"
     name: "/etc/pam.d/system-auth has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.4.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -4082,6 +5123,10 @@ checks:
       cat '/etc/pam.d/system-auth'
     allow_rc: any
     expect: { some: "~ password\\s+([^#\\n\\r]+)\\s+pam_unix\\.so.*use_authtok" }
+    remediation: |
+      Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches password\s+([^#\n\r]+)\s+pam_unix\.so.*use_authtok
   - id: "CIS-RHEL10-5.4.1.1-login_defs_max_days"
     name: "login defs max days: grep PASS_MAX_DAYS /etc/login.defs"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -4104,6 +5149,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-RHEL10-5.4.1.2-login_defs_min_days-content"
     name: "/etc/login.defs has the expected content (2 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.1.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -4115,6 +5162,11 @@ checks:
     expect:
       - { some: "~ ^PASS_MIN_DAYS\\s[1-9]" }
       - { none: "~ ^PASS_MIN_DAYS\\s0" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_MIN_DAYS\s[1-9]
+      - no line matches ^PASS_MIN_DAYS\s0
   - id: "CIS-RHEL10-5.4.1.3-login_defs_warn_age-attrs"
     name: "/etc/login.defs: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -4124,6 +5176,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-RHEL10-5.4.1.3-login_defs_warn_age-content"
     name: "/etc/login.defs has the expected content (3 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -4136,6 +5190,12 @@ checks:
       - { some: "~ ^PASS_WARN_AGE\\s+7$" }
       - { some: "~ ^PASS_WARN_AGE\\s+(7|[1-9][0-9]{1,3})$" }
       - { none: "~ ^PASS_WARN_AGE\\s+[1-6]$" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_WARN_AGE\s+7$
+      - a line matches ^PASS_WARN_AGE\s+(7|[1-9][0-9]{1,3})$
+      - no line matches ^PASS_WARN_AGE\s+[1-6]$
   - id: "CIS-RHEL10-5.4.1.3-check_users_MAX_DAYS"
     name: "check users MAX DAYS: awk -F: '($2~/^\\$.+\\$/) {if($6 \u003c 7) print \"FAIL: \" $1 \" PASS_WARN_AGE: \" $6}' /etc/shadow"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -4158,6 +5218,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-RHEL10-5.4.1.4-login_defs_hashing-content"
     name: "/etc/login.defs has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.1.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -4167,6 +5229,10 @@ checks:
       cat '/etc/login.defs'
     allow_rc: any
     expect: { some: "~ ^ENCRYPT_METHOD (SHA512|YESCRYPT)" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^ENCRYPT_METHOD (SHA512|YESCRYPT)
   - id: "CIS-RHEL10-5.4.1.5-inactive_passwd"
     name: "inactive passwd: useradd -D | grep INACTIVE"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.1.5. NIST SP 800-53 Rev. 5: NA."
@@ -4203,6 +5269,11 @@ checks:
         if [ "$t" -gt "$now" ]; then echo "$usr: last password change $d is in the future"; fi
       done
     expect: empty
+    remediation: |
+      Check the system clock, then set the last password change of every listed user to today, or expire the password so it must be changed at the next login:
+
+      chage --lastday "$(date +%Y-%m-%d)" USER
+      chage --lastday 0 USER
   - id: "CIS-RHEL10-5.4.2.1-uid_0_check"
     name: "uid 0 check: awk -F: '($3 == 0) { print $1 }' /etc/passwd"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.2.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -4305,6 +5376,8 @@ checks:
       f='/etc/shells'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/shells.
   - id: "CIS-RHEL10-5.4.3.1-nologin_not_in_shells-content"
     name: "/etc/shells has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.3.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -4314,6 +5387,10 @@ checks:
       cat '/etc/shells'
     allow_rc: any
     expect: { none: "~ .*nologin" }
+    remediation: |
+      Edit /etc/shells so that its lines meet these conditions (regular expressions):
+
+      - no line matches .*nologin
   - id: "CIS-RHEL10-5.4.3.2-check_timeout"
     name: "check timeout: grep TMOUT /etc/profile.d/*.sh /etc/profile /etc/profile.d/*.sh| cut -d \":\" -f2"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.3.2. NIST SP 800-53 Rev. 5: NA."
@@ -4347,6 +5424,10 @@ checks:
     run: |
       rpm -q --quiet aide
     expect: true
+    remediation: |
+      Install the package aide:
+
+      dnf install aide
   - id: "CIS-RHEL10-6.1.2-aide_cron"
     name: "aide cron: grep -rs aide /etc/cron.* /etc/crontab /var/spool/cron/*"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.1.2. NIST SP 800-53 Rev. 5: AU-2, CM-3."
@@ -4382,6 +5463,10 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journald | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service systemd-journald:
+
+      systemctl enable systemd-journald
   - id: "CIS-RHEL10-6.2.1.1-systemd-journald-running"
     name: "Service systemd-journald is running"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.1.1. NIST SP 800-53 Rev. 5: SC-24."
@@ -4390,6 +5475,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journald | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service systemd-journald:
+
+      systemctl start systemd-journald
   - id: "CIS-RHEL10-6.2.1.2-tmpfile_creation"
     name: "tmpfile creation: config_files=(/etc/tmpfiles.d/systemd.conf /usr/lib/tmpfiles.d/systemd.conf)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.1.2. NIST SP 800-53 Rev. 5: AC-3, AU-2, AU-12, MP-2, SI-5."
@@ -4446,6 +5535,10 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journald | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service systemd-journald:
+
+      systemctl enable systemd-journald
   - id: "CIS-RHEL10-6.2.1.4-journald_system-running"
     name: "Service systemd-journald is running"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.1.4. NIST SP 800-53 Rev. 5: NA."
@@ -4454,6 +5547,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journald | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service systemd-journald:
+
+      systemctl start systemd-journald
   - id: "CIS-RHEL10-6.2.1.4-not_rsyslog_system-enabled"
     name: "Service rsyslog is not enabled"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.1.4. NIST SP 800-53 Rev. 5: NA."
@@ -4462,6 +5559,12 @@ checks:
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service rsyslog, unless the system needs it:
+
+      systemctl disable rsyslog
+
+      To keep other units from starting it, mask it instead: systemctl mask rsyslog
   - id: "CIS-RHEL10-6.2.1.4-not_rsyslog_system-running"
     name: "Service rsyslog is not running"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.1.4. NIST SP 800-53 Rev. 5: NA."
@@ -4470,6 +5573,10 @@ checks:
     run: |
       systemctl show -p ActiveState rsyslog | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service rsyslog, unless the system needs it:
+
+      systemctl stop rsyslog
   - id: "CIS-RHEL10-6.2.2.1.1-systemd-journal-remote"
     name: "Package systemd-journal-remote is installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.2.1.1. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -4478,6 +5585,10 @@ checks:
     run: |
       rpm -q --quiet systemd-journal-remote
     expect: true
+    remediation: |
+      Install the package systemd-journal-remote:
+
+      dnf install systemd-journal-remote
   - id: "CIS-RHEL10-6.2.2.1.2-journald_remote_config-attrs"
     name: "/etc/systemd/journal-upload.conf: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.2.1.2. NIST SP 800-53 Rev. 5: AU-2, AU-12."
@@ -4487,6 +5598,8 @@ checks:
       f='/etc/systemd/journal-upload.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/systemd/journal-upload.conf.
   - id: "CIS-RHEL10-6.2.2.1.2-journald_remote_config-content"
     name: "/etc/systemd/journal-upload.conf has the expected content (4 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.2.1.2. NIST SP 800-53 Rev. 5: AU-2, AU-12."
@@ -4500,6 +5613,13 @@ checks:
       - { some: "~ ^ServerKeyFile=.*\\.pem" }
       - { some: "~ ^ServerCertificateFile=.*\\.pem" }
       - { some: "~ ^TrustedCertificateFile=.*\\.pem" }
+    remediation: |
+      Edit /etc/systemd/journal-upload.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^URL=
+      - a line matches ^ServerKeyFile=.*\.pem
+      - a line matches ^ServerCertificateFile=.*\.pem
+      - a line matches ^TrustedCertificateFile=.*\.pem
   - id: "CIS-RHEL10-6.2.2.1.3-systemd-journal-upload.service-enabled"
     name: "Service systemd-journal-upload.service is enabled"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.2.1.3. NIST SP 800-53 Rev. 5: AU-2, AU-12."
@@ -4508,6 +5628,10 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journal-upload.service | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service systemd-journal-upload.service:
+
+      systemctl enable systemd-journal-upload.service
   - id: "CIS-RHEL10-6.2.2.1.3-systemd-journal-upload.service-running"
     name: "Service systemd-journal-upload.service is running"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.2.1.3. NIST SP 800-53 Rev. 5: AU-2, AU-12."
@@ -4516,6 +5640,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journal-upload.service | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service systemd-journal-upload.service:
+
+      systemctl start systemd-journal-upload.service
   - id: "CIS-RHEL10-6.2.2.1.4-systemd-journal-remote.socket-enabled"
     name: "Service systemd-journal-remote.socket is not enabled"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.2.1.4. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -4524,6 +5652,12 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journal-remote.socket | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service systemd-journal-remote.socket, unless the system needs it:
+
+      systemctl disable systemd-journal-remote.socket
+
+      To keep other units from starting it, mask it instead: systemctl mask systemd-journal-remote.socket
   - id: "CIS-RHEL10-6.2.2.1.4-systemd-journal-remote.socket-running"
     name: "Service systemd-journal-remote.socket is not running"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.2.1.4. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -4532,6 +5666,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journal-remote.socket | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service systemd-journal-remote.socket, unless the system needs it:
+
+      systemctl stop systemd-journal-remote.socket
   - id: "CIS-RHEL10-6.2.2.1.4-journald_socket_masked"
     name: "journald socket masked: systemctl is-enabled systemd-journal-remote.socket"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.2.1.4. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -4586,6 +5724,10 @@ checks:
     run: |
       rpm -q --quiet rsyslog
     expect: true
+    remediation: |
+      Install the package rsyslog:
+
+      dnf install rsyslog
   - id: "CIS-RHEL10-6.2.3.2-rsyslog-enabled"
     name: "Service rsyslog is enabled"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.3.2. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12."
@@ -4594,6 +5736,10 @@ checks:
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service rsyslog:
+
+      systemctl enable rsyslog
   - id: "CIS-RHEL10-6.2.3.2-rsyslog-running"
     name: "Service rsyslog is running"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.3.2. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12."
@@ -4602,6 +5748,10 @@ checks:
     run: |
       systemctl show -p ActiveState rsyslog | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service rsyslog:
+
+      systemctl start rsyslog
   - id: "CIS-RHEL10-6.2.3.3-forward_journald_conf"
     name: "forward journald conf: systemd-analyze cat-config systemd/journald.conf | grep -Ei '^\\s*ForwardToSyslog\\s*=' | t…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.3.3. NIST SP 800-53 Rev. 5: AC-3, AU-2, AU-4, AU-12, MP-2."
@@ -4634,6 +5784,8 @@ checks:
       f='/etc/rsyslog.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/rsyslog.conf.
   - id: "CIS-RHEL10-6.2.3.5-etc_rsyslog.conf-content"
     name: "/etc/rsyslog.conf has the expected content (13 rules)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.3.5. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -4656,6 +5808,22 @@ checks:
       - { some: "~ ^local2,local3.\\*\\s+-/var/log/localmessages" }
       - { some: "~ ^local4,local5.\\*\\s+-/var/log/localmessages" }
       - { some: "~ ^local6,local7.\\*\\s+-/var/log/localmessages" }
+    remediation: |
+      Edit /etc/rsyslog.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\*.emerg\s+:omusrmsg:\*
+      - a line matches auth,authpriv.\*\s+/var/log/secure
+      - a line matches ^mail.\*\s+-/var/log/mail
+      - a line matches ^mail.info\s+-/var/log/mail.info
+      - a line matches ^mail.err\s+/var/log/mail.err
+      - a line matches ^cron.\*\s+/var/log/cron
+      - a line matches ^*.=warning;\*.=err\s+-/var/log/warn
+      - a line matches ^*.crit\s+/var/log/warn
+      - a line matches ^*.*;mail.none;news.none\s+/var/log/messages
+      - a line matches ^local0,local1.\*\s+-/var/log/localmessages
+      - a line matches ^local2,local3.\*\s+-/var/log/localmessages
+      - a line matches ^local4,local5.\*\s+-/var/log/localmessages
+      - a line matches ^local6,local7.\*\s+-/var/log/localmessages
   - id: "CIS-RHEL10-6.2.3.8-etc_logrotate.conf-attrs"
     name: "/etc/logrotate.conf: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.3.8. NIST SP 800-53 Rev. 5: AU-8."
@@ -4665,6 +5833,8 @@ checks:
       f='/etc/logrotate.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/logrotate.conf.
   - id: "CIS-RHEL10-6.2.3.8-etc_logrotate.conf-content"
     name: "/etc/logrotate.conf has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.3.8. NIST SP 800-53 Rev. 5: AU-8."
@@ -4674,6 +5844,10 @@ checks:
       cat '/etc/logrotate.conf'
     allow_rc: any
     expect: { some: "~ ^\\s*rotate\\s+[0-9]+" }
+    remediation: |
+      Edit /etc/logrotate.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*rotate\s+[0-9]+
   - id: "CIS-RHEL10-6.2.4.1-logfile_configured_login_files"
     name: "logfile configured login files: find /var/log/ -type f -perm /g+x,o+wx -exec ls -l \"{}\" + | grep -E \"[b,u,w]tmp.*|lastlog\""
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.4.1. NIST SP 800-53 Rev. 5: AU-8."
@@ -4715,6 +5889,10 @@ checks:
     run: |
       rpm -q --quiet audit
     expect: true
+    remediation: |
+      Install the package audit:
+
+      dnf install audit
   - id: "CIS-RHEL10-6.3.1.1-audit-libs"
     name: "Package audit-libs is installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.3.1.1. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12, SI-5."
@@ -4723,6 +5901,10 @@ checks:
     run: |
       rpm -q --quiet audit-libs
     expect: true
+    remediation: |
+      Install the package audit-libs:
+
+      dnf install audit-libs
   - id: "CIS-RHEL10-6.3.1.2-audit_default_grub"
     name: "audit default grub: grep audit= /etc/default/grub"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.3.1.2. NIST SP 800-53 Rev. 5: AU-12."
@@ -4764,6 +5946,10 @@ checks:
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service auditd:
+
+      systemctl enable auditd
   - id: "CIS-RHEL10-6.3.1.4-auditd-running"
     name: "Service auditd is running"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.3.1.4. NIST SP 800-53 Rev. 5: AU-12."
@@ -4772,6 +5958,10 @@ checks:
     run: |
       systemctl show -p ActiveState auditd | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service auditd:
+
+      systemctl start auditd
   - id: "CIS-RHEL10-6.3.2.1-max_log_auditd_conf"
     name: "max log auditd conf: grep max_log_file /etc/audit/auditd.conf"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.3.2.1. NIST SP 800-53 Rev. 5: AU-8."
@@ -5747,6 +6937,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/passwd if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/passwd'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/passwd'
   - id: "CIS-RHEL10-7.1.2-passwd-_perms-attrs"
     name: "/etc/passwd-: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5759,6 +6954,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/passwd- if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/passwd-'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/passwd-'
   - id: "CIS-RHEL10-7.1.3-etcgroup_perms-attrs"
     name: "/etc/group: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.1.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5771,6 +6971,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/group if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/group'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/group'
   - id: "CIS-RHEL10-7.1.4-etcgroup-_perms-attrs"
     name: "/etc/group-: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5783,6 +6988,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/group- if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/group-'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/group-'
   - id: "CIS-RHEL10-7.1.5-etc_shadow_perms-attrs"
     name: "/etc/shadow: exists, mode 0000 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.1.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5795,6 +7005,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shadow if it is missing, then set owner root and group root and remove the permissions u-rwxs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/shadow'
+      chmod u-rwxs,g-rwxs,o-rwx,a-t '/etc/shadow'
   - id: "CIS-RHEL10-7.1.6-etc_shadow-_perms-attrs"
     name: "/etc/shadow-: exists, mode 0000 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.1.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5807,6 +7022,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shadow- if it is missing, then set owner root and group root and remove the permissions u-rwxs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/shadow-'
+      chmod u-rwxs,g-rwxs,o-rwx,a-t '/etc/shadow-'
   - id: "CIS-RHEL10-7.1.7-etc_gshadow_perms-attrs"
     name: "/etc/gshadow: exists, mode 0000 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.1.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5819,6 +7039,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/gshadow if it is missing, then set owner root and group root and remove the permissions u-rwxs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/gshadow'
+      chmod u-rwxs,g-rwxs,o-rwx,a-t '/etc/gshadow'
   - id: "CIS-RHEL10-7.1.8-etc_gshadow-_perms-attrs"
     name: "/etc/gshadow-: exists, mode 0000 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5831,6 +7056,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/gshadow- if it is missing, then set owner root and group root and remove the permissions u-rwxs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/gshadow-'
+      chmod u-rwxs,g-rwxs,o-rwx,a-t '/etc/gshadow-'
   - id: "CIS-RHEL10-7.1.9-etc_shells_perms-attrs"
     name: "/etc/shells: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.1.9. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5843,6 +7073,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shells if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/shells'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/shells'
   - id: "CIS-RHEL10-7.1.10-etc_security_opasswd__old_perms-attrs"
     name: "/etc/security/opasswd.old: mode 0600 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.1.10. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5855,6 +7090,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/security/opasswd.old if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/security/opasswd.old'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/security/opasswd.old'
   - id: "CIS-RHEL10-7.1.10-etc_security_opasswd_perms-attrs"
     name: "/etc/security/opasswd: mode 0600 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.1.10. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5867,6 +7107,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/security/opasswd if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/security/opasswd'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/security/opasswd'
   - id: "CIS-RHEL10-7.1.11-sticky_bit"
     name: "sticky bit: df --local -P | awk '{if (NR!=1) print $7}' | xargs -I '{}' find '{}' -xdev -type d \\( -p…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.1.11. NIST SP 800-53 Rev. 5: AC-3, MP-2."

@@ -232,6 +232,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/tmp'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /tmp on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data. A tmpfs mount on /tmp, e.g. with systemd's tmp.mount, counts as well.
   - id: "CIS-DEBIAN12-1.1.2.1.2-tmp_nodev_options"
     name: "/tmp is a separate mount with nodev"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -243,6 +245,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /tmp with the option nodev: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.1.2-tmp_fstab_nodev_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -252,6 +260,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.1.2-tmp_fstab_nodev_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -261,6 +271,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*nodev
   - id: "CIS-DEBIAN12-1.1.2.1.3-tmp_nosuid_options"
     name: "/tmp is a separate mount with nosuid"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -272,6 +286,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /tmp with the option nosuid: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.1.3-tmp_fstab_nosuid_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -281,6 +301,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.1.3-tmp_fstab_nosuid_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -290,6 +312,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*nosuid.*
   - id: "CIS-DEBIAN12-1.1.2.1.4-tmp_noexec_options"
     name: "/tmp is a separate mount with noexec"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -301,6 +327,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /tmp with the option noexec: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.1.4-tmp_fstab_noexec_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -310,6 +342,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.1.4-tmp_fstab_noexec_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -319,6 +353,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*noexec.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*noexec.*
   - id: "CIS-DEBIAN12-1.1.2.2.1-dev_shm_mount"
     name: "/dev/shm is a separate mount"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.2.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -330,6 +368,8 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ ^(tmpfs) "
+    remediation: |
+      Mount a tmpfs file system on /dev/shm with an entry in /etc/fstab or a systemd mount unit.
   - id: "CIS-DEBIAN12-1.1.2.2.2-dev_shm_nodev_options"
     name: "/dev/shm is a separate mount with nodev"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -341,6 +381,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /dev/shm with the option nodev: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.2.2-dev_shm_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -350,6 +396,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.2.2-dev_shm_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -359,6 +407,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*nodev
   - id: "CIS-DEBIAN12-1.1.2.2.3-dev_shm_nosuid_options"
     name: "/dev/shm is a separate mount with nosuid"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -370,6 +422,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /dev/shm with the option nosuid: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.2.3-dev_shm_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -379,6 +437,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.2.3-dev_shm_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -388,6 +448,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*nosuid.*
   - id: "CIS-DEBIAN12-1.1.2.2.4-dev_shm_noexec_options"
     name: "/dev/shm is a separate mount with noexec"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -399,6 +463,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /dev/shm with the option noexec: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.2.4-dev_shm_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -408,6 +478,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.2.4-dev_shm_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -417,6 +489,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*noexec.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*noexec.*
   - id: "CIS-DEBIAN12-1.1.2.3.1-home_mount"
     name: "/home is a separate mount"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.3.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -426,6 +502,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/home'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /home on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-DEBIAN12-1.1.2.3.2-home_nodev_options"
     name: "/home is a separate mount with nodev"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -437,6 +515,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /home with the option nodev: add it to the options of /home in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/home'
+
+      If /home is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.3.2-home_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -446,6 +530,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.3.2-home_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -455,6 +541,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/home.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/home.*nodev
   - id: "CIS-DEBIAN12-1.1.2.3.3-home_nosuid_options"
     name: "/home is a separate mount with nosuid"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -466,6 +556,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /home with the option nosuid: add it to the options of /home in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/home'
+
+      If /home is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.3.3-home_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -475,6 +571,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.3.3-home_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -484,6 +582,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/home.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/home.*nosuid.*
   - id: "CIS-DEBIAN12-1.1.2.4.1-var_mount"
     name: "/var is a separate mount"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.4.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -493,6 +595,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-DEBIAN12-1.1.2.4.2-var_nodev_options"
     name: "/var is a separate mount with nodev"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -504,6 +608,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var with the option nodev: add it to the options of /var in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var'
+
+      If /var is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.4.2-var_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -513,6 +623,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.4.2-var_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -522,6 +634,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\s.*nodev
   - id: "CIS-DEBIAN12-1.1.2.4.3-var_nosuid_options"
     name: "/var is a separate mount with nosuid"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -533,6 +649,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var with the option nosuid: add it to the options of /var in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var'
+
+      If /var is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.4.3-var_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -542,6 +664,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.4.3-var_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -551,6 +675,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\s.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\s.*nosuid.*
   - id: "CIS-DEBIAN12-1.1.2.5.1-var_tmp_mount"
     name: "/var/tmp is a separate mount"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.5.1."
@@ -560,6 +688,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/tmp'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/tmp on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-DEBIAN12-1.1.2.5.2-var_tmp_nodev_options"
     name: "/var/tmp is a separate mount with nodev"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -571,6 +701,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/tmp with the option nodev: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.5.2-var_tmp_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -580,6 +716,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.5.2-var_tmp_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -589,6 +727,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*nodev
   - id: "CIS-DEBIAN12-1.1.2.5.3-var_tmp_nosuid_options"
     name: "/var/tmp is a separate mount with nosuid"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -600,6 +742,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/tmp with the option nosuid: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.5.3-var_tmp_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -609,6 +757,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.5.3-var_tmp_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -618,6 +768,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*nosuid.*
   - id: "CIS-DEBIAN12-1.1.2.5.4-var_tmp_noexec_options"
     name: "/var/tmp is a separate mount with noexec"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -629,6 +783,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/tmp with the option noexec: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.5.4-var_tmp_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -638,6 +798,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.5.4-var_tmp_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -647,6 +809,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*noexec.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*noexec.*
   - id: "CIS-DEBIAN12-1.1.2.6.1-var_log_mount"
     name: "/var/log is a separate mount"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.6.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -656,6 +822,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/log'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/log on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-DEBIAN12-1.1.2.6.2-var_log_nodev_options"
     name: "/var/log is a separate mount with nodev"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -667,6 +835,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/log with the option nodev: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.6.2-var_log_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -676,6 +850,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.6.2-var_log_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -685,6 +861,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*nodev
   - id: "CIS-DEBIAN12-1.1.2.6.3-var_log_nosuid_options"
     name: "/var/log is a separate mount with nosuid"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -696,6 +876,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/log with the option nosuid: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.6.3-var_log_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -705,6 +891,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.6.3-var_log_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -714,6 +902,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*nosuid.*
   - id: "CIS-DEBIAN12-1.1.2.6.4-var_log_noexec_options"
     name: "/var/log is a separate mount with noexec"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -725,6 +917,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/log with the option noexec: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.6.4-var_log_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -734,6 +932,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.6.4-var_log_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -743,6 +943,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*noexec.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*noexec.*
   - id: "CIS-DEBIAN12-1.1.2.7.1-var_log_audit_mount"
     name: "/var/log/audit is a separate mount"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.7.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -752,6 +956,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/log/audit'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/log/audit on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-DEBIAN12-1.1.2.7.2-var_log_audit_nodev_options"
     name: "/var/log/audit is a separate mount with nodev"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -763,6 +969,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option nodev: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.7.2-var_log_audit_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -772,6 +984,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.7.2-var_log_audit_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -781,6 +995,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*nodev
   - id: "CIS-DEBIAN12-1.1.2.7.3-var_log_audit_nosuid_options"
     name: "/var/log/audit is a separate mount with nosuid"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -792,6 +1010,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option nosuid: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.7.3-var_log_audit_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -801,6 +1025,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.7.3-var_log_audit_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -810,6 +1036,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*nosuid.*
   - id: "CIS-DEBIAN12-1.1.2.7.4-var_log_audit_noexec_options"
     name: "/var/log/audit is a separate mount with noexec"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -821,6 +1051,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option noexec: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-DEBIAN12-1.1.2.7.4-var_log_audit_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -830,6 +1066,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-DEBIAN12-1.1.2.7.4-var_log_audit_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -839,6 +1077,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*noexec.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*noexec.*
   - id: "CIS-DEBIAN12-1.2.1.1-gpg_keys"
     name: "gpg keys: echo \"MANUAL - Ensure gpg keys match site policy\""
     description: "CIS Debian 12 benchmark recommendation 1.2.1.1. NIST SP 800-53 Rev. 5: SI-2."
@@ -881,6 +1123,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' apparmor 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package apparmor:
+
+      apt-get install apparmor
   - id: "CIS-DEBIAN12-1.3.1.2-apparmor_enabled_boot-attrs"
     name: "/etc/default/grub: exists"
     description: "CIS Debian 12 benchmark recommendation 1.3.1.2. NIST SP 800-53 Rev. 5: AC-3."
@@ -890,6 +1136,8 @@ checks:
       f='/etc/default/grub'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/default/grub.
   - id: "CIS-DEBIAN12-1.3.1.2-apparmor_enabled_boot-content"
     name: "/etc/default/grub has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 1.3.1.2. NIST SP 800-53 Rev. 5: AC-3."
@@ -901,6 +1149,11 @@ checks:
     expect:
       - { some: "~ GRUB_CMDLINE_LINUX_DEFAULT=.*apparmor=1" }
       - { some: "~ GRUB_CMDLINE_LINUX_DEFAULT=.*security=apparmor" }
+    remediation: |
+      Edit /etc/default/grub so that its lines meet these conditions (regular expressions):
+
+      - a line matches GRUB_CMDLINE_LINUX_DEFAULT=.*apparmor=1
+      - a line matches GRUB_CMDLINE_LINUX_DEFAULT=.*security=apparmor
   - id: "CIS-DEBIAN12-1.3.1.3-apparmor_enf_or_comp"
     name: "apparmor enf or comp: LOADED=`apparmor_status | grep 'profiles are loaded' | awk '{print $1}'` \u0026\u0026 ENFORCE=`appa…"
     description: "CIS Debian 12 benchmark recommendation 1.3.1.3. NIST SP 800-53 Rev. 5: AC-3."
@@ -935,6 +1188,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /boot/grub/grub.cfg if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/boot/grub/grub.cfg'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/boot/grub/grub.cfg'
   - id: "CIS-DEBIAN12-1.5.1-address_space_random"
     name: "Kernel parameter kernel.randomize_va_space is 2"
     description: "CIS Debian 12 benchmark recommendation 1.5.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -946,6 +1204,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 2"
+    remediation: |
+      Set the kernel parameter kernel.randomize_va_space to 2, now and at boot:
+
+      sysctl -w 'kernel.randomize_va_space=2'
+      printf '%s\n' 'kernel.randomize_va_space = 2' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of kernel.randomize_va_space from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-1.5.1-aslr_enabled_2"
     name: "aslr enabled 2: grep \"kernel\\.randomize_va_space\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Debian 12 benchmark recommendation 1.5.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -968,6 +1233,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter kernel.yama.ptrace_scope to 1, now and at boot:
+
+      sysctl -w 'kernel.yama.ptrace_scope=1'
+      printf '%s\n' 'kernel.yama.ptrace_scope = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of kernel.yama.ptrace_scope from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-1.5.2-ptrace_restricted_2"
     name: "ptrace restricted 2: grep \"kernel\\.yama\\.ptrace_scope\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Debian 12 benchmark recommendation 1.5.2. NIST SP 800-53 Rev. 5: CM-6."
@@ -990,6 +1262,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter fs.suid_dumpable to 0, now and at boot:
+
+      sysctl -w 'fs.suid_dumpable=0'
+      printf '%s\n' 'fs.suid_dumpable = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of fs.suid_dumpable from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-1.5.3-system_coredump_conf"
     name: "system coredump conf: grep -Ps -- '^\\h*\\*\\h+hard\\h+core\\h+0\\b' /etc/security/limits.conf /etc/security/limits.d…"
     description: "CIS Debian 12 benchmark recommendation 1.5.3. NIST SP 800-53 Rev. 5: CM-6."
@@ -1010,6 +1289,8 @@ checks:
       f='/etc/issue'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/issue.
   - id: "CIS-DEBIAN12-1.6.2-etc_issue_config-content"
     name: "/etc/issue has the expected content (8 rules)"
     description: "CIS Debian 12 benchmark recommendation 1.6.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1027,6 +1308,17 @@ checks:
       - { none: "~ x86_64" }
       - { none: "~ [Ll]inux" }
       - { some: "~ Authorized users only\\. All activity may be monitored and reported\\." }
+    remediation: |
+      Edit /etc/issue so that its lines meet these conditions (regular expressions):
+
+      - no line matches [Cc]ent[Oo][Ss].*
+      - no line matches [Rr]hel.*
+      - no line matches [Rr]ed[Hh]at.*
+      - no line matches [Rr]ocky.*
+      - no line matches [Aa]lma.*
+      - no line matches x86_64
+      - no line matches [Ll]inux
+      - a line matches Authorized users only\. All activity may be monitored and reported\.
   - id: "CIS-DEBIAN12-1.6.3-etc_issue_net_config-attrs"
     name: "/etc/issue.net: exists"
     description: "CIS Debian 12 benchmark recommendation 1.6.3. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -1036,6 +1328,8 @@ checks:
       f='/etc/issue.net'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/issue.net.
   - id: "CIS-DEBIAN12-1.6.3-etc_issue_net_config-content"
     name: "/etc/issue.net has the expected content (7 rules)"
     description: "CIS Debian 12 benchmark recommendation 1.6.3. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -1052,6 +1346,16 @@ checks:
       - { none: "~ [Aa]lma.*" }
       - { none: "~ x86_64" }
       - { none: "~ [Ll]inux" }
+    remediation: |
+      Edit /etc/issue.net so that its lines meet these conditions (regular expressions):
+
+      - no line matches [Cc]ent[Oo][Ss].*
+      - no line matches [Rr]hel.*
+      - no line matches [Rr]ed[Hh]at.*
+      - no line matches [Rr]ocky.*
+      - no line matches [Aa]lma.*
+      - no line matches x86_64
+      - no line matches [Ll]inux
   - id: "CIS-DEBIAN12-1.6.6-etc_issue_net_perms-attrs"
     name: "/etc/issue.net: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 1.6.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1064,6 +1368,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue.net if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue.net'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue.net'
   - id: "CIS-DEBIAN12-1.6.5-etc_issue_perms-attrs"
     name: "/etc/issue: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 1.6.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1076,6 +1385,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue'
   - id: "CIS-DEBIAN12-1.6.1-motd_config-attrs"
     name: "/etc/motd: exists"
     description: "CIS Debian 12 benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -1085,6 +1399,8 @@ checks:
       f='/etc/motd'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/motd.
   - id: "CIS-DEBIAN12-1.6.1-motd_config-content"
     name: "/etc/motd has the expected content (7 rules)"
     description: "CIS Debian 12 benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -1101,6 +1417,16 @@ checks:
       - { none: "~ [Aa]lma.*" }
       - { none: "~ x86_64" }
       - { none: "~ [Ll]inux" }
+    remediation: |
+      Edit /etc/motd so that its lines meet these conditions (regular expressions):
+
+      - no line matches [Cc]ent[Oo][Ss].*
+      - no line matches [Rr]hel.*
+      - no line matches [Rr]ed[Hh]at.*
+      - no line matches [Rr]ocky.*
+      - no line matches [Aa]lma.*
+      - no line matches x86_64
+      - no line matches [Ll]inux
   - id: "CIS-DEBIAN12-1.6.4-motd_perms-attrs"
     name: "/etc/motd: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 1.6.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1113,6 +1439,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/motd if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/motd'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/motd'
   - id: "CIS-DEBIAN12-1.7.1-gdm_removed"
     name: "Package gdm is not installed"
     description: "CIS Debian 12 benchmark recommendation 1.7.1."
@@ -1121,6 +1452,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' gdm 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package gdm, unless the system needs it:
+
+      apt-get purge gdm
   - id: "CIS-DEBIAN12-2.1.1-autofs_pkg"
     name: "Package autofs is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.1. NIST SP 800-53 Rev. 5: SI-3, MP-7."
@@ -1129,6 +1464,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' autofs 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package autofs, unless the system needs it:
+
+      apt-get purge autofs
   - id: "CIS-DEBIAN12-2.1.2-avahi_pkg"
     name: "Package avahi is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.2. NIST SP 800-53 Rev. 5: SI-4."
@@ -1137,6 +1476,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' avahi 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package avahi, unless the system needs it:
+
+      apt-get purge avahi
   - id: "CIS-DEBIAN12-2.1.3-dhcp_pkg"
     name: "Package isc-dhcp-server is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -1145,6 +1488,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' isc-dhcp-server 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package isc-dhcp-server, unless the system needs it:
+
+      apt-get purge isc-dhcp-server
   - id: "CIS-DEBIAN12-2.1.4-dns_pkg"
     name: "Package bind9 is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -1153,6 +1500,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' bind9 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package bind9, unless the system needs it:
+
+      apt-get purge bind9
   - id: "CIS-DEBIAN12-2.1.5-dnsmasq_pkg"
     name: "Package dnsmasq is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -1161,6 +1512,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' dnsmasq 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package dnsmasq, unless the system needs it:
+
+      apt-get purge dnsmasq
   - id: "CIS-DEBIAN12-2.1.6-ftp_pkg"
     name: "Package vsftpd is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.6. NIST SP 800-53 Rev. 5: CM-7."
@@ -1169,6 +1524,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' vsftpd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package vsftpd, unless the system needs it:
+
+      apt-get purge vsftpd
   - id: "CIS-DEBIAN12-2.1.7-ldap_pkg"
     name: "Package slapd is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.7. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1177,6 +1536,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' slapd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package slapd, unless the system needs it:
+
+      apt-get purge slapd
   - id: "CIS-DEBIAN12-2.1.8-dovecot_imapd_pkg"
     name: "Package dovecot-imapd is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -1185,6 +1548,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' dovecot-imapd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package dovecot-imapd, unless the system needs it:
+
+      apt-get purge dovecot-imapd
   - id: "CIS-DEBIAN12-2.1.8-dovecot_pop3d_pkg"
     name: "Package dovecot-pop3d is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -1193,6 +1560,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' dovecot-pop3d 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package dovecot-pop3d, unless the system needs it:
+
+      apt-get purge dovecot-pop3d
   - id: "CIS-DEBIAN12-2.1.11-cups_pkg"
     name: "Package cups is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.11. NIST SP 800-53 Rev. 5: CM-7."
@@ -1201,6 +1572,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' cups 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package cups, unless the system needs it:
+
+      apt-get purge cups
   - id: "CIS-DEBIAN12-2.1.13-rsync_pkg"
     name: "Package rsync is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.13. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1209,6 +1584,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' rsync 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package rsync, unless the system needs it:
+
+      apt-get purge rsync
   - id: "CIS-DEBIAN12-2.1.14-samba_pkg"
     name: "Package samba is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.14. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1217,6 +1596,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' samba 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package samba, unless the system needs it:
+
+      apt-get purge samba
   - id: "CIS-DEBIAN12-2.1.15-snmp_pkg"
     name: "Package snmpd is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.15. NIST SP 800-53 Rev. 5: CM-7."
@@ -1225,6 +1608,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' snmpd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package snmpd, unless the system needs it:
+
+      apt-get purge snmpd
   - id: "CIS-DEBIAN12-2.1.16-tftp_pkg"
     name: "Package tftpd-hpa is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.16. NIST SP 800-53 Rev. 5: CM-7."
@@ -1233,6 +1620,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' tftpd-hpa 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package tftpd-hpa, unless the system needs it:
+
+      apt-get purge tftpd-hpa
   - id: "CIS-DEBIAN12-2.1.17-squid_pkg"
     name: "Package squid is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.17. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1241,6 +1632,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' squid 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package squid, unless the system needs it:
+
+      apt-get purge squid
   - id: "CIS-DEBIAN12-2.1.18-apache2_pkg"
     name: "Package apache2 is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.18. NIST SP 800-53 Rev. 5: CM-7."
@@ -1249,6 +1644,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' apache2 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package apache2, unless the system needs it:
+
+      apt-get purge apache2
   - id: "CIS-DEBIAN12-2.1.18-nginx_pkg"
     name: "Package nginx is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.18. NIST SP 800-53 Rev. 5: CM-7."
@@ -1257,6 +1656,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' nginx 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package nginx, unless the system needs it:
+
+      apt-get purge nginx
   - id: "CIS-DEBIAN12-2.1.19-xinetd_pkg"
     name: "Package xinetd is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.19. NIST SP 800-53 Rev. 5: CM-7."
@@ -1265,6 +1668,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' xinetd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package xinetd, unless the system needs it:
+
+      apt-get purge xinetd
   - id: "CIS-DEBIAN12-2.1.20-xwindow_pkg"
     name: "Package xserver-common is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.1.20. NIST SP 800-53 Rev. 5: CM-11."
@@ -1273,6 +1680,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' xserver-common 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package xserver-common, unless the system needs it:
+
+      apt-get purge xserver-common
   - id: "CIS-DEBIAN12-2.1.22-manual_listening_ports"
     name: "manual listening ports: echo \"Manual!! - Please check only approved services are listening\""
     description: "CIS Debian 12 benchmark recommendation 2.1.22. NIST SP 800-53 Rev. 5: CM-7."
@@ -1292,6 +1703,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' nis 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package nis, unless the system needs it:
+
+      apt-get purge nis
   - id: "CIS-DEBIAN12-2.2.2-rsh"
     name: "Package rsh is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.2.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -1300,6 +1715,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' rsh 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package rsh, unless the system needs it:
+
+      apt-get purge rsh
   - id: "CIS-DEBIAN12-2.2.3-talk_client"
     name: "Package talk is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.2.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -1308,6 +1727,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' talk 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package talk, unless the system needs it:
+
+      apt-get purge talk
   - id: "CIS-DEBIAN12-2.2.4-telnet_client"
     name: "Package telnet is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.2.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -1316,6 +1739,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' telnet 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package telnet, unless the system needs it:
+
+      apt-get purge telnet
   - id: "CIS-DEBIAN12-2.2.5-ldap-clients"
     name: "Package ldap-utils is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.2.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -1324,6 +1751,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ldap-utils 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package ldap-utils, unless the system needs it:
+
+      apt-get purge ldap-utils
   - id: "CIS-DEBIAN12-2.2.6-ftp_client"
     name: "Package ftp is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.2.6. NIST SP 800-53 Rev. 5: CM-7, CM-11."
@@ -1332,6 +1763,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ftp 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package ftp, unless the system needs it:
+
+      apt-get purge ftp
   - id: "CIS-DEBIAN12-2.3.1.1-chrony"
     name: "Package chrony is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.3.1.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1340,6 +1775,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' chrony 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package chrony, unless the system needs it:
+
+      apt-get purge chrony
   - id: "CIS-DEBIAN12-2.3.1.1-ntp"
     name: "Package ntp is not installed"
     description: "CIS Debian 12 benchmark recommendation 2.3.1.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1348,6 +1787,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ntp 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package ntp, unless the system needs it:
+
+      apt-get purge ntp
   - id: "CIS-DEBIAN12-2.3.1.1-systemd-timesyncd"
     name: "Package systemd-timesyncd is installed"
     description: "CIS Debian 12 benchmark recommendation 2.3.1.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1356,6 +1799,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' systemd-timesyncd 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package systemd-timesyncd:
+
+      apt-get install systemd-timesyncd
   - id: "CIS-DEBIAN12-2.3.2.1-timesynd_timeservers-attrs"
     name: "/etc/systemd/timesyncd.conf.d/50-timesyncd.conf: exists"
     description: "CIS Debian 12 benchmark recommendation 2.3.2.1. NIST SP 800-53 Rev. 5: AU-7, AU-8."
@@ -1365,6 +1812,8 @@ checks:
       f='/etc/systemd/timesyncd.conf.d/50-timesyncd.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/systemd/timesyncd.conf.d/50-timesyncd.conf.
   - id: "CIS-DEBIAN12-2.3.2.1-timesynd_timeservers-content"
     name: "/etc/systemd/timesyncd.conf.d/50-timesyncd.conf has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 2.3.2.1. NIST SP 800-53 Rev. 5: AU-7, AU-8."
@@ -1376,6 +1825,11 @@ checks:
     expect:
       - { some: "~ ^NTP=time.nist.gov " }
       - { some: "~ ^FallbackNTP=time-a-g.nist.gov time-b-g.nist.gov time-c-g.nist.gov " }
+    remediation: |
+      Edit /etc/systemd/timesyncd.conf.d/50-timesyncd.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^NTP=time.nist.gov 
+      - a line matches ^FallbackNTP=time-a-g.nist.gov time-b-g.nist.gov time-c-g.nist.gov
   - id: "CIS-DEBIAN12-2.3.2.2-timesyncd-enabled"
     name: "Service systemd-timesyncd is enabled"
     description: "CIS Debian 12 benchmark recommendation 2.3.2.2. NIST SP 800-53 Rev. 5: AU-7, AU-8."
@@ -1384,6 +1838,10 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-timesyncd | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service systemd-timesyncd:
+
+      systemctl enable systemd-timesyncd
   - id: "CIS-DEBIAN12-2.3.2.2-timesyncd-running"
     name: "Service systemd-timesyncd is running"
     description: "CIS Debian 12 benchmark recommendation 2.3.2.2. NIST SP 800-53 Rev. 5: AU-7, AU-8."
@@ -1392,6 +1850,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-timesyncd | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service systemd-timesyncd:
+
+      systemctl start systemd-timesyncd
   - id: "CIS-DEBIAN12-2.4.1.1-cron-enabled"
     name: "Service cron is enabled"
     description: "CIS Debian 12 benchmark recommendation 2.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1400,6 +1862,10 @@ checks:
     run: |
       systemctl show -p UnitFileState cron | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service cron:
+
+      systemctl enable cron
   - id: "CIS-DEBIAN12-2.4.1.1-cron-running"
     name: "Service cron is running"
     description: "CIS Debian 12 benchmark recommendation 2.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1408,6 +1874,10 @@ checks:
     run: |
       systemctl show -p ActiveState cron | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service cron:
+
+      systemctl start cron
   - id: "CIS-DEBIAN12-2.4.1.2-crontab_perms-attrs"
     name: "/etc/crontab: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 2.4.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1420,6 +1890,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/crontab if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/crontab'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/crontab'
   - id: "CIS-DEBIAN12-2.4.1.4-cron_daily_perms-attrs"
     name: "/etc/cron.daily: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 2.4.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1432,6 +1907,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.daily if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.daily'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.daily'
   - id: "CIS-DEBIAN12-2.4.1.3-cron_hourly_perms-attrs"
     name: "/etc/cron.hourly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 2.4.1.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1444,6 +1924,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.hourly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.hourly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.hourly'
   - id: "CIS-DEBIAN12-2.4.1.6-cron_month_perms-attrs"
     name: "/etc/cron.monthly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 2.4.1.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1456,6 +1941,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.monthly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.monthly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.monthly'
   - id: "CIS-DEBIAN12-2.4.1.5-cron_weekly_perms-attrs"
     name: "/etc/cron.weekly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 2.4.1.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1468,6 +1958,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.weekly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.weekly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.weekly'
   - id: "CIS-DEBIAN12-2.4.1.7-crond_perms-attrs"
     name: "/etc/cron.d: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 2.4.1.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1480,6 +1975,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.d if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.d'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.d'
   - id: "CIS-DEBIAN12-2.4.1.8-cron_allow_users-attrs"
     name: "/etc/cron.allow: exists, mode 0640 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 2.4.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1492,6 +1992,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.allow if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.allow'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/cron.allow'
   - id: "CIS-DEBIAN12-2.4.1.8-cron_deny_users-absent"
     name: "/etc/cron.deny does not exist"
     description: "CIS Debian 12 benchmark recommendation 2.4.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1500,6 +2005,10 @@ checks:
     run: |
       test -e '/etc/cron.deny' || test -L '/etc/cron.deny'
     expect: false
+    remediation: |
+      Remove /etc/cron.deny, unless the system needs it:
+
+      rm '/etc/cron.deny'
   - id: "CIS-DEBIAN12-2.4.2.1-at_allow_users-attrs"
     name: "/etc/at.allow: exists, mode 0640 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 2.4.2.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1512,6 +2021,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/at.allow if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/at.allow'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/at.allow'
   - id: "CIS-DEBIAN12-2.4.2.1-at_deny_users-absent"
     name: "/etc/at.deny does not exist"
     description: "CIS Debian 12 benchmark recommendation 2.4.2.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1520,6 +2034,10 @@ checks:
     run: |
       test -e '/etc/at.deny' || test -L '/etc/at.deny'
     expect: false
+    remediation: |
+      Remove /etc/at.deny, unless the system needs it:
+
+      rm '/etc/at.deny'
   - id: "CIS-DEBIAN12-3.1.1-default_grub_ipv6"
     name: "default grub ipv6: cat /sys/module/ipv6/parameters/disable"
     description: "CIS Debian 12 benchmark recommendation 3.1.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -1564,6 +2082,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' bluez 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package bluez, unless the system needs it:
+
+      apt-get purge bluez
   - id: "CIS-DEBIAN12-3.2.1-lsmod_dccp"
     name: "lsmod dccp: lsmod | grep -i dccp"
     description: "CIS Debian 12 benchmark recommendation 3.2.1. NIST SP 800-53 Rev. 5: CM-7, SI-4."
@@ -1663,6 +2185,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.ip_forward to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.ip_forward=0'
+      printf '%s\n' 'net.ipv4.ip_forward = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.ip_forward from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.1-net.ipv6.conf.all.forwarding"
     name: "Kernel parameter net.ipv6.conf.all.forwarding is 0"
     description: "CIS Debian 12 benchmark recommendation 3.3.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1674,6 +2203,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.forwarding to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.forwarding=0'
+      printf '%s\n' 'net.ipv6.conf.all.forwarding = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.forwarding from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.1-ip4_forward_conf"
     name: "ip4 forward conf: grep net.ipv4.ip_forward /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /usr/…"
     description: "CIS Debian 12 benchmark recommendation 3.3.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1709,6 +2245,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.send_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.send_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.send_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.send_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.2-net.ipv4.conf.default.send_redirects"
     name: "Kernel parameter net.ipv4.conf.default.send_redirects is 0"
     description: "CIS Debian 12 benchmark recommendation 3.3.2. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1720,6 +2263,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.send_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.send_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.send_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.send_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.2-ip4_all_send_redirects"
     name: "ip4 all send redirects: grep send_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /usr/local…"
     description: "CIS Debian 12 benchmark recommendation 3.3.2. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1755,6 +2305,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.icmp_ignore_bogus_error_responses to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.icmp_ignore_bogus_error_responses=1'
+      printf '%s\n' 'net.ipv4.icmp_ignore_bogus_error_responses = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.icmp_ignore_bogus_error_responses from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.3-ipv4_ignore_bogus"
     name: "ipv4 ignore bogus: grep net.ipv4.icmp_ignore_bogus_error_responses /etc/sysctl.conf /etc/sysctl.d/*.conf /ru…"
     description: "CIS Debian 12 benchmark recommendation 3.3.3. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1778,6 +2335,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.icmp_echo_ignore_broadcasts to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.icmp_echo_ignore_broadcasts=1'
+      printf '%s\n' 'net.ipv4.icmp_echo_ignore_broadcasts = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.icmp_echo_ignore_broadcasts from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.4-ipv4_echo_ignore_broadcasts"
     name: "ipv4 echo ignore broadcasts: grep net.ipv4.icmp_echo_ignore_broadcasts /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysc…"
     description: "CIS Debian 12 benchmark recommendation 3.3.4. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1801,6 +2365,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.accept_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.5-net.ipv4.conf.default.accept_redirects"
     name: "Kernel parameter net.ipv4.conf.default.accept_redirects is 0"
     description: "CIS Debian 12 benchmark recommendation 3.3.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1812,6 +2383,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.accept_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.5-net.ipv6.conf.all.accept_redirects"
     name: "Kernel parameter net.ipv6.conf.all.accept_redirects is 0"
     description: "CIS Debian 12 benchmark recommendation 3.3.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1823,6 +2401,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.accept_redirects=0'
+      printf '%s\n' 'net.ipv6.conf.all.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.5-net.ipv6.conf.default.accept_redirects"
     name: "Kernel parameter net.ipv6.conf.default.accept_redirects is 0"
     description: "CIS Debian 12 benchmark recommendation 3.3.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1834,6 +2419,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.accept_redirects=0'
+      printf '%s\n' 'net.ipv6.conf.default.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.5-ipv4_all_accept_redirects"
     name: "ipv4 all accept redirects: grep net.ipv4.conf.all.accept_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl…"
     description: "CIS Debian 12 benchmark recommendation 3.3.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1893,6 +2485,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.secure_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.secure_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.secure_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.secure_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.6-net.ipv4.conf.default.secure_redirects"
     name: "Kernel parameter net.ipv4.conf.default.secure_redirects is 0"
     description: "CIS Debian 12 benchmark recommendation 3.3.6. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1904,6 +2503,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.secure_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.secure_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.secure_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.secure_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.6-ipv4_all_secure_redirects"
     name: "ipv4 all secure redirects: grep net.ipv4.conf.all.secure_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl…"
     description: "CIS Debian 12 benchmark recommendation 3.3.6. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1939,6 +2545,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.rp_filter to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.rp_filter=1'
+      printf '%s\n' 'net.ipv4.conf.all.rp_filter = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.rp_filter from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.7-net.ipv4.conf.default.rp_filter"
     name: "Kernel parameter net.ipv4.conf.default.rp_filter is 1"
     description: "CIS Debian 12 benchmark recommendation 3.3.7. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1950,6 +2563,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.rp_filter to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.rp_filter=1'
+      printf '%s\n' 'net.ipv4.conf.default.rp_filter = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.rp_filter from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.7-ipv4_all_rp_filter"
     name: "ipv4 all rp filter: grep net.ipv4.conf.all.rp_filter /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.co…"
     description: "CIS Debian 12 benchmark recommendation 3.3.7. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1985,6 +2605,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.accept_source_route=0'
+      printf '%s\n' 'net.ipv4.conf.all.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.8-net.ipv4.conf.default.accept_source_rout"
     name: "Kernel parameter net.ipv4.conf.default.accept_source_route is 0"
     description: "CIS Debian 12 benchmark recommendation 3.3.8. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1996,6 +2623,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.accept_source_route=0'
+      printf '%s\n' 'net.ipv4.conf.default.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.8-net.ipv6.conf.all.accept_source_route"
     name: "Kernel parameter net.ipv6.conf.all.accept_source_route is 0"
     description: "CIS Debian 12 benchmark recommendation 3.3.8. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2007,6 +2641,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.accept_source_route=0'
+      printf '%s\n' 'net.ipv6.conf.all.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.8-net.ipv6.conf.default.accept_source_rout"
     name: "Kernel parameter net.ipv6.conf.default.accept_source_route is 0"
     description: "CIS Debian 12 benchmark recommendation 3.3.8. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2018,6 +2659,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.accept_source_route=0'
+      printf '%s\n' 'net.ipv6.conf.default.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.8-ipv4_all_source_routed"
     name: "ipv4 all source routed: grep net.ipv4.conf.all.accept_source_route /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sys…"
     description: "CIS Debian 12 benchmark recommendation 3.3.8. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2077,6 +2725,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.log_martians to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.log_martians=1'
+      printf '%s\n' 'net.ipv4.conf.all.log_martians = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.log_martians from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.9-net.ipv4.conf.default.log_martians"
     name: "Kernel parameter net.ipv4.conf.default.log_martians is 1"
     description: "CIS Debian 12 benchmark recommendation 3.3.9. NIST SP 800-53 Rev. 5: AU-3."
@@ -2088,6 +2743,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.log_martians to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.log_martians=1'
+      printf '%s\n' 'net.ipv4.conf.default.log_martians = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.log_martians from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.9-ipv4_all_log_martians"
     name: "ipv4 all log martians: grep net.ipv4.conf.all.log_martians /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*…"
     description: "CIS Debian 12 benchmark recommendation 3.3.9. NIST SP 800-53 Rev. 5: AU-3."
@@ -2123,6 +2785,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.tcp_syncookies to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.tcp_syncookies=1'
+      printf '%s\n' 'net.ipv4.tcp_syncookies = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.tcp_syncookies from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.10-ipv4_tcp_syn_cookies"
     name: "ipv4 tcp syn cookies: grep net.ipv4.tcp_syncookies /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /…"
     description: "CIS Debian 12 benchmark recommendation 3.3.10. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2146,6 +2815,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.all.accept_ra to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.all.accept_ra=0'
+      printf '%s\n' 'net.ipv6.conf.all.accept_ra = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.all.accept_ra from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.11-net.ipv6.conf.default.accept_ra"
     name: "Kernel parameter net.ipv6.conf.default.accept_ra is 0"
     description: "CIS Debian 12 benchmark recommendation 3.3.11. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2157,6 +2833,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv6.conf.default.accept_ra to 0, now and at boot:
+
+      sysctl -w 'net.ipv6.conf.default.accept_ra=0'
+      printf '%s\n' 'net.ipv6.conf.default.accept_ra = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv6.conf.default.accept_ra from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-DEBIAN12-3.3.11-ipv6_all_accept_ra"
     name: "ipv6 all accept ra: grep net.ipv6.conf.all.accept_ra /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.co…"
     description: "CIS Debian 12 benchmark recommendation 3.3.11. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2189,6 +2872,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package ufw:
+
+      apt-get install ufw
   - id: "CIS-DEBIAN12-4.2.2-iptables-persistent"
     name: "Package iptables-persistent is not installed"
     description: "CIS Debian 12 benchmark recommendation 4.2.2. NIST SP 800-53 Rev. 5: SC-7."
@@ -2197,6 +2884,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' iptables-persistent 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package iptables-persistent, unless the system needs it:
+
+      apt-get purge iptables-persistent
   - id: "CIS-DEBIAN12-4.2.3-ufw-enabled"
     name: "Service ufw is enabled"
     description: "CIS Debian 12 benchmark recommendation 4.2.3. NIST SP 800-53 Rev. 5: SC-7."
@@ -2205,6 +2896,10 @@ checks:
     run: |
       systemctl show -p UnitFileState ufw | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service ufw:
+
+      systemctl enable ufw
   - id: "CIS-DEBIAN12-4.2.3-ufw-running"
     name: "Service ufw is running"
     description: "CIS Debian 12 benchmark recommendation 4.2.3. NIST SP 800-53 Rev. 5: SC-7."
@@ -2213,6 +2908,10 @@ checks:
     run: |
       systemctl show -p ActiveState ufw | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service ufw:
+
+      systemctl start ufw
   - id: "CIS-DEBIAN12-4.2.4-ufw_loopback"
     name: "ufw loopback: ufw status verbose"
     description: "CIS Debian 12 benchmark recommendation 4.2.4. NIST SP 800-53 Rev. 5: SC-7."
@@ -2270,6 +2969,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' nftables 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package nftables:
+
+      apt-get install nftables
   - id: "CIS-DEBIAN12-4.3.2-ufw"
     name: "Package ufw is not installed"
     description: "CIS Debian 12 benchmark recommendation 4.3.2. NIST SP 800-53 Rev. 5: SC-7."
@@ -2278,6 +2981,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package ufw, unless the system needs it:
+
+      apt-get purge ufw
   - id: "CIS-DEBIAN12-4.3.3-ip6tables_flushed"
     name: "ip6tables flushed: ip6tables -L"
     description: "CIS Debian 12 benchmark recommendation 4.3.3. NIST SP 800-53 Rev. 5: SC-7, CA-9."
@@ -2363,6 +3070,10 @@ checks:
     run: |
       systemctl show -p UnitFileState nftables | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service nftables:
+
+      systemctl enable nftables
   - id: "CIS-DEBIAN12-4.3.9-nftables-running"
     name: "Service nftables is running"
     description: "CIS Debian 12 benchmark recommendation 4.3.9. NIST SP 800-53 Rev. 5: CA-9, SC-7."
@@ -2371,6 +3082,10 @@ checks:
     run: |
       systemctl show -p ActiveState nftables | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service nftables:
+
+      systemctl start nftables
   - id: "CIS-DEBIAN12-4.3.10-nftable_perm-attrs"
     name: "/etc/nftables.conf: exists"
     description: "CIS Debian 12 benchmark recommendation 4.3.10. NIST SP 800-53 Rev. 5: CA-9, SC-7."
@@ -2380,6 +3095,8 @@ checks:
       f='/etc/nftables.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/nftables.conf.
   - id: "CIS-DEBIAN12-4.3.10-nft_rules"
     name: "nft rules: echo \"Manual - Please review nfttables configuration and matches site policy\""
     description: "CIS Debian 12 benchmark recommendation 4.3.10. NIST SP 800-53 Rev. 5: CA-9, SC-7."
@@ -2399,6 +3116,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' iptables 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package iptables:
+
+      apt-get install iptables
   - id: "CIS-DEBIAN12-4.4.1.1-iptables-persistent"
     name: "Package iptables-persistent is installed"
     description: "CIS Debian 12 benchmark recommendation 4.4.1.1. NIST SP 800-53 Rev. 5: CA-9, SC-7."
@@ -2407,6 +3128,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' iptables-persistent 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package iptables-persistent:
+
+      apt-get install iptables-persistent
   - id: "CIS-DEBIAN12-4.4.1.2-nftables"
     name: "Package nftables is not installed"
     description: "CIS Debian 12 benchmark recommendation 4.4.1.2. NIST SP 800-53 Rev. 5: CA-9, SC-7."
@@ -2415,6 +3140,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' nftables 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package nftables, unless the system needs it:
+
+      apt-get purge nftables
   - id: "CIS-DEBIAN12-4.4.1.3-ufw"
     name: "Package ufw is not installed"
     description: "CIS Debian 12 benchmark recommendation 4.4.1.3. NIST SP 800-53 Rev. 5: CA-9, SC-7."
@@ -2423,6 +3152,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package ufw, unless the system needs it:
+
+      apt-get purge ufw
   - id: "CIS-DEBIAN12-4.4.2.1-ipt_def_deny"
     name: "ipt def deny: iptables -L"
     description: "CIS Debian 12 benchmark recommendation 4.4.2.1. NIST SP 800-53 Rev. 5: CA-9, SC-7."
@@ -2537,6 +3270,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/ssh/sshd_config'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/ssh/sshd_config'
   - id: "CIS-DEBIAN12-5.1.2-etc_ssh_ssh_host_prv_key_group"
     name: "/etc/ssh/ssh host prv key group: groupkeys=$(sudo find /etc/ssh/ -name *_key -type f ! -group root ); echo $groupkeys"
     description: "CIS Debian 12 benchmark recommendation 5.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2626,6 +3364,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.5-ssh_banner-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.1.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2637,6 +3377,11 @@ checks:
     expect:
       - { some: "~ Banner /etc/issue\\.net" }
       - { none: "~ ^Banner none" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches Banner /etc/issue\.net
+      - no line matches ^Banner none
   - id: "CIS-DEBIAN12-5.1.5-ssh_configd_banner"
     name: "ssh configd banner: grep -Eis '^\\s*Banner\\s+\"?none\\b'/etc/ssh/sshd_config.d/*.conf"
     description: "CIS Debian 12 benchmark recommendation 5.1.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2657,6 +3402,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.6-sshd_ciphers-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.1.6. NIST SP 800-53 Rev. 5: SC-8."
@@ -2666,6 +3413,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ ^Ciphers -3des-cbc,aes128-cbc,aes192-cbc,aes256-cbc,chacha20-poly1305@openssh.com" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^Ciphers -3des-cbc,aes128-cbc,aes192-cbc,aes256-cbc,chacha20-poly1305@openssh.com
   - id: "CIS-DEBIAN12-5.1.7-sshd_clientalive-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Debian 12 benchmark recommendation 5.1.7. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2675,6 +3426,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.7-sshd_clientalive-content"
     name: "/etc/ssh/sshd_config has the expected content (4 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.1.7. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2688,6 +3441,13 @@ checks:
       - { some: "~ ClientAliveCountMax 3" }
       - { some: "~ ClientAliveInterval ([1-9]|[1-2][0-9][0-9]|300)" }
       - { some: "~ ClientAliveCountMax [0-3]" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ClientAliveInterval 15
+      - a line matches ClientAliveCountMax 3
+      - a line matches ClientAliveInterval ([1-9]|[1-2][0-9][0-9]|300)
+      - a line matches ClientAliveCountMax [0-3]
   - id: "CIS-DEBIAN12-5.1.8-sshd_disableforwarding-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Debian 12 benchmark recommendation 5.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -2697,6 +3457,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.8-sshd_disableforwarding-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -2708,6 +3470,11 @@ checks:
     expect:
       - { some: "~ DisableForwarding yes" }
       - { none: "~ ^DisableForwarding no" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches DisableForwarding yes
+      - no line matches ^DisableForwarding no
   - id: "CIS-DEBIAN12-5.1.9-sshd_gssapiauth-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Debian 12 benchmark recommendation 5.1.9. NIST SP 800-53 Rev. 5: CM-7."
@@ -2717,6 +3484,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.9-sshd_gssapiauth-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.1.9. NIST SP 800-53 Rev. 5: CM-7."
@@ -2728,6 +3497,11 @@ checks:
     expect:
       - { some: "~ GSSAPIAuthentication no" }
       - { none: "~ ^GSSAPIAuthentication yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches GSSAPIAuthentication no
+      - no line matches ^GSSAPIAuthentication yes
   - id: "CIS-DEBIAN12-5.1.10-ssh_hostbased_auth-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Debian 12 benchmark recommendation 5.1.10. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2737,6 +3511,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.10-ssh_hostbased_auth-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.1.10. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2748,6 +3524,11 @@ checks:
     expect:
       - { some: "~ ^(?i)HostbasedAuthentication no" }
       - { none: "~ ^(?i)HostbasedAuthentication yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)HostbasedAuthentication no
+      - no line matches ^(?i)HostbasedAuthentication yes
   - id: "CIS-DEBIAN12-5.1.11-ssh_rhosts-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Debian 12 benchmark recommendation 5.1.11. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2757,6 +3538,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.11-ssh_rhosts-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.1.11. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2768,6 +3551,11 @@ checks:
     expect:
       - { some: "~ ^(?i)Ignorerhosts yes" }
       - { none: "~ ^(?i)Ignorerhosts no" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)Ignorerhosts yes
+      - no line matches ^(?i)Ignorerhosts no
   - id: "CIS-DEBIAN12-5.1.12-sshd_KEX-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Debian 12 benchmark recommendation 5.1.12. NIST SP 800-53 Rev. 5: SC-8."
@@ -2777,6 +3565,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.12-sshd_KEX-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.1.12. NIST SP 800-53 Rev. 5: SC-8."
@@ -2786,6 +3576,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ ^KexAlgorithms -diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^KexAlgorithms -diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1
   - id: "CIS-DEBIAN12-5.1.13-ssh_logingrace-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Debian 12 benchmark recommendation 5.1.13. NIST SP 800-53 Rev. 5: CM-6."
@@ -2795,6 +3589,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.13-ssh_logingrace-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.1.13. NIST SP 800-53 Rev. 5: CM-6."
@@ -2804,6 +3600,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ ^(?i)LoginGraceTime ([1-9]|[1-5][0-9]|60)$" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)LoginGraceTime ([1-9]|[1-5][0-9]|60)$
   - id: "CIS-DEBIAN12-5.1.14-ssh_loglevel-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Debian 12 benchmark recommendation 5.1.14. NIST SP 800-53 Rev. 5: AU-3, AU-12, SI-5."
@@ -2813,6 +3613,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.14-ssh_loglevel-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.1.14. NIST SP 800-53 Rev. 5: AU-3, AU-12, SI-5."
@@ -2824,6 +3626,11 @@ checks:
     expect:
       - { some: "~ LogLevel (VERBOSE|INFO)" }
       - { none: "~ ^LogLevel DEBUG" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches LogLevel (VERBOSE|INFO)
+      - no line matches ^LogLevel DEBUG
   - id: "CIS-DEBIAN12-5.1.15-sshd_MACS-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Debian 12 benchmark recommendation 5.1.15. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2833,6 +3640,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.15-sshd_MACS-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.1.15. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2842,6 +3651,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ ^MACs -hmac-md5,hmac-md5-96,hmac-ripemd160,hmac-sha1-96,umac-64@openssh.com,hmac-md5-etm@openssh.com,hmac-md5-96-etm@openssh.com,hmac-ripemd160-etm@openssh.com,hmac-sha1-96-etm@openssh.com,umac-64-etm@openssh.com,umac-128-etm@openssh.com" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^MACs -hmac-md5,hmac-md5-96,hmac-ripemd160,hmac-sha1-96,umac-64@openssh.com,hmac-md5-etm@openssh.com,hmac-md5-96-etm@openssh.com,hmac-ripemd160-etm@openssh.com,hmac-sha1-96-etm@openssh.com,umac-64-etm@openssh.com,umac-128-etm@openssh.com
   - id: "CIS-DEBIAN12-5.1.16-sshd_authtries-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Debian 12 benchmark recommendation 5.1.16. NIST SP 800-53 Rev. 5: AU-3."
@@ -2851,6 +3664,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.16-sshd_authtries-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.1.16. NIST SP 800-53 Rev. 5: AU-3."
@@ -2862,6 +3677,11 @@ checks:
     expect:
       - { some: "~ (?i)maxauthtries [1-4]" }
       - { none: "~ (?i)maxauthtries ([5-9]|[1-9]{2,})" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches (?i)maxauthtries [1-4]
+      - no line matches (?i)maxauthtries ([5-9]|[1-9]{2,})
   - id: "CIS-DEBIAN12-5.1.17-ssh_maxsessions-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Debian 12 benchmark recommendation 5.1.17. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2871,6 +3691,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.17-ssh_maxsessions-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.1.17. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2882,6 +3704,11 @@ checks:
     expect:
       - { some: "~ ^(?i)MaxSessions ([2-9]|10)" }
       - { none: "~ ^MaxSessions (1[1-9]|[2-9][0-9]|[1-9]{3,})" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)MaxSessions ([2-9]|10)
+      - no line matches ^MaxSessions (1[1-9]|[2-9][0-9]|[1-9]{3,})
   - id: "CIS-DEBIAN12-5.1.18-ssh_maxstartups-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Debian 12 benchmark recommendation 5.1.18. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2891,6 +3718,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.18-ssh_maxstartups-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.1.18. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2900,6 +3729,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ MaxStartups 10:30:60" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches MaxStartups 10:30:60
   - id: "CIS-DEBIAN12-5.1.19-ssh_empty_passwd-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Debian 12 benchmark recommendation 5.1.19. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2909,6 +3742,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.19-ssh_empty_passwd-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.1.19. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2920,6 +3755,11 @@ checks:
     expect:
       - { some: "~ ^(?i)PermitEmptyPasswords no" }
       - { none: "~ ^(?i)PermitEmptyPasswords yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)PermitEmptyPasswords no
+      - no line matches ^(?i)PermitEmptyPasswords yes
   - id: "CIS-DEBIAN12-5.1.20-ssh_permit_root-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Debian 12 benchmark recommendation 5.1.20. NIST SP 800-53 Rev. 5: AC-6."
@@ -2929,6 +3769,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.20-ssh_permit_root-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.1.20. NIST SP 800-53 Rev. 5: AC-6."
@@ -2940,6 +3782,11 @@ checks:
     expect:
       - { some: "~ ^(?i)PermitRootLogin no" }
       - { none: "~ ^(?i)PermitRootLogin yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)PermitRootLogin no
+      - no line matches ^(?i)PermitRootLogin yes
   - id: "CIS-DEBIAN12-5.1.21-ssh_userenv-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Debian 12 benchmark recommendation 5.1.21. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2949,6 +3796,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.21-ssh_userenv-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.1.21. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2960,6 +3809,11 @@ checks:
     expect:
       - { some: "~ ^(?i)PermitUserEnvironment no" }
       - { none: "~ ^(?i)PermitUserEnvironment yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(?i)PermitUserEnvironment no
+      - no line matches ^(?i)PermitUserEnvironment yes
   - id: "CIS-DEBIAN12-5.1.22-ssh_usepam-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Debian 12 benchmark recommendation 5.1.22. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2969,6 +3823,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-DEBIAN12-5.1.22-ssh_usepam-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.1.22. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2980,6 +3836,11 @@ checks:
     expect:
       - { some: "~ UsePAM yes" }
       - { none: "~ ^UsePAM no" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches UsePAM yes
+      - no line matches ^UsePAM no
   - id: "CIS-DEBIAN12-5.2.1-sudo"
     name: "Package sudo is installed"
     description: "CIS Debian 12 benchmark recommendation 5.2.1. NIST SP 800-53 Rev. 5: AC-6."
@@ -2988,6 +3849,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' sudo 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package sudo:
+
+      apt-get install sudo
   - id: "CIS-DEBIAN12-5.2.2-pty_sudoers_d"
     name: "pty sudoers d: grep -Ei '^\\s*Defaults\\s+(\\[^#]+,\\s*)?use_pty' /etc/sudoers /etc/sudoers.d/*"
     description: "CIS Debian 12 benchmark recommendation 5.2.2. NIST SP 800-53 Rev. 5: AC-6."
@@ -3053,6 +3918,8 @@ checks:
       f='/etc/pam.d/su'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/su.
   - id: "CIS-DEBIAN12-5.2.7-restrict_su-content"
     name: "/etc/pam.d/su has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.2.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -3062,6 +3929,10 @@ checks:
       cat '/etc/pam.d/su'
     allow_rc: any
     expect: { some: "~ ^auth.*required.*pam_wheel.so\\suse_uid\\sgroup=nosugroup" }
+    remediation: |
+      Edit /etc/pam.d/su so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^auth.*required.*pam_wheel.so\suse_uid\sgroup=nosugroup
   - id: "CIS-DEBIAN12-5.2.7-sugroup_etc_group"
     name: "sugroup etc group: grep nosugroup /etc/group"
     description: "CIS Debian 12 benchmark recommendation 5.2.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -3082,6 +3953,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' libpam-runtime 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package libpam-runtime:
+
+      apt-get install libpam-runtime
   - id: "CIS-DEBIAN12-5.3.1.2-libpam-modules"
     name: "Package libpam-modules is installed"
     description: "CIS Debian 12 benchmark recommendation 5.3.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -3090,6 +3965,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' libpam-modules 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package libpam-modules:
+
+      apt-get install libpam-modules
   - id: "CIS-DEBIAN12-5.3.1.3-libpam-pwquality"
     name: "Package libpam-pwquality is installed"
     description: "CIS Debian 12 benchmark recommendation 5.3.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3098,6 +3977,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' libpam-pwquality 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package libpam-pwquality:
+
+      apt-get install libpam-pwquality
   - id: "CIS-DEBIAN12-5.3.2.1-pam_unix_enabled_common_act-attrs"
     name: "/etc/pam.d/common-account: exists"
     description: "CIS Debian 12 benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3107,6 +3990,8 @@ checks:
       f='/etc/pam.d/common-account'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-account.
   - id: "CIS-DEBIAN12-5.3.2.1-pam_unix_enabled_common_act-content"
     name: "/etc/pam.d/common-account has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3116,6 +4001,10 @@ checks:
       cat '/etc/pam.d/common-account'
     allow_rc: any
     expect: { some: "~ ^account\\s*\\[success=\\d new_authtok_reqd=done default=ignore\\]\\s*pam_unix.so" }
+    remediation: |
+      Edit /etc/pam.d/common-account so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^account\s*\[success=\d new_authtok_reqd=done default=ignore\]\s*pam_unix.so
   - id: "CIS-DEBIAN12-5.3.2.1-pam_unix_enabled_common_auth-attrs"
     name: "/etc/pam.d/common-auth: exists"
     description: "CIS Debian 12 benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3125,6 +4014,8 @@ checks:
       f='/etc/pam.d/common-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-auth.
   - id: "CIS-DEBIAN12-5.3.2.1-pam_unix_enabled_common_auth-content"
     name: "/etc/pam.d/common-auth has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3134,6 +4025,10 @@ checks:
       cat '/etc/pam.d/common-auth'
     allow_rc: any
     expect: { some: "~ ^\\s*auth\\s+\\[success=\\d default=.*\\]\\s+pam_unix.so" }
+    remediation: |
+      Edit /etc/pam.d/common-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*auth\s+\[success=\d default=.*\]\s+pam_unix.so
   - id: "CIS-DEBIAN12-5.3.2.1-pam_unix_enabled_common_password-attrs"
     name: "/etc/pam.d/common-password: exists"
     description: "CIS Debian 12 benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3143,6 +4038,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-DEBIAN12-5.3.2.1-pam_unix_enabled_common_password-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3152,6 +4049,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s+\\[success=\\d default=.*\\]\\s+pam_unix.so" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s+\[success=\d default=.*\]\s+pam_unix.so
   - id: "CIS-DEBIAN12-5.3.2.1-pam_unix_enabled_common_session-attrs"
     name: "/etc/pam.d/common-session: exists"
     description: "CIS Debian 12 benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3161,6 +4062,8 @@ checks:
       f='/etc/pam.d/common-session'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-session.
   - id: "CIS-DEBIAN12-5.3.2.1-pam_unix_enabled_common_session-content"
     name: "/etc/pam.d/common-session has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3170,6 +4073,10 @@ checks:
       cat '/etc/pam.d/common-session'
     allow_rc: any
     expect: { some: "~ ^\\s*session\\s*required\\s+pam_unix.so" }
+    remediation: |
+      Edit /etc/pam.d/common-session so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*session\s*required\s+pam_unix.so
   - id: "CIS-DEBIAN12-5.3.2.2-pam_faillock_enabled_common_act-attrs"
     name: "/etc/pam.d/common-account: exists"
     description: "CIS Debian 12 benchmark recommendation 5.3.2.2. NIST SP 800-53 Rev. 5: NA."
@@ -3179,6 +4086,8 @@ checks:
       f='/etc/pam.d/common-account'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-account.
   - id: "CIS-DEBIAN12-5.3.2.2-pam_faillock_enabled_common_act-content"
     name: "/etc/pam.d/common-account has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.3.2.2. NIST SP 800-53 Rev. 5: NA."
@@ -3188,6 +4097,10 @@ checks:
       cat '/etc/pam.d/common-account'
     allow_rc: any
     expect: { some: "~ ^\\s*account\\s+(requisite|required)\\s+pam_faillock.so" }
+    remediation: |
+      Edit /etc/pam.d/common-account so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*account\s+(requisite|required)\s+pam_faillock.so
   - id: "CIS-DEBIAN12-5.3.2.2-pam_faillock_enabled_common_auth-attrs"
     name: "/etc/pam.d/common-auth: exists"
     description: "CIS Debian 12 benchmark recommendation 5.3.2.2. NIST SP 800-53 Rev. 5: NA."
@@ -3197,6 +4110,8 @@ checks:
       f='/etc/pam.d/common-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-auth.
   - id: "CIS-DEBIAN12-5.3.2.2-pam_faillock_enabled_common_auth-content"
     name: "/etc/pam.d/common-auth has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.3.2.2. NIST SP 800-53 Rev. 5: NA."
@@ -3208,6 +4123,11 @@ checks:
     expect:
       - { some: "~ ^\\s*auth\\s+(requisite|required)\\s+pam_faillock.so\\s+preauth" }
       - { some: "~ ^\\s*auth\\s*\\[default=die\\]\\s+pam_faillock.so\\s+authfail" }
+    remediation: |
+      Edit /etc/pam.d/common-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*auth\s+(requisite|required)\s+pam_faillock.so\s+preauth
+      - a line matches ^\s*auth\s*\[default=die\]\s+pam_faillock.so\s+authfail
   - id: "CIS-DEBIAN12-5.3.2.3-pam_pwquality_enabled_common_passwd-attrs"
     name: "/etc/pam.d/common-password: exists"
     description: "CIS Debian 12 benchmark recommendation 5.3.2.3. NIST SP 800-53 Rev. 5: NA."
@@ -3217,6 +4137,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-DEBIAN12-5.3.2.3-pam_pwquality_enabled_common_passwd-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.3.2.3. NIST SP 800-53 Rev. 5: NA."
@@ -3226,6 +4148,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s+(required|requisite)\\s+pam_pwquality.so" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s+(required|requisite)\s+pam_pwquality.so
   - id: "CIS-DEBIAN12-5.3.2.4-pam_pwhistory_enabled_common_passwd-attrs"
     name: "/etc/pam.d/common-password: exists"
     description: "CIS Debian 12 benchmark recommendation 5.3.2.4. NIST SP 800-53 Rev. 5: NA."
@@ -3235,6 +4161,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-DEBIAN12-5.3.2.4-pam_pwhistory_enabled_common_passwd-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.3.2.4. NIST SP 800-53 Rev. 5: NA."
@@ -3244,6 +4172,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s+(required|requisite)\\s+pam_pwhistory.so" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s+(required|requisite)\s+pam_pwhistory.so
   - id: "CIS-DEBIAN12-5.3.3.1.1-faillock_attempts_deny-attrs"
     name: "/etc/security/faillock.conf: exists"
     description: "CIS Debian 12 benchmark recommendation 5.3.3.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -3253,6 +4185,8 @@ checks:
       f='/etc/security/faillock.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/faillock.conf.
   - id: "CIS-DEBIAN12-5.3.3.1.1-faillock_attempts_deny-content"
     name: "/etc/security/faillock.conf has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.3.3.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -3264,6 +4198,11 @@ checks:
     expect:
       - { some: "~ ^deny\\s*=\\s*[1-5]$" }
       - { none: "~ ^deny\\s*=\\s*([5-9]|[0-9]{2,})" }
+    remediation: |
+      Edit /etc/security/faillock.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^deny\s*=\s*[1-5]$
+      - no line matches ^deny\s*=\s*([5-9]|[0-9]{2,})
   - id: "CIS-DEBIAN12-5.3.3.1.1-faillock_attempts_deny_removed"
     name: "faillock attempts deny removed: grep -Pl -- '\\bpam_faillock\\.so\\h+([^#\\n\\r]+\\h+)?deny\\b' /usr/share/pam-configs/*"
     description: "CIS Debian 12 benchmark recommendation 5.3.3.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -3284,6 +4223,8 @@ checks:
       f='/etc/security/faillock.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/faillock.conf.
   - id: "CIS-DEBIAN12-5.3.3.1.2-faillock_unlock_time-content"
     name: "/etc/security/faillock.conf has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.3.3.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -3295,6 +4236,11 @@ checks:
     expect:
       - { some: "~ ^unlock_time\\s*=\\s*([1-9]|[1-9][0-9]|[1-8][0-9]{1,2}|900)$" }
       - { none: "~ ^unlock_time\\s*=\\s*(90[1-9]|9[1-9][0-9]|[1-9][0-9][0-9]{2,})" }
+    remediation: |
+      Edit /etc/security/faillock.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^unlock_time\s*=\s*([1-9]|[1-9][0-9]|[1-8][0-9]{1,2}|900)$
+      - no line matches ^unlock_time\s*=\s*(90[1-9]|9[1-9][0-9]|[1-9][0-9][0-9]{2,})
   - id: "CIS-DEBIAN12-5.3.3.1.2-faillock_unlock_time_removed"
     name: "faillock unlock time removed: grep -Pl -- '\\bpam_faillock\\.so\\h+([^#\\n\\r]+\\h+)?unlock_time\\b' /usr/share/pam-configs/*"
     description: "CIS Debian 12 benchmark recommendation 5.3.3.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -3315,6 +4261,8 @@ checks:
       f='/etc/security/faillock.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/faillock.conf.
   - id: "CIS-DEBIAN12-5.3.3.1.3-faillock_even_root-content"
     name: "/etc/security/faillock.conf has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.3.3.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3324,6 +4272,10 @@ checks:
       cat '/etc/security/faillock.conf'
     allow_rc: any
     expect: { some: "~ ^(even_deny_root|root_unlock_time\\s*=\\s*([6-9][0-9]|[1-3][0-9]{2,2}))" }
+    remediation: |
+      Edit /etc/security/faillock.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(even_deny_root|root_unlock_time\s*=\s*([6-9][0-9]|[1-3][0-9]{2,2}))
   - id: "CIS-DEBIAN12-5.3.3.1.3-faillock_even_root_removed"
     name: "faillock even root removed: grep -Pl -- '\\bpam_faillock\\.so\\h+([^#\\n\\r]+\\h+)?(even_deny_root|root_unlock_time)' /usr/…"
     description: "CIS Debian 12 benchmark recommendation 5.3.3.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3344,6 +4296,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-DEBIAN12-5.3.3.2.1-passwd_change_not_pamd-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.3.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3353,6 +4307,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { none: "~ ^\\s+password\\s+(requisite|required|sufficient)\\s+pam_pwquality\\.so\\s+([^#\\n\\r]+\\s+)?difok\\s*=\\s*([0-1])\\b" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^\s+password\s+(requisite|required|sufficient)\s+pam_pwquality\.so\s+([^#\n\r]+\s+)?difok\s*=\s*([0-1])\b
   - id: "CIS-DEBIAN12-5.3.3.2.1-password_character_changed"
     name: "password character changed: grep -Psi -- '^\\h*difok\\h*=\\h*([2-9]|[1-9][0-9]+)\\b' /etc/security/pwquality.conf /etc/se…"
     description: "CIS Debian 12 benchmark recommendation 5.3.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3521,6 +4479,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-DEBIAN12-5.3.3.3.1-pwhistory_remember_common_passwd-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.3.3.3.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3530,6 +4490,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s*(requisite|required)\\s*pam_pwhistory.so.*remember\\s*=\\s*(2[4-9]|[3-9][0-9])" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s*(requisite|required)\s*pam_pwhistory.so.*remember\s*=\s*(2[4-9]|[3-9][0-9])
   - id: "CIS-DEBIAN12-5.3.3.3.1-pwhistory_remember_pam_configs"
     name: "pwhistory remember pam configs: for file in `awk '/Password-Type:/{ f = 1;next } /-Type:/{ f = 0 } f {if (/pam_pwhistory\\…"
     description: "CIS Debian 12 benchmark recommendation 5.3.3.3.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3550,6 +4514,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-DEBIAN12-5.3.3.3.2-pwhistory_enforce_for_root-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.3.3.3.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -3559,6 +4525,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s*(requisite|required)\\s*pam_pwhistory.so.*enforce_for_root" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s*(requisite|required)\s*pam_pwhistory.so.*enforce_for_root
   - id: "CIS-DEBIAN12-5.3.3.3.2-pwhistory_enforce_for_root_pam_configs"
     name: "pwhistory enforce for root pam configs: for file in `awk '/Password-Type:/{ f = 1;next } /-Type:/{ f = 0 } f {if (/pam_pwhistory\\…"
     description: "CIS Debian 12 benchmark recommendation 5.3.3.3.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -3579,6 +4549,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-DEBIAN12-5.3.3.3.3-pwhistory_use_authtok-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.3.3.3.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3588,6 +4560,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s*(requisite|required)\\s*pam_pwhistory.so.*use_authtok" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s*(requisite|required)\s*pam_pwhistory.so.*use_authtok
   - id: "CIS-DEBIAN12-5.3.3.3.3-pwhistory_use_authtok_pam_configs"
     name: "pwhistory use authtok pam configs: for file in `awk '/Password-Type:/{ f = 1;next } /-Type:/{ f = 0 } f {if (/pam_pwhistory\\…"
     description: "CIS Debian 12 benchmark recommendation 5.3.3.3.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3676,6 +4652,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-DEBIAN12-5.4.1.2-login_defs_min_days-content"
     name: "/etc/login.defs has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.4.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -3687,6 +4665,11 @@ checks:
     expect:
       - { some: "~ ^PASS_MIN_DAYS\\s[1-9]" }
       - { none: "~ ^PASS_MIN_DAYS\\s0" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_MIN_DAYS\s[1-9]
+      - no line matches ^PASS_MIN_DAYS\s0
   - id: "CIS-DEBIAN12-5.4.1.2-check_users_MIN_DAYS"
     name: "check users MIN DAYS: grep -E '^[^:]+:[^!*]' /etc/shadow | cut -d: -f1,4"
     description: "CIS Debian 12 benchmark recommendation 5.4.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -3707,6 +4690,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-DEBIAN12-5.4.1.3-login_defs_warn_age-content"
     name: "/etc/login.defs has the expected content (3 rules)"
     description: "CIS Debian 12 benchmark recommendation 5.4.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3719,6 +4704,12 @@ checks:
       - { some: "~ ^PASS_WARN_AGE\\s+7$" }
       - { some: "~ ^PASS_WARN_AGE\\s+(7|[1-9][0-9]{1,3})$" }
       - { none: "~ ^PASS_WARN_AGE\\s+[1-6]$" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_WARN_AGE\s+7$
+      - a line matches ^PASS_WARN_AGE\s+(7|[1-9][0-9]{1,3})$
+      - no line matches ^PASS_WARN_AGE\s+[1-6]$
   - id: "CIS-DEBIAN12-5.4.1.3-check_users_MAX_DAYS"
     name: "check users MAX DAYS: grep -E '^[^:]+:[^!*]' /etc/shadow | cut -d: -f1,6"
     description: "CIS Debian 12 benchmark recommendation 5.4.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3740,6 +4731,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-DEBIAN12-5.4.1.4-login_defs_hashing-content"
     name: "/etc/login.defs has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.4.1.4. NIST SP 800-53 Rev. 5: NA."
@@ -3749,6 +4742,10 @@ checks:
       cat '/etc/login.defs'
     allow_rc: any
     expect: { some: "~ ^ENCRYPT_METHOD (SHA512|YESCRYPT)" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^ENCRYPT_METHOD (SHA512|YESCRYPT)
   - id: "CIS-DEBIAN12-5.4.1.5-inactive_passwd"
     name: "inactive passwd: useradd -D | grep INACTIVE"
     description: "CIS Debian 12 benchmark recommendation 5.4.1.5. NIST SP 800-53 Rev. 5: NA."
@@ -3786,6 +4783,11 @@ checks:
         if [ "$t" -gt "$now" ]; then echo "$usr: last password change $d is in the future"; fi
       done
     expect: empty
+    remediation: |
+      Check the system clock, then set the last password change of every listed user to today, or expire the password so it must be changed at the next login:
+
+      chage --lastday "$(date +%Y-%m-%d)" USER
+      chage --lastday 0 USER
   - id: "CIS-DEBIAN12-5.4.2.1-uid_0_check"
     name: "uid 0 check: awk -F: '($3 == 0) { print $1 }' /etc/passwd"
     description: "CIS Debian 12 benchmark recommendation 5.4.2.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3889,6 +4891,8 @@ checks:
       f='/etc/shells'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/shells.
   - id: "CIS-DEBIAN12-5.4.3.1-nologin_not_in_shells-content"
     name: "/etc/shells has the expected content (1 rule)"
     description: "CIS Debian 12 benchmark recommendation 5.4.3.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3898,6 +4902,10 @@ checks:
       cat '/etc/shells'
     allow_rc: any
     expect: { none: "~ .*nologin" }
+    remediation: |
+      Edit /etc/shells so that its lines meet these conditions (regular expressions):
+
+      - no line matches .*nologin
   - id: "CIS-DEBIAN12-5.4.3.2-check_timeout"
     name: "check timeout: grep TMOUT /etc/profile.d/*.sh /etc/profile /etc/profile.d/*.sh| cut -d \":\" -f2"
     description: "CIS Debian 12 benchmark recommendation 5.4.3.2. NIST SP 800-53 Rev. 5: NA."
@@ -3931,6 +4939,10 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journald | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service systemd-journald:
+
+      systemctl enable systemd-journald
   - id: "CIS-DEBIAN12-6.1.1.1-systemd-journald-running"
     name: "Service systemd-journald is running"
     description: "CIS Debian 12 benchmark recommendation 6.1.1.1. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -3939,6 +4951,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journald | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service systemd-journald:
+
+      systemctl start systemd-journald
   - id: "CIS-DEBIAN12-6.1.1.2-etc_tmpfiles.d_systemd.conf"
     name: "/etc/tmpfiles.d/systemd.conf: echo \"Manual - Please check journald default permissions\""
     description: "CIS Debian 12 benchmark recommendation 6.1.1.2. NIST SP 800-53 Rev. 5: AC-3, AU-2, AU-12, MP-2, SI-5."
@@ -3973,6 +4989,10 @@ checks:
     run: |
       systemctl show -p ActiveState rsyslog | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service rsyslog, unless the system needs it:
+
+      systemctl stop rsyslog
   - id: "CIS-DEBIAN12-6.1.2.1.1-systemd-journal-remote"
     name: "Package systemd-journal-remote is installed"
     description: "CIS Debian 12 benchmark recommendation 6.1.2.1.1. NIST SP 800-53 Rev. 5: AU-4."
@@ -3981,6 +5001,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' systemd-journal-remote 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package systemd-journal-remote:
+
+      apt-get install systemd-journal-remote
   - id: "CIS-DEBIAN12-6.1.2.1.2-journal_remote_configured-attrs"
     name: "/etc/systemd/journal-upload.conf: exists"
     description: "CIS Debian 12 benchmark recommendation 6.1.2.1.2. NIST SP 800-53 Rev. 5: AU-2, AU-12."
@@ -3990,6 +5014,8 @@ checks:
       f='/etc/systemd/journal-upload.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/systemd/journal-upload.conf.
   - id: "CIS-DEBIAN12-6.1.2.1.2-journal_remote_configured-content"
     name: "/etc/systemd/journal-upload.conf has the expected content (4 rules)"
     description: "CIS Debian 12 benchmark recommendation 6.1.2.1.2. NIST SP 800-53 Rev. 5: AU-2, AU-12."
@@ -4003,6 +5029,13 @@ checks:
       - { some: "~ /ServerKeyFile=\\.\\*\\.pem" }
       - { some: "~ /ServerCertificateFile=\\.\\*\\.pem" }
       - { some: "~ /TrustedCertificateFile=\\.\\*\\.pem" }
+    remediation: |
+      Edit /etc/systemd/journal-upload.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^URL=
+      - a line matches /ServerKeyFile=\.\*\.pem
+      - a line matches /ServerCertificateFile=\.\*\.pem
+      - a line matches /TrustedCertificateFile=\.\*\.pem
   - id: "CIS-DEBIAN12-6.1.2.1.3-systemd-journal-upload.service-enabled"
     name: "Service systemd-journal-upload.service is enabled"
     description: "CIS Debian 12 benchmark recommendation 6.1.2.1.3. NIST SP 800-53 Rev. 5: AU-2, AU-12."
@@ -4011,6 +5044,10 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journal-upload.service | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service systemd-journal-upload.service:
+
+      systemctl enable systemd-journal-upload.service
   - id: "CIS-DEBIAN12-6.1.2.1.3-systemd-journal-upload.service-running"
     name: "Service systemd-journal-upload.service is running"
     description: "CIS Debian 12 benchmark recommendation 6.1.2.1.3. NIST SP 800-53 Rev. 5: AU-2, AU-12."
@@ -4019,6 +5056,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journal-upload.service | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service systemd-journal-upload.service:
+
+      systemctl start systemd-journal-upload.service
   - id: "CIS-DEBIAN12-6.1.2.1.4-systemd-journal-remote.service-running"
     name: "Service systemd-journal-remote.service is not running"
     description: "CIS Debian 12 benchmark recommendation 6.1.2.1.4. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -4027,6 +5068,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journal-remote.service | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service systemd-journal-remote.service, unless the system needs it:
+
+      systemctl stop systemd-journal-remote.service
   - id: "CIS-DEBIAN12-6.1.2.1.4-systemd-journal-remote.socket-enabled"
     name: "Service systemd-journal-remote.socket is not enabled"
     description: "CIS Debian 12 benchmark recommendation 6.1.2.1.4. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -4035,6 +5080,12 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journal-remote.socket | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service systemd-journal-remote.socket, unless the system needs it:
+
+      systemctl disable systemd-journal-remote.socket
+
+      To keep other units from starting it, mask it instead: systemctl mask systemd-journal-remote.socket
   - id: "CIS-DEBIAN12-6.1.2.1.4-systemd-journal-remote.socket-running"
     name: "Service systemd-journal-remote.socket is not running"
     description: "CIS Debian 12 benchmark recommendation 6.1.2.1.4. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -4043,6 +5094,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journal-remote.socket | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service systemd-journal-remote.socket, unless the system needs it:
+
+      systemctl stop systemd-journal-remote.socket
   - id: "CIS-DEBIAN12-6.1.2.1.4-journald_service_masked"
     name: "journald service masked: systemctl is-enabled systemd-journal-remote.socket"
     description: "CIS Debian 12 benchmark recommendation 6.1.2.1.4. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -4108,6 +5163,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' rsyslog 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package rsyslog:
+
+      apt-get install rsyslog
   - id: "CIS-DEBIAN12-6.1.3.2-rsyslog_service-enabled"
     name: "Service rsyslog.service is enabled"
     description: "CIS Debian 12 benchmark recommendation 6.1.3.2. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12."
@@ -4116,6 +5175,10 @@ checks:
     run: |
       systemctl show -p UnitFileState rsyslog.service | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service rsyslog.service:
+
+      systemctl enable rsyslog.service
   - id: "CIS-DEBIAN12-6.1.3.2-rsyslog_service-running"
     name: "Service rsyslog.service is running"
     description: "CIS Debian 12 benchmark recommendation 6.1.3.2. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12."
@@ -4124,6 +5187,10 @@ checks:
     run: |
       systemctl show -p ActiveState rsyslog.service | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service rsyslog.service:
+
+      systemctl start rsyslog.service
   - id: "CIS-DEBIAN12-6.1.3.3-forward_journald_conf"
     name: "forward journald conf: grep -i forward /etc/systemd/journald.conf /etc/systemd/journald.conf.d/"
     description: "CIS Debian 12 benchmark recommendation 6.1.3.3. NIST SP 800-53 Rev. 5: AC-3, AU-2, AU-4, AU-12, MP-2."
@@ -4156,6 +5223,8 @@ checks:
       f='/etc/rsyslog.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/rsyslog.conf.
   - id: "CIS-DEBIAN12-6.1.3.5-rsyslog_logging-content"
     name: "/etc/rsyslog.conf has the expected content (13 rules)"
     description: "CIS Debian 12 benchmark recommendation 6.1.3.5. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -4178,6 +5247,22 @@ checks:
       - { some: "~ ^local2,local3.\\*\\s+-/var/log/localmessages" }
       - { some: "~ ^local4,local5.\\*\\s+-/var/log/localmessages" }
       - { some: "~ ^local6,local7.\\*\\s+-/var/log/localmessages" }
+    remediation: |
+      Edit /etc/rsyslog.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\*.emerg\s+:omusrmsg:\*
+      - a line matches auth,authpriv.\*\s+/var/log/secure
+      - a line matches ^mail.\*\s+-/var/log/mail
+      - a line matches ^mail.info\s+-/var/log/mail.info
+      - a line matches ^mail.err\s+/var/log/mail.err
+      - a line matches ^cron.\*\s+/var/log/cron
+      - a line matches ^*.=warning;\*.=err\s+-/var/log/warn
+      - a line matches ^*.crit\s+/var/log/warn
+      - a line matches ^*.*;mail.none;news.none\s+/var/log/messages
+      - a line matches ^local0,local1.\*\s+-/var/log/localmessages
+      - a line matches ^local2,local3.\*\s+-/var/log/localmessages
+      - a line matches ^local4,local5.\*\s+-/var/log/localmessages
+      - a line matches ^local6,local7.\*\s+-/var/log/localmessages
   - id: "CIS-DEBIAN12-6.1.3.8-rsyslog_logrotate"
     name: "rsyslog logrotate: echo \"Manual | please check file rotaton matches site policy - logrotate\""
     description: "CIS Debian 12 benchmark recommendation 6.1.3.8. NIST SP 800-53 Rev. 5: AU-8."
@@ -4208,6 +5293,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' audispd-plugins 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package audispd-plugins:
+
+      apt-get install audispd-plugins
   - id: "CIS-DEBIAN12-6.2.1.1-audit"
     name: "Package auditd is installed"
     description: "CIS Debian 12 benchmark recommendation 6.2.1.1. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12, SI-5."
@@ -4216,6 +5305,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' auditd 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package auditd:
+
+      apt-get install auditd
   - id: "CIS-DEBIAN12-6.2.1.2-auditd-enabled"
     name: "Service auditd is enabled"
     description: "CIS Debian 12 benchmark recommendation 6.2.1.2. NIST SP 800-53 Rev. 5: AU-2, AU-12, SI-5."
@@ -4224,6 +5317,10 @@ checks:
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service auditd:
+
+      systemctl enable auditd
   - id: "CIS-DEBIAN12-6.2.1.2-auditd-running"
     name: "Service auditd is running"
     description: "CIS Debian 12 benchmark recommendation 6.2.1.2. NIST SP 800-53 Rev. 5: AU-2, AU-12, SI-5."
@@ -4232,6 +5329,10 @@ checks:
     run: |
       systemctl show -p ActiveState auditd | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service auditd:
+
+      systemctl start auditd
   - id: "CIS-DEBIAN12-6.2.1.3-audit_default_grub"
     name: "audit default grub: grep audit= /etc/default/grub"
     description: "CIS Debian 12 benchmark recommendation 6.2.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -4285,6 +5386,8 @@ checks:
       f='/etc/audit/auditd.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/audit/auditd.conf.
   - id: "CIS-DEBIAN12-6.2.2.3-logs_full_auditd_conf-content"
     name: "/etc/audit/auditd.conf has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 6.2.2.3. NIST SP 800-53 Rev. 5: AU-8."
@@ -4296,6 +5399,11 @@ checks:
     expect:
       - { some: "~ ^\\s*disk_full_action\\s*=\\s*(halt|single)" }
       - { some: "~ ^\\s*disk_error_action\\s*=\\s*(syslog|halt|single)" }
+    remediation: |
+      Edit /etc/audit/auditd.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*disk_full_action\s*=\s*(halt|single)
+      - a line matches ^\s*disk_error_action\s*=\s*(syslog|halt|single)
   - id: "CIS-DEBIAN12-6.2.2.4-logs_low_space_auditd_conf"
     name: "logs low space auditd conf: grep space_left_action /etc/audit/auditd.conf"
     description: "CIS Debian 12 benchmark recommendation 6.2.2.4. NIST SP 800-53 Rev. 5: AU-2, AU-8, AU-12, SI-5."
@@ -4943,6 +6051,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' aide 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package aide:
+
+      apt-get install aide
   - id: "CIS-DEBIAN12-6.3.2-aide_cron"
     name: "aide cron: grep -rs aide /etc/cron.* /etc/crontab /var/spool/cron/*"
     description: "CIS Debian 12 benchmark recommendation 6.3.2. NIST SP 800-53 Rev. 5: AU-2."
@@ -4963,6 +6075,8 @@ checks:
       f='/etc/aide/aide.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/aide/aide.conf.
   - id: "CIS-DEBIAN12-6.3.3-audit_bins_crypto_aide-content"
     name: "/etc/aide/aide.conf has the expected content (6 rules)"
     description: "CIS Debian 12 benchmark recommendation 6.3.3."
@@ -4978,6 +6092,15 @@ checks:
       - { some: "~ /sbin/aureport p\\+i\\+n\\+u\\+g\\+s\\+b\\+acl\\+xattrs\\+sha512" }
       - { some: "~ /sbin/autrace p\\+i\\+n\\+u\\+g\\+s\\+b\\+acl\\+xattrs\\+sha512" }
       - { some: "~ /sbin/augenrules p\\+i\\+n\\+u\\+g\\+s\\+b\\+acl\\+xattrs\\+sha512" }
+    remediation: |
+      Edit /etc/aide/aide.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches /sbin/auditctl p\+i\+n\+u\+g\+s\+b\+acl\+xattrs\+sha512
+      - a line matches /sbin/auditd p\+i\+n\+u\+g\+s\+b\+acl\+xattrs\+sha512
+      - a line matches /sbin/ausearch p\+i\+n\+u\+g\+s\+b\+acl\+xattrs\+sha512
+      - a line matches /sbin/aureport p\+i\+n\+u\+g\+s\+b\+acl\+xattrs\+sha512
+      - a line matches /sbin/autrace p\+i\+n\+u\+g\+s\+b\+acl\+xattrs\+sha512
+      - a line matches /sbin/augenrules p\+i\+n\+u\+g\+s\+b\+acl\+xattrs\+sha512
   - id: "CIS-DEBIAN12-7.1.1-etc_passwd_perms-attrs"
     name: "/etc/passwd: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 7.1.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4990,6 +6113,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/passwd if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/passwd'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/passwd'
   - id: "CIS-DEBIAN12-7.1.2-passwd-_perms-attrs"
     name: "/etc/passwd-: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 7.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5002,6 +6130,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/passwd- if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/passwd-'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/passwd-'
   - id: "CIS-DEBIAN12-7.1.3-etcgroup_perms-attrs"
     name: "/etc/group: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 7.1.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5014,6 +6147,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/group if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/group'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/group'
   - id: "CIS-DEBIAN12-7.1.4-etcgroup-_perms-attrs"
     name: "/etc/group-: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 7.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5026,6 +6164,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/group- if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/group-'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/group-'
   - id: "CIS-DEBIAN12-7.1.5-etc_shadow_perms-attrs"
     name: "/etc/shadow: exists, mode 0000 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 7.1.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5038,6 +6181,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shadow if it is missing, then set owner root and group root and remove the permissions u-rwxs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/shadow'
+      chmod u-rwxs,g-rwxs,o-rwx,a-t '/etc/shadow'
   - id: "CIS-DEBIAN12-7.1.6-etc_shadow-_perms-attrs"
     name: "/etc/shadow-: exists, mode 0000 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 7.1.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5050,6 +6198,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shadow- if it is missing, then set owner root and group root and remove the permissions u-rwxs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/shadow-'
+      chmod u-rwxs,g-rwxs,o-rwx,a-t '/etc/shadow-'
   - id: "CIS-DEBIAN12-7.1.7-etc_gshadow_perms-attrs"
     name: "/etc/gshadow: exists, mode 0000 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 7.1.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5062,6 +6215,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/gshadow if it is missing, then set owner root and group root and remove the permissions u-rwxs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/gshadow'
+      chmod u-rwxs,g-rwxs,o-rwx,a-t '/etc/gshadow'
   - id: "CIS-DEBIAN12-7.1.8-etc_gshadow-_perms-attrs"
     name: "/etc/gshadow-: exists, mode 0000 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 7.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5074,6 +6232,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/gshadow- if it is missing, then set owner root and group root and remove the permissions u-rwxs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/gshadow-'
+      chmod u-rwxs,g-rwxs,o-rwx,a-t '/etc/gshadow-'
   - id: "CIS-DEBIAN12-7.1.9-etc_shells_perms-attrs"
     name: "/etc/shells: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 7.1.9. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5086,6 +6249,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shells if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/shells'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/shells'
   - id: "CIS-DEBIAN12-7.1.10-etc_security_opasswd__old_perms-attrs"
     name: "/etc/security/opasswd.old: mode 0600 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 7.1.10. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5098,6 +6266,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/security/opasswd.old if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/security/opasswd.old'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/security/opasswd.old'
   - id: "CIS-DEBIAN12-7.1.10-etc_security_opasswd_perms-attrs"
     name: "/etc/security/opasswd: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Debian 12 benchmark recommendation 7.1.10. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5110,6 +6283,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/security/opasswd if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/security/opasswd'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/security/opasswd'
   - id: "CIS-DEBIAN12-7.1.11-sticky_bit"
     name: "sticky bit: df --local -P | awk '{if (NR!=1) print $7}' | xargs -I '{}' find '{}' -xdev -type d \\( -p…"
     description: "CIS Debian 12 benchmark recommendation 7.1.11. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5189,6 +6367,8 @@ checks:
       f='/etc/group'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/group.
   - id: "CIS-DEBIAN12-7.2.4-shadow_group_empty-content"
     name: "/etc/group has the expected content (2 rules)"
     description: "CIS Debian 12 benchmark recommendation 7.2.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -5200,6 +6380,11 @@ checks:
     expect:
       - { some: "~ ^shadow:x:\\d{2,}:$" }
       - { none: "~ ^shadow:x:\\d{2,}:." }
+    remediation: |
+      Edit /etc/group so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^shadow:x:\d{2,}:$
+      - no line matches ^shadow:x:\d{2,}:.
   - id: "CIS-DEBIAN12-7.2.5-no_dup_uid"
     name: "no dup uid: cat /etc/passwd | cut -d: -f3 | uniq -d"
     description: "CIS Debian 12 benchmark recommendation 7.2.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."

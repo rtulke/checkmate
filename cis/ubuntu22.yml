@@ -23,6 +23,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU22-1.1.1.1-cramfs_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -32,6 +34,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist cramfs" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist cramfs
   - id: "CIS-UBUNTU22-1.1.1.1-cramfs_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -41,6 +47,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU22-1.1.1.1-cramfs_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -50,6 +58,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install cramfs /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install cramfs /bin/(true|false)
   - id: "CIS-UBUNTU22-1.1.1.2-freevxfs_blacklist-attrs"
     name: "/etc/modprobe.d/blacklist.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -59,6 +71,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU22-1.1.1.2-freevxfs_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -68,6 +82,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist freevxfs" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist freevxfs
   - id: "CIS-UBUNTU22-1.1.1.2-freevxfs_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -77,6 +95,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU22-1.1.1.2-freevxfs_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -86,6 +106,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install freevxfs /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install freevxfs /bin/(true|false)
   - id: "CIS-UBUNTU22-1.1.1.3-hfs_blacklist-attrs"
     name: "/etc/modprobe.d/blacklist.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -95,6 +119,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU22-1.1.1.3-hfs_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -104,6 +130,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist hfs" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist hfs
   - id: "CIS-UBUNTU22-1.1.1.3-hfs_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -113,6 +143,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU22-1.1.1.3-hfs_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -122,6 +154,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install hfs /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install hfs /bin/(true|false)
   - id: "CIS-UBUNTU22-1.1.1.4-hfsplus_blacklist-attrs"
     name: "/etc/modprobe.d/blacklist.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -131,6 +167,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU22-1.1.1.4-hfsplus_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -140,6 +178,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist hfsplus" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist hfsplus
   - id: "CIS-UBUNTU22-1.1.1.4-hfsplus_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -149,6 +191,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU22-1.1.1.4-hfsplus_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -158,6 +202,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install hfsplus /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install hfsplus /bin/(true|false)
   - id: "CIS-UBUNTU22-1.1.1.5-jffs2_blacklist-attrs"
     name: "/etc/modprobe.d/blacklist.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -167,6 +215,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU22-1.1.1.5-jffs2_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -176,6 +226,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist jffs2" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist jffs2
   - id: "CIS-UBUNTU22-1.1.1.5-jffs2_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -185,6 +239,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU22-1.1.1.5-jffs2_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -194,6 +250,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install jffs2 /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install jffs2 /bin/(true|false)
   - id: "CIS-UBUNTU22-1.1.1.6-overlay_blacklist-attrs"
     name: "/etc/modprobe.d/blacklist.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.6. NIST SP 800-53 Rev. 5: CM-7."
@@ -203,6 +263,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU22-1.1.1.6-overlay_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.6. NIST SP 800-53 Rev. 5: CM-7."
@@ -212,6 +274,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist overlay" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist overlay
   - id: "CIS-UBUNTU22-1.1.1.6-overlay_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.6. NIST SP 800-53 Rev. 5: CM-7."
@@ -221,6 +287,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU22-1.1.1.6-overlay_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.6. NIST SP 800-53 Rev. 5: CM-7."
@@ -230,6 +298,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install overlay /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install overlay /bin/(true|false)
   - id: "CIS-UBUNTU22-1.1.1.8-udf_blacklist-attrs"
     name: "/etc/modprobe.d/blacklist.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -239,6 +311,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU22-1.1.1.8-udf_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -248,6 +322,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist udf" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist udf
   - id: "CIS-UBUNTU22-1.1.1.8-udf_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -257,6 +335,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU22-1.1.1.8-udf_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -266,6 +346,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install udf /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install udf /bin/(true|false)
   - id: "CIS-UBUNTU22-1.1.1.9-usb-storage_blacklist-attrs"
     name: "/etc/modprobe.d/blacklist.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.9."
@@ -275,6 +359,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU22-1.1.1.9-usb-storage_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.9."
@@ -284,6 +370,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist usb-storage" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist usb-storage
   - id: "CIS-UBUNTU22-1.1.1.9-usb-storage_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.9."
@@ -293,6 +383,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU22-1.1.1.9-usb-storage_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.9."
@@ -302,6 +394,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install usb-storage /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install usb-storage /bin/(true|false)
   - id: "CIS-UBUNTU22-1.1.1.10-cve_fs"
     name: "cve fs: /var/fs_with_cves.sh"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.10. NIST SP 800-53 Rev. 5: NA."
@@ -322,6 +418,8 @@ checks:
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/blacklist.conf.
   - id: "CIS-UBUNTU22-1.1.1.11-firewire-core_blacklist-content"
     name: "/etc/modprobe.d/blacklist.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.11. NIST SP 800-53 Rev. 5: CM-7."
@@ -331,6 +429,10 @@ checks:
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
     expect: { some: "~ ^blacklist firewire-core" }
+    remediation: |
+      Edit /etc/modprobe.d/blacklist.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^blacklist firewire-core
   - id: "CIS-UBUNTU22-1.1.1.11-firewire-core_disabled-attrs"
     name: "/etc/modprobe.d/CIS.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.11. NIST SP 800-53 Rev. 5: CM-7."
@@ -340,6 +442,8 @@ checks:
       f='/etc/modprobe.d/CIS.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/modprobe.d/CIS.conf.
   - id: "CIS-UBUNTU22-1.1.1.11-firewire-core_disabled-content"
     name: "/etc/modprobe.d/CIS.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.1.11. NIST SP 800-53 Rev. 5: CM-7."
@@ -349,6 +453,10 @@ checks:
       cat '/etc/modprobe.d/CIS.conf'
     allow_rc: any
     expect: { some: "~ ^install firewire-core /bin/(true|false)" }
+    remediation: |
+      Edit /etc/modprobe.d/CIS.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^install firewire-core /bin/(true|false)
   - id: "CIS-UBUNTU22-1.1.2.1.1-tmp_mount"
     name: "/tmp is a separate mount"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.1.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -358,6 +466,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/tmp'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /tmp on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data. A tmpfs mount on /tmp, e.g. with systemd's tmp.mount, counts as well.
   - id: "CIS-UBUNTU22-1.1.2.1.2-tmp_options_nodev"
     name: "/tmp is a separate mount with nodev"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -369,6 +479,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /tmp with the option nodev: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.1.2-tmp_fstab_nodev_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -378,6 +494,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.1.2-tmp_fstab_nodev_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -387,6 +505,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*nodev.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*nodev.*
   - id: "CIS-UBUNTU22-1.1.2.1.3-tmp_nosuid_options"
     name: "/tmp is a separate mount with nosuid"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -398,6 +520,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /tmp with the option nosuid: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.1.3-tmp_fstab_nosuid_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -407,6 +535,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.1.3-tmp_fstab_nosuid_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -416,6 +546,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*nosuid.*
   - id: "CIS-UBUNTU22-1.1.2.1.4-tmp_noexec_options"
     name: "/tmp is a separate mount with noexec"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -427,6 +561,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /tmp with the option noexec: add it to the options of /tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/tmp'
+
+      If /tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.1.4-tmp_fstab_noexec_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -436,6 +576,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.1.4-tmp_fstab_noexec_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -445,6 +587,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/tmp.*noexec.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/tmp.*noexec.*
   - id: "CIS-UBUNTU22-1.1.2.2.1-dev_shm_mount"
     name: "/dev/shm is a separate mount"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.2.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -456,6 +602,8 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ ^(tmpfs) "
+    remediation: |
+      Mount a tmpfs file system on /dev/shm with an entry in /etc/fstab or a systemd mount unit.
   - id: "CIS-UBUNTU22-1.1.2.2.2-dev_shm_nodev_options"
     name: "/dev/shm is a separate mount with nodev"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -467,6 +615,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /dev/shm with the option nodev: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.2.2-dev_shm_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -476,6 +630,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.2.2-dev_shm_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -485,6 +641,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*nodev
   - id: "CIS-UBUNTU22-1.1.2.2.3-dev_shm_nosuid_options"
     name: "/dev/shm is a separate mount with nosuid"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -496,6 +656,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /dev/shm with the option nosuid: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.2.3-dev_shm_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -505,6 +671,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.2.3-dev_shm_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.2.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -514,6 +682,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*nosuid.*
   - id: "CIS-UBUNTU22-1.1.2.2.4-dev_shm_noexec_options"
     name: "/dev/shm is a separate mount with noexec"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -525,6 +697,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /dev/shm with the option noexec: add it to the options of /dev/shm in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/dev/shm'
+
+      If /dev/shm is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.2.4-dev_shm_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -534,6 +712,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.2.4-dev_shm_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.2.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -543,6 +723,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/dev\\/shm.*noexec.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/dev\/shm.*noexec.*
   - id: "CIS-UBUNTU22-1.1.2.3.1-home_mount"
     name: "/home is a separate mount"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.3.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -552,6 +736,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/home'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /home on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-UBUNTU22-1.1.2.3.2-home_nodev_options"
     name: "/home is a separate mount with nodev"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -563,6 +749,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /home with the option nodev: add it to the options of /home in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/home'
+
+      If /home is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.3.2-home_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -572,6 +764,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.3.2-home_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -581,6 +775,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/home.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/home.*nodev
   - id: "CIS-UBUNTU22-1.1.2.3.3-home_nosuid_options"
     name: "/home is a separate mount with nosuid"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -592,6 +790,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /home with the option nosuid: add it to the options of /home in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/home'
+
+      If /home is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.3.3-home_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -601,6 +805,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.3.3-home_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -610,6 +816,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/home.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/home.*nosuid.*
   - id: "CIS-UBUNTU22-1.1.2.4.1-var_mount"
     name: "/var is a separate mount"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.4.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -619,6 +829,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-UBUNTU22-1.1.2.4.2-var_nodev_options"
     name: "/var is a separate mount with nodev"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -630,6 +842,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var with the option nodev: add it to the options of /var in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var'
+
+      If /var is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.4.2-var_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -639,6 +857,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.4.2-var_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -648,6 +868,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\s.*nodev
   - id: "CIS-UBUNTU22-1.1.2.4.3-var_nosuid_options"
     name: "/var is a separate mount with nosuid"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -659,6 +883,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var with the option nosuid: add it to the options of /var in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var'
+
+      If /var is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.4.3-var_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -668,6 +898,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.4.3-var_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -677,6 +909,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\s.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\s.*nosuid.*
   - id: "CIS-UBUNTU22-1.1.2.5.1-var_tmp_mount"
     name: "/var/tmp is a separate mount"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.5.1."
@@ -686,6 +922,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/tmp'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/tmp on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-UBUNTU22-1.1.2.5.2-var_tmp_nodev_options"
     name: "/var/tmp is a separate mount with nodev"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -697,6 +935,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/tmp with the option nodev: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.5.2-var_tmp_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -706,6 +950,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.5.2-var_tmp_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -715,6 +961,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*nodev
   - id: "CIS-UBUNTU22-1.1.2.5.3-var_tmp_nosuid_options"
     name: "/var/tmp is a separate mount with nosuid"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -726,6 +976,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/tmp with the option nosuid: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.5.3-var_tmp_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -735,6 +991,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.5.3-var_tmp_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -744,6 +1002,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*nosuid.*
   - id: "CIS-UBUNTU22-1.1.2.5.4-var_tmp_noexec_options"
     name: "/var/tmp is a separate mount with noexec"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -755,6 +1017,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/tmp with the option noexec: add it to the options of /var/tmp in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/tmp'
+
+      If /var/tmp is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.5.4-var_tmp_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -764,6 +1032,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.5.4-var_tmp_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -773,6 +1043,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/tmp\\s.*noexec.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/tmp\s.*noexec.*
   - id: "CIS-UBUNTU22-1.1.2.6.1-var_log_mount"
     name: "/var/log is a separate mount"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.6.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -782,6 +1056,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/log'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/log on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-UBUNTU22-1.1.2.6.2-var_log_nodev_options"
     name: "/var/log is a separate mount with nodev"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -793,6 +1069,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/log with the option nodev: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.6.2-var_log_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -802,6 +1084,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.6.2-var_log_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -811,6 +1095,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*nodev
   - id: "CIS-UBUNTU22-1.1.2.6.3-var_log_nosuid_options"
     name: "/var/log is a separate mount with nosuid"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -822,6 +1110,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/log with the option nosuid: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.6.3-var_log_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -831,6 +1125,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.6.3-var_log_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -840,6 +1136,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*nosuid.*
   - id: "CIS-UBUNTU22-1.1.2.6.4-var_log_noexec_options"
     name: "/var/log is a separate mount with noexec"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -851,6 +1151,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/log with the option noexec: add it to the options of /var/log in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log'
+
+      If /var/log is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.6.4-var_log_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -860,6 +1166,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.6.4-var_log_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -869,6 +1177,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\s.*noexec.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\s.*noexec.*
   - id: "CIS-UBUNTU22-1.1.2.7.1-var_log_audit_mount"
     name: "/var/log/audit is a separate mount"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.7.1. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -878,6 +1190,8 @@ checks:
       findmnt -n -o FSTYPE,OPTIONS '/var/log/audit'
     allow_rc: any
     expect: { rc: "== 0" }
+    remediation: |
+      Put /var/log/audit on a separate file system (partition or logical volume) and mount it there with an entry in /etc/fstab or a systemd mount unit. This needs a new file system and moving the existing data.
   - id: "CIS-UBUNTU22-1.1.2.7.2-var_log_audit_nodev_options"
     name: "/var/log/audit is a separate mount with nodev"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -889,6 +1203,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nodev(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option nodev: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.7.2-var_log_audit_nodev_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -898,6 +1218,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.7.2-var_log_audit_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -907,6 +1229,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*nodev" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*nodev
   - id: "CIS-UBUNTU22-1.1.2.7.3-var_log_audit_nosuid_options"
     name: "/var/log/audit is a separate mount with nosuid"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -918,6 +1244,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]nosuid(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option nosuid: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.7.3-var_log_audit_nosuid_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -927,6 +1259,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.7.3-var_log_audit_nosuid_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -936,6 +1270,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*nosuid.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*nosuid.*
   - id: "CIS-UBUNTU22-1.1.2.7.4-var_log_audit_noexec_options"
     name: "/var/log/audit is a separate mount with noexec"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -947,6 +1285,12 @@ checks:
     expect:
       - { rc: "== 0" }
       - "~ [ ,]noexec(,|$)"
+    remediation: |
+      Mount /var/log/audit with the option noexec: add it to the options of /var/log/audit in /etc/fstab (or its systemd mount unit), then apply:
+
+      mount -o remount '/var/log/audit'
+
+      If /var/log/audit is not a separate file system yet, create one first.
   - id: "CIS-UBUNTU22-1.1.2.7.4-var_log_audit_noexec_fstab_options-attrs"
     name: "/etc/fstab: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -956,6 +1300,8 @@ checks:
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/fstab.
   - id: "CIS-UBUNTU22-1.1.2.7.4-var_log_audit_noexec_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: CM-7, AC-3, MP-2."
@@ -965,6 +1311,10 @@ checks:
       cat '/etc/fstab'
     allow_rc: any
     expect: { some: "~ \\s\\/var\\/log\\/audit\\s.*noexec.*" }
+    remediation: |
+      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+
+      - a line matches \s\/var\/log\/audit\s.*noexec.*
   - id: "CIS-UBUNTU22-1.2.1.1-gpg_keys_list"
     name: "gpg keys list: echo \"MANUAL - Please check manually for gpg keys\""
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.2.1.1. NIST SP 800-53 Rev. 5: SI-2."
@@ -1007,6 +1357,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' apparmor 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package apparmor:
+
+      apt-get install apparmor
   - id: "CIS-UBUNTU22-1.3.1.2-apparmor_boot_grub-attrs"
     name: "/boot/grub/grub.cfg: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.3.1.2. NIST SP 800-53 Rev. 5: AC-3."
@@ -1016,6 +1370,8 @@ checks:
       f='/boot/grub/grub.cfg'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /boot/grub/grub.cfg.
   - id: "CIS-UBUNTU22-1.3.1.2-apparmor_boot_grub-content"
     name: "/boot/grub/grub.cfg has the expected content (3 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.3.1.2. NIST SP 800-53 Rev. 5: AC-3."
@@ -1028,6 +1384,12 @@ checks:
       - { some: "~ apparmor=1" }
       - { some: "~ security=apparmor" }
       - { none: "~ apparmor=0" }
+    remediation: |
+      Edit /boot/grub/grub.cfg so that its lines meet these conditions (regular expressions):
+
+      - a line matches apparmor=1
+      - a line matches security=apparmor
+      - no line matches apparmor=0
   - id: "CIS-UBUNTU22-1.3.1.2-grub_app_armor-attrs"
     name: "/etc/default/grub: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.3.1.2. NIST SP 800-53 Rev. 5: AC-3."
@@ -1037,6 +1399,8 @@ checks:
       f='/etc/default/grub'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/default/grub.
   - id: "CIS-UBUNTU22-1.3.1.2-grub_app_armor-content"
     name: "/etc/default/grub has the expected content (3 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.3.1.2. NIST SP 800-53 Rev. 5: AC-3."
@@ -1049,6 +1413,12 @@ checks:
       - { some: "~ ^GRUB_CMDLINE_LINUX.*apparmor=1" }
       - { some: "~ ^GRUB_CMDLINE_LINUX.*security=apparmor" }
       - { none: "~ apparmor=0" }
+    remediation: |
+      Edit /etc/default/grub so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^GRUB_CMDLINE_LINUX.*apparmor=1
+      - a line matches ^GRUB_CMDLINE_LINUX.*security=apparmor
+      - no line matches apparmor=0
   - id: "CIS-UBUNTU22-1.3.1.3-apparmor_enf_or_comp"
     name: "apparmor enf or comp: LOADED=`apparmor_status | grep 'profiles are loaded' | awk '{print $1}'` \u0026\u0026 ENFORCE=`appa…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.3.1.3. NIST SP 800-53 Rev. 5: AC-3."
@@ -1080,6 +1450,8 @@ checks:
       f='/etc/grub.d/00_user'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/grub.d/00_user.
   - id: "CIS-UBUNTU22-1.4.1-bootloader_password_set-content"
     name: "/etc/grub.d/00_user has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.4.1. NIST SP 800-53 Rev. 5: AC-3."
@@ -1091,6 +1463,11 @@ checks:
     expect:
       - { some: "~ set superusers=\"root\"" }
       - { some: "~ password_pbkdf2 root grub.pbkdf2.sha512.changethispassword" }
+    remediation: |
+      Edit /etc/grub.d/00_user so that its lines meet these conditions (regular expressions):
+
+      - a line matches set superusers="root"
+      - a line matches password_pbkdf2 root grub.pbkdf2.sha512.changethispassword
   - id: "CIS-UBUNTU22-1.4.2-default_grub_perms-attrs"
     name: "/boot/grub/grub.cfg: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.4.2. NIST SP 800-53 Rev. 5: AC-3."
@@ -1103,6 +1480,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /boot/grub/grub.cfg if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/boot/grub/grub.cfg'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/boot/grub/grub.cfg'
   - id: "CIS-UBUNTU22-1.5.1-kernel.randomize_va_space"
     name: "Kernel parameter kernel.randomize_va_space is 2"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.5.1. NIST SP 800-53 Rev. 5: SI-16."
@@ -1114,6 +1496,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 2"
+    remediation: |
+      Set the kernel parameter kernel.randomize_va_space to 2, now and at boot:
+
+      sysctl -w 'kernel.randomize_va_space=2'
+      printf '%s\n' 'kernel.randomize_va_space = 2' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of kernel.randomize_va_space from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-1.5.1-aslr_enabled_2"
     name: "aslr enabled 2: grep \"kernel\\.randomize_va_space\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.5.1. NIST SP 800-53 Rev. 5: SI-16."
@@ -1137,6 +1526,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter kernel.yama.ptrace_scope to 1, now and at boot:
+
+      sysctl -w 'kernel.yama.ptrace_scope=1'
+      printf '%s\n' 'kernel.yama.ptrace_scope = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of kernel.yama.ptrace_scope from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-1.5.2-ptrace_restrict_2"
     name: "ptrace restrict 2: grep \"kernel\\.yama\\.ptrace_scope\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.5.2. NIST SP 800-53 Rev. 5: CM-6."
@@ -1160,6 +1556,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter fs.suid_dumpable to 0, now and at boot:
+
+      sysctl -w 'fs.suid_dumpable=0'
+      printf '%s\n' 'fs.suid_dumpable = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of fs.suid_dumpable from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-1.5.3-suid_dumpable_2"
     name: "suid dumpable 2: grep \"fs\\.suid_dumpable\" /etc/sysctl.conf /etc/sysctl.d/*"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.5.3. NIST SP 800-53 Rev. 5: NA."
@@ -1191,6 +1594,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' prelink 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package prelink, unless the system needs it:
+
+      apt-get purge prelink
   - id: "CIS-UBUNTU22-1.5.6-apport"
     name: "Package apport is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.5.6."
@@ -1199,6 +1606,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' apport 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package apport, unless the system needs it:
+
+      apt-get purge apport
   - id: "CIS-UBUNTU22-1.5.6-error_report_apport_disable-attrs"
     name: "/etc/default/apport: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.5.6."
@@ -1208,6 +1619,8 @@ checks:
       f='/etc/default/apport'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/default/apport.
   - id: "CIS-UBUNTU22-1.5.6-error_report_apport_disable-content"
     name: "/etc/default/apport has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.5.6."
@@ -1219,6 +1632,11 @@ checks:
     expect:
       - { some: "~ enabled=0" }
       - { none: "~ enabled=1" }
+    remediation: |
+      Edit /etc/default/apport so that its lines meet these conditions (regular expressions):
+
+      - a line matches enabled=0
+      - no line matches enabled=1
   - id: "CIS-UBUNTU22-1.6.1-disable_dyn_motd-attrs"
     name: "/etc/pam.d/sshd: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
@@ -1228,6 +1646,8 @@ checks:
       f='/etc/pam.d/sshd'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/sshd.
   - id: "CIS-UBUNTU22-1.6.1-disable_dyn_motd-content"
     name: "/etc/pam.d/sshd has the expected content (4 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
@@ -1241,6 +1661,13 @@ checks:
       - { some: "~ #\\s*session\\s+optional\\s+pam_motd.so noupdate" }
       - { none: "~ ^session\\s+optional\\s+pam_motd.so noupdate" }
       - { none: "~ ^session\\s+optional\\s+pam_motd.so\\s+motd=/run/motd.dynamic" }
+    remediation: |
+      Edit /etc/pam.d/sshd so that its lines meet these conditions (regular expressions):
+
+      - a line matches #\s*session\s+optional\s+pam_motd.so\s+motd=/run/motd.dynamic
+      - a line matches #\s*session\s+optional\s+pam_motd.so noupdate
+      - no line matches ^session\s+optional\s+pam_motd.so noupdate
+      - no line matches ^session\s+optional\s+pam_motd.so\s+motd=/run/motd.dynamic
   - id: "CIS-UBUNTU22-1.6.1-etc_motd_content-content"
     name: "/etc/motd has the expected content (4 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
@@ -1254,6 +1681,13 @@ checks:
       - { none: "~ (\\\\v|\\\\r|\\\\m|\\\\s)" }
       - { none: "~ \\/etc\\/os-release" }
       - { none: "~ (?i)ubuntu" }
+    remediation: |
+      Edit /etc/motd so that its lines meet these conditions (regular expressions):
+
+      - a line matches Authorized uses only\. All activity may be monitored and reported\.
+      - no line matches (\\v|\\r|\\m|\\s)
+      - no line matches \/etc\/os-release
+      - no line matches (?i)ubuntu
   - id: "CIS-UBUNTU22-1.6.2-local_login_banner"
     name: "local login banner: grep -Eis \"(\\\\\\v|\\\\\\r|\\\\\\m|\\\\\\s|$(grep '^ID=' /etc/os-release | cut -d= -f2 | sed -e 's/\"…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.6.2. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
@@ -1288,6 +1722,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/motd if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/motd'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/motd'
   - id: "CIS-UBUNTU22-1.6.5-etc_issue_perms-attrs"
     name: "/etc/issue: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.6.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1300,6 +1739,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue'
   - id: "CIS-UBUNTU22-1.6.6-etc_issue_net_perms-attrs"
     name: "/etc/issue.net: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.6.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1312,6 +1756,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/issue.net if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/issue.net'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/issue.net'
   - id: "CIS-UBUNTU22-1.7.1-gdm3"
     name: "Package gdm3 is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 1.7.1. NIST SP 800-53 Rev. 5: CM-11."
@@ -1320,6 +1769,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' gdm3 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package gdm3, unless the system needs it:
+
+      apt-get purge gdm3
   - id: "CIS-UBUNTU22-2.1.1-autofs_masked-attrs"
     name: "/etc/systemd/system/autofs.service: exists, is a symbolic link, links to /dev/null"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.1. NIST SP 800-53 Rev. 5: SI-3, MP-7."
@@ -1331,6 +1784,10 @@ checks:
       [ -L "$f" ] || echo "$f is not a symbolic link"
       [ "$(readlink "$f")" = '/dev/null' ] || echo "$f links to $(readlink "$f")"
     expect: empty
+    remediation: |
+      Create /etc/systemd/system/autofs.service if it is missing, then point the link to /dev/null:
+
+      ln -sfn '/dev/null' '/etc/systemd/system/autofs.service'
   - id: "CIS-UBUNTU22-2.1.2-avahi_pkg"
     name: "Package avahi is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.2. NIST SP 800-53 Rev. 5: SI-4."
@@ -1339,6 +1796,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' avahi 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package avahi, unless the system needs it:
+
+      apt-get purge avahi
   - id: "CIS-UBUNTU22-2.1.3-dhcp_pkg"
     name: "Package isc-dhcp-server is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -1347,6 +1808,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' isc-dhcp-server 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package isc-dhcp-server, unless the system needs it:
+
+      apt-get purge isc-dhcp-server
   - id: "CIS-UBUNTU22-2.1.4-dns_pkg"
     name: "Package bind9 is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -1355,6 +1820,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' bind9 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package bind9, unless the system needs it:
+
+      apt-get purge bind9
   - id: "CIS-UBUNTU22-2.1.5-dnsmasq_pkg"
     name: "Package dnsmasq is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -1363,6 +1832,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' dnsmasq 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package dnsmasq, unless the system needs it:
+
+      apt-get purge dnsmasq
   - id: "CIS-UBUNTU22-2.1.6-ftp_pkg"
     name: "Package vsftp is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.6. NIST SP 800-53 Rev. 5: CM-7."
@@ -1371,6 +1844,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' vsftp 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package vsftp, unless the system needs it:
+
+      apt-get purge vsftp
   - id: "CIS-UBUNTU22-2.1.7-ldap_pkg"
     name: "Package slapd is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.7. NIST SP 800-53 Rev. 5: CM-7."
@@ -1379,6 +1856,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' slapd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package slapd, unless the system needs it:
+
+      apt-get purge slapd
   - id: "CIS-UBUNTU22-2.1.8-dovecot_imapd_pkg"
     name: "Package dovecot-imapd is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -1387,6 +1868,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' dovecot-imapd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package dovecot-imapd, unless the system needs it:
+
+      apt-get purge dovecot-imapd
   - id: "CIS-UBUNTU22-2.1.8-dovecot_pop3d_pkg"
     name: "Package dovecot-pop3d is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -1395,6 +1880,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' dovecot-pop3d 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package dovecot-pop3d, unless the system needs it:
+
+      apt-get purge dovecot-pop3d
   - id: "CIS-UBUNTU22-2.1.11-cups_pkg"
     name: "Package cups is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.11. NIST SP 800-53 Rev. 5: CM-7."
@@ -1403,6 +1892,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' cups 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package cups, unless the system needs it:
+
+      apt-get purge cups
   - id: "CIS-UBUNTU22-2.1.13-rsync_pkg"
     name: "Package rsync is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.13. NIST SP 800-53 Rev. 5: CM-7."
@@ -1411,6 +1904,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' rsync 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package rsync, unless the system needs it:
+
+      apt-get purge rsync
   - id: "CIS-UBUNTU22-2.1.14-samba_pkg"
     name: "Package samba is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.14. NIST SP 800-53 Rev. 5: CM-6, CM-7."
@@ -1419,6 +1916,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' samba 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package samba, unless the system needs it:
+
+      apt-get purge samba
   - id: "CIS-UBUNTU22-2.1.15-snmp_pkg"
     name: "Package snmpd is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.15. NIST SP 800-53 Rev. 5: CM-7."
@@ -1427,6 +1928,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' snmpd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package snmpd, unless the system needs it:
+
+      apt-get purge snmpd
   - id: "CIS-UBUNTU22-2.1.16-tftp_pkg"
     name: "Package tftpd-hpa is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.16. NIST SP 800-53 Rev. 5: CM-7."
@@ -1435,6 +1940,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' tftpd-hpa 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package tftpd-hpa, unless the system needs it:
+
+      apt-get purge tftpd-hpa
   - id: "CIS-UBUNTU22-2.1.17-squid_pkg"
     name: "Package squid is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.17. NIST SP 800-53 Rev. 5: CM-7."
@@ -1443,6 +1952,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' squid 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package squid, unless the system needs it:
+
+      apt-get purge squid
   - id: "CIS-UBUNTU22-2.1.18-apache2_pkg"
     name: "Package apache2 is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.18. NIST SP 800-53 Rev. 5: CM-7."
@@ -1451,6 +1964,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' apache2 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package apache2, unless the system needs it:
+
+      apt-get purge apache2
   - id: "CIS-UBUNTU22-2.1.18-nginx_pkg"
     name: "Package nginx is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.18. NIST SP 800-53 Rev. 5: CM-7."
@@ -1459,6 +1976,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' nginx 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package nginx, unless the system needs it:
+
+      apt-get purge nginx
   - id: "CIS-UBUNTU22-2.1.19-xinetd_pkg"
     name: "Package xinetd is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.19. NIST SP 800-53 Rev. 5: CM-7."
@@ -1467,6 +1988,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' xinetd 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package xinetd, unless the system needs it:
+
+      apt-get purge xinetd
   - id: "CIS-UBUNTU22-2.1.20-xwindow_pkg"
     name: "Package xserver-common is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.20. NIST SP 800-53 Rev. 5: CM-11."
@@ -1475,6 +2000,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' xserver-common 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package xserver-common, unless the system needs it:
+
+      apt-get purge xserver-common
   - id: "CIS-UBUNTU22-2.1.22-manual_listening_ports"
     name: "manual listening ports: echo \"Manual!! - Please check only approved services are listening\""
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.1.22. NIST SP 800-53 Rev. 5: CM-7."
@@ -1494,6 +2023,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' nis 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package nis, unless the system needs it:
+
+      apt-get purge nis
   - id: "CIS-UBUNTU22-2.2.2-rsh-client"
     name: "Package rsh-client is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.2.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -1502,6 +2035,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' rsh-client 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package rsh-client, unless the system needs it:
+
+      apt-get purge rsh-client
   - id: "CIS-UBUNTU22-2.2.3-talk"
     name: "Package talk is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.2.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -1510,6 +2047,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' talk 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package talk, unless the system needs it:
+
+      apt-get purge talk
   - id: "CIS-UBUNTU22-2.2.4-telnet"
     name: "Package telnet is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.2.4. NIST SP 800-53 Rev. 5: CM-7, CM-11."
@@ -1518,6 +2059,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' telnet 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package telnet, unless the system needs it:
+
+      apt-get purge telnet
   - id: "CIS-UBUNTU22-2.2.5-ldap-utils"
     name: "Package ldap-utils is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.2.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -1526,6 +2071,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ldap-utils 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package ldap-utils, unless the system needs it:
+
+      apt-get purge ldap-utils
   - id: "CIS-UBUNTU22-2.2.6-ftp_client"
     name: "Package ftp is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.2.6. NIST SP 800-53 Rev. 5: CM-7, CM-11."
@@ -1534,6 +2083,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ftp 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package ftp, unless the system needs it:
+
+      apt-get purge ftp
   - id: "CIS-UBUNTU22-2.3.1.1-chrony"
     name: "Package chrony is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.3.1.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1542,6 +2095,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' chrony 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package chrony, unless the system needs it:
+
+      apt-get purge chrony
   - id: "CIS-UBUNTU22-2.3.1.1-ntp"
     name: "Package ntp is not installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.3.1.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1550,6 +2107,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ntp 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package ntp, unless the system needs it:
+
+      apt-get purge ntp
   - id: "CIS-UBUNTU22-2.3.1.1-systemd-timesyncd"
     name: "Package systemd-timesyncd is installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.3.1.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -1558,6 +2119,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' systemd-timesyncd 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package systemd-timesyncd:
+
+      apt-get install systemd-timesyncd
   - id: "CIS-UBUNTU22-2.3.2.1-timesynd_timeservers-attrs"
     name: "/etc/systemd/timesyncd.conf.d/50-timesyncd.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.3.2.1. NIST SP 800-53 Rev. 5: AU-7, AU-8."
@@ -1567,6 +2132,8 @@ checks:
       f='/etc/systemd/timesyncd.conf.d/50-timesyncd.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/systemd/timesyncd.conf.d/50-timesyncd.conf.
   - id: "CIS-UBUNTU22-2.3.2.1-timesynd_timeservers-content"
     name: "/etc/systemd/timesyncd.conf.d/50-timesyncd.conf has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.3.2.1. NIST SP 800-53 Rev. 5: AU-7, AU-8."
@@ -1578,6 +2145,11 @@ checks:
     expect:
       - { some: "~ ^NTP=time.nist.gov " }
       - { some: "~ ^FallbackNTP=time-a-g.nist.gov time-b-g.nist.gov time-c-g.nist.gov " }
+    remediation: |
+      Edit /etc/systemd/timesyncd.conf.d/50-timesyncd.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^NTP=time.nist.gov 
+      - a line matches ^FallbackNTP=time-a-g.nist.gov time-b-g.nist.gov time-c-g.nist.gov
   - id: "CIS-UBUNTU22-2.3.2.2-timesyncd-enabled"
     name: "Service systemd-timesyncd is enabled"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.3.2.2. NIST SP 800-53 Rev. 5: AU-7, AU-8."
@@ -1586,6 +2158,10 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-timesyncd | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service systemd-timesyncd:
+
+      systemctl enable systemd-timesyncd
   - id: "CIS-UBUNTU22-2.3.2.2-timesyncd-running"
     name: "Service systemd-timesyncd is running"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.3.2.2. NIST SP 800-53 Rev. 5: AU-7, AU-8."
@@ -1594,6 +2170,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-timesyncd | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service systemd-timesyncd:
+
+      systemctl start systemd-timesyncd
   - id: "CIS-UBUNTU22-2.4.1.1-cron"
     name: "Package cron is installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1602,6 +2182,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' cron 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package cron:
+
+      apt-get install cron
   - id: "CIS-UBUNTU22-2.4.1.1-cron-enabled"
     name: "Service cron is enabled"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1610,6 +2194,10 @@ checks:
     run: |
       systemctl show -p UnitFileState cron | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service cron:
+
+      systemctl enable cron
   - id: "CIS-UBUNTU22-2.4.1.1-cron-running"
     name: "Service cron is running"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -1618,6 +2206,10 @@ checks:
     run: |
       systemctl show -p ActiveState cron | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service cron:
+
+      systemctl start cron
   - id: "CIS-UBUNTU22-2.4.1.2-crontab_perms-attrs"
     name: "/etc/crontab: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.4.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1630,6 +2222,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/crontab if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/crontab'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/crontab'
   - id: "CIS-UBUNTU22-2.4.1.3-cron_hourly_perms-attrs"
     name: "/etc/cron.hourly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.4.1.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1642,6 +2239,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.hourly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.hourly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.hourly'
   - id: "CIS-UBUNTU22-2.4.1.4-cron_daily_perms-attrs"
     name: "/etc/cron.daily: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.4.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1654,6 +2256,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.daily if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.daily'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.daily'
   - id: "CIS-UBUNTU22-2.4.1.5-cron_weekly_perms-attrs"
     name: "/etc/cron.weekly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.4.1.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1666,6 +2273,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.weekly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.weekly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.weekly'
   - id: "CIS-UBUNTU22-2.4.1.6-cron_monthly_perms-attrs"
     name: "/etc/cron.monthly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.4.1.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1678,6 +2290,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.monthly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.monthly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.monthly'
   - id: "CIS-UBUNTU22-2.4.1.7-cron_yearly_perms-attrs"
     name: "/etc/cron.yearly: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.4.1.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1690,6 +2307,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.yearly if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.yearly'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.yearly'
   - id: "CIS-UBUNTU22-2.4.1.8-cron_d_perms-attrs"
     name: "/etc/cron.d: exists, mode 0700 or stricter, owner root, group root"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.4.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1702,6 +2324,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.d if it is missing, then set owner root and group root and remove the permissions u-s,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.d'
+      chmod u-s,g-rwxs,o-rwx,a-t '/etc/cron.d'
   - id: "CIS-UBUNTU22-2.4.1.9-etc_cron.allow-attrs"
     name: "/etc/cron.allow: exists, mode 0640 or stricter, owner root, group root"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.4.1.9. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1714,6 +2341,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/cron.allow if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/cron.allow'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/cron.allow'
   - id: "CIS-UBUNTU22-2.4.1.9-cron_deny_absent-absent"
     name: "/etc/cron.deny does not exist"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.4.1.9. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1722,6 +2354,10 @@ checks:
     run: |
       test -e '/etc/cron.deny' || test -L '/etc/cron.deny'
     expect: false
+    remediation: |
+      Remove /etc/cron.deny, unless the system needs it:
+
+      rm '/etc/cron.deny'
   - id: "CIS-UBUNTU22-2.4.2.1-etc_at.allow-attrs"
     name: "/etc/at.allow: exists, mode 0640 or stricter, owner root, group root"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.4.2.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1734,6 +2370,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/at.allow if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/at.allow'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/at.allow'
   - id: "CIS-UBUNTU22-2.4.2.1-at_deny_absent-absent"
     name: "/etc/at.deny does not exist"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 2.4.2.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -1742,6 +2383,10 @@ checks:
     run: |
       test -e '/etc/at.deny' || test -L '/etc/at.deny'
     expect: false
+    remediation: |
+      Remove /etc/at.deny, unless the system needs it:
+
+      rm '/etc/at.deny'
   - id: "CIS-UBUNTU22-3.1.1-grub_ipv6"
     name: "grub ipv6: grep -i \"^[^#]\\s.*ipv6\" /boot/grub/grub.cfg"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.1.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -1786,6 +2431,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' bluez 2>/dev/null | grep -q 'install ok installed'
     expect: false
+    remediation: |
+      Remove the package bluez, unless the system needs it:
+
+      apt-get purge bluez
   - id: "CIS-UBUNTU22-3.2.1-lsmod_dccp"
     name: "lsmod dccp: lsmod | grep -i dccp"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.2.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -1885,6 +2534,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.ip_forward to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.ip_forward=0'
+      printf '%s\n' 'net.ipv4.ip_forward = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.ip_forward from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.1-ip4_forward_conf"
     name: "ip4 forward conf: grep net.ipv4.ip_forward /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /usr/…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -1908,6 +2564,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.forwarding to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.forwarding=0'
+      printf '%s\n' 'net.ipv4.conf.all.forwarding = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.forwarding from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.2-ip4_all_forwarding"
     name: "ip4 all forwarding: grep forwarding /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /usr/local/lib…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.2. NIST SP 800-53 Rev. 5: CM-6."
@@ -1931,6 +2594,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.forwarding to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.forwarding=0'
+      printf '%s\n' 'net.ipv4.conf.default.forwarding = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.forwarding from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.3-ip4_default_forwarding"
     name: "ip4 default forwarding: grep forwarding /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /usr/local/lib…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.3. NIST SP 800-53 Rev. 5: CM-6."
@@ -1954,6 +2624,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.send_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.send_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.send_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.send_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.4-ip4_all_send_redirects"
     name: "ip4 all send redirects: grep send_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /usr/local…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.4. NIST SP 800-53 Rev. 5: CM-6."
@@ -1977,6 +2654,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.send_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.send_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.send_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.send_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.5-ip4_default_send_redirects"
     name: "ip4 default send redirects: grep send_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /usr/local…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.5. NIST SP 800-53 Rev. 5: CM-6."
@@ -2000,6 +2684,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.icmp_ignore_bogus_error_responses to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.icmp_ignore_bogus_error_responses=1'
+      printf '%s\n' 'net.ipv4.icmp_ignore_bogus_error_responses = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.icmp_ignore_bogus_error_responses from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.6-ipv4_ignore_bogus"
     name: "ipv4 ignore bogus: grep net.ipv4.icmp_ignore_bogus_error_responses /etc/sysctl.conf /etc/sysctl.d/*.conf /ru…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.6. NIST SP 800-53 Rev. 5: CM-6."
@@ -2023,6 +2714,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.icmp_echo_ignore_broadcasts to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.icmp_echo_ignore_broadcasts=1'
+      printf '%s\n' 'net.ipv4.icmp_echo_ignore_broadcasts = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.icmp_echo_ignore_broadcasts from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.7-ipv4_echo_ignore_broadcasts"
     name: "ipv4 echo ignore broadcasts: grep net.ipv4.icmp_echo_ignore_broadcasts /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysc…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.7. NIST SP 800-53 Rev. 5: CM-6."
@@ -2046,6 +2744,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.accept_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.8-ipv4_all_accept_redirects"
     name: "ipv4 all accept redirects: grep net.ipv4.conf.all.accept_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.8. NIST SP 800-53 Rev. 5: CM-6."
@@ -2069,6 +2774,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.accept_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.accept_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.accept_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.accept_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.9-ipv4_default_accept_redirects"
     name: "ipv4 default accept redirects: grep net.ipv4.conf.default.accept_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sy…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.9. NIST SP 800-53 Rev. 5: CM-6."
@@ -2092,6 +2804,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.secure_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.secure_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.all.secure_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.secure_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.10-ipv4_all_secure_redirects"
     name: "ipv4 all secure redirects: grep net.ipv4.conf.all.secure_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.10. NIST SP 800-53 Rev. 5: CM-6."
@@ -2115,6 +2834,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.secure_redirects to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.secure_redirects=0'
+      printf '%s\n' 'net.ipv4.conf.default.secure_redirects = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.secure_redirects from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.11-ipv4_default_secure_redirects"
     name: "ipv4 default secure redirects: grep net.ipv4.conf.default.secure_redirects /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sy…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.11. NIST SP 800-53 Rev. 5: CM-6."
@@ -2138,6 +2864,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.rp_filter to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.rp_filter=1'
+      printf '%s\n' 'net.ipv4.conf.all.rp_filter = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.rp_filter from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.12-ipv4_all_rp_filter"
     name: "ipv4 all rp filter: grep net.ipv4.conf.all.rp_filter /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.co…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.12. NIST SP 800-53 Rev. 5: CM-6."
@@ -2161,6 +2894,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.rp_filter to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.rp_filter=1'
+      printf '%s\n' 'net.ipv4.conf.default.rp_filter = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.rp_filter from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.13-ipv4_default_rp_filter"
     name: "ipv4 default rp filter: grep net.ipv4.conf.default.rp_filter /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.13. NIST SP 800-53 Rev. 5: CM-6."
@@ -2184,6 +2924,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.accept_source_route=0'
+      printf '%s\n' 'net.ipv4.conf.all.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.14-ipv4_all_source_routed"
     name: "ipv4 all source routed: grep net.ipv4.conf.all.accept_source_route /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sys…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.14. NIST SP 800-53 Rev. 5: CM-6."
@@ -2207,6 +2954,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 0"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.accept_source_route to 0, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.accept_source_route=0'
+      printf '%s\n' 'net.ipv4.conf.default.accept_source_route = 0' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.accept_source_route from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.15-ipv4_default_source_routed"
     name: "ipv4 default source routed: grep net.ipv4.conf.default.accept_source_route /etc/sysctl.conf /etc/sysctl.d/*.conf /run…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.15. NIST SP 800-53 Rev. 5: CM-6."
@@ -2230,6 +2984,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.all.log_martians to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.all.log_martians=1'
+      printf '%s\n' 'net.ipv4.conf.all.log_martians = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.all.log_martians from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.16-ipv4_all_log_martians"
     name: "ipv4 all log martians: grep net.ipv4.conf.all.log_martians /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.16. NIST SP 800-53 Rev. 5: AU-3."
@@ -2253,6 +3014,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.conf.default.log_martians to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.conf.default.log_martians=1'
+      printf '%s\n' 'net.ipv4.conf.default.log_martians = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.conf.default.log_martians from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.17-ipv4_default_log_martians"
     name: "ipv4 default log martians: grep net.ipv4.conf.default.log_martians /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.17. NIST SP 800-53 Rev. 5: AU-3."
@@ -2276,6 +3044,13 @@ checks:
     expect:
       - { rc: "== 0" }
       - "== 1"
+    remediation: |
+      Set the kernel parameter net.ipv4.tcp_syncookies to 1, now and at boot:
+
+      sysctl -w 'net.ipv4.tcp_syncookies=1'
+      printf '%s\n' 'net.ipv4.tcp_syncookies = 1' >> /etc/sysctl.d/60-hardening.conf
+
+      Remove other settings of net.ipv4.tcp_syncookies from /etc/sysctl.conf and /etc/sysctl.d/: the file read last wins.
   - id: "CIS-UBUNTU22-3.3.1.18-ipv4_tcp_syn_cookies"
     name: "ipv4 tcp syn cookies: grep net.ipv4.tcp_syncookies /etc/sysctl.conf /etc/sysctl.d/*.conf /run/sysctl.d/*.conf /…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 3.3.1.18. NIST SP 800-53 Rev. 5: SC-5."
@@ -2296,6 +3071,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package ufw:
+
+      apt-get install ufw
   - id: "CIS-UBUNTU22-4.1.2-ufw-enabled"
     name: "Service ufw is enabled"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 4.1.2. NIST SP 800-53 Rev. 5: AC-17."
@@ -2304,6 +3083,10 @@ checks:
     run: |
       systemctl show -p UnitFileState ufw | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service ufw:
+
+      systemctl enable ufw
   - id: "CIS-UBUNTU22-4.1.2-ufw-running"
     name: "Service ufw is running"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 4.1.2. NIST SP 800-53 Rev. 5: AC-17."
@@ -2312,6 +3095,10 @@ checks:
     run: |
       systemctl show -p ActiveState ufw | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service ufw:
+
+      systemctl start ufw
   - id: "CIS-UBUNTU22-4.1.3-ufw_incoming_default"
     name: "ufw incoming default: ufw status verbose | awk -F',' '$1~/Default/ {print $1}'"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 4.1.3. NIST SP 800-53 Rev. 5: SC-7."
@@ -2357,6 +3144,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/ssh/sshd_config'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/ssh/sshd_config'
   - id: "CIS-UBUNTU22-5.1.2-etc_ssh_ssh_host_prv_key_group"
     name: "/etc/ssh/ssh host prv key group: groupkeys=$(sudo find /etc/ssh/ -name '*_key' -type f ! -group root ); echo $groupkeys"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.2. NIST SP 800-53 Rev. 5: CM-6."
@@ -2443,6 +3235,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU22-5.1.5-ssh_banner-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2454,6 +3248,11 @@ checks:
     expect:
       - { some: "~ Banner /etc/issue\\.net" }
       - { none: "~ ^Banner none" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches Banner /etc/issue\.net
+      - no line matches ^Banner none
   - id: "CIS-UBUNTU22-5.1.5-ssh_configd_banner"
     name: "ssh configd banner: grep -Eis '^\\s*Banner\\s+\"?none\\b' /etc/ssh/sshd_config.d/*.conf"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2485,6 +3284,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU22-5.1.7-sshd_clientalive-content"
     name: "/etc/ssh/sshd_config has the expected content (4 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.7. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2498,6 +3299,13 @@ checks:
       - { some: "~ ClientAliveCountMax 3" }
       - { some: "~ ClientAliveInterval [1-9]" }
       - { some: "~ ClientAliveCountMax [0-3]" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches ClientAliveInterval 300
+      - a line matches ClientAliveCountMax 3
+      - a line matches ClientAliveInterval [1-9]
+      - a line matches ClientAliveCountMax [0-3]
   - id: "CIS-UBUNTU22-5.1.8-sshd_disableforwarding-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -2507,6 +3315,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU22-5.1.8-sshd_disableforwarding-content"
     name: "/etc/ssh/sshd_config has the expected content (3 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.8. NIST SP 800-53 Rev. 5: CM-7."
@@ -2519,6 +3329,12 @@ checks:
       - { some: "~ DisableForwarding yes" }
       - { none: "~ ^DisableForwarding no" }
       - { none: "~ (?i)^X11Forwarding yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches DisableForwarding yes
+      - no line matches ^DisableForwarding no
+      - no line matches (?i)^X11Forwarding yes
   - id: "CIS-UBUNTU22-5.1.9-sshd_gssapiauth-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.9. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2528,6 +3344,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU22-5.1.9-sshd_gssapiauth-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.9. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2539,6 +3357,11 @@ checks:
     expect:
       - { some: "~ GSSAPIAuthentication no" }
       - { none: "~ ^GSSAPIAuthentication yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches GSSAPIAuthentication no
+      - no line matches ^GSSAPIAuthentication yes
   - id: "CIS-UBUNTU22-5.1.10-ssh_hostbased_auth-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.10. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2548,6 +3371,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU22-5.1.10-ssh_hostbased_auth-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.10. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2559,6 +3384,11 @@ checks:
     expect:
       - { some: "~ (?i)^HostbasedAuthentication no" }
       - { none: "~ (?i)^HostbasedAuthentication yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches (?i)^HostbasedAuthentication no
+      - no line matches (?i)^HostbasedAuthentication yes
   - id: "CIS-UBUNTU22-5.1.11-ssh_rhosts-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.11. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2568,6 +3398,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU22-5.1.11-ssh_rhosts-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.11. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2579,6 +3411,11 @@ checks:
     expect:
       - { some: "~ (?i)^Ignorerhosts yes" }
       - { none: "~ (?i)^Ignorerhosts no" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches (?i)^Ignorerhosts yes
+      - no line matches (?i)^Ignorerhosts no
   - id: "CIS-UBUNTU22-5.1.12-sshd_KEX"
     name: "sshd KEX: sshd -T | grep -Pi -- 'kexalgorithms\\h+([^#\\n\\r]+,)?(diffie-hellman-group1-sha1|diffie-he…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.12. NIST SP 800-53 Rev. 5: SC-8."
@@ -2599,6 +3436,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU22-5.1.13-ssh_logingrace-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.13. NIST SP 800-53 Rev. 5: CM-6."
@@ -2608,6 +3447,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ (?i)^LoginGraceTime ([1-9]|[1-5][0-9]|60)$" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches (?i)^LoginGraceTime ([1-9]|[1-5][0-9]|60)$
   - id: "CIS-UBUNTU22-5.1.14-ssh_loglevel-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.14. NIST SP 800-53 Rev. 5: AU-3, AU-12, SI-5."
@@ -2617,6 +3460,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU22-5.1.14-ssh_loglevel-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.14. NIST SP 800-53 Rev. 5: AU-3, AU-12, SI-5."
@@ -2628,6 +3473,11 @@ checks:
     expect:
       - { some: "~ LogLevel (VERBOSE|INFO)" }
       - { none: "~ ^LogLevel DEBUG" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches LogLevel (VERBOSE|INFO)
+      - no line matches ^LogLevel DEBUG
   - id: "CIS-UBUNTU22-5.1.15-sshd_MACS"
     name: "sshd MACS: sshd -T | grep -Pi -- 'macs\\h+([^#\\n\\r]+,)?(hmac-md5|hmac-md5-96|hmac-ripemd160|hmac-sha1…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.15. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2648,6 +3498,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU22-5.1.16-sshd_authtries-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.16. NIST SP 800-53 Rev. 5: AU-3."
@@ -2659,6 +3511,11 @@ checks:
     expect:
       - { some: "~ (?i)maxauthtries [1-4]" }
       - { none: "~ (?i)maxauthtries ([5-9]|[1-9]{2,})" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches (?i)maxauthtries [1-4]
+      - no line matches (?i)maxauthtries ([5-9]|[1-9]{2,})
   - id: "CIS-UBUNTU22-5.1.17-ssh_maxsessions-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.17. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2668,6 +3525,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU22-5.1.17-ssh_maxsessions-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.17. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2679,6 +3538,11 @@ checks:
     expect:
       - { some: "~ (?i)^MaxSessions ([2-9]|10)" }
       - { none: "~ (?i)^MaxSessions (1[1-9]|[2-9][0-9]|[1-9]{3,})$" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches (?i)^MaxSessions ([2-9]|10)
+      - no line matches (?i)^MaxSessions (1[1-9]|[2-9][0-9]|[1-9]{3,})$
   - id: "CIS-UBUNTU22-5.1.18-ssh_maxstartups-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.18. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2688,6 +3552,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU22-5.1.18-ssh_maxstartups-content"
     name: "/etc/ssh/sshd_config has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.18. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2697,6 +3563,10 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect: { some: "~ (?i)^MaxStartups 10:30:60" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches (?i)^MaxStartups 10:30:60
   - id: "CIS-UBUNTU22-5.1.19-ssh_empty_passwd-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.19. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2706,6 +3576,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU22-5.1.19-ssh_empty_passwd-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.19. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2717,6 +3589,11 @@ checks:
     expect:
       - { some: "~ (?i)^PermitEmptyPasswords no" }
       - { none: "~ (?i)^PermitEmptyPasswords yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches (?i)^PermitEmptyPasswords no
+      - no line matches (?i)^PermitEmptyPasswords yes
   - id: "CIS-UBUNTU22-5.1.20-ssh_permit_root-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.20. NIST SP 800-53 Rev. 5: AC-6."
@@ -2726,6 +3603,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU22-5.1.20-ssh_permit_root-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.20. NIST SP 800-53 Rev. 5: AC-6."
@@ -2737,6 +3616,11 @@ checks:
     expect:
       - { some: "~ (?i)^PermitRootLogin no" }
       - { none: "~ (?i)^PermitRootLogin yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches (?i)^PermitRootLogin no
+      - no line matches (?i)^PermitRootLogin yes
   - id: "CIS-UBUNTU22-5.1.21-ssh_userenv-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.21. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2746,6 +3630,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU22-5.1.21-ssh_userenv-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.21. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2757,6 +3643,11 @@ checks:
     expect:
       - { some: "~ (?i)^PermitUserEnvironment no" }
       - { none: "~ (?i)^PermitUserEnvironment yes" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches (?i)^PermitUserEnvironment no
+      - no line matches (?i)^PermitUserEnvironment yes
   - id: "CIS-UBUNTU22-5.1.22-ssh_usepam-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.22. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2766,6 +3657,8 @@ checks:
       f='/etc/ssh/sshd_config'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/ssh/sshd_config.
   - id: "CIS-UBUNTU22-5.1.22-ssh_usepam-content"
     name: "/etc/ssh/sshd_config has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.1.22. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -2777,6 +3670,11 @@ checks:
     expect:
       - { some: "~ (?i)^UsePAM yes" }
       - { none: "~ (?i)^UsePAM no" }
+    remediation: |
+      Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
+
+      - a line matches (?i)^UsePAM yes
+      - no line matches (?i)^UsePAM no
   - id: "CIS-UBUNTU22-5.2.1-sudo"
     name: "Package sudo is installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.2.1. NIST SP 800-53 Rev. 5: AC-6."
@@ -2785,6 +3683,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' sudo 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package sudo:
+
+      apt-get install sudo
   - id: "CIS-UBUNTU22-5.2.2-sudoers_use_pty-attrs"
     name: "/etc/sudoers: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.2.2. NIST SP 800-53 Rev. 5: AC-6."
@@ -2794,6 +3696,8 @@ checks:
       f='/etc/sudoers'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/sudoers.
   - id: "CIS-UBUNTU22-5.2.2-sudoers_use_pty-content"
     name: "/etc/sudoers has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.2.2. NIST SP 800-53 Rev. 5: AC-6."
@@ -2803,6 +3707,10 @@ checks:
       cat '/etc/sudoers'
     allow_rc: any
     expect: { some: "~ ^Defaults.*\\suse_pty" }
+    remediation: |
+      Edit /etc/sudoers so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^Defaults.*\suse_pty
   - id: "CIS-UBUNTU22-5.2.2-pty_sudoers_d"
     name: "pty sudoers d: ls -1 /etc/sudoers.d/* \u003e /dev/null 2\u003e\u00261; if [ '$?' = '0' ]; then grep -c '^Defaults\\s*use…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.2.2. NIST SP 800-53 Rev. 5: AC-6."
@@ -2868,6 +3776,8 @@ checks:
       f='/etc/pam.d/su'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/su.
   - id: "CIS-UBUNTU22-5.2.7-su_conf-content"
     name: "/etc/pam.d/su has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.2.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2877,6 +3787,10 @@ checks:
       cat '/etc/pam.d/su'
     allow_rc: any
     expect: { some: "~ ^auth\\s+required\\s+pam_wheel.so use_uid group=nosugroup" }
+    remediation: |
+      Edit /etc/pam.d/su so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^auth\s+required\s+pam_wheel.so use_uid group=nosugroup
   - id: "CIS-UBUNTU22-5.2.7-sugroup_etc_group"
     name: "sugroup etc group: grep nosugroup /etc/group  | awk -F':' '{print $NF}'"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.2.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2896,6 +3810,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' libpam-runtime 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package libpam-runtime:
+
+      apt-get install libpam-runtime
   - id: "CIS-UBUNTU22-5.3.1.2-libpam-modules"
     name: "Package libpam-modules is installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -2904,6 +3822,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' libpam-modules 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package libpam-modules:
+
+      apt-get install libpam-modules
   - id: "CIS-UBUNTU22-5.3.1.3-libpam-pwquality"
     name: "Package libpam-pwquality is installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -2912,6 +3834,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' libpam-pwquality 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package libpam-pwquality:
+
+      apt-get install libpam-pwquality
   - id: "CIS-UBUNTU22-5.3.2.1-pam_unix_enabled_common_act-attrs"
     name: "/etc/pam.d/common-account: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -2921,6 +3847,8 @@ checks:
       f='/etc/pam.d/common-account'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-account.
   - id: "CIS-UBUNTU22-5.3.2.1-pam_unix_enabled_common_act-content"
     name: "/etc/pam.d/common-account has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -2930,6 +3858,10 @@ checks:
       cat '/etc/pam.d/common-account'
     allow_rc: any
     expect: { some: "~ ^account\\s*\\[success=\\d new_authtok_reqd=done default=ignore\\]\\s*pam_unix.so" }
+    remediation: |
+      Edit /etc/pam.d/common-account so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^account\s*\[success=\d new_authtok_reqd=done default=ignore\]\s*pam_unix.so
   - id: "CIS-UBUNTU22-5.3.2.1-pam_unix_enabled_common_auth-attrs"
     name: "/etc/pam.d/common-auth: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -2939,6 +3871,8 @@ checks:
       f='/etc/pam.d/common-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-auth.
   - id: "CIS-UBUNTU22-5.3.2.1-pam_unix_enabled_common_auth-content"
     name: "/etc/pam.d/common-auth has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -2948,6 +3882,10 @@ checks:
       cat '/etc/pam.d/common-auth'
     allow_rc: any
     expect: { some: "~ ^\\s*auth\\s+\\[success=\\d default=.*\\]\\s+pam_unix.so" }
+    remediation: |
+      Edit /etc/pam.d/common-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*auth\s+\[success=\d default=.*\]\s+pam_unix.so
   - id: "CIS-UBUNTU22-5.3.2.1-pam_unix_enabled_common_password-attrs"
     name: "/etc/pam.d/common-password: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -2957,6 +3895,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-UBUNTU22-5.3.2.1-pam_unix_enabled_common_password-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -2966,6 +3906,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s+\\[success=\\d default=.*\\]\\s+pam_unix.so" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s+\[success=\d default=.*\]\s+pam_unix.so
   - id: "CIS-UBUNTU22-5.3.2.1-pam_unix_enabled_common_session-attrs"
     name: "/etc/pam.d/common-session: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -2975,6 +3919,8 @@ checks:
       f='/etc/pam.d/common-session'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-session.
   - id: "CIS-UBUNTU22-5.3.2.1-pam_unix_enabled_common_session-content"
     name: "/etc/pam.d/common-session has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -2984,6 +3930,10 @@ checks:
       cat '/etc/pam.d/common-session'
     allow_rc: any
     expect: { some: "~ ^\\s*session\\s*required\\s+pam_unix.so" }
+    remediation: |
+      Edit /etc/pam.d/common-session so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*session\s*required\s+pam_unix.so
   - id: "CIS-UBUNTU22-5.3.2.2-pam_faillock_enabled_common_act-attrs"
     name: "/etc/pam.d/common-account: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.2.2. NIST SP 800-53 Rev. 5: NA."
@@ -2993,6 +3943,8 @@ checks:
       f='/etc/pam.d/common-account'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-account.
   - id: "CIS-UBUNTU22-5.3.2.2-pam_faillock_enabled_common_act-content"
     name: "/etc/pam.d/common-account has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.2.2. NIST SP 800-53 Rev. 5: NA."
@@ -3002,6 +3954,10 @@ checks:
       cat '/etc/pam.d/common-account'
     allow_rc: any
     expect: { some: "~ ^\\s*account\\s+(requisite|required)\\s+pam_faillock.so" }
+    remediation: |
+      Edit /etc/pam.d/common-account so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*account\s+(requisite|required)\s+pam_faillock.so
   - id: "CIS-UBUNTU22-5.3.2.2-pam_faillock_enabled_common_auth-attrs"
     name: "/etc/pam.d/common-auth: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.2.2. NIST SP 800-53 Rev. 5: NA."
@@ -3011,6 +3967,8 @@ checks:
       f='/etc/pam.d/common-auth'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-auth.
   - id: "CIS-UBUNTU22-5.3.2.2-pam_faillock_enabled_common_auth-content"
     name: "/etc/pam.d/common-auth has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.2.2. NIST SP 800-53 Rev. 5: NA."
@@ -3022,6 +3980,11 @@ checks:
     expect:
       - { some: "~ ^\\s*auth\\s+(requisite|required)\\s+pam_faillock.so\\s+preauth" }
       - { some: "~ ^auth\\s*\\[default=die\\]\\s+pam_faillock.so\\s+authfail" }
+    remediation: |
+      Edit /etc/pam.d/common-auth so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*auth\s+(requisite|required)\s+pam_faillock.so\s+preauth
+      - a line matches ^auth\s*\[default=die\]\s+pam_faillock.so\s+authfail
   - id: "CIS-UBUNTU22-5.3.2.3-pam_pwquality_enabled_common_passwd-attrs"
     name: "/etc/pam.d/common-password: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.2.3. NIST SP 800-53 Rev. 5: NA."
@@ -3031,6 +3994,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-UBUNTU22-5.3.2.3-pam_pwquality_enabled_common_passwd-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.2.3. NIST SP 800-53 Rev. 5: NA."
@@ -3040,6 +4005,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s+(required|requisite)\\s+pam_pwquality.so" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s+(required|requisite)\s+pam_pwquality.so
   - id: "CIS-UBUNTU22-5.3.2.4-pam_pwhistory_enabled_common_passwd-attrs"
     name: "/etc/pam.d/common-password: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.2.4. NIST SP 800-53 Rev. 5: NA."
@@ -3049,6 +4018,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-UBUNTU22-5.3.2.4-pam_pwhistory_enabled_common_passwd-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.2.4. NIST SP 800-53 Rev. 5: NA."
@@ -3058,6 +4029,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s+(required|requisite)\\s+pam_pwhistory.so" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s+(required|requisite)\s+pam_pwhistory.so
   - id: "CIS-UBUNTU22-5.3.3.1.1-faillock_attempts_deny-attrs"
     name: "/etc/security/faillock.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.3.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -3067,6 +4042,8 @@ checks:
       f='/etc/security/faillock.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/faillock.conf.
   - id: "CIS-UBUNTU22-5.3.3.1.1-faillock_attempts_deny-content"
     name: "/etc/security/faillock.conf has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.3.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -3078,6 +4055,11 @@ checks:
     expect:
       - { some: "~ ^deny\\s*=\\s*[1-5]$" }
       - { none: "~ ^deny\\s*=\\s*([5-9]|[0-9]{2,})" }
+    remediation: |
+      Edit /etc/security/faillock.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^deny\s*=\s*[1-5]$
+      - no line matches ^deny\s*=\s*([5-9]|[0-9]{2,})
   - id: "CIS-UBUNTU22-5.3.3.1.1-faillock_attempts_deny_removed"
     name: "faillock attempts deny removed: grep -Pl -- '\\bpam_faillock\\.so\\h+([^#\\n\\r]+\\h+)?deny\\b' /usr/share/pam-configs/*"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.3.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -3098,6 +4080,8 @@ checks:
       f='/etc/security/faillock.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/faillock.conf.
   - id: "CIS-UBUNTU22-5.3.3.1.2-faillock_unlock_time-content"
     name: "/etc/security/faillock.conf has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.3.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -3109,6 +4093,11 @@ checks:
     expect:
       - { some: "~ ^unlock_time\\s*=\\s*([1-9]|[1-9][0-9]|[1-8][0-9]{1,2}|900)$" }
       - { none: "~ ^unlock_time\\s*=\\s*(90[1-9]|9[1-9][0-9]|[1-9][0-9][0-9]{2,})" }
+    remediation: |
+      Edit /etc/security/faillock.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^unlock_time\s*=\s*([1-9]|[1-9][0-9]|[1-8][0-9]{1,2}|900)$
+      - no line matches ^unlock_time\s*=\s*(90[1-9]|9[1-9][0-9]|[1-9][0-9][0-9]{2,})
   - id: "CIS-UBUNTU22-5.3.3.1.2-faillock_unlock_time_removed"
     name: "faillock unlock time removed: grep -Pl -- '\\bpam_faillock\\.so\\h+([^#\\n\\r]+\\h+)?unlock_time\\b' /usr/share/pam-configs/*"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.3.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -3129,6 +4118,8 @@ checks:
       f='/etc/security/faillock.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/security/faillock.conf.
   - id: "CIS-UBUNTU22-5.3.3.1.3-faillock_even_root-content"
     name: "/etc/security/faillock.conf has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.3.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3138,6 +4129,10 @@ checks:
       cat '/etc/security/faillock.conf'
     allow_rc: any
     expect: { some: "~ ^(even_deny_root|root_unlock_time\\s*=\\s*([6-9][0-9]|[1-3][0-9]{2,2}))" }
+    remediation: |
+      Edit /etc/security/faillock.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^(even_deny_root|root_unlock_time\s*=\s*([6-9][0-9]|[1-3][0-9]{2,2}))
   - id: "CIS-UBUNTU22-5.3.3.1.3-faillock_even_root_removed"
     name: "faillock even root removed: grep -Pl -- '\\bpam_faillock\\.so\\h+([^#\\n\\r]+\\h+)?(even_deny_root|root_unlock_time)' /usr/…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.3.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3158,6 +4153,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-UBUNTU22-5.3.3.2.1-passwd_change_not_pamd-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3167,6 +4164,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { none: "~ ^\\s+password\\s+(requisite|required|sufficient)\\s+pam_pwquality\\.so\\s+([^#\\n\\r]+\\s+)?difok\\s*=\\s*([0-1])\\b" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^\s+password\s+(requisite|required|sufficient)\s+pam_pwquality\.so\s+([^#\n\r]+\s+)?difok\s*=\s*([0-1])\b
   - id: "CIS-UBUNTU22-5.3.3.2.1-password_character_changed"
     name: "password character changed: grep -Psi -- '^\\h*difok\\h*=\\h*([2-9]|[1-9][0-9]+)\\b' /etc/security/pwquality.conf /etc/se…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.3.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3339,6 +4340,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-UBUNTU22-5.3.3.3.1-pwhistory_remember_common_passwd-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.3.3.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3348,6 +4351,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s*(requisite|required)\\s*pam_pwhistory.so.*remember\\s*=\\s*(2[4-9]|[3-9][0-9])" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s*(requisite|required)\s*pam_pwhistory.so.*remember\s*=\s*(2[4-9]|[3-9][0-9])
   - id: "CIS-UBUNTU22-5.3.3.3.1-pwhistory_remember_pam_configs"
     name: "pwhistory remember pam configs: for file in `awk '/Password-Type:/{ f = 1;next } /-Type:/{ f = 0 } f {if (/pam_pwhistory\\…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.3.3.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -3368,6 +4375,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-UBUNTU22-5.3.3.3.2-pwhistory_enforce_for_root-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.3.3.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -3377,6 +4386,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s*(requisite|required)\\s*pam_pwhistory.so.*enforce_for_root" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s*(requisite|required)\s*pam_pwhistory.so.*enforce_for_root
   - id: "CIS-UBUNTU22-5.3.3.3.2-pwhistory_enforce_for_root_pam_configs"
     name: "pwhistory enforce for root pam configs: for file in `awk '/Password-Type:/{ f = 1;next } /-Type:/{ f = 0 } f {if (/pam_pwhistory\\…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.3.3.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -3397,6 +4410,8 @@ checks:
       f='/etc/pam.d/common-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/pam.d/common-password.
   - id: "CIS-UBUNTU22-5.3.3.3.3-pwhistory_use_authtok-content"
     name: "/etc/pam.d/common-password has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.3.3.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3406,6 +4421,10 @@ checks:
       cat '/etc/pam.d/common-password'
     allow_rc: any
     expect: { some: "~ ^\\s*password\\s*(requisite|required)\\s*pam_pwhistory.so.*use_authtok" }
+    remediation: |
+      Edit /etc/pam.d/common-password so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*password\s*(requisite|required)\s*pam_pwhistory.so.*use_authtok
   - id: "CIS-UBUNTU22-5.3.3.3.3-pwhistory_use_authtok_pam_configs"
     name: "pwhistory use authtok pam configs: for file in `awk '/Password-Type:/{ f = 1;next } /-Type:/{ f = 0 } f {if (/pam_pwhistory\\…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.3.3.3.3. NIST SP 800-53 Rev. 5: IA-5."
@@ -3470,6 +4489,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-UBUNTU22-5.4.1.1-login_defs_PASS_MAX_DAYS-content"
     name: "/etc/login.defs has the expected content (3 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3482,6 +4503,12 @@ checks:
       - { some: "~ ^PASS_MAX_DAYS\\s*365" }
       - { none: "~ ^PASS_MAX_DAYS\\s*(36[6-9]|[4-9][0-9][0-9]|[1-9][0-9]{3,})" }
       - { none: "~ ^PASS_MAX_DAYS\\s*-1" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_MAX_DAYS\s*365
+      - no line matches ^PASS_MAX_DAYS\s*(36[6-9]|[4-9][0-9][0-9]|[1-9][0-9]{3,})
+      - no line matches ^PASS_MAX_DAYS\s*-1
   - id: "CIS-UBUNTU22-5.4.1.1-users_max_pw_expire"
     name: "users max pw expire: awk -F: '($2~/^\\$.+\\$/) {if($5 \u003e 365 || $5 \u003c 1) print \"FAIL: \" $1 \" PASS_MAX_DAYS: \" $5}'…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3504,6 +4531,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-UBUNTU22-5.4.1.2-login_defs_PASS_MIN_DAYS-content"
     name: "/etc/login.defs has the expected content (3 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.4.1.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -3516,6 +4545,12 @@ checks:
       - { some: "~ ^PASS_MIN_DAYS\\s1" }
       - { some: "~ ^PASS_MIN_DAYS\\s([1-9]|[1-9][0-9]{2,})" }
       - { none: "~ ^PASS_MIN_DAYS\\s*(-[1-9]|0)" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_MIN_DAYS\s1
+      - a line matches ^PASS_MIN_DAYS\s([1-9]|[1-9][0-9]{2,})
+      - no line matches ^PASS_MIN_DAYS\s*(-[1-9]|0)
   - id: "CIS-UBUNTU22-5.4.1.2-users_min_pw_expire"
     name: "users min pw expire: awk -F: '($2~/^\\$.+\\$/) {if($4 \u003c 1) print \"FAIL: \" $1 \" PASS_MIN_DAYS: \" $4}' /etc/shadow"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.4.1.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -3538,6 +4573,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-UBUNTU22-5.4.1.3-login_def_PASS_WARN_AGE-content"
     name: "/etc/login.defs has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.4.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3549,6 +4586,11 @@ checks:
     expect:
       - { some: "~ ^PASS_WARN_AGE\\s*7" }
       - { none: "~ ^PASS_WARN_AGE\\s*[1-6]" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^PASS_WARN_AGE\s*7
+      - no line matches ^PASS_WARN_AGE\s*[1-6]
   - id: "CIS-UBUNTU22-5.4.1.3-user_expire_warn"
     name: "user expire warn: awk -F: '($2~/^\\$.+\\$/) {if($6 \u003c 7) print \"FAIL: \" $1 \" PASS_WARN_AGE: \" $6}' /etc/shadow"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.4.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -3571,6 +4613,8 @@ checks:
       f='/etc/login.defs'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/login.defs.
   - id: "CIS-UBUNTU22-5.4.1.4-yescrypt_login_defs-content"
     name: "/etc/login.defs has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.4.1.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -3582,6 +4626,11 @@ checks:
     expect:
       - { some: "~ ^ENCRYPT_METHOD (YESCRYPT|SHA512)" }
       - { none: "~ ^ENCRYPT_METHOD (md5|bigcrypt|sha256|blowfish)" }
+    remediation: |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^ENCRYPT_METHOD (YESCRYPT|SHA512)
+      - no line matches ^ENCRYPT_METHOD (md5|bigcrypt|sha256|blowfish)
   - id: "CIS-UBUNTU22-5.4.1.5-inactive_passwd"
     name: "inactive passwd: useradd -D | grep INACTIVE"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.4.1.5. NIST SP 800-53 Rev. 5: NA."
@@ -3621,6 +4670,11 @@ checks:
         if [ "$t" -gt "$now" ]; then echo "$usr: last password change $d is in the future"; fi
       done
     expect: empty
+    remediation: |
+      Check the system clock, then set the last password change of every listed user to today, or expire the password so it must be changed at the next login:
+
+      chage --lastday "$(date +%Y-%m-%d)" USER
+      chage --lastday 0 USER
   - id: "CIS-UBUNTU22-5.4.2.1-root_only_uid_0"
     name: "root only uid 0: awk -F: '($3 == 0 \u0026\u0026 $1 != \"root\") { print $1 }' /etc/passwd"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.4.2.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3724,6 +4778,8 @@ checks:
       f='/etc/shells'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/shells.
   - id: "CIS-UBUNTU22-5.4.3.1-nologin_not_in_shells-content"
     name: "/etc/shells has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.4.3.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -3733,6 +4789,10 @@ checks:
       cat '/etc/shells'
     allow_rc: any
     expect: { none: "~ .*nologin" }
+    remediation: |
+      Edit /etc/shells so that its lines meet these conditions (regular expressions):
+
+      - no line matches .*nologin
   - id: "CIS-UBUNTU22-5.4.3.2-check_timeout"
     name: "check timeout: grep TMOUT /etc/profile.d/*.sh /etc/profile /etc/profile.d/*.sh| cut -d \":\" -f2"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 5.4.3.2. NIST SP 800-53 Rev. 5: NA."
@@ -3766,6 +4826,10 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journald | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service systemd-journald:
+
+      systemctl enable systemd-journald
   - id: "CIS-UBUNTU22-6.1.1.1.1-systemd-journald-running"
     name: "Service systemd-journald is running"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.1.1.1.1. NIST SP 800-53 Rev. 5: SC-24."
@@ -3774,6 +4838,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journald | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service systemd-journald:
+
+      systemctl start systemd-journald
   - id: "CIS-UBUNTU22-6.1.1.1.2-etc_tmpfiles.d_systemd.conf"
     name: "/etc/tmpfiles.d/systemd.conf: echo \"Manual - Please check journald default permissions\""
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.1.1.1.2. NIST SP 800-53 Rev. 5: AC-3, AU-2, AU-12, MP-2, SI-5."
@@ -3841,6 +4909,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' systemd-journal-remote 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package systemd-journal-remote:
+
+      apt-get install systemd-journal-remote
   - id: "CIS-UBUNTU22-6.1.1.2.2-journal_remote_configured-attrs"
     name: "/etc/systemd/journal-upload.conf: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.1.1.2.2. NIST SP 800-53 Rev. 5: AU-2, AU-12."
@@ -3850,6 +4922,8 @@ checks:
       f='/etc/systemd/journal-upload.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/systemd/journal-upload.conf.
   - id: "CIS-UBUNTU22-6.1.1.2.2-journal_remote_configured-content"
     name: "/etc/systemd/journal-upload.conf has the expected content (4 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.1.1.2.2. NIST SP 800-53 Rev. 5: AU-2, AU-12."
@@ -3863,6 +4937,13 @@ checks:
       - { some: "~ ServerKeyFile=.*\\.pem" }
       - { some: "~ ServerCertificateFile=.*\\.pem" }
       - { some: "~ TrustedCertificateFile=.*\\.pem" }
+    remediation: |
+      Edit /etc/systemd/journal-upload.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^URL=
+      - a line matches ServerKeyFile=.*\.pem
+      - a line matches ServerCertificateFile=.*\.pem
+      - a line matches TrustedCertificateFile=.*\.pem
   - id: "CIS-UBUNTU22-6.1.1.2.3-systemd-journal-upload.service-enabled"
     name: "Service systemd-journal-upload.service is enabled"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.1.1.2.3. NIST SP 800-53 Rev. 5: AU-2, AU-12."
@@ -3871,6 +4952,10 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journal-upload.service | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service systemd-journal-upload.service:
+
+      systemctl enable systemd-journal-upload.service
   - id: "CIS-UBUNTU22-6.1.1.2.3-systemd-journal-upload.service-running"
     name: "Service systemd-journal-upload.service is running"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.1.1.2.3. NIST SP 800-53 Rev. 5: AU-2, AU-12."
@@ -3879,6 +4964,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journal-upload.service | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service systemd-journal-upload.service:
+
+      systemctl start systemd-journal-upload.service
   - id: "CIS-UBUNTU22-6.1.1.2.4-systemd-journal-remote.service-running"
     name: "Service systemd-journal-remote.service is not running"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.1.1.2.4. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -3887,6 +4976,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journal-remote.service | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service systemd-journal-remote.service, unless the system needs it:
+
+      systemctl stop systemd-journal-remote.service
   - id: "CIS-UBUNTU22-6.1.1.2.4-systemd-journal-remote.socket-enabled"
     name: "Service systemd-journal-remote.socket is not enabled"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.1.1.2.4. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -3895,6 +4988,12 @@ checks:
     run: |
       systemctl show -p UnitFileState systemd-journal-remote.socket | cut -d= -f2
     expect: "!~ ^enabled"
+    remediation: |
+      Disable the service systemd-journal-remote.socket, unless the system needs it:
+
+      systemctl disable systemd-journal-remote.socket
+
+      To keep other units from starting it, mask it instead: systemctl mask systemd-journal-remote.socket
   - id: "CIS-UBUNTU22-6.1.1.2.4-systemd-journal-remote.socket-running"
     name: "Service systemd-journal-remote.socket is not running"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.1.1.2.4. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -3903,6 +5002,10 @@ checks:
     run: |
       systemctl show -p ActiveState systemd-journal-remote.socket | cut -d= -f2
     expect: "!= active"
+    remediation: |
+      Stop the service systemd-journal-remote.socket, unless the system needs it:
+
+      systemctl stop systemd-journal-remote.socket
   - id: "CIS-UBUNTU22-6.1.1.2.4-journald_remote_not_active"
     name: "journald remote not active: systemctl is-active systemd-journal-remote.socket systemd-journal-remote.service 2\u003e/dev/n…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.1.1.2.4. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -3933,6 +5036,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' rsyslog 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package rsyslog:
+
+      apt-get install rsyslog
   - id: "CIS-UBUNTU22-6.1.2.2-rsyslog-enabled"
     name: "Service rsyslog is enabled"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.1.2.2. NIST SP 800-53 Rev. 5: ACM-6."
@@ -3941,6 +5048,10 @@ checks:
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service rsyslog:
+
+      systemctl enable rsyslog
   - id: "CIS-UBUNTU22-6.1.2.2-rsyslog-running"
     name: "Service rsyslog is running"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.1.2.2. NIST SP 800-53 Rev. 5: ACM-6."
@@ -3949,6 +5060,10 @@ checks:
     run: |
       systemctl show -p ActiveState rsyslog | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service rsyslog:
+
+      systemctl start rsyslog
   - id: "CIS-UBUNTU22-6.1.2.3-forward_journald_conf"
     name: "forward journald conf: systemd-analyze cat-config systemd/journald.conf | grep -Pi -- '^\\h*ForwardToSyslog\\h*=' …"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.1.2.3. NIST SP 800-53 Rev. 5: AC-3, AU-2, AU-4, AU-12, MP-2."
@@ -3981,6 +5096,8 @@ checks:
       f='/etc/rsyslog.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/rsyslog.conf.
   - id: "CIS-UBUNTU22-6.1.2.5-etc_rsyslog.conf-content"
     name: "/etc/rsyslog.conf has the expected content (14 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.1.2.5. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -4004,6 +5121,23 @@ checks:
       - { some: "~ ^local2,local3.\\*\\s+-/var/log/localmessages" }
       - { some: "~ ^local4,local5.\\*\\s+-/var/log/localmessages" }
       - { some: "~ ^local6,local7.\\*\\s+-/var/log/localmessages" }
+    remediation: |
+      Edit /etc/rsyslog.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\*.emerg\s+:omusrmsg:\*
+      - a line matches auth,authpriv.\*\s+/var/log/secure
+      - a line matches ^mail.\*\s+-/var/log/mail
+      - a line matches ^mail.info\s+-/var/log/mail.info
+      - a line matches ^mail.warning\s+-/var/log/mail.warning
+      - a line matches ^mail.err\s+/var/log/mail.err
+      - a line matches ^cron.\*\s+/var/log/cron
+      - a line matches ^\*\.=warning;\*\.=err\s+-\/var\/log\/warn
+      - a line matches ^\*\.crit\s+-?\/var\/log\/warn
+      - a line matches ^\*\.\*;mail\.none;news\.none\s+-?\/var\/log\/messages
+      - a line matches ^local0,local1.\*\s+-/var/log/localmessages
+      - a line matches ^local2,local3.\*\s+-/var/log/localmessages
+      - a line matches ^local4,local5.\*\s+-/var/log/localmessages
+      - a line matches ^local6,local7.\*\s+-/var/log/localmessages
   - id: "CIS-UBUNTU22-6.1.2.6-remote_syslog"
     name: "remote syslog: grep -E \"action.*omfwd.*target\" /etc/rsyslog.conf /etc/rsyslog.d/*.conf"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.1.2.6. NIST SP 800-53 Rev. 5: AU-6."
@@ -4068,6 +5202,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' audispd-plugins 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package audispd-plugins:
+
+      apt-get install audispd-plugins
   - id: "CIS-UBUNTU22-6.2.1.1-audit_packages"
     name: "Package auditd is installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.2.1.1. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12, SI-5."
@@ -4076,6 +5214,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' auditd 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package auditd:
+
+      apt-get install auditd
   - id: "CIS-UBUNTU22-6.2.1.2-auditd-enabled"
     name: "Service auditd is enabled"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.2.1.2. NIST SP 800-53 Rev. 5: AU-2, AU-12, SI-5."
@@ -4084,6 +5226,10 @@ checks:
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
     expect: "~ ^enabled"
+    remediation: |
+      Enable the service auditd:
+
+      systemctl enable auditd
   - id: "CIS-UBUNTU22-6.2.1.2-auditd-running"
     name: "Service auditd is running"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.2.1.2. NIST SP 800-53 Rev. 5: AU-2, AU-12, SI-5."
@@ -4092,6 +5238,10 @@ checks:
     run: |
       systemctl show -p ActiveState auditd | cut -d= -f2
     expect: "== active"
+    remediation: |
+      Start the service auditd:
+
+      systemctl start auditd
   - id: "CIS-UBUNTU22-6.2.1.3-grub_audit_start-attrs"
     name: "/etc/default/grub: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.2.1.3. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12."
@@ -4101,6 +5251,8 @@ checks:
       f='/etc/default/grub'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/default/grub.
   - id: "CIS-UBUNTU22-6.2.1.3-grub_audit_start-content"
     name: "/etc/default/grub has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.2.1.3. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12."
@@ -4112,6 +5264,11 @@ checks:
     expect:
       - { some: "~ ^GRUB_CMDLINE_LINUX=.*audit=1" }
       - { none: "~ audit=0" }
+    remediation: |
+      Edit /etc/default/grub so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^GRUB_CMDLINE_LINUX=.*audit=1
+      - no line matches audit=0
   - id: "CIS-UBUNTU22-6.2.1.3-auditd_grub"
     name: "auditd grub: grep \"^\\s*linux\" /boot/grub/grub.cfg | grep -Evc \"audit=1\""
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.2.1.3. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12."
@@ -4132,6 +5289,8 @@ checks:
       f='/etc/default/grub'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/default/grub.
   - id: "CIS-UBUNTU22-6.2.1.4-grub_audit_backlog-content"
     name: "/etc/default/grub has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.2.1.4. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12."
@@ -4143,6 +5302,11 @@ checks:
     expect:
       - { some: "~ GRUB_CMDLINE_LINUX=\".*audit_backlog_limit=8192" }
       - { some: "~ audit_backlog_limit=(819[2-9]|8[2-9]{2,}|9[0-9]{3,}|[1-9]{5,})" }
+    remediation: |
+      Edit /etc/default/grub so that its lines meet these conditions (regular expressions):
+
+      - a line matches GRUB_CMDLINE_LINUX=".*audit_backlog_limit=8192
+      - a line matches audit_backlog_limit=(819[2-9]|8[2-9]{2,}|9[0-9]{3,}|[1-9]{5,})
   - id: "CIS-UBUNTU22-6.2.1.4-auditd_grub_backlog"
     name: "auditd grub backlog: grep \"^\\s*linux\" /boot/grub/grub.cfg | grep -Evc \"audit_backlog_limit=\""
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.2.1.4. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12."
@@ -4185,6 +5349,8 @@ checks:
       f='/etc/audit/auditd.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/audit/auditd.conf.
   - id: "CIS-UBUNTU22-6.2.2.3-auditd_space_actions-content"
     name: "/etc/audit/auditd.conf has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.2.2.3. NIST SP 800-53 Rev. 5: AU-2, AU-8, AU-12, SI-5."
@@ -4196,6 +5362,11 @@ checks:
     expect:
       - { some: "~ disk_full_action\\s*=\\s*(halt|single)" }
       - { some: "~ disk_error_action\\s*=\\s*(syslog|single|halt)" }
+    remediation: |
+      Edit /etc/audit/auditd.conf so that its lines meet these conditions (regular expressions):
+
+      - a line matches disk_full_action\s*=\s*(halt|single)
+      - a line matches disk_error_action\s*=\s*(syslog|single|halt)
   - id: "CIS-UBUNTU22-6.2.2.4-auditd_space_actions"
     name: "auditd space actions: grep -E \"action\" /etc/audit/auditd.conf"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.2.2.4. NIST SP 800-53 Rev. 5: AU-2, AU-8, AU-12, SI-5."
@@ -4849,6 +6020,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' aide 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package aide:
+
+      apt-get install aide
   - id: "CIS-UBUNTU22-6.3.1-aide-common"
     name: "Package aide-common is installed"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.3.1. NIST SP 800-53 Rev. 5: AU-2."
@@ -4857,6 +6032,10 @@ checks:
     run: |
       dpkg-query -W -f='${Status}' aide-common 2>/dev/null | grep -q 'install ok installed'
     expect: true
+    remediation: |
+      Install the package aide-common:
+
+      apt-get install aide-common
   - id: "CIS-UBUNTU22-6.3.2-aide_cron"
     name: "aide cron: grep -Prs '^([^#\\n\\r]+\\h+)?(\\/usr\\/s?bin\\/|^\\h*)aide(\\.wrapper)?\\h+([^#\\n\\r]+\\h+)?(--(che…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 6.3.2. NIST SP 800-53 Rev. 5: NA."
@@ -4896,6 +6075,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/passwd if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/passwd'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/passwd'
   - id: "CIS-UBUNTU22-7.1.2-passwd-_perms-attrs"
     name: "/etc/passwd: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 7.1.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4908,6 +6092,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/passwd if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/passwd'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/passwd'
   - id: "CIS-UBUNTU22-7.1.3-group_perms-attrs"
     name: "/etc/group: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 7.1.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4920,6 +6109,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/group if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/group'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/group'
   - id: "CIS-UBUNTU22-7.1.4-group-_perms-attrs"
     name: "/etc/group-: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 7.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4932,6 +6126,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/group- if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/group-'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/group-'
   - id: "CIS-UBUNTU22-7.1.5-shadow_perms-attrs"
     name: "/etc/shadow: exists, mode 0640 or stricter, owner root, group root or shadow"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 7.1.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4944,6 +6143,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root'|'shadow') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shadow if it is missing, then set owner root and group root or shadow and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/shadow'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/shadow'
   - id: "CIS-UBUNTU22-7.1.6-shadow-_perms-attrs"
     name: "/etc/shadow-: exists, mode 0640 or stricter, owner root, group root or shadow"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 7.1.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4956,6 +6160,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root'|'shadow') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shadow- if it is missing, then set owner root and group root or shadow and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/shadow-'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/shadow-'
   - id: "CIS-UBUNTU22-7.1.7-gshadow_perms-attrs"
     name: "/etc/gshadow: exists, mode 0640 or stricter, owner root, group root or shadow"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 7.1.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4968,6 +6177,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root'|'shadow') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/gshadow if it is missing, then set owner root and group root or shadow and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/gshadow'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/gshadow'
   - id: "CIS-UBUNTU22-7.1.8-gshadow-_perms-attrs"
     name: "/etc/gshadow-: exists, mode 0640 or stricter, owner root, group root or shadow"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 7.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4980,6 +6194,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root'|'shadow') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/gshadow- if it is missing, then set owner root and group root or shadow and remove the permissions u-xs,g-wxs,o-rwx,a-t:
+
+      chown root:root '/etc/gshadow-'
+      chmod u-xs,g-wxs,o-rwx,a-t '/etc/gshadow-'
   - id: "CIS-UBUNTU22-7.1.9-etc_shells_perms-attrs"
     name: "/etc/shells: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 7.1.9. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -4992,6 +6211,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/shells if it is missing, then set owner root and group root and remove the permissions u-xs,g-wxs,o-wx,a-t:
+
+      chown root:root '/etc/shells'
+      chmod u-xs,g-wxs,o-wx,a-t '/etc/shells'
   - id: "CIS-UBUNTU22-7.1.10-etc_security_opasswd_perms-attrs"
     name: "/etc/security/opasswd: mode 0600 or stricter, owner root, group root"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 7.1.10. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5004,6 +6228,11 @@ checks:
       case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
       case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
     expect: empty
+    remediation: |
+      Create /etc/security/opasswd if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
+
+      chown root:root '/etc/security/opasswd'
+      chmod u-xs,g-rwxs,o-rwx,a-t '/etc/security/opasswd'
   - id: "CIS-UBUNTU22-7.1.11-world_writable"
     name: "world writable: df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm…"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 7.1.11. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -5063,6 +6292,8 @@ checks:
       f='/etc/passwd'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/passwd.
   - id: "CIS-UBUNTU22-7.2.1-shadowed_passwds-content"
     name: "/etc/passwd has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 7.2.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -5072,6 +6303,10 @@ checks:
       cat '/etc/passwd'
     allow_rc: any
     expect: { some: "~ ^.*:x:" }
+    remediation: |
+      Edit /etc/passwd so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^.*:x:
   - id: "CIS-UBUNTU22-7.2.2-passwd_fields_not_empty_shadow-attrs"
     name: "/etc/shadow: exists"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 7.2.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -5081,6 +6316,8 @@ checks:
       f='/etc/shadow'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/shadow.
   - id: "CIS-UBUNTU22-7.2.2-passwd_fields_not_empty_shadow-content"
     name: "/etc/shadow has the expected content (1 rule)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 7.2.2. NIST SP 800-53 Rev. 5: IA-5."
@@ -5090,6 +6327,10 @@ checks:
       cat '/etc/shadow'
     allow_rc: any
     expect: { none: "~ ^*.[a-z]::" }
+    remediation: |
+      Edit /etc/shadow so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^*.[a-z]::
   - id: "CIS-UBUNTU22-7.2.3-passwd_group_exist"
     name: "passwd group exist: awk -F: 'NR==FNR{gid[$3];next} !($4 in gid){print $4}' /etc/group /etc/passwd | sort -u"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 7.2.3. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -5110,6 +6351,8 @@ checks:
       f='/etc/group'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
     expect: empty
+    remediation: |
+      Create /etc/group.
   - id: "CIS-UBUNTU22-7.2.4-shadow_group_empty-content"
     name: "/etc/group has the expected content (2 rules)"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 7.2.4. NIST SP 800-53 Rev. 5: IA-5."
@@ -5121,6 +6364,11 @@ checks:
     expect:
       - { some: "~ ^shadow:x:\\d{2,}:$" }
       - { none: "~ ^shadow:x:\\d{2,}:." }
+    remediation: |
+      Edit /etc/group so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^shadow:x:\d{2,}:$
+      - no line matches ^shadow:x:\d{2,}:.
   - id: "CIS-UBUNTU22-7.2.5-no_dup_uid"
     name: "no dup uid: cat /etc/passwd | cut -d: -f3 | sort | uniq -d"
     description: "CIS Ubuntu 22.04 LTS benchmark recommendation 7.2.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
