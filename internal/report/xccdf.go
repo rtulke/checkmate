@@ -65,6 +65,7 @@ type xccdfRule struct {
 	Title       string          `xml:"title"`
 	Description string          `xml:"description,omitempty"`
 	Reference   []string        `xml:"reference,omitempty"`
+	Rationale   string          `xml:"rationale,omitempty"`
 	Idents      []xccdfIdent    `xml:"ident"`
 	Fixtext     string          `xml:"fixtext,omitempty"`
 	Check       *xccdfCheckLink `xml:"check,omitempty"`
@@ -247,6 +248,7 @@ func xccdfDocument(rs []*engine.Report, o Options) *xccdfBenchmark {
 			Title:       res.Name,
 			Description: res.Description,
 			Idents:      idents(res),
+			Rationale:   res.Rationale,
 			Fixtext:     res.Remediation,
 		}
 		if res.Reference != "" {

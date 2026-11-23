@@ -154,7 +154,7 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	verbosity := 0
 	fs.Var(countFlag{&verbosity, 1}, "v", "more output, repeatable: -v reasons and severity, -vv details of problems, -vvv debug")
 	fs.Var(countFlag{&verbosity, 1}, "verbose", "same as -v")
-	fs.Var(countFlag{&verbosity, 2}, "vv", "same as -v -v: commands, output and remediation of problems")
+	fs.Var(countFlag{&verbosity, 2}, "vv", "same as -v -v: commands, output, rationale and remediation of problems")
 	fs.Var(countFlag{&verbosity, 3}, "vvv", "same as -v -v -v: debug details of every check, facts and loaded files")
 	fs.Var(countFlag{&verbosity, 3}, "debug", "same as -vvv")
 	quiet := fs.Bool("quiet", false, "show only failed checks and the summary")

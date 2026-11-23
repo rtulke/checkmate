@@ -271,7 +271,7 @@ func Policies(old, new *policy.Policy, f facts.Facts, vars map[string]any) Polic
 }
 
 var checkFields = []string{"name", "description", "severity", "tags", "when", "only_if", "run",
-	"expect", "as", "shell", "timeout", "allow_rc", "remediation", "reference"}
+	"expect", "as", "shell", "timeout", "allow_rc", "rationale", "remediation", "reference"}
 
 // describe renders the comparable properties of a check as text.
 func describe(c *policy.Check) map[string]string {
@@ -298,6 +298,7 @@ func describe(c *policy.Check) map[string]string {
 		"shell":       c.Shell,
 		"timeout":     c.Timeout.String(),
 		"allow_rc":    allow,
+		"rationale":   c.Rationale,
 		"remediation": c.Remediation,
 		"reference":   c.Reference,
 	}

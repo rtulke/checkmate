@@ -183,9 +183,9 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 	if problems {
 		switch opts.Verbosity {
 		case 0:
-			fmt.Fprintln(w, paint(colorDim, "Run with -v for reasons, -vv for commands and remediation."))
+			fmt.Fprintln(w, paint(colorDim, "Run with -v for reasons, -vv for commands, rationale and remediation."))
 		case 1:
-			fmt.Fprintln(w, paint(colorDim, "Run with -vv for commands, output and remediation."))
+			fmt.Fprintln(w, paint(colorDim, "Run with -vv for commands, output, rationale and remediation."))
 		}
 	}
 	return nil
@@ -230,6 +230,9 @@ func writeDetails(w io.Writer, res engine.Result, paint func(string, string) str
 	}
 	field("stdout", strings.TrimSpace(res.Stdout))
 	field("stderr", strings.TrimSpace(res.Stderr))
+	if res.Rationale != "" {
+		fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorBlue, "why:"), indentBlock(res.Rationale, indent+"     "))
+	}
 	if res.Remediation != "" {
 		fmt.Fprintf(w, "%s%s %s\n", indent, paint(colorBlue, "fix:"), indentBlock(res.Remediation, indent+"     "))
 	}
@@ -460,6 +463,9 @@ func junitSuiteFor(r *engine.Report, seconds func(int64) string) junitSuite {
 			SystemErr: res.Stderr,
 		}
 		details := res.Message
+		if res.Rationale != "" {
+			details += "\nwhy: " + res.Rationale
+		}
 		if res.Remediation != "" {
 			details += "\nfix: " + res.Remediation
 		}

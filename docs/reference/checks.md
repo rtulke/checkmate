@@ -15,6 +15,7 @@
   allow_rc: [0]                                    # accepted exit codes for output checks
   timeout: 30s
   shell: bash
+  rationale: Weak ciphers let an attacker decrypt recorded sessions.
   remediation: Remove weak ciphers from sshd_config.
   reference: https://docs.example.net/ssh#ciphers
 ```
@@ -35,7 +36,8 @@
 | `allow_rc` | | Exit codes that are acceptable when `expect` inspects the output. Default `[0]`. `any` accepts every exit code (except 126/127), so the exit code can be judged in `expect`, e.g. `[{ rc: "== 0" }, "~ pattern"]`. |
 | `timeout` | | Go duration (`500ms`, `30s`, `5m`). Default from `defaults.timeout`, else 30s. |
 | `shell` | | `bash`, `sh`, `zsh`, `pwsh`, `powershell` or `cmd`. Default: bash (or sh) on POSIX systems, pwsh (or powershell) on Windows. |
-| `remediation` | | How to fix a failure; printed below failed checks. |
+| `rationale` | | Why the check matters: the risk it guards against. Shown with `-vv` and in the HTML, PDF, CSV, JSON and XCCDF reports. |
+| `remediation` | | How to fix a failure; shown with `-vv` and in every report. |
 | `reference` | | A link to background documentation. |
 
 ## run forms

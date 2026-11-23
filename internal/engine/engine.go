@@ -49,6 +49,7 @@ type Result struct {
 	Stdout      string      `json:"stdout,omitempty"`
 	Stderr      string      `json:"stderr,omitempty"`
 	DurationMS  int64       `json:"duration_ms"`
+	Rationale   string      `json:"rationale,omitempty"`
 	Remediation string      `json:"remediation,omitempty"`
 	Reference   string      `json:"reference,omitempty"`
 	Location    string      `json:"location"`
@@ -277,6 +278,7 @@ func baseResult(c *policy.Check) Result {
 		Severity:    c.Severity,
 		Expected:    c.Expect.String(),
 		When:        c.When,
+		Rationale:   c.Rationale,
 		Remediation: c.Remediation,
 		Reference:   c.Reference,
 		Location:    c.Source.Location(),

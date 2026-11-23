@@ -314,6 +314,7 @@ func (l *pdfLayout) finding(row checkRow, labels []string, multi bool) {
 		}
 		if !described {
 			field("Description", res.Description, false)
+			field("Rationale", res.Rationale, false)
 			described = true
 		}
 		field("Reason", res.Message, false)

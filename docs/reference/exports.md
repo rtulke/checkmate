@@ -123,21 +123,21 @@ Merging policies is not a separate command: that is what
 
 Both contain the score, the verdict, the result counts, failures by
 severity, the hosts, every finding with reason, expected value, command,
-output and remediation, the waivers with their reasons, and a table of all
-checks. The HTML page needs no network access, filters by text, status and
-severity, and follows the light or dark mode of the browser. Output is
-escaped, and command output is shortened to 4000 characters; JSON keeps it
-all. The PDF is built into checkmate (standard PDF fonts, no external
+output, rationale and remediation, the waivers with their reasons, and a
+table of all checks. The HTML page needs no network access, filters by
+text, status and severity, and follows the light or dark mode of the
+browser. Output is escaped, and command output is shortened to 4000
+characters; JSON keeps it all. The PDF is built into checkmate (standard PDF fonts, no external
 tools), so it works on every server.
 
 ### CSV
 
 Columns: `host, os, distro, policy, policy_version, started, run_id, id,
 name, status, severity, tags, reason, expected, waiver_reason, waiver_until,
-waived_status, reference, remediation, duration_ms, location`. Cells that a
-spreadsheet would evaluate as a formula (starting with `=`, `+`, `-`, `@`)
-get a leading `'`, since check output can contain text from the inspected
-host.
+waived_status, reference, rationale, remediation, duration_ms, location`.
+Cells that a spreadsheet would evaluate as a formula (starting with `=`,
+`+`, `-`, `@`) get a leading `'`, since check output can contain text from
+the inspected host.
 
 ### JSON Lines and syslog
 
@@ -149,8 +149,8 @@ Each check becomes one self-contained event, followed by a summary event:
 
 `run_id` is the same in every output of one run, so events, reports and
 metrics can be joined. Syslog sends the same events as messages; skipped and
-not applicable checks are left out and long fields are shortened to 512
-characters.
+not applicable checks and the rationale are left out, and long fields are
+shortened to 512 characters.
 
 | Target | Sends to |
 |---|---|
@@ -194,12 +194,13 @@ and still tells an alert which checks fail. Example alerts:
 ### XCCDF and ARF
 
 checkmate has no SCAP source content, so it generates it: a Benchmark with
-one Rule per check (title, description, severity, weight, remediation as
-`fixtext`, the command as `check-content`, DISA CCI and STIG vulnerability
-IDs as `ident`), and one TestResult per report with target facts, one
-`rule-result` per check and two scores (`urn:xccdf:scoring:flat` and
-checkmate's weighted score). ARF 1.1 wraps the Benchmark as report request
-and every TestResult as report about an asset (`ai:computing-device`).
+one Rule per check (title, description, severity, weight, `rationale`,
+remediation as `fixtext`, the command as `check-content`, DISA CCI and STIG
+vulnerability IDs as `ident`), and one TestResult per report with target
+facts, one `rule-result` per check and two scores (`urn:xccdf:scoring:flat`
+and checkmate's weighted score). ARF 1.1 wraps the Benchmark as report
+request and every TestResult as report about an asset
+(`ai:computing-device`).
 
 | checkmate | XCCDF result |
 |---|---|

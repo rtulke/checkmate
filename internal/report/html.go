@@ -73,7 +73,8 @@ type htmlCell struct{ Status, Class string }
 
 type htmlDetail struct {
 	Host, Status, Class                   string
-	Description, Message, Expected        string
+	Description, Rationale                string
+	Message, Expected                     string
 	Command, OnlyIf, Shell, RC            string
 	Stdout, Stderr, Remediation           string
 	Reference, Location, Duration, Origin string
@@ -217,6 +218,7 @@ func htmlData(rs []*engine.Report, o Options) htmlView {
 				Status:      string(res.Status),
 				Class:       statusClass(res.Status),
 				Description: res.Description,
+				Rationale:   res.Rationale,
 				Message:     res.Message,
 				Expected:    res.Expected,
 				Command:     clip(res.Command, detailLimit),

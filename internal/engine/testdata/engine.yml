@@ -19,6 +19,10 @@ checks:
     tags: [a]
     run: echo 312
     expect: ">= 500"
+    rationale: |
+      A full disk stops logging.
+
+      Services fail to write data.
     remediation: free some space
   - id: T-RC-ERROR
     name: failing command with value expectation

@@ -64,6 +64,12 @@ func TestRunStatuses(t *testing.T) {
 	if msg := results["T-FAIL"].Message; !strings.Contains(msg, `">= \"500\"`) && !strings.Contains(msg, "312") {
 		t.Errorf("T-FAIL message should explain the mismatch, got %q", msg)
 	}
+	if got := results["T-FAIL"].Rationale; got != "A full disk stops logging.\n\nServices fail to write data." {
+		t.Errorf("T-FAIL rationale = %q", got)
+	}
+	if got := results["T-FAIL"].Remediation; got != "free some space" {
+		t.Errorf("T-FAIL remediation = %q", got)
+	}
 	if msg := results["T-TIMEOUT"].Message; !strings.Contains(msg, "timed out") {
 		t.Errorf("T-TIMEOUT message = %q", msg)
 	}

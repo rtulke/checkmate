@@ -41,7 +41,7 @@ Flags may come before or after the policy file.
 |---|---|
 | default | one line per check: status, ID, name |
 | `-v` | plus severity and the reason of every failed, warned, errored or skipped check |
-| `-vv` | plus, below each problem: command, exit code, stdout, stderr, remediation and where the check is defined |
+| `-vv` | plus, below each problem: command, exit code, stdout, stderr, rationale, remediation and where the check is defined |
 | `-vvv`, `--debug` | for **every** check: severity, tags, `when`, `only_if`, expectation, command, exit code, shell, duration and output; before the results: facts, platform keys and all loaded policy files |
 
 Up to `-v`, every check stays on a single line; long reasons are shortened to the terminal width (`COLUMNS` overrides the detected width). `-q` hides passed and skipped checks at every level.

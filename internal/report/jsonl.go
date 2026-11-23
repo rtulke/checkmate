@@ -30,6 +30,7 @@ type Event struct {
 	Reason        string             `json:"reason,omitempty"`
 	Expected      string             `json:"expected,omitempty"`
 	Reference     string             `json:"reference,omitempty"`
+	Rationale     string             `json:"rationale,omitempty"`
 	Remediation   string             `json:"remediation,omitempty"`
 	Waiver        *engine.WaiverInfo `json:"waiver,omitempty"`
 	DurationMS    int64              `json:"duration_ms"`
@@ -54,7 +55,8 @@ func Events(r *engine.Report, version string) []Event {
 		e := base
 		e.Event = "result"
 		e.ID, e.Name, e.Status, e.Severity, e.Tags = res.ID, res.Name, res.Status, res.Severity, res.Tags
-		e.Reason, e.Expected, e.Reference, e.Remediation = res.Message, res.Expected, res.Reference, res.Remediation
+		e.Reason, e.Expected, e.Reference = res.Message, res.Expected, res.Reference
+		e.Rationale, e.Remediation = res.Rationale, res.Remediation
 		e.Waiver, e.DurationMS = res.Waiver, res.DurationMS
 		events = append(events, e)
 	}
@@ -111,6 +113,9 @@ func SyslogMessages(rs []*engine.Report, version string) []SyslogMessage {
 			e.Reason = clipOneLine(e.Reason, syslogFieldLimit)
 			e.Expected = clipOneLine(e.Expected, syslogFieldLimit)
 			e.Remediation = clipOneLine(e.Remediation, syslogFieldLimit)
+			// The rationale explains a check and does not change between
+			// runs; it stays in the reports and is left out of messages.
+			e.Rationale = ""
 			text, err := json.Marshal(e)
 			if err != nil {
 				continue

@@ -13,7 +13,7 @@ import (
 var csvHeader = []string{
 	"host", "os", "distro", "policy", "policy_version", "started", "run_id",
 	"id", "name", "status", "severity", "tags", "reason", "expected",
-	"waiver_reason", "waiver_until", "waived_status", "reference", "remediation",
+	"waiver_reason", "waiver_until", "waived_status", "reference", "rationale", "remediation",
 	"duration_ms", "location",
 }
 
@@ -37,7 +37,7 @@ func writeCSV(w io.Writer, rs []*engine.Report, _ Options) error {
 				r.Started.Format(time.RFC3339), r.RunID,
 				res.ID, res.Name, string(res.Status), res.Severity, strings.Join(res.Tags, " "),
 				res.Message, res.Expected, reason, until, waiverOrigin(res), res.Reference,
-				res.Remediation, strconv.FormatInt(res.DurationMS, 10), res.Location,
+				res.Rationale, res.Remediation, strconv.FormatInt(res.DurationMS, 10), res.Location,
 			}
 			for j := range row {
 				row[j] = csvSafe(row[j])

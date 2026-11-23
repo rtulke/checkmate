@@ -33,6 +33,7 @@ type Check struct {
 	Timeout     time.Duration
 	AllowRC     []int // nil together with AnyRC means every exit code
 	AnyRC       bool  // allow_rc: any
+	Rationale   string
 	Remediation string
 	Reference   string
 	Source      CheckSource
@@ -70,13 +71,14 @@ type rawCheck struct {
 	Shell       string      `yaml:"shell"`
 	Timeout     string      `yaml:"timeout"`
 	AllowRC     ExitCodes   `yaml:"allow_rc"`
+	Rationale   string      `yaml:"rationale"`
 	Remediation string      `yaml:"remediation"`
 	Reference   string      `yaml:"reference"`
 }
 
 // checkKeys are the keys allowed in a check ("loop" is removed before).
 var checkKeys = []string{"id", "name", "description", "tags", "severity", "when", "only_if",
-	"run", "expect", "as", "shell", "timeout", "allow_rc", "remediation", "reference"}
+	"run", "expect", "as", "shell", "timeout", "allow_rc", "rationale", "remediation", "reference"}
 
 func checkKnownKeys(n *yaml.Node, allowed []string) error {
 	for i := 0; i+1 < len(n.Content); i += 2 {
@@ -263,6 +265,7 @@ func build(p *Policy, src CheckSource, raw rawCheck, ctx map[string]any) (*Check
 		Timeout:     p.Defaults.Timeout,
 		AllowRC:     raw.AllowRC.Codes,
 		AnyRC:       raw.AllowRC.Any,
+		Rationale:   strings.TrimSpace(raw.Rationale),
 		Remediation: strings.TrimSpace(raw.Remediation),
 		Reference:   raw.Reference,
 		Source:      src,

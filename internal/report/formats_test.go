@@ -76,6 +76,9 @@ func TestHTMLEscapesCheckOutput(t *testing.T) {
 	if !strings.Contains(out, "accepted risk") {
 		t.Error("waiver reason missing")
 	}
+	if !strings.Contains(out, `<dt>Rationale</dt><dd class="prose">why it matters</dd>`) {
+		t.Error("rationale missing")
+	}
 }
 
 func TestCSVNeutralizesFormulas(t *testing.T) {
@@ -86,6 +89,13 @@ func TestCSVNeutralizesFormulas(t *testing.T) {
 	}
 	if len(rows) != 6 || rows[0][0] != "host" {
 		t.Fatalf("unexpected rows: %v", rows)
+	}
+	col := map[string]int{}
+	for i, name := range rows[0] {
+		col[name] = i
+	}
+	if rows[2][col["rationale"]] != "why it matters" || rows[2][col["remediation"]] != "fix it" {
+		t.Errorf("row of B-22 lacks rationale or remediation: %v", rows[2])
 	}
 	for _, row := range rows {
 		for _, cell := range row {
@@ -124,6 +134,10 @@ func TestJSONLAndSyslogMessages(t *testing.T) {
 	if err := json.Unmarshal([]byte(lines[5]), &last); err != nil || last.Event != "summary" || last.Summary == nil {
 		t.Fatalf("last line is not a summary: %s", lines[5])
 	}
+	var second Event
+	if err := json.Unmarshal([]byte(lines[1]), &second); err != nil || second.Rationale != "why it matters" || second.Remediation != "fix it" {
+		t.Errorf("event lacks rationale or remediation: %s", lines[1])
+	}
 	msgs := SyslogMessages([]*engine.Report{hostileReport("a")}, "1.2.3")
 	if len(msgs) != 5 { // the skipped check is left out
 		t.Fatalf("want 5 syslog messages, got %d", len(msgs))
@@ -133,6 +147,9 @@ func TestJSONLAndSyslogMessages(t *testing.T) {
 		var e Event
 		json.Unmarshal([]byte(m.Text), &e)
 		sev[e.ID+string(e.Event)] = m.Severity
+		if e.Rationale != "" {
+			t.Errorf("syslog message carries the rationale: %s", m.Text)
+		}
 	}
 	if sev["B-22result"] != 2 || sev["A-1result"] != 6 || sev["summary"] != 4 {
 		t.Errorf("unexpected severities: %v", sev)
@@ -143,7 +160,9 @@ func TestXCCDF(t *testing.T) {
 	out := renderFormat(t, "xccdf", hostileReport("a"), hostileReport("b"))
 	var doc struct {
 		Rules []struct {
-			ID     string `xml:"id,attr"`
+			ID        string `xml:"id,attr"`
+			Rationale string `xml:"rationale"`
+			Fixtext   string `xml:"fixtext"`
 			Idents []struct {
 				System string `xml:"system,attr"`
 				Value  string `xml:",chardata"`
@@ -169,6 +188,9 @@ func TestXCCDF(t *testing.T) {
 	}
 	if got := doc.Rules[4].ID; got != "xccdf_io.github.rtulke.checkmate_rule_E_5_x" {
 		t.Errorf("rule id not sanitized: %s", got)
+	}
+	if doc.Rules[1].Rationale != "why it matters" || doc.Rules[1].Fixtext != "fix it" {
+		t.Errorf("rule B-22 lacks rationale or fixtext: %q, %q", doc.Rules[1].Rationale, doc.Rules[1].Fixtext)
 	}
 	if len(doc.Rules[4].Idents) != 2 {
 		t.Errorf("want CCI and V- idents, got %v", doc.Rules[4].Idents)

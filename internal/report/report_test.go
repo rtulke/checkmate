@@ -19,7 +19,7 @@ func sampleReport() *engine.Report {
 			{ID: "A-1", Name: "first check", Status: engine.StatusPass, Severity: "medium",
 				Command: "echo ok", RC: &rc, Stdout: "ok\n", Shell: "bash"},
 			{ID: "B-22", Name: "second check", Status: engine.StatusFail, Severity: "critical",
-				Message: "expected stdout == \"no\",\ngot \"yes\"", Command: "echo yes", RC: &rc, Remediation: "fix it",
+				Message: "expected stdout == \"no\",\ngot \"yes\"", Command: "echo yes", RC: &rc, Rationale: "why it matters", Remediation: "fix it",
 				When: []string{"facts.os == \"linux\""}},
 			{ID: "C-333", Name: "third", Status: engine.StatusSkip, Message: "when: x is false"},
 		},
@@ -94,7 +94,7 @@ func TestVerbosity1TruncatesToWidth(t *testing.T) {
 
 func TestVerbosity2ShowsDetailsOfProblems(t *testing.T) {
 	out := render(t, TextOptions{Verbosity: 2})
-	for _, want := range []string{"command: echo yes", "exit code: 0", "fix: fix it"} {
+	for _, want := range []string{"command: echo yes", "exit code: 0", "why: why it matters", "fix: fix it"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("-vv output lacks %q", want)
 		}
