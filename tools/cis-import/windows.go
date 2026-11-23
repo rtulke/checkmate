@@ -123,6 +123,29 @@ var hives = map[string]string{
 	"HKCU": "HKEY_CURRENT_USER", "HKEY_CURRENT_USER": "HKEY_CURRENT_USER",
 }
 
+var shortHives = map[string]string{"HKEY_LOCAL_MACHINE": "HKLM", "HKEY_USERS": "HKU", "HKEY_CURRENT_USER": "HKCU"}
+
+// winTextKey is the key in texts/windows.yml of a snapshot value.
+func winTextKey(key string) string {
+	kind, rest, _ := strings.Cut(key, ".")
+	switch kind {
+	case "AuditPolicy":
+		for _, t := range winTargets.AuditPol {
+			if t.Rule == rest {
+				_, sub := auditSubcategory(t.Subcategory, t.GUID)
+				return "AuditPolicy." + sub
+			}
+		}
+	case "HKU":
+		for _, t := range winTargets.HKU {
+			if t.Rule == rest {
+				return `HKU\` + t.Subpath + `\` + t.Name
+			}
+		}
+	}
+	return key
+}
+
 var regKinds = map[string]string{
 	"REG_DWORD": "DWord", "REG_QWORD": "QWord", "REG_SZ": "String",
 	"REG_EXPAND_SZ": "ExpandString", "REG_MULTI_SZ": "MultiString", "REG_BINARY": "Binary",
@@ -160,6 +183,7 @@ else { '{0}={1}' -f $k.GetValueKind($n), (@($k.GetValue($n, $null, 'DoNotExpandE
 		psQuote(`Registry::`+full+`\`+rest), psQuote(valueName))
 
 	location := strings.ToUpper(hive) + `\` + rest
+	c.TextKey = shortHives[full] + `\` + rest + `\` + valueName
 	regType := strings.ToUpper(str(attrs["type"]))
 	if exists, ok := attrs["exists"].(bool); ok && !exists {
 		c.Name = firstLine(fmt.Sprintf("Registry value %s is not set (%s)", valueName, location), 120)
@@ -215,6 +239,7 @@ func winRegistryKeyCheck(c check, key string, attrs map[string]any) []check {
 		return nil
 	}
 	location := strings.ToUpper(hive) + `\` + rest
+	c.TextKey = shortHives[full] + `\` + rest + `\`
 	c.Run = fmt.Sprintf(`if (Test-Path -LiteralPath %s) { 'PRESENT' } else { 'ABSENT' }`, psQuote(`Registry::`+full+`\`+rest))
 	if exists, ok := attrs["exists"].(bool); ok && !exists {
 		c.Name = firstLine(fmt.Sprintf("Registry key %s does not exist", location), 120)
@@ -262,6 +287,7 @@ func winFileCheck(c check, attrs map[string]any) []check {
 		c.Expect = []string{yamlString("!empty")}
 	}
 	c.Remediation = remediationOrWarn(c.ID, key, c.Expect, "")
+	c.TextKey = winTextKey(key)
 	return []check{c}
 }
 
@@ -303,6 +329,7 @@ func winCommandCheck(c check, name string, attrs map[string]any) []check {
 	c.Name = what
 	if len(keys) == 1 {
 		c.Remediation = remediationOrWarn(c.ID, sortedKeys(keys)[0], nil, exec)
+		c.TextKey = winTextKey(sortedKeys(keys)[0])
 	} else {
 		fmt.Fprintf(os.Stderr, "  %s: no remediation, the command reads %d values\n", c.ID, len(keys))
 	}

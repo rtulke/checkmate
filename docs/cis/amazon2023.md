@@ -286,7 +286,7 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-4.6.2-secure_system_accts` | secure system accts: /awk -F: '$3<1000' /etc/passwd \| egrep -v 'root\|sync\|halt\|shutdown\|/sbin/nologin\|/bin/fal… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.6.3-etc_profile.d_tmout.sh-attrs` | /etc/profile.d/tmout.sh: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.6.3-etc_profile.d_tmout.sh-content` | /etc/profile.d/tmout.sh has the expected content (3 rules) | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-4.6.4-root` | User root exists | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-4.6.4-root` | User root has UID 0 and GID 0 | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.6.5-etc_profile-attrs` | /etc/profile: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.6.5-etc_profile-content` | /etc/profile has the expected content (2 rules) | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.6.6-root_pw_set` | root pw set: passwd -S root \| grep "Password set" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

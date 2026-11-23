@@ -123,7 +123,7 @@ checkmate run cis/rhel7.yml --tags cis-level-2 -v
 | `CIS-RHEL7-3.3.5-net.ipv4.icmp_echo_ignore_broadcasts` | Kernel parameter net.ipv4.icmp_echo_ignore_broadcasts is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL7-3.3.6-net.ipv4.icmp_ignore_bogus_error_respons` | Kernel parameter net.ipv4.icmp_ignore_bogus_error_responses is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL7-3.3.7-net.ipv4.conf.all.rp_filter` | Kernel parameter net.ipv4.conf.all.rp_filter is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL7-3.3.7-net.ipv4.conf.all.rp_filter_2` | Kernel parameter net.ipv4.conf.all.rp_filter#2 is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL7-3.3.7-net.ipv4.conf.all.rp_filter_2` | Kernel parameter net.ipv4.conf.all.rp_filter is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL7-3.3.8-net.ipv4.tcp_syncookies` | Kernel parameter net.ipv4.tcp_syncookies is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL7-3.4.1-modprobe_dccp` | modprobe dccp: modprobe -n -v dccp | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL7-3.4.2-modprobe_sctp` | modprobe sctp: modprobe -n -v sctp | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
@@ -241,7 +241,7 @@ checkmate run cis/rhel7.yml --tags cis-level-2 -v
 | `CIS-RHEL7-5.5.1.5-passwd_chg_past` | No user has a last password change date in the future | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL7-5.5.2-secure_system_LK` | secure system LK: /awk -F: '$3<1000' /etc/passwd \| egrep -wv 'root' \| cut -d: -f1 \| xargs -I '{}' passwd -S… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL7-5.5.2-secure_system_accts` | secure system accts: /awk -F: '$3<1000' /etc/passwd \| egrep -v 'root\|sync\|halt\|shutdown\|/sbin/nologin\|/bin/fal… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL7-5.5.3-root` | User root exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL7-5.5.3-root` | User root has UID 0 and GID 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL7-5.5.4-etc_profile.d_tmout.sh-attrs` | /etc/profile.d/tmout.sh: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL7-5.5.4-etc_profile.d_tmout.sh-content` | /etc/profile.d/tmout.sh has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL7-5.5.5-etc_profile-attrs` | /etc/profile: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

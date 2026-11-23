@@ -76,9 +76,17 @@ account resource carry a remediation generated from that resource: the
 package manager command of the platform, `systemctl`, `sysctl` and the
 `/etc/sysctl.d` entry, the mount options, `chown` and a `chmod` that only
 removes the permissions the check does not allow, or the conditions the
-lines of a file must meet. Command checks run arbitrary upstream commands;
-what fixes them cannot be derived from the command, so most of them have no
-remediation yet.
+lines of a file must meet.
+
+Rationales, and the remediation of command checks (whose fix cannot be
+derived from the command), are written for checkmate in
+[`tools/cis-import/texts/`](../tools/cis-import/texts/): one entry per
+concept – a setting shared by several benchmarks – with platform-specific
+variants where the fix differs (RHEL and Amazon Linux, Debian and Ubuntu,
+SUSE). No CIS benchmark text is used. The converter assigns them by the ID
+of a check (Linux) or by the setting it reads (Windows) and reports every
+check without a text. Texts that several checks of a policy share are
+written once, as a YAML anchor.
 
 For macOS, mSCP rules tagged `cis_lvl1`/`cis_lvl2` are taken over with their
 check script and expected result; organization-defined values use the CIS
@@ -108,9 +116,7 @@ security policy setting or user right with its Group Policy path and the
 required value or accounts (well-known SIDs are named), the `auditpol`
 command and Group Policy path of an audit subcategory, the service or the
 firewall profile setting. The remediation never guesses: the converter
-reports every check whose expectation it cannot translate. The CIS
-benchmark text is not used, so the Windows and Linux checks have no
-rationale.
+reports every check whose expectation it cannot translate.
 
 Deviations from the Ansible Lockdown content, each applied deliberately:
 

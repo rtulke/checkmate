@@ -118,7 +118,7 @@ checkmate run cis/debian13.yml --tags cis-level-2 -v
 | `CIS-DEBIAN13-1.5.1-protected_hardlinks_conf` | protected hardlinks conf: grep "fs\\.protected_hardlinks" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-1.5.2-protected_symlinks_live` | Kernel parameter fs.protected_symlinks is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-1.5.2-protected_symlinks_conf` | protected symlinks conf: grep "fs\\.protected_symlinks" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN13-1.5.3-ptrace_restricted_live` | Kernel parameter kernel.yama.ptrace_scope is map[or:[1 2 3]] | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-DEBIAN13-1.5.3-ptrace_restricted_live` | Kernel parameter kernel.yama.ptrace_scope matches ^(1\|2\|3)$ | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-1.5.3-ptrace_restricted_conf` | ptrace restricted conf: grep "kernel\\.yama\\.ptrace_scope" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-1.5.4-suid_dumpable_live` | Kernel parameter fs.suid_dumpable is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-1.5.4-suid_dumpable_conf` | suid dumpable conf: grep "fs\\.suid_dumpable" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -128,11 +128,11 @@ checkmate run cis/debian13.yml --tags cis-level-2 -v
 | `CIS-DEBIAN13-1.5.7-apport_stopped-enabled` | Service apport is not enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-1.5.7-apport_stopped-running` | Service apport is not running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-1.5.7-apport_disabled-content` | /etc/default/apport has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN13-1.5.8-kptr_restrict_live` | Kernel parameter kernel.kptr_restrict is map[or:[1 2]] | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-DEBIAN13-1.5.8-kptr_restrict_live` | Kernel parameter kernel.kptr_restrict matches ^(1\|2)$ | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-1.5.8-kptr_restrict_conf` | kptr restrict conf: grep "kernel\\.kptr_restrict" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-1.5.9-address_space_live` | Kernel parameter kernel.randomize_va_space is 2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-1.5.9-aslr_enabled_conf` | aslr enabled conf: grep "kernel\\.randomize_va_space" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN13-1.5.10-ptrace_restricted_live_2` | Kernel parameter kernel.yama.ptrace_scope is map[or:[1 2 3]] | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-DEBIAN13-1.5.10-ptrace_restricted_live_2` | Kernel parameter kernel.yama.ptrace_scope matches ^(1\|2\|3)$ | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-1.5.10-ptrace_restricted_conf_2` | ptrace restricted conf 2: grep "kernel\\.yama\\.ptrace_scope" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-1.5.11-fs.suid_dumpable_sysctl` | Kernel parameter fs.suid_dumpable is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-1.5.11-system_coredump_conf` | system coredump conf: grep -Ps -- '^\\h\*\\\*\\h+hard\\h+core\\h+0\\b' /etc/security/limits.conf /etc/security/limits.d… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

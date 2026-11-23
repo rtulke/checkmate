@@ -12,6 +12,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha1"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -99,6 +100,7 @@ type check struct {
 	When        []string
 	Rationale   string
 	Remediation string
+	TextKey     string // Windows: the setting the check reads, for texts/windows.yml
 }
 
 // ruleMeta is the meta block of a goss resource.
@@ -127,6 +129,7 @@ func main() {
 	src := flag.String("src", "", "checkout of an ansible-lockdown *-CIS-Audit repository")
 	key := flag.String("bench", "", "benchmark key, e.g. rhel9")
 	out := flag.String("out", "", "output policy file")
+	textsFile := flag.String("texts", "", "rationale and remediation texts of the CIS concepts (texts/linux.yml or texts/windows.yml)")
 	disaFile := flag.String("disa", "", "DISA manual XCCDF benchmark of the STIG (U_*_Manual-xccdf.xml), for rationale and fix texts")
 	flag.Parse()
 
@@ -144,6 +147,16 @@ func main() {
 		fmt.Fprintln(os.Stderr, "cis-import: -disa is required for STIGs and only valid for them")
 		os.Exit(2)
 	}
+	if !b.stig() && *textsFile == "" {
+		fmt.Fprintln(os.Stderr, "cis-import: -texts is required for CIS benchmarks")
+		os.Exit(2)
+	}
+	if *textsFile != "" {
+		if err := loadTexts(*textsFile); err != nil {
+			fmt.Fprintln(os.Stderr, "cis-import:", err)
+			os.Exit(1)
+		}
+	}
 	if *disaFile != "" {
 		var err error
 		if disa, err = loadDISA(*disaFile); err != nil {
@@ -158,6 +171,9 @@ func main() {
 	}
 	fmt.Fprintf(os.Stderr, "%s: %d rule files, %d rules, %d checks, %d resources skipped\n",
 		b.Key, stats.files, stats.rules, stats.checks, stats.skipped)
+	if textBase != nil {
+		fmt.Fprintf(os.Stderr, "%s: %d checks without rationale or remediation\n", b.Key, stats.missingTexts)
+	}
 	if disa != nil {
 		fmt.Fprintf(os.Stderr, "%s: DISA texts %s: %d rules of the same revision, %d of another revision, %d without texts\n",
 			b.Key, disa.Release, len(stats.textExact), len(stats.textOther), len(stats.textMissing))
@@ -169,6 +185,7 @@ func main() {
 
 type stats struct {
 	files, rules, checks, skipped int
+	missingTexts                  int
 	// STIG rules by how their DISA texts were found
 	textExact, textOther, textMissing map[string]bool
 }
@@ -375,6 +392,13 @@ func convert(src string, b benchmark, out string) (stats, error) {
 	}
 	st.rules = len(rules)
 	st.checks = len(checks)
+	if textBase != nil {
+		missing := applyTexts(b, checks)
+		for _, m := range missing {
+			fmt.Fprintf(os.Stderr, "  no text: %s\n", m)
+		}
+		st.missingTexts = len(missing)
+	}
 	return st, writePolicy(out, b, version, checks, len(rules))
 }
 
@@ -627,6 +651,11 @@ func convertKind(b benchmark, kind, name string, attrs map[string]any, base chec
 		}
 		return nil
 	}
+	// decodeResources numbers duplicate resource keys ("name#2"); the
+	// number is not part of the package, service or parameter name.
+	if kind != "command" && kind != "file" {
+		name = duplicateSuffix.ReplaceAllString(name, "")
+	}
 	switch kind {
 	case "command":
 		return commandCheck(base, name, attrs)
@@ -722,7 +751,19 @@ func fileChecks(base check, name string, attrs map[string]any) []check {
 		parts = append(parts, "links to "+target)
 		fixTarget = target
 	}
-	if modes := stringList(attrs["mode"]); len(modes) > 0 {
+	modes := stringList(attrs["mode"])
+	if m, ok := attrs["mode"].(map[string]any); ok && m["match-regexp"] != nil {
+		// {match-regexp: '^0[0246][04]0$'}: the highest mode the pattern
+		// allows, if it allows every stricter mode as well.
+		re := str(m["match-regexp"])
+		allowed, ok := modeFromPattern(re)
+		if !ok {
+			fmt.Fprintf(os.Stderr, "  %s: mode pattern %q cannot be checked as \"mode or stricter\"\n", base.ID, re)
+			return nil
+		}
+		modes = []string{fmt.Sprintf("%04o", allowed)}
+	}
+	if len(modes) > 0 {
 		var allowed int64
 		for _, m := range modes {
 			v, err := strconv.ParseInt(m, 8, 32)
@@ -904,6 +945,25 @@ func kernelParamCheck(c check, name string, attrs map[string]any) []check {
 	if n := str(attrs["name"]); n != "" {
 		name = n
 	}
+	if m, ok := attrs["value"].(map[string]any); ok {
+		re := str(m["match-regexp"])
+		if alts := stringList(m["or"]); re == "" && len(alts) > 0 {
+			for i := range alts {
+				alts[i] = regexp.QuoteMeta(alts[i])
+			}
+			re = "^(" + strings.Join(alts, "|") + ")$"
+		}
+		if re == "" {
+			fmt.Fprintf(os.Stderr, "  skipped %s: unsupported kernel parameter matcher %v\n", c.ID, m)
+			return nil
+		}
+		c.Name = fmt.Sprintf("Kernel parameter %s matches %s", name, re)
+		c.Run = "sysctl -n " + name
+		c.AllowAnyRC = true
+		c.Expect = []string{`{ rc: "== 0" }`, yamlString("~ " + re)}
+		c.Remediation = sysctlPatternRemediation(name, re)
+		return []check{c}
+	}
 	value := str(attrs["value"])
 	if value == "" {
 		return nil
@@ -917,8 +977,11 @@ func kernelParamCheck(c check, name string, attrs map[string]any) []check {
 }
 
 func accountCheck(c check, kind, name string, attrs map[string]any) []check {
-	if n := str(attrs["name"]); n != "" {
-		name = n
+	for _, k := range []string{"username", "groupname", "name"} {
+		if n := str(attrs[k]); n != "" {
+			name = n
+			break
+		}
 	}
 	db := "passwd"
 	if kind == "group" {
@@ -929,14 +992,41 @@ func accountCheck(c check, kind, name string, attrs map[string]any) []check {
 		exists = true
 	}
 	c.Run = fmt.Sprintf("getent %s %s", db, name)
-	if exists {
-		c.Name = fmt.Sprintf("%s %s exists", strings.Title(kind), name)
-		c.Expect = []string{"true"}
-	} else {
+	if !exists {
 		c.Name = fmt.Sprintf("%s %s does not exist", strings.Title(kind), name)
 		c.Expect = []string{"false"}
+		c.Remediation = accountRemediation(kind, name, false)
+		return []check{c}
 	}
-	c.Remediation = accountRemediation(kind, name, exists)
+	// uid and gid are fields 3 and 4 of passwd, gid is field 3 of group.
+	uid, gid := str(attrs["uid"]), str(attrs["gid"])
+	if uid == "" && gid == "" {
+		c.Name = fmt.Sprintf("%s %s exists", strings.Title(kind), name)
+		c.Expect = []string{"true"}
+		c.Remediation = accountRemediation(kind, name, true)
+		return []check{c}
+	}
+	field := func(v string) string {
+		if v == "" {
+			return "[^:]*"
+		}
+		return regexp.QuoteMeta(v)
+	}
+	var parts []string
+	if uid != "" {
+		parts = append(parts, "UID "+uid)
+	}
+	if gid != "" {
+		parts = append(parts, "GID "+gid)
+	}
+	c.Name = fmt.Sprintf("%s %s has %s", strings.Title(kind), name, strings.Join(parts, " and "))
+	c.AllowAnyRC = true
+	re := "^" + regexp.QuoteMeta(name) + ":[^:]*:" + field(gid) + ":"
+	if kind == "user" {
+		re = "^" + regexp.QuoteMeta(name) + ":[^:]*:" + field(uid) + ":" + field(gid) + ":"
+	}
+	c.Expect = []string{`{ rc: "== 0" }`, yamlString("~ " + re)}
+	c.Remediation = accountIDRemediation(kind, name, uid, gid)
 	return []check{c}
 }
 
@@ -1332,6 +1422,7 @@ func writePolicy(path string, b benchmark, version string, checks []check, rules
 }
 
 func writeChecks(w *bytes.Buffer, path string, b benchmark, checks []check) error {
+	anchors := map[string]string{}
 	fmt.Fprintf(w, "defaults:\n  when: %s\n  timeout: 120s\n\nchecks:\n", yamlString(b.When))
 	for _, c := range checks {
 		fmt.Fprintf(w, "  - id: %s\n", yamlString(c.ID))
@@ -1372,8 +1463,8 @@ func writeChecks(w *bytes.Buffer, path string, b benchmark, checks []check) erro
 				fmt.Fprintf(w, "      - %s\n", protectTemplates(applyPatches(e)))
 			}
 		}
-		writeText(w, "rationale", c.Rationale)
-		writeText(w, "remediation", c.Remediation)
+		writeText(w, anchors, "rationale", c.Rationale)
+		writeText(w, anchors, "remediation", c.Remediation)
 	}
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
@@ -1381,13 +1472,22 @@ func writeChecks(w *bytes.Buffer, path string, b benchmark, checks []check) erro
 	return os.WriteFile(path, w.Bytes(), 0o644)
 }
 
-// writeText writes a text field of a check as a YAML block scalar.
-func writeText(w *bytes.Buffer, key, text string) {
+// writeText writes a text field of a check as a YAML block scalar. A text
+// that several checks share is written once, with an anchor, and the other
+// checks refer to it; the policy loader expands aliases for every check.
+func writeText(w *bytes.Buffer, anchors map[string]string, key, text string) {
 	text = strings.TrimSpace(text)
 	if text == "" {
 		return
 	}
-	fmt.Fprintf(w, "    %s: |\n", key)
+	if name, ok := anchors[text]; ok {
+		fmt.Fprintf(w, "    %s: *%s\n", key, name)
+		return
+	}
+	sum := sha1.Sum([]byte(text))
+	name := fmt.Sprintf("%s-%x", key[:3], sum[:5])
+	anchors[text] = name
+	fmt.Fprintf(w, "    %s: &%s |\n", key, name)
 	for _, line := range strings.Split(protectTemplates(text), "\n") {
 		if line == "" {
 			w.WriteString("\n")
@@ -1577,6 +1677,8 @@ func stigTitle(t string) (title, qualifier string) {
 	}
 	return "", ""
 }
+
+var duplicateSuffix = regexp.MustCompile(`#[0-9]+$`)
 
 var discoveredRe = regexp.MustCompile(`\.Discovered\.([A-Za-z0-9_]+)`)
 

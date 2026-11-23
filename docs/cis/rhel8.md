@@ -155,7 +155,7 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-1.5.5-sysctl_dmesg_restrict_live` | sysctl dmesg restrict live: sysctl kernel.dmesg_restrict | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.5.6-sysctl_ktpr_restrict_conf` | sysctl ktpr restrict conf: grep -R kernel.kptr_restrict /etc/sysctl.conf /etc/sysctl.d/ | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.5.6-sysctl_ktpr_restrict_live` | sysctl ktpr restrict live: sysctl kernel.kptr_restrict | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-1.5.7-ptrace_restricted` | Kernel parameter kernel.yama.ptrace_scope is map[or:[1 2 3]] | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL8-1.5.7-ptrace_restricted` | Kernel parameter kernel.yama.ptrace_scope matches ^(1\|2\|3)$ | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.5.7-ptrace_restricted_2` | ptrace restricted 2: grep "kernel\\.yama\\.ptrace_scope" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.5.8-address_space_random` | Kernel parameter kernel.randomize_va_space is 2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.5.8-aslr_enabled_2` | aslr enabled 2: grep "kernel\\.randomize_va_space" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

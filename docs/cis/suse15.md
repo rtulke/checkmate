@@ -182,7 +182,7 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-2.4.1.5-cron_weekly_perms-attrs` | /etc/cron.weekly: exists, is a directory, mode 0700 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-2.4.1.6-cron_monthly_perms-attrs` | /etc/cron.monthly: exists, is a directory, mode 0700 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-2.4.1.7-cron_d_perms-attrs` | /etc/cron.d: exists, is a directory, mode 0700 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-2.4.1.8-cron_allow_restricted-attrs` | /etc/cron.allow: exists, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-2.4.1.8-cron_allow_restricted-attrs` | /etc/cron.allow: exists, mode 0640 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-2.4.1.8-cron_deny_absent-absent` | /etc/cron.deny does not exist | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-2.4.2.1-etc_at.allow-attrs` | /etc/at.allow: exists, mode 0640 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-2.4.2.1-at_deny_absent-absent` | /etc/at.deny does not exist | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

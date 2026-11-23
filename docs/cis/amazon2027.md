@@ -115,11 +115,11 @@ checkmate run cis/amazon2027.yml --tags cis-level-2 -v
 | `CIS-AMAZON2027-1.5.3-fs_suid_dumpable_persistent` | fs suid dumpable persistent: /usr/lib/systemd/systemd-sysctl --cat-config \| grep -Eo '^[[:space:]]\*fs[.]suid_dumpable[… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-1.5.4-kernel.dmesg_restrict` | Kernel parameter kernel.dmesg_restrict is 1 | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-1.5.4-kernel_dmesg_restrict_persistent` | kernel dmesg restrict persistent: /usr/lib/systemd/systemd-sysctl --cat-config \| grep -Eo '^[[:space:]]\*kernel[.]dmesg_rest… | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-1.5.5-kernel.kptr_restrict` | Kernel parameter kernel.kptr_restrict is map[match-regexp:^(1\|2)$] | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-1.5.5-kernel.kptr_restrict` | Kernel parameter kernel.kptr_restrict matches ^(1\|2)$ | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-1.5.5-kernel_kptr_restrict_persistent` | kernel kptr restrict persistent: /usr/lib/systemd/systemd-sysctl --cat-config \| grep -Eo '^[[:space:]]\*kernel[.]kptr_restr… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-1.5.6-kernel.randomize_va_space` | Kernel parameter kernel.randomize_va_space is 2 | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-1.5.6-kernel_randomize_va_space_persistent` | kernel randomize va space persistent: /usr/lib/systemd/systemd-sysctl --cat-config \| grep -Eo '^[[:space:]]\*kernel[.]randomize_… | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-1.5.7-kernel.yama.ptrace_scope` | Kernel parameter kernel.yama.ptrace_scope is map[match-regexp:^(1\|2\|3)$] | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-1.5.7-kernel.yama.ptrace_scope` | Kernel parameter kernel.yama.ptrace_scope matches ^(1\|2\|3)$ | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-1.5.7-kernel_yama_ptrace_scope_persistent` | kernel yama ptrace scope persistent: /usr/lib/systemd/systemd-sysctl --cat-config \| grep -Eo '^[[:space:]]\*kernel[.]yama[.]ptr… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-1.5.8-hard_core_limit` | hard core limit: grep -Pshi -- '^\\h\*[^#\\n\\r]+\\h+hard\\h+core\\b' /etc/security/limits.conf /etc/security/lim… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-1.5.9-coredump_processsizemax_effective` | coredump processsizemax effective: systemd-analyze cat-config systemd/coredump.conf \| grep -E '^[[:space:]]\*ProcessSizeMax[[… | L1 server | <span class="sev sev-medium">medium</span> |
@@ -180,16 +180,16 @@ checkmate run cis/amazon2027.yml --tags cis-level-2 -v
 | `CIS-AMAZON2027-2.3.3-cis_2_3_3_chronyd_process_user` | cis 2 3 3 chronyd process user: ps -C chronyd -o user= \|\| true | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-2.4.1.1-cis_2_4_1_1_crond-enabled` | Service crond.service is enabled | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-2.4.1.1-cis_2_4_1_1_crond-running` | Service crond.service is running | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-2.4.1.2-cis_2_4_1_2_crontab-attrs` | /etc/crontab: exists, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-2.4.1.3-cis_2_4_1_3_cron_hourly-attrs` | /etc/cron.hourly: exists, is a directory, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-2.4.1.4-cis_2_4_1_4_cron_daily-attrs` | /etc/cron.daily: exists, is a directory, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-2.4.1.5-cis_2_4_1_5_cron_weekly-attrs` | /etc/cron.weekly: exists, is a directory, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-2.4.1.6-cis_2_4_1_6_cron_monthly-attrs` | /etc/cron.monthly: exists, is a directory, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-2.4.1.7-cis_2_4_1_7_cron_yearly-attrs` | /etc/cron.yearly: exists, is a directory, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-2.4.1.8-cis_2_4_1_8_cron_d-attrs` | /etc/cron.d: exists, is a directory, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-2.4.1.9-cis_2_4_1_9_cron_allow-attrs` | /etc/cron.allow: exists, owner root, group root or crontab | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-2.4.1.2-cis_2_4_1_2_crontab-attrs` | /etc/crontab: exists, mode 0700 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-2.4.1.3-cis_2_4_1_3_cron_hourly-attrs` | /etc/cron.hourly: exists, is a directory, mode 0700 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-2.4.1.4-cis_2_4_1_4_cron_daily-attrs` | /etc/cron.daily: exists, is a directory, mode 0700 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-2.4.1.5-cis_2_4_1_5_cron_weekly-attrs` | /etc/cron.weekly: exists, is a directory, mode 0700 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-2.4.1.6-cis_2_4_1_6_cron_monthly-attrs` | /etc/cron.monthly: exists, is a directory, mode 0700 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-2.4.1.7-cis_2_4_1_7_cron_yearly-attrs` | /etc/cron.yearly: exists, is a directory, mode 0700 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-2.4.1.8-cis_2_4_1_8_cron_d-attrs` | /etc/cron.d: exists, is a directory, mode 0700 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-2.4.1.9-cis_2_4_1_9_cron_allow-attrs` | /etc/cron.allow: exists, mode 0640 or stricter, owner root, group root or crontab | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-2.4.1.9-cis_2_4_1_9_cron_deny-absent` | /etc/cron.deny does not exist | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-2.4.2.1-cis_2_4_2_1_at_allow-attrs` | /etc/at.allow: exists, owner root, group root or daemon | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-2.4.2.1-cis_2_4_2_1_at_allow-attrs` | /etc/at.allow: exists, mode 0640 or stricter, owner root, group root or daemon | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-2.4.2.1-cis_2_4_2_1_at_deny-absent` | /etc/at.deny does not exist | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-3.1.1-cis_3_1_1_ipv6_required` | cis 3 1 1 ipv6 required: if [ `grep 0 /proc/sys/net/ipv6/conf/all/disable_ipv6` ] \|\| [ `grep 0 /proc/sys/net/ipv6/… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-3.1.2-cis_3_1_2_bluez_pkg` | Package bluez is not installed | L2 server | <span class="sev sev-low">low</span> |
@@ -268,7 +268,7 @@ checkmate run cis/amazon2027.yml --tags cis-level-2 -v
 | `CIS-AMAZON2027-4.1.9-cis_4_1_9_nftables_service-running` | Service nftables is not running | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2027-4.1.10-cis_4_1_10_log_denied` | cis 4 1 10 log denied: firewall-cmd --get-log-denied | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2027-4.1.11-cis_4_1_11_icmp_timestamp` | cis 4 1 11 icmp timestamp: l_fail="" | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2027-5.1.1-sshd_config_perms-attrs` | /etc/ssh/sshd_config: exists, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-5.1.1-sshd_config_perms-attrs` | /etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-5.1.1-sshd_config_d_conf_perms` | sshd config d conf perms: find /etc/ssh/sshd_config.d/ -type f -name '\*.conf' \\( -perm /177 -o ! -user root -o ! -g… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-5.1.2-sshd_config_d_dir_perms` | sshd config d dir perms: find /etc/ssh/sshd_config.d/ -maxdepth 0 \\( ! -user root -o ! -group root -o -perm /077 \\… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-5.1.3-ssh_host_private_key_access` | ssh host private key access: l_ssh_group="" | L1 server | <span class="sev sev-medium">medium</span> |
@@ -480,17 +480,17 @@ checkmate run cis/amazon2027.yml --tags cis-level-2 -v
 | `CIS-AMAZON2027-6.3.2-aide_scheduled_check` | aide scheduled check: grep -rEi 'aide[[:space:]]+(--check\|--update)' /var/spool/cron/ /etc/crontab /etc/cron.d … | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-6.3.3-audit_bins_crypto_aide` | audit bins crypto aide: grep -E '^\\s\*/usr/bin/au' /etc/aide.conf | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-6.3.4-aide_report_url_syslog` | aide report url syslog: grep -P '^\\h\*report_url' /etc/aide.conf | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-7.1.1-cis_7_1_1_passwd-attrs` | /etc/passwd: exists, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-7.1.2-cis_7_1_2_passwd_backup-attrs` | /etc/passwd-: exists, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-7.1.3-cis_7_1_3_group-attrs` | /etc/group: exists, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-7.1.4-cis_7_1_4_group_backup-attrs` | /etc/group-: exists, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-7.1.1-cis_7_1_1_passwd-attrs` | /etc/passwd: exists, mode 0644 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-7.1.2-cis_7_1_2_passwd_backup-attrs` | /etc/passwd-: exists, mode 0644 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-7.1.3-cis_7_1_3_group-attrs` | /etc/group: exists, mode 0644 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-7.1.4-cis_7_1_4_group_backup-attrs` | /etc/group-: exists, mode 0644 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-7.1.5-cis_7_1_5_shadow-attrs` | /etc/shadow: exists, mode 0000 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-7.1.6-cis_7_1_6_shadow_backup-attrs` | /etc/shadow-: exists, mode 0000 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-7.1.7-cis_7_1_7_gshadow-attrs` | /etc/gshadow: exists, mode 0000 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-7.1.8-cis_7_1_8_gshadow_backup-attrs` | /etc/gshadow-: exists, mode 0000 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-7.1.9-cis_7_1_9_shells-attrs` | /etc/shells: exists, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-7.1.10-cis_7_1_10_opasswd-attrs` | /etc/security/opasswd: exists, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-7.1.10-cis_7_1_10_opasswd_old-attrs` | /etc/security/opasswd.old: exists, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-7.1.9-cis_7_1_9_shells-attrs` | /etc/shells: exists, mode 0644 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-7.1.10-cis_7_1_10_opasswd-attrs` | /etc/security/opasswd: exists, mode 0600 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-7.1.10-cis_7_1_10_opasswd_old-attrs` | /etc/security/opasswd.old: exists, mode 0600 or stricter, owner root, group root | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-7.1.11-world_writable_secured` | world writable secured: findmnt -Dkerno fstype,target \| awk '($1 !~ /^[[:space:]]\*(nfs\|proc\|cifs\|smb\|vfat\|iso9660… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-7.1.12-unowned_ungrouped_dirs` | unowned ungrouped dirs: findmnt -Dkerno fstype,target \| awk '($1 !~ /^[[:space:]]\*(nfs\|proc\|cifs\|smb\|vfat\|iso9660… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-7.1.13-audit_sgid_suid` | audit sgid suid: findmnt -Dkerno fstype,target,options \| awk '($1 !~ /^[[:space:]]\*(nfs\|proc\|smb\|vfat\|iso9… | L1 server | <span class="sev sev-medium">medium</span> |

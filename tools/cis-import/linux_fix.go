@@ -9,6 +9,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -163,7 +164,66 @@ func fileAttrRemediation(path, filetype, target string, owners, groups []string,
 	return text + ":\n\n" + strings.Join(cmds, "\n")
 }
 
+// modeFromPattern reads a mode pattern of the form ^0[..][..][..]$, one
+// character class or digit per permission digit, as "mode or stricter". It
+// fails unless every class contains all digits below its highest one in
+// the bit sense (e.g. [0246] for rw, [04] for r), since only then the
+// pattern means exactly "these permissions or fewer".
+func modeFromPattern(re string) (int64, bool) {
+	m := modeDigits.FindStringSubmatch(re)
+	if m == nil {
+		return 0, false
+	}
+	var mode int64
+	for _, class := range m[1:] {
+		digits := map[int64]bool{}
+		body := strings.Trim(class, "[]")
+		for i := 0; i < len(body); i++ {
+			if i+2 < len(body) && body[i+1] == '-' {
+				for d := body[i]; d <= body[i+2]; d++ {
+					digits[int64(d-'0')] = true
+				}
+				i += 2
+				continue
+			}
+			digits[int64(body[i]-'0')] = true
+		}
+		var max int64
+		for d := range digits {
+			if d > 7 {
+				return 0, false
+			}
+			max |= d
+		}
+		for d := int64(0); d <= 7; d++ {
+			if d&^max == 0 && !digits[d] {
+				return 0, false
+			}
+		}
+		mode = mode<<3 | max
+	}
+	return mode, true
+}
+
+var modeDigits = regexp.MustCompile(`^\^0?([0-7]|\[[0-7-]+\])([0-7]|\[[0-7-]+\])([0-7]|\[[0-7-]+\])\$$`)
+
+// sysctlPatternRemediation is the remediation of a kernel parameter whose
+// value must match a pattern such as ^(1|2)$.
+func sysctlPatternRemediation(name, re string) string {
+	if m := choice.FindStringSubmatch(re); m != nil {
+		alts := strings.Split(m[1], "|")
+		return strings.Replace(sysctlRemediation(name, alts[0]), "to "+alts[0]+", now and at boot",
+			"to one of "+strings.Join(alts, ", ")+" (the example uses "+alts[0]+"), now and at boot", 1)
+	}
+	return fmt.Sprintf("Set the kernel parameter %s to a value matching the regular expression %s, now with sysctl -w and at boot in a file in /etc/sysctl.d/.", name, re)
+}
+
 func fileAbsentRemediation(path string) string {
+	if mod, ok := strings.CutPrefix(path, "/sys/module/"); ok && !strings.Contains(mod, "/") {
+		return fmt.Sprintf("Unload the kernel module %s and keep it from being loaded again:\n\n"+
+			"printf '%%s\\n' 'blacklist %s' 'install %s /bin/false' > /etc/modprobe.d/%s.conf\nmodprobe -r %s\n\n"+
+			"If the module is built into the kernel or in use, it cannot be unloaded; a reboot applies the blacklist.", mod, mod, mod, mod, mod)
+	}
 	return fmt.Sprintf("Remove %s, unless the system needs it:\n\nrm %s", path, shellQuote(path))
 }
 
@@ -272,8 +332,29 @@ func accountRemediation(kind, name string, exists bool) string {
 		return fmt.Sprintf("Create the group %s:\n\ngroupadd %s", name, name)
 	case kind == "group":
 		return fmt.Sprintf("Remove the group %s, unless the system needs it:\n\ngroupdel %s", name, name)
+	case exists && name == "root":
+		return "The root account is missing from the account database. Restore /etc/passwd and /etc/shadow from a backup (pwck reports their consistency); do not create a new root account with useradd."
 	case exists:
 		return fmt.Sprintf("Create the user %s:\n\nuseradd %s", name, name)
 	}
 	return fmt.Sprintf("Remove the user %s, unless the system needs it:\n\nuserdel %s", name, name)
+}
+
+// accountIDRemediation sets the primary group of a user, or tells how to
+// correct a UID, which cannot be changed safely by a single command.
+func accountIDRemediation(kind, name, uid, gid string) string {
+	if kind == "group" {
+		return fmt.Sprintf("Give the group %s the GID %s:\n\ngroupmod -g %s %s\n\nFiles owned by the old GID keep it; change them with chgrp.", name, gid, gid, name)
+	}
+	var b strings.Builder
+	if gid != "" {
+		fmt.Fprintf(&b, "Make GID %s the primary group of %s:\n\nusermod -g %s %s", gid, name, gid, name)
+	}
+	if uid != "" {
+		if b.Len() > 0 {
+			b.WriteString("\n\n")
+		}
+		fmt.Fprintf(&b, "%s must have the UID %s. A different UID means the account database was changed; compare /etc/passwd with a backup and correct the entry with vipw instead of renumbering files.", name, uid)
+	}
+	return b.String()
 }

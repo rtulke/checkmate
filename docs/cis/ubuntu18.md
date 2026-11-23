@@ -346,7 +346,7 @@ checkmate run cis/ubuntu18.yml --tags cis-level-2 -v
 | `CIS-UBUNTU18-5.5.1.5-passwd_chg_past` | No user has a last password change date in the future | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-5.5.2-secure_system_LK` | secure system LK: /awk -F: '$3<1000' /etc/passwd \| egrep -wv 'root' \| cut -d: -f1 \| xargs -I '{}' passwd -S… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-5.5.2-secure_system_accts` | secure system accts: /awk -F: '$3<1000' /etc/passwd \| egrep -v 'root\|sync\|halt\|shutdown\|/sbin/nologin\|/bin/fal… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-5.5.3-root` | User root exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU18-5.5.3-root` | User root has UID 0 and GID 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-5.5.4-etc_pam.d_common-session-attrs` | /etc/pam.d/common-session: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-5.5.4-etc_pam.d_common-session-content` | /etc/pam.d/common-session has the expected content (3 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-5.5.4-umask_027` | umask 027: grep -RPi "'(^\|^[^#]\*)\\s\*umask\\s+([0-7][0-7][01][0-7]\\b\|[0-7][0-7][0-7][0-6]\\b\|[0-7][01][… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

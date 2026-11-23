@@ -71,3 +71,18 @@ func TestPackageManager(t *testing.T) {
 		}
 	}
 }
+
+func TestModeFromPattern(t *testing.T) {
+	for re, want := range map[string]int64{
+		"^0[0-7]00$": 0o700, "^0[0246][04]0$": 0o640, "^0[0246][04][04]$": 0o644, "^0[0246]00$": 0o600,
+		"^0[0-7][0-5]0$": -1, "^0[46]00$": -1, "^0644$": -1, "[0-7]00": -1,
+	} {
+		got, ok := modeFromPattern(re)
+		if !ok {
+			got = -1
+		}
+		if got != want {
+			t.Errorf("%s: got %o, want %o", re, got, want)
+		}
+	}
+}

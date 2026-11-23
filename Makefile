@@ -81,14 +81,14 @@ cis-import:
 		branch=$$(gh api repos/ansible-lockdown/$$repo -q .default_branch); \
 		mkdir -p $(CIS_CACHE)/$$b; \
 		gh api repos/ansible-lockdown/$$repo/tarball/$$branch | tar xzf - -C $(CIS_CACHE)/$$b --strip-components=1; \
-		go run ./tools/cis-import -src $(CIS_CACHE)/$$b -bench $$b -out cis/$$b.yml || exit 1; \
+		go run ./tools/cis-import -src $(CIS_CACHE)/$$b -bench $$b -texts tools/cis-import/texts/linux.yml -out cis/$$b.yml || exit 1; \
 	done
 	@for w in $(CIS_WINDOWS); do \
 		b=$${w%%:*}; repo=$${w#*:}-CIS-Audit; \
 		branch=$$(gh api repos/ansible-lockdown/$$repo -q .default_branch); \
 		mkdir -p $(CIS_CACHE)/$$b; \
 		gh api repos/ansible-lockdown/$$repo/tarball/$$branch | tar xzf - -C $(CIS_CACHE)/$$b --strip-components=1; \
-		go run ./tools/cis-import -src $(CIS_CACHE)/$$b -bench $$b -out cis/$$b.yml || exit 1; \
+		go run ./tools/cis-import -src $(CIS_CACHE)/$$b -bench $$b -texts tools/cis-import/texts/windows.yml -out cis/$$b.yml || exit 1; \
 	done
 	@for v in sonoma:14 sequoia:15 tahoe:26; do \
 		branch=$${v%%:*}; major=$${v#*:}; \
