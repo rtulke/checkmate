@@ -16,7 +16,7 @@ hide:
   expect: "== no"
 ```
 
-![checkmate demo: show a policy, run it, fix a finding, run it with a severity threshold, list checks, JSON summary](assets/demo.gif)
+![checkmate demo: show a policy, run it, fix a finding, run it with a severity threshold, show the details of one check, JSON summary](assets/demo.gif)
 
 <div class="grid cards" markdown>
 
