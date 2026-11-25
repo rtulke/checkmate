@@ -141,6 +141,14 @@ do not run the command and show the check once, with
 .B {item}
 as the item.
 .TP
+.B register
+A name for the outcome of the check.
+Checks defined later can use it in
+.BR when :
+.BR name.passed ", " name.failed ", " name.status ", " name.ran " and " name.rc .
+The output of the check is not available; a registered check only
+decides whether other checks run.
+.TP
 .B run
 The command; required.
 A string, a mapping of platform variants, or a snippet reference.

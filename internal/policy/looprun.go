@@ -221,6 +221,9 @@ func loopRunCheck(p *Policy, src CheckSource, node *yaml.Node, ctx map[string]an
 		return nil, &CheckError{ID: c.ID, Source: src, Err: fmt.Errorf(
 			"loop_run is not available with shell: cmd, which expands %%%s%% as command text; use powershell", ItemEnv)}
 	}
+	if c.Register != "" {
+		return nil, &CheckError{ID: c.ID, Source: src, Err: fmt.Errorf("register cannot be combined with loop_run")}
+	}
 	c.LoopRun = spec
 	if !placeholder {
 		c.Env = map[string]string{ItemEnv: item}
