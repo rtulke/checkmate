@@ -163,7 +163,7 @@ func TestXCCDF(t *testing.T) {
 			ID        string `xml:"id,attr"`
 			Rationale string `xml:"rationale"`
 			Fixtext   string `xml:"fixtext"`
-			Idents []struct {
+			Idents    []struct {
 				System string `xml:"system,attr"`
 				Value  string `xml:",chardata"`
 			} `xml:"ident"`
