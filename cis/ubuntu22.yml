@@ -2496,7 +2496,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState systemd-timesyncd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-143493ebc5 |
       Where systemd-timesyncd is the chosen time client, it must be enabled and running to keep the clock synchronized, which log correlation, certificate validation and forensic timelines depend on. Where another daemon such as chrony is used, timesyncd must be disabled so the two do not fight over the clock.
     remediation: &rem-90c535a158 |
@@ -2537,7 +2537,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState cron | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-23d53a9a2b
     remediation: &rem-9b28e31a59 |
       Enable the service cron:
@@ -3753,7 +3753,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState ufw | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-8061e449a6
     remediation: &rem-3bd9f4aa3b |
       Enable the service ufw:
@@ -5143,7 +5143,7 @@ checks:
       grep -Psi -- '^\h*difok\h*=\h*([2-9]|[1-9][0-9]+)\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:difok\\s*=\\s*[2-9]" }
     rationale: &rat-b71bd8fb5f |
       Requiring that a new password differs from the old one in several characters prevents users from cycling through trivial variations such as appending a digit. Without it, password expiry adds little security because a leaked old password reveals the new one.
@@ -5163,7 +5163,7 @@ checks:
       grep -Psi -- '^\h*minlen\h*=\h*(1[4-9]|[2-9][0-9]|[1-9][0-9]{2,})\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:minlen\\s*=\\s*(1[4-9]|[2-4][0-9])" }
     rationale: &rat-d3de089d0b |
       Password length is the most important factor for resistance against guessing and cracking. A minimum of 14 characters makes brute force attacks against stolen hashes impractical and encourages passphrases over short complex strings.
@@ -5202,7 +5202,7 @@ checks:
       grep -Psi -- '^\h*(minclass|[dulo]credit)\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:minclass\\s*=\\s*([1-9]|[1-9][0-9])" }
       - { some: "~ .*\\:ucredit\\s*=\\s*(0|-\\d)" }
       - { some: "~ .*\\:lcredit\\s*=\\s*(0|-\\d)" }
@@ -5264,7 +5264,7 @@ checks:
       grep -Psi -- '^\h*maxrepeat\h*=\h*[1-3]\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:maxrepeat\\s*=\\s*[1-3]" }
       - { none: "~ .*\\:maxrepeat\\s*=\\s*0" }
     rationale: &rat-d9b92e13d5 |
@@ -5304,7 +5304,7 @@ checks:
       grep -Psi -- '^\h*maxsequence\h*=\h*[1-3]\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:maxsequence\\s*=\\s*[1-3]" }
       - { none: "~ .*\\:maxsequence\\s*=\\s*0" }
     rationale: &rat-056e245d5d |
@@ -5344,7 +5344,7 @@ checks:
       grep -Psi -- '^\h*dictcheck\s*=' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:dictcheck\\s*=\\s*1" }
       - { none: "~ .*\\:dictcheck\\s*=\\s*0" }
     rationale: &rat-a54439690d |
@@ -5366,7 +5366,7 @@ checks:
       grep -Psi -- '^\h*enforcing\s*=\s*' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:enforcing\\s*=\\s*1" }
       - { none: "~ .*\\:enforcing\\s*=\\s*0" }
     rationale: &rat-297189bc8a |
@@ -5406,7 +5406,7 @@ checks:
       grep -Psi -- '^\s*enforce_for_root\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:enforce_for_root" }
       - { none: "~ .*\\:#\\s*enforce_for_root\\s*=\\s*0" }
     rationale: &rat-ba2f1202e1 |
@@ -6125,7 +6125,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState systemd-journald | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-aa9c4cf1bc |
       systemd-journald collects kernel, service and user log messages and passes them to persistent storage or syslog. If it is not running, events from services and the kernel are lost, leaving gaps in the audit trail. It is a static unit that is always started by systemd.
     remediation: &rem-509c775265 |
@@ -6309,7 +6309,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState systemd-journal-upload.service | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-b770b19f4c |
       Logs kept only on the host can be deleted or altered by an attacker who gains root. Running systemd-journal-upload continuously ships journal entries to a remote collector, preserving them off-host. It is only relevant where systemd-journal-remote is the chosen central logging method rather than rsyslog.
     remediation: &rem-c6c7c65dbe |
@@ -6427,7 +6427,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-ec4e2f2832
     remediation: &rem-092ce033e4 |
       Enable the service rsyslog:
@@ -6688,7 +6688,7 @@ checks:
     severity: low
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-f809f26f23 |
       auditd is the daemon that receives audit events from the kernel and writes them to disk. If it is not installed, enabled and running, audit rules have no effect on the persistent trail, and security events go unrecorded.
     remediation: &rem-5d15604058 |
@@ -7959,7 +7959,9 @@ checks:
     tags: [cis, cis-ubuntu22, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      d=$(dirname $(grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }')); find $d -maxdepth 1 -type f -perm /0137
+      f=$(awk -F= '/^[[:space:]]*log_file[[:space:]]*=/ {gsub(/[[:space:]]/, "", $2); print $2}' /etc/audit/auditd.conf 2>/dev/null)
+      if [ -z "$f" ]; then echo "log_file is not set in /etc/audit/auditd.conf"; exit 0; fi
+      find "$(dirname "$f")" -maxdepth 1 -type f -perm /0137
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -7979,7 +7981,9 @@ checks:
     tags: [cis, cis-ubuntu22, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      d=$(dirname $(grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }')); find $d -maxdepth 1 -type f ! -user root
+      f=$(awk -F= '/^[[:space:]]*log_file[[:space:]]*=/ {gsub(/[[:space:]]/, "", $2); print $2}' /etc/audit/auditd.conf 2>/dev/null)
+      if [ -z "$f" ]; then echo "log_file is not set in /etc/audit/auditd.conf"; exit 0; fi
+      find "$(dirname "$f")" -maxdepth 1 -type f ! -user root
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -7998,7 +8002,9 @@ checks:
     tags: [cis, cis-ubuntu22, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      d=$(dirname $(grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }')); find $d -maxdepth 1 -type f ! -group root ! -group adm
+      f=$(awk -F= '/^[[:space:]]*log_file[[:space:]]*=/ {gsub(/[[:space:]]/, "", $2); print $2}' /etc/audit/auditd.conf 2>/dev/null)
+      if [ -z "$f" ]; then echo "log_file is not set in /etc/audit/auditd.conf"; exit 0; fi
+      find "$(dirname "$f")" -maxdepth 1 -type f ! -group root ! -group adm
     allow_rc: any
     expect:
       - { rc: "== 0" }

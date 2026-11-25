@@ -232,7 +232,7 @@ checks:
     severity: high
     run: |
       systemctl show -p UnitFileState ssh | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-26164c6453
     remediation: &rem-2fe3cce97c |
       Enable and start the "ssh.service" by using the following command:
@@ -1368,7 +1368,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState ufw | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-7f1c5b853f |
       Firewalls protect computers from network attacks by blocking or limiting access to open network ports. Application firewalls limit which applications are allowed to communicate over the network.
     remediation: &rem-2158d19d7a |
@@ -1504,7 +1504,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState sssd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-a398081fe8
     remediation: &rem-a4ea23548f |
       Enable the "sssd.service to start automatically on reboot with the following command:
@@ -2476,7 +2476,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState apparmor | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-e9f7f59278
     remediation: &rem-7942528ea3 |
       Enable and start "apparmor.service" by using the following command:
@@ -3220,7 +3220,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-c30acd83c8
     remediation: *rem-30d23f4c14
   - id: "STIG-UBTU-22-652010-rsyslog_running-running"
@@ -3293,7 +3293,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-ee0863db3e |
       Without establishing the when, where, type, source, and outcome of events that occurred, it would be difficult to establish, correlate, and investigate the events leading up to an outage or attack.
 

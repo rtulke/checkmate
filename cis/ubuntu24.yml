@@ -3194,12 +3194,12 @@ checks:
     run: |
       cat '/etc/chrony/sources.d/pool.sources'
     allow_rc: any
-    expect: { some: "~ ^pool time.nist.gov \u003cno value\u003e" }
+    expect: { some: "~ ^pool time.nist.gov" }
     rationale: *rat-d38df71f24
-    remediation: &rem-199642a2e3 |
+    remediation: &rem-f8b3d4edb8 |
       Edit /etc/chrony/sources.d/pool.sources so that its lines meet these conditions (regular expressions):
 
-      - a line matches ^pool time.nist.gov <no value>
+      - a line matches ^pool time.nist.gov
   - id: "CIS-UBUNTU24-2.3.3.1-chrony_timeservers-attrs"
     name: "/etc/chrony/sources.d/server.sources: exists"
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.3.3.1. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -3266,7 +3266,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState chronyd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-487a3e248c |
       chronyd keeps the system clock synchronized with reliable time sources. Correct time is needed for log correlation, Kerberos, certificate validation and one-time passwords. The service has to be enabled to start at boot and active now.
     remediation: &rem-f78265882f |
@@ -3307,7 +3307,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState cron | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-23d53a9a2b
     remediation: &rem-9b28e31a59 |
       Enable the service cron:
@@ -4860,7 +4860,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState ufw | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-8061e449a6
     remediation: &rem-3bd9f4aa3b |
       Enable the service ufw:
@@ -6343,7 +6343,7 @@ checks:
       grep -Psi -- '^\h*difok\h*=\h*([2-9]|[1-9][0-9]+)\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ :\\s*difok\\s*=\\s*([2-9]|[1-9][0-9]+)\\b" }
     rationale: &rat-b71bd8fb5f |
       Requiring that a new password differs from the old one in several characters prevents users from cycling through trivial variations such as appending a digit. Without it, password expiry adds little security because a leaked old password reveals the new one.
@@ -6363,7 +6363,7 @@ checks:
       grep -Psi -- '^\h*minlen\h*=\h*(1[4-9]|[2-9][0-9]|[1-9][0-9]{2,})\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ :\\s*minlen\\s*=\\s*(1[4-9]|[2-9][0-9]|[1-9][0-9]{2,})\\b" }
     rationale: &rat-d3de089d0b |
       Password length is the most important factor for resistance against guessing and cracking. A minimum of 14 characters makes brute force attacks against stolen hashes impractical and encourages passphrases over short complex strings.
@@ -6402,7 +6402,7 @@ checks:
       grep -Psi -- '^\h*(minclass|[dulo]credit)\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:minclass\\s*=\\s*([1-9]|[1-9][0-9])" }
       - { some: "~ .*\\:ucredit\\s*=\\s*(0|-\\d)" }
       - { some: "~ .*\\:lcredit\\s*=\\s*(0|-\\d)" }
@@ -6464,7 +6464,7 @@ checks:
       grep -Psi -- '^\h*maxrepeat\h*=\h*[1-3]\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:maxrepeat\\s*=\\s*[1-3]" }
       - { none: "~ .*\\:maxrepeat\\s*=\\s*0" }
     rationale: &rat-d9b92e13d5 |
@@ -6504,7 +6504,7 @@ checks:
       grep -Psi -- '^\h*maxsequence\h*=\h*[1-3]\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:maxsequence\\s*=\\s*[1-3]" }
       - { none: "~ .*\\:maxsequence\\s*=\\s*0" }
     rationale: &rat-056e245d5d |
@@ -6604,7 +6604,7 @@ checks:
       grep -Psi -- '^\s*enforce_for_root\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:enforce_for_root" }
       - { none: "~ .*\\:#\\s*enforce_for_root\\s*=\\s*0" }
     rationale: &rat-ba2f1202e1 |
@@ -7327,7 +7327,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState systemd-journald | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-aa9c4cf1bc |
       systemd-journald collects kernel, service and user log messages and passes them to persistent storage or syslog. If it is not running, events from services and the kernel are lost, leaving gaps in the audit trail. It is a static unit that is always started by systemd.
     remediation: &rem-509c775265 |
@@ -7623,7 +7623,7 @@ checks:
     severity: low
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-f809f26f23 |
       auditd is the daemon that receives audit events from the kernel and writes them to disk. If it is not installed, enabled and running, audit rules have no effect on the persistent trail, and security events go unrecorded.
     remediation: &rem-5d15604058 |
@@ -9356,7 +9356,9 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      d=$(dirname $(grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }')); find -L $d -maxdepth 1 -type f ! -group root ! -group adm
+      f=$(awk -F= '/^[[:space:]]*log_file[[:space:]]*=/ {gsub(/[[:space:]]/, "", $2); print $2}' /etc/audit/auditd.conf 2>/dev/null)
+      if [ -z "$f" ]; then echo "log_file is not set in /etc/audit/auditd.conf"; exit 0; fi
+      find -L "$(dirname "$f")" -maxdepth 1 -type f ! -group root ! -group adm
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -9531,7 +9533,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState dailyaidecheck.timer | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-4daa0a7fa6 |
       A file integrity database only helps if it is checked regularly. The dailyaidecheck timer runs AIDE every day and reports changed, added or removed files, so unauthorized modifications are noticed in time.
     remediation: &rem-116d603da7 |

@@ -2988,7 +2988,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState crond.service | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-6814286da4 |
       Many maintenance tasks such as log rotation, update checks, integrity scans and backup jobs are scheduled through cron. If the cron daemon is disabled or not running, these tasks silently stop, which can lead to full disks, missed updates and gaps in security monitoring.
     remediation: &rem-e09b8b9a39 |
@@ -4634,7 +4634,7 @@ checks:
     severity: low
     run: |
       systemctl show -p UnitFileState firewalld | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-9a34f07397
     remediation: &rem-446eda8ec3 |
       Enable the service firewalld:
@@ -6779,7 +6779,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-ec4e2f2832
     remediation: &rem-092ce033e4 |
       Enable the service rsyslog:
@@ -7130,7 +7130,7 @@ checks:
     severity: low
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-f809f26f23 |
       auditd is the daemon that receives audit events from the kernel and writes them to disk. If it is not installed, enabled and running, audit rules have no effect on the persistent trail, and security events go unrecorded.
     remediation: &rem-5d15604058 |

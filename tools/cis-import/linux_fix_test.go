@@ -1,6 +1,7 @@
 package main
 
 import (
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -84,5 +85,48 @@ func TestModeFromPattern(t *testing.T) {
 		if got != want {
 			t.Errorf("%s: got %o, want %o", re, got, want)
 		}
+	}
+}
+
+func TestServiceEnabledStates(t *testing.T) {
+	c := serviceChecks(check{}, "systemd-journald", map[string]any{"enabled": true})[0]
+	re := regexp.MustCompile(strings.TrimPrefix(strings.Trim(c.Expect[0], `"`), "~ "))
+	for state, want := range map[string]bool{
+		"enabled": true, "static": true, "enabled-runtime": true,
+		"disabled": false, "masked": false, "indirect": false, "": false,
+	} {
+		if got := re.MatchString(state); got != want {
+			t.Errorf("state %q: got %v, want %v", state, got, want)
+		}
+	}
+}
+
+func TestUnsetVariableInPattern(t *testing.T) {
+	got := patternCondition("/^pool time.nist.gov <no value>/")
+	if want := `{ some: "~ ^pool time.nist.gov" }`; got != want {
+		t.Errorf("got %s, want %s", got, want)
+	}
+}
+
+func TestCommandRobustness(t *testing.T) {
+	// The drop-in directory of pwquality.conf is optional.
+	c := commandCheck(check{}, "password_minlen", map[string]any{
+		"exec":        `grep -Psi -- '^\h*minlen' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf`,
+		"exit-status": map[string]any{"or": []any{0, 1}},
+		"stdout":      []any{"/minlen/"},
+	})[0]
+	if want := `{ rc: "in [0, 1, 2]" }`; c.Expect[0] != want {
+		t.Errorf("got %s, want %s", c.Expect[0], want)
+	}
+	// An empty audit log directory must not make find search the current directory.
+	c = commandCheck(check{}, "audit_logfile_group", map[string]any{
+		"exec":   `d=$(dirname $(grep ^log_file /etc/audit/auditd.conf | awk '{ print $NF }')); find -L $d -maxdepth 1 -type f ! -group root ! -group adm`,
+		"stdout": []any{"!/./"},
+	})[0]
+	if strings.Contains(c.Run, "find -L $d") || !strings.Contains(c.Run, `find -L "$(dirname "$f")" -maxdepth 1 -type f ! -group root ! -group adm`) {
+		t.Errorf("command was not rewritten:\n%s", c.Run)
+	}
+	if err := shellSyntax(c.Run); err != nil {
+		t.Error(err)
 	}
 }

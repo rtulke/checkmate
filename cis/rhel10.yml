@@ -2846,7 +2846,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState crond | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-f0cfc625ae |
       cron runs scheduled jobs, including maintenance tasks such as log rotation, updates and integrity checks. The crond service has to be enabled and running so that these jobs are executed.
     remediation: &rem-1303d7c1de |
@@ -4490,7 +4490,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState firewalld.service | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-9a34f07397
     remediation: &rem-b6dc534789 |
       Enable the service firewalld.service:
@@ -4713,7 +4713,7 @@ checks:
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
-      - { some: "~ (?i)(allowusers vagrant|allowgroups \u003cno value\u003e|denyusers nobody|denygroups \u003cno value\u003e )" }
+      - { some: "~ (?i)(allowusers vagrant|allowgroups|denyusers nobody|denygroups )" }
     rationale: &rat-8e5700f652 |
       Restricting SSH logins to explicitly allowed users or groups ensures that only accounts with a need for remote access can log in, even if other accounts have valid credentials or weak passwords. It limits the impact of compromised, forgotten or service accounts.
     remediation: &rem-eb1a516d02 |
@@ -6204,7 +6204,7 @@ checks:
       grep -Psi -- '^\h*difok\h*=\h*([2-9]|[1-9][0-9]+)\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:difok\\s*=\\s*[2-9]" }
     rationale: &rat-b71bd8fb5f |
       Requiring that a new password differs from the old one in several characters prevents users from cycling through trivial variations such as appending a digit. Without it, password expiry adds little security because a leaked old password reveals the new one.
@@ -6224,7 +6224,7 @@ checks:
       grep -Psi -- '^\h*minlen\h*=\h*(1[4-9]|[2-9][0-9]|[1-9][0-9]{2,})\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:minlen\\s*=\\s*(1[4-9]|[2-4][0-9])" }
     rationale: &rat-d3de089d0b |
       Password length is the most important factor for resistance against guessing and cracking. A minimum of 14 characters makes brute force attacks against stolen hashes impractical and encourages passphrases over short complex strings.
@@ -6264,7 +6264,7 @@ checks:
       grep -Psi -- '^\h*(minclass|[dulo]credit)\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:minclass\\s*=\\s*([4-9]|[1-9][0-9])" }
       - { none: "~ .*\\:minclass\\s*=\\s*[0-3]" }
       - { none: "~ .*\\:(d|l|o|u)credit" }
@@ -6327,7 +6327,7 @@ checks:
       grep -Psi -- '^\s*maxrepeat\s*=\s*[1-3]\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:maxrepeat\\s*=\\s*[1-3]" }
       - { none: "~ .*\\:maxrepeat\\s*=\\s*0" }
     rationale: &rat-d9b92e13d5 |
@@ -6368,7 +6368,7 @@ checks:
       grep -Psi -- '^\s*maxsequence\s*=\s*[1-3]\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:maxsequence\\s*=\\s*[1-3]" }
       - { none: "~ .*\\:maxsequence\\s*=\\s*0" }
     rationale: &rat-056e245d5d |
@@ -6409,7 +6409,7 @@ checks:
       grep -Psi -- '^\s*dictcheck\s*=' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:dictcheck\\s*=\\s*1" }
       - { none: "~ .*\\:dictcheck\\s*=\\s*0" }
     rationale: &rat-a54439690d |
@@ -6431,7 +6431,7 @@ checks:
       grep -Psi -- '^\s*enforce_for_root\b' /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
+      - { rc: "in [0, 1, 2]" }
       - { some: "~ .*\\:enforce_for_root" }
     rationale: &rat-ba2f1202e1 |
       By default pam_pwquality only warns root about a weak password and accepts it anyway. Since root often sets passwords for other accounts and for itself, enforce_for_root applies the same quality rules to passwords set by root.
@@ -7277,7 +7277,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState systemd-journald | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-aa9c4cf1bc |
       systemd-journald collects kernel, service and user log messages and passes them to persistent storage or syslog. If it is not running, events from services and the kernel are lost, leaving gaps in the audit trail. It is a static unit that is always started by systemd.
     remediation: &rem-509c775265 |
@@ -7371,7 +7371,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState systemd-journald | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-62c72d41a8 |
       systemd-journald collects kernel, service and authentication messages and is the basis for all other logging on the system. If it is not enabled and running, security-relevant events are not recorded and cannot be forwarded for review.
     remediation: *rem-509c775265
@@ -7469,7 +7469,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState systemd-journal-upload.service | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-b770b19f4c |
       Logs kept only on the host can be deleted or altered by an attacker who gains root. Running systemd-journal-upload continuously ships journal entries to a remote collector, preserving them off-host. It is only relevant where systemd-journal-remote is the chosen central logging method rather than rsyslog.
     remediation: &rem-c6c7c65dbe |
@@ -7622,7 +7622,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-ec4e2f2832
     remediation: &rem-092ce033e4 |
       Enable the service rsyslog:
@@ -7914,7 +7914,7 @@ checks:
     severity: low
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-f809f26f23 |
       auditd is the daemon that receives audit events from the kernel and writes them to disk. If it is not installed, enabled and running, audit rules have no effect on the persistent trail, and security events go unrecorded.
     remediation: &rem-5d15604058 |

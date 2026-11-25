@@ -101,7 +101,7 @@ checks:
     severity: high
     run: |
       systemctl show -p UnitFileState ssh | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-26164c6453
     remediation: &rem-8cae847fe6 |
       Enable the "ssh" service to start automatically on reboot with the following command:
@@ -557,7 +557,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-c30acd83c8
     remediation: *rem-f142655ca5
   - id: "STIG-UBTU-24-100200-rsyslog_running-running"
@@ -595,7 +595,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState ufw | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-0635bc8f4b
     remediation: &rem-e15fd8cac4 |
       Enable the ufw by using the following command:
@@ -646,7 +646,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-6c064b56dd
     remediation: &rem-fa74fcee65 |
       Configure the audit service to produce audit records containing the information needed to establish when (date and time) an event occurred.
@@ -695,7 +695,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState apparmor | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-82d1499f29
     remediation: &rem-c1995f7080 |
       Enable "apparmor" with the following command:

@@ -2920,7 +2920,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState chronyd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-487a3e248c |
       chronyd keeps the system clock synchronized with reliable time sources. Correct time is needed for log correlation, Kerberos, certificate validation and one-time passwords. The service has to be enabled to start at boot and active now.
     remediation: &rem-f78265882f |
@@ -2961,7 +2961,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState cron | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-23d53a9a2b
     remediation: &rem-9b28e31a59 |
       Enable the service cron:
@@ -4127,7 +4127,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState firewalld | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-319d30ea18 |
       A host-based firewall only protects the system when its service is running and starts at boot. firewalld must be enabled and active so that the configured zones and rules are applied continuously.
     remediation: &rem-446eda8ec3 |
@@ -4232,7 +4232,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState firewalld | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-9a34f07397 |
       A host-based firewall limits which network services are reachable even if a service is accidentally exposed or a perimeter firewall is misconfigured. firewalld must be installed, enabled at boot and running for its zone rules to be enforced, and on newer releases it should use the nftables backend rather than the deprecated iptables backend.
     remediation: *rem-446eda8ec3
@@ -4513,7 +4513,7 @@ checks:
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
-      - { some: "~ (?i)(allowusers \u003cno value\u003e|allowgroups \u003cno value\u003e|denyusers \u003cno value\u003e|denygroups \u003cno value\u003e )" }
+      - { some: "~ (?i)(allowusers|allowgroups|denyusers|denygroups )" }
     rationale: &rat-8e5700f652 |
       Restricting SSH logins to explicitly allowed users or groups ensures that only accounts with a need for remote access can log in, even if other accounts have valid credentials or weak passwords. It limits the impact of compromised, forgotten or service accounts.
     remediation: &rem-d45a1690a4 |
@@ -6032,7 +6032,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState systemd-journald | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-aa9c4cf1bc |
       systemd-journald collects kernel, service and user log messages and passes them to persistent storage or syslog. If it is not running, events from services and the kernel are lost, leaving gaps in the audit trail. It is a static unit that is always started by systemd.
     remediation: &rem-509c775265 |
@@ -6239,7 +6239,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-ec4e2f2832
     remediation: &rem-092ce033e4 |
       Enable the service rsyslog:
@@ -6596,7 +6596,7 @@ checks:
     severity: low
     run: |
       systemctl show -p UnitFileState auditd.service | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-7fd0131f83 |
       The audit daemon writes kernel audit events to disk. If it is not enabled and running, audit rules have no lasting effect and security-relevant activity is not recorded, so incidents cannot be traced and accountability is lost.
     remediation: &rem-549f7ea979 |

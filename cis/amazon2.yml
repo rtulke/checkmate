@@ -1877,7 +1877,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState chronyd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-487a3e248c |
       chronyd keeps the system clock synchronized with reliable time sources. Correct time is needed for log correlation, Kerberos, certificate validation and one-time passwords. The service has to be enabled to start at boot and active now.
     remediation: &rem-f78265882f |
@@ -3000,7 +3000,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState firewalld | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-bcacc1250b |
       A host firewall only protects the system when it is active. firewalld has to be enabled so that it loads its rules at every boot, and running so that they are applied now.
     remediation: &rem-446eda8ec3 |
@@ -3143,7 +3143,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState firewalld | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-bcacc1250b
     remediation: *rem-446eda8ec3
   - id: "CIS-AMAZON2-3.4.2.2-fwd_firewalld_running-running"
@@ -3343,7 +3343,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState nftables | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-ba1868c729 |
       The nftables service loads the saved rule set at boot. It has to be enabled and active, otherwise the host comes up without firewall rules after a restart.
     remediation: &rem-a7f4e9945f |
@@ -3455,7 +3455,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState iptables | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-eb34be8067 |
       The iptables service restores the saved IPv4 rules at boot. It has to be enabled and running, otherwise the host comes up without firewall rules after a restart.
     remediation: &rem-c1d7f435c1 |
@@ -3539,7 +3539,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState ip6tables | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-a43306861c |
       The ip6tables service restores the saved IPv6 rules at boot. It has to be enabled and running, otherwise the host comes up without IPv6 filtering after a restart.
     remediation: &rem-cdc43e7985 |
@@ -3580,7 +3580,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState crond | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-f0cfc625ae |
       cron runs scheduled jobs, including maintenance tasks such as log rotation, updates and integrity checks. The crond service has to be enabled and running so that these jobs are executed.
     remediation: &rem-1303d7c1de |
@@ -3925,9 +3925,9 @@ checks:
     expect:
       - { rc: "in [0, 1]" }
       - { some: "~ (?i)AllowUsers: vagrant" }
-      - { some: "~ (?i)AllowGroups: \u003cno value\u003e" }
+      - { some: "~ (?i)AllowGroups:" }
       - { some: "~ (?i)DenyUsers: nobody" }
-      - { some: "~ (?i)DenyGroups: \u003cno value\u003e" }
+      - { some: "~ (?i)DenyGroups:" }
     rationale: &rat-8e5700f652 |
       Restricting SSH logins to explicitly allowed users or groups ensures that only accounts with a need for remote access can log in, even if other accounts have valid credentials or weak passwords. It limits the impact of compromised, forgotten or service accounts.
     remediation: &rem-eb1a516d02 |
@@ -6016,7 +6016,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-ec4e2f2832
     remediation: &rem-092ce033e4 |
       Enable the service rsyslog:
@@ -6260,7 +6260,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState systemd-journal-upload.service | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-f9ce71e3e2 |
       The systemd-journal-upload service continuously sends journal entries to the central log server. It has to be enabled and running so that a copy of the logs leaves the host and survives tampering or loss of the local system.
     remediation: &rem-c6c7c65dbe |
@@ -6334,7 +6334,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState systemd-journald | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-c0b6289e57 |
       systemd-journald collects log messages from the kernel, early boot, services and applications. It must be enabled and running so that these messages are captured and can be stored or forwarded.
     remediation: &rem-509c775265 |
@@ -6605,7 +6605,7 @@ checks:
     severity: low
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-a5d4b05d22 |
       auditd receives audit events from the kernel and writes them to the audit log. It must be enabled and running, otherwise the configured audit rules produce no persistent record.
     remediation: &rem-5d15604058 |

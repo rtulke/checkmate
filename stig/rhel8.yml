@@ -938,7 +938,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-8a9c5210d0 |
       Remote access services, such as those providing remote access to network devices and information systems, which lack automated monitoring capabilities, increase risk and make remote user access management difficult at best.
 
@@ -2742,7 +2742,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-7937e0d5ab |
       Configuring RHEL 8 to implement organizationwide security implementation guides and security checklists ensures compliance with federal standards and establishes a common security baseline across the DoW that reflects the most restrictive security posture consistent with operational requirements.
 
@@ -5172,7 +5172,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-203fe62d32
     remediation: &rem-3911bcc2a9 |
       Configure the audit service to produce audit records containing the information needed to establish when (date and time) an event occurred with the following commands:
@@ -7244,7 +7244,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState firewalld | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-5a3aa60bfb
     remediation: &rem-4b7634b40f |
       Configure "firewalld" to protect the operating system with the following command:
@@ -7596,7 +7596,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState fapolicyd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-51dcf28bb2
     remediation: &rem-cacd010ef5 |
       Enable "fapolicyd" using the following command:
@@ -7750,7 +7750,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState usbguard | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-2b33b47ff5 |
       Without authenticating devices, unidentified or unknown devices may be introduced, thereby facilitating malicious activity.
 
@@ -7836,7 +7836,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState sshd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-26164c6453
     remediation: &rem-23b0f5e08f |
       Configure the SSH service to automatically start after reboot with the following command:

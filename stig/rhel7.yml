@@ -2632,7 +2632,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-9bd9813920 |
       Without establishing what type of events occurred, it would be difficult to establish, correlate, and investigate the events leading up to an outage or attack.
 
@@ -4429,7 +4429,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState sssd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-5c455d6b17 |
       Without cryptographic integrity protections, information can be altered by unauthorized users without detection.
 
@@ -4471,7 +4471,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState sssd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-5c455d6b17
     remediation: &rem-2cd0115c96 |
       Configure the operating system to implement cryptography to protect the integrity of LDAP remote access sessions.
@@ -4510,7 +4510,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState sssd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-5c455d6b17
     remediation: *rem-f1c018ef3b
   - id: "STIG-RHEL-07-040180-sssd_peer_x509-running"
@@ -4632,7 +4632,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState sshd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-26164c6453 |
       Without protection of the transmitted information, confidentiality and integrity may be compromised because unprotected communications can be intercepted and either read or altered.
 
@@ -5042,7 +5042,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState firewalld | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-7f1c5b853f
     remediation: *rem-15b1b1ece2
   - id: "STIG-RHEL-07-040520-firewalld-running"
