@@ -104,6 +104,8 @@ checks:
     severity: high
     run: { use: pkg_installed, arg: telnet }
     expect: false
+    rationale: telnet sends passwords in clear text.
+    remediation: Remove the telnet package.
 
   - id: DISK-TMP
     name: /tmp has at least 500 MB free
@@ -117,6 +119,8 @@ checks:
     allow_rc: [0, 1]                         # grep endet mit 1, wenn nichts passt
     expect: empty
 ```
+
+`rationale` beschreibt, warum ein Check wichtig ist, `remediation`, wie man einen Fehlschlag behebt; beides erscheint mit `-vv` und in den Reports. Alle mitgelieferten CIS- und STIG-Checks haben beides.
 
 `expect` versteht `true`/`false` (Exit-Code), `==`, `!=`, `>`, `>=`, `<`, `<=`, `!>`, `!<`, reguläre Ausdrücke (`~`, `!~`), Listen (`in`, `!in`), `empty`, Zeilenzahlen und stderr. Diese Bausteine lassen sich mit `all`, `any`, `not`, zeilenweisen Prüfungen (`each`, `some`, `none`) und bedingten Erwartungen kombinieren:
 
