@@ -263,3 +263,71 @@ func TestCombinatorMessages(t *testing.T) {
 		t.Errorf("message %q should mention %q", msg, want)
 	}
 }
+
+func TestCases(t *testing.T) {
+	const withoutElse = `
+cases:
+  - { if: "~ ^ubuntu", then: "~ 24\\." }
+  - { if: { any: ["~ ^debian", "~ ^raspbian"] }, then: "~ 1[2-9]" }
+  - if: { rc: "== 3" }
+    then: empty
+`
+	const withElse = withoutElse + `else: "~ ^alpine"` + "\n"
+	cases := []struct {
+		yaml, stdout string
+		rc           int
+		want         bool
+		message      string
+	}{
+		{withoutElse, "ubuntu 24.04", 0, true, ""},
+		{withoutElse, "ubuntu 22.04", 0, false, `(case 1, because stdout ~ "^ubuntu" holds)`},
+		{withoutElse, "raspbian 12", 0, true, ""},
+		{withoutElse, "debian 9", 0, false, "(case 2, because"},
+		{withoutElse, "", 3, true, ""},
+		{withoutElse, "x", 3, false, "(case 3, because"},
+		// The first case that applies decides, later ones are not asked.
+		{withoutElse, "ubuntu 24.04", 3, true, ""},
+		{withoutElse, "rhel 9", 0, false, "no case matches the output"},
+		{withElse, "alpine 3", 0, true, ""},
+		{withElse, "rhel 9", 0, false, "(else, because no case matches)"},
+		{withElse, "ubuntu 22.04", 0, false, "(case 1,"},
+	}
+	for _, c := range cases {
+		var node yaml.Node
+		if err := yaml.Unmarshal([]byte(c.yaml), &node); err != nil {
+			t.Fatal(err)
+		}
+		e, err := Parse(node.Content[0])
+		if err != nil {
+			t.Fatalf("parse: %v", err)
+		}
+		if !e.NeedsOutput() {
+			t.Error("NeedsOutput() = false")
+		}
+		ok, msg, err := e.Eval(Output{Stdout: c.stdout, RC: c.rc}, ModeAuto)
+		if err != nil || ok != c.want || !strings.Contains(msg, c.message) {
+			t.Errorf("%q rc %d: got %v, %q, %v; want %v with %q", c.stdout, c.rc, ok, msg, err, c.want, c.message)
+		}
+	}
+}
+
+func TestCasesErrors(t *testing.T) {
+	for src, want := range map[string]string{
+		`{cases: []}`:            "expected a list",
+		`{cases: "~ x"}`:         "expected a list",
+		`{cases: [{if: "~ x"}]}`: "case 1",
+		`{cases: [{if: "~ x", then: y}, {then: y}]}`:          "case 2",
+		`{cases: [{if: "~ x", then: y, else: z}]}`:            `unknown key "else"`,
+		`{cases: [{if: "~ x", then: y}], if: "~ a", then: b}`: "cannot be combined",
+		`{cases: [{if: "~ (", then: y}]}`:                     "case 1: if",
+		`{cases: [{if: "~ x", then: y}], else: "~ ("}`:        "else:",
+	} {
+		var node yaml.Node
+		if err := yaml.Unmarshal([]byte(src), &node); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := Parse(node.Content[0]); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("%s: error %v, want one mentioning %q", src, err, want)
+		}
+	}
+}

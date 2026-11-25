@@ -93,7 +93,7 @@ func Parse(node *yaml.Node) (Expectation, error) {
 		return parseGroup(node, true)
 	case yaml.MappingNode:
 		var items []Expectation
-		var ifNode, thenNode, elseNode *yaml.Node
+		var ifNode, thenNode, elseNode, casesNode *yaml.Node
 		for i := 0; i+1 < len(node.Content); i += 2 {
 			key, value := node.Content[i].Value, node.Content[i+1]
 			switch key {
@@ -103,6 +103,8 @@ func Parse(node *yaml.Node) (Expectation, error) {
 				thenNode = value
 			case "else":
 				elseNode = value
+			case "cases":
+				casesNode = value
 			case "not":
 				inner, err := Parse(value)
 				if err != nil {
@@ -128,10 +130,19 @@ func Parse(node *yaml.Node) (Expectation, error) {
 				}
 				items = append(items, e)
 			default:
-				return nil, fmt.Errorf("unknown expect key %q (use stdout, stderr, lines, rc, all, any, not, each, some, none or if/then/else)", key)
+				return nil, fmt.Errorf("unknown expect key %q (use stdout, stderr, lines, rc, all, any, not, each, some, none, if/then/else or cases)", key)
 			}
 		}
-		if ifNode != nil || thenNode != nil || elseNode != nil {
+		if casesNode != nil {
+			if ifNode != nil || thenNode != nil {
+				return nil, fmt.Errorf("cases cannot be combined with if/then; put the condition into the list")
+			}
+			c, err := parseCases(casesNode, elseNode)
+			if err != nil {
+				return nil, err
+			}
+			items = append(items, c)
+		} else if ifNode != nil || thenNode != nil || elseNode != nil {
 			c, err := parseConditional(ifNode, thenNode, elseNode)
 			if err != nil {
 				return nil, err
@@ -647,6 +658,100 @@ func parseConditional(ifNode, thenNode, elseNode *yaml.Node) (Expectation, error
 		}
 	}
 	return c, nil
+}
+
+// caseList is a list of if/then pairs: the first case whose condition
+// holds decides. If none does, "else" decides; without an "else" the
+// expectation fails, since an output nobody thought of must not pass.
+type caseList struct {
+	cases     []conditional
+	otherwise Expectation
+}
+
+func parseCases(casesNode, elseNode *yaml.Node) (Expectation, error) {
+	if casesNode.Kind != yaml.SequenceNode || len(casesNode.Content) == 0 {
+		return nil, fmt.Errorf("cases: expected a list of { if: ..., then: ... }")
+	}
+	var list caseList
+	for i, item := range casesNode.Content {
+		var ifNode, thenNode *yaml.Node
+		if item.Kind == yaml.MappingNode {
+			for k := 0; k+1 < len(item.Content); k += 2 {
+				switch item.Content[k].Value {
+				case "if":
+					ifNode = item.Content[k+1]
+				case "then":
+					thenNode = item.Content[k+1]
+				default:
+					return nil, fmt.Errorf("cases: case %d: unknown key %q (a case has \"if\" and \"then\")", i+1, item.Content[k].Value)
+				}
+			}
+		}
+		c, err := parseConditional(ifNode, thenNode, nil)
+		if err != nil {
+			return nil, fmt.Errorf("cases: case %d: %w", i+1, err)
+		}
+		list.cases = append(list.cases, c.(conditional))
+	}
+	if elseNode != nil {
+		e, err := Parse(elseNode)
+		if err != nil {
+			return nil, fmt.Errorf("else: %w", err)
+		}
+		list.otherwise = e
+	}
+	return list, nil
+}
+
+func (l caseList) Eval(out Output, mode Mode) (bool, string, error) {
+	for i, c := range l.cases {
+		holds, _, err := c.cond.Eval(out, mode)
+		if err != nil {
+			return false, "", fmt.Errorf("cases: case %d: if: %w", i+1, err)
+		}
+		if !holds {
+			continue
+		}
+		ok, msg, err := c.then.Eval(out, mode)
+		if err != nil {
+			return false, "", fmt.Errorf("cases: case %d: then: %w", i+1, err)
+		}
+		if !ok {
+			return false, fmt.Sprintf("%s (case %d, because %s holds)", msg, i+1, c.cond.String()), nil
+		}
+		return true, "", nil
+	}
+	if l.otherwise == nil {
+		return false, "no case matches the output (add an \"else\" to say what holds then)", nil
+	}
+	ok, msg, err := l.otherwise.Eval(out, mode)
+	if err != nil {
+		return false, "", fmt.Errorf("else: %w", err)
+	}
+	if !ok {
+		return false, msg + " (else, because no case matches)", nil
+	}
+	return true, "", nil
+}
+
+func (l caseList) NeedsOutput() bool {
+	for _, c := range l.cases {
+		if c.cond.NeedsOutput() || c.then.NeedsOutput() {
+			return true
+		}
+	}
+	return l.otherwise != nil && l.otherwise.NeedsOutput()
+}
+
+func (l caseList) String() string {
+	parts := make([]string, 0, len(l.cases)+1)
+	for _, c := range l.cases {
+		parts = append(parts, fmt.Sprintf("if %s then %s", c.cond.String(), c.then.String()))
+	}
+	if l.otherwise != nil {
+		parts = append(parts, "else "+l.otherwise.String())
+	}
+	return strings.Join(parts, "; ")
 }
 
 func (c conditional) Eval(out Output, mode Mode) (bool, string, error) {
