@@ -16867,3 +16867,88 @@ dot_ssh_dir_perms:
     Restrict each reported .ssh directory to its owner.
 
     chmod 0700 DIR
+sys_module_atm:
+  rationale: |-
+    ATM (Asynchronous Transfer Mode) networking is obsolete on virtually all systems, yet its protocol module can be loaded on demand when a program opens an ATM socket, exposing rarely maintained kernel code to attackers. Preventing the module from loading removes this unnecessary attack surface. The check verifies that the module is not loaded.
+sys_module_can:
+  rationale: |-
+    The Controller Area Network protocol is used in vehicles and industrial equipment and is not needed on typical servers or workstations. Its socket family can be loaded automatically when a program requests it, exposing additional kernel code that has had vulnerabilities. Disabling the can module removes this attack surface where no CAN interfaces are used. The check verifies that the module is not loaded.
+sys_module_dccp:
+  rationale: |-
+    DCCP is a rarely used transport protocol whose kernel code has had serious vulnerabilities. Because unprivileged programs can trigger automatic loading of the module by opening a DCCP socket, an unused protocol still adds attack surface. The check verifies that the module is not loaded.
+sys_module_rds:
+  rationale: |-
+    RDS (Reliable Datagram Sockets) is a protocol for cluster interconnects that most systems never use, and its kernel code has had privilege escalation vulnerabilities. Because opening a socket can load the module automatically, keeping it unloaded removes this attack surface. The check verifies that the module is not loaded.
+sys_module_sctp:
+  rationale: |-
+    SCTP is a message-oriented transport protocol used mainly in telecom environments. Its kernel code has had serious vulnerabilities, and since opening a socket can load the module automatically, an unused SCTP module adds attack surface. The check verifies that the module is not loaded.
+sys_module_tipc:
+  rationale: |-
+    TIPC is a cluster communication protocol that few systems use, and its kernel code has had remotely exploitable vulnerabilities. Since opening a socket can load the module automatically, keeping it unloaded and blocked removes this attack surface. The check verifies that the module is not loaded.
+nginx_plus_pkg:
+  rationale: |-
+    NGINX Plus is the commercial edition of the nginx web server and a network-facing service like it. Unless the system is meant to serve web content or act as a reverse proxy, it should not be installed.
+etc_ufw_ufw.conf:
+  rationale: |-
+    ENABLED=yes in /etc/ufw/ufw.conf makes ufw load its rules at boot. Without it the firewall may be active now but is gone after the next reboot, which leaves every listening service reachable from the network.
+  remediation: |-
+    Allow SSH (or the port used for remote administration) and enable ufw; this also sets ENABLED=yes in /etc/ufw/ufw.conf.
+
+    ufw allow 22/tcp
+    ufw --force enable
+    grep ENABLED /etc/ufw/ufw.conf
+etc_default_apport:
+  rationale: |-
+    Apport collects crash data, including memory dumps that may contain passwords, keys or other sensitive data, and it has had several local privilege escalation flaws. On servers crash reports are rarely used. Disabling or removing it removes this attack surface and the risk of sensitive data in crash files.
+  remediation: |-
+    Disable Apport in /etc/default/apport, or remove the package if crash reporting is not needed.
+
+    sed -i 's/^\s*enabled\s*=.*/enabled=0/' /etc/default/apport
+
+    Alternatively remove it completely with apt-get purge apport.
+auditd_space_left_actions:
+  rationale: |-
+    When the audit log partition runs low on space, auditd must warn administrators instead of silently running out of room. space_left_action raises the first warning, and admin_space_left_action switches the system to single-user mode or halts it before records are lost, so no activity takes place without an audit trail. Halting favours accountability over availability, which has to be weighed for each host.
+  remediation: |-
+    Set both actions in /etc/audit/auditd.conf (the keys exist in the default file; add them if missing) and make auditd reread its configuration.
+
+    sed -ri 's/^\s*#?\s*space_left_action\s*=.*/space_left_action = email/' /etc/audit/auditd.conf
+    sed -ri 's/^\s*#?\s*admin_space_left_action\s*=.*/admin_space_left_action = halt/' /etc/audit/auditd.conf
+    pkill -HUP -x auditd
+
+    space_left_action = email needs a working local MTA and action_mail_acct.
+grub_all_files_perms:
+  rationale: |-
+    The files in /boot/grub2 describe how the system boots, including kernel parameters and, if a boot password is set, its hash. Restricting them to root with mode 0600 or stricter prevents users from reading these details or altering the boot configuration.
+  remediation: |-
+    Give every reported file to root and remove all permissions of group and others.
+
+    chown root:root /boot/grub2/FILE
+    chmod u-x,go-rwx /boot/grub2/FILE
+mta_postfix_loopback_only:
+  rationale: |-
+    Postfix's inet_interfaces setting decides on which addresses it accepts SMTP connections. Limiting it to the loopback interface lets the host send local mail while preventing others from using it as a relay or attacking the MTA over the network. Only dedicated mail servers need to listen on external interfaces.
+  remediation: |-
+    Restrict Postfix to the loopback interface and restart it (a reload is not enough for this setting).
+
+    postconf -e 'inet_interfaces = loopback-only'
+    systemctl restart postfix
+    postconf -h inet_interfaces
+root_umask_files:
+  rationale: |-
+    The umask determines the permissions of files root creates. With a permissive umask, configuration files, scripts or logs written by root can end up readable or writable by other users, leaking secrets or allowing tampering. Setting umask 027 or 077 in root's shell startup files keeps new files private by default.
+  remediation: |-
+    Remove or correct every reported umask line in /root/.bash_profile and /root/.bashrc: the umask must be 027 or stricter (for example 0027 or 0077).
+
+    grep -n umask /root/.bash_profile /root/.bashrc
+    sed -ri 's/^(\s*umask\s+).*/\10027/' /root/.bash_profile /root/.bashrc
+dot_files_access:
+  rationale: |-
+    Dot files in a home directory configure the user's shell and tools and may hold credentials or command history. If other users can write to them, they can run commands as the owner at the next login; .netrc and .bash_history must not be readable by others either. .forward and .rhosts files bypass central mail and login controls and should not exist at all.
+  remediation: |-
+    For every reported file: remove .forward, .rhost and .rhosts files, give the other files to the user and the user's primary group, and remove the excess permissions (0600 or stricter for .netrc and .bash_history, 0644 or stricter for all other dot files).
+
+    rm FILE
+    chown USER:GROUP FILE
+    chmod u-x,go-wx FILE
+    chmod go-rwx HOME/.netrc HOME/.bash_history

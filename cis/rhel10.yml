@@ -3,7 +3,7 @@
 name: CIS Red Hat Enterprise Linux 10
 version: "1.0.1"
 description: >
-  Automated checks for 316 recommendations of the CIS Red Hat Enterprise Linux 10 benchmark
+  Automated checks for 318 recommendations of the CIS Red Hat Enterprise Linux 10 benchmark
   (version 1.0.1), converted from the goss audit content of the
   ansible-lockdown project. Check names describe what is verified; the
   recommendation number is in the ID and the description. Select profiles
@@ -445,33 +445,37 @@ checks:
       mount -o remount '/tmp'
 
       If /tmp is not a separate file system yet, create one first.
-  - id: "CIS-RHEL10-1.1.2.1.2-tmp_nodev_fstab_options-attrs"
-    name: "/etc/fstab: exists"
+  - id: "CIS-RHEL10-1.1.2.1.2-tmp_nodev_persistent_options"
+    name: "tmp nodev persistent options: if [ \"$(systemctl show tmp.mount -p SourcePath --value)\" = \"/etc/fstab\" ]; then"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: CM-7."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      f='/etc/fstab'
-      if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
-    expect: empty
-    rationale: &rat-6b81601c58 |
-      /tmp is writable by every user. Mounting it with nodev prevents users from creating device files there that would give direct access to disks or memory. The check looks for the option in the persistent /etc/fstab entry so it survives a reboot.
-    remediation: &rem-8ee214ccd7 |
-      Create /etc/fstab.
-  - id: "CIS-RHEL10-1.1.2.1.2-tmp_nodev_fstab_options-content"
-    name: "/etc/fstab has the expected content (1 rule)"
-    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.2. NIST SP 800-53 Rev. 5: CM-7."
-    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      cat '/etc/fstab'
+      if [ "$(systemctl show tmp.mount -p SourcePath --value)" = "/etc/fstab" ]; then
+        findmnt --fstab -n -o OPTIONS /tmp
+      else
+        systemctl cat tmp.mount 2>/dev/null | sed -n 's/^Options=//p' | tail -n 1
+      fi
     allow_rc: any
-    expect: { some: "~ \\s\\/tmp.*nodev" }
-    rationale: *rat-6b81601c58
-    remediation: &rem-e535dae805 |
-      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+    expect:
+      - { rc: "== 0" }
+      - { some: "~ \\bnodev\\b" }
+    rationale: &rat-115b21a343 |
+      /tmp is world-writable and used by every user and service for temporary files. With nodev the kernel ignores character and block device files on it, so a device node created there cannot be used to access disks, memory or other hardware directly; legitimate device files live only under /dev. This check verifies the persistent configuration of /tmp (its /etc/fstab entry or the tmp.mount unit), so the option survives reboots.
+    remediation: &rem-4964770121 |
+      Add nodev to the persistent mount options of /tmp. If /tmp is defined in /etc/fstab, add it to the options field (fourth column) of the /tmp line, for example:
 
-      - a line matches \s\/tmp.*nodev
+      tmpfs /tmp tmpfs defaults,rw,nosuid,nodev,noexec,relatime 0 0
+
+      If /tmp is provided by the tmp.mount unit, override its options with a drop-in instead:
+
+      mkdir -p /etc/systemd/system/tmp.mount.d
+      printf '%s\n' '[Mount]' 'Options=mode=1777,strictatime,nosuid,nodev,noexec,size=50%%,nr_inodes=1m' > /etc/systemd/system/tmp.mount.d/50-options.conf
+
+      Then reload systemd and apply the option to the running mount:
+
+      systemctl daemon-reload
+      mount -o remount,nodev /tmp
   - id: "CIS-RHEL10-1.1.2.1.3-tmp_nosuid_options"
     name: "/tmp is a separate mount with nosuid"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7."
@@ -491,32 +495,37 @@ checks:
       mount -o remount '/tmp'
 
       If /tmp is not a separate file system yet, create one first.
-  - id: "CIS-RHEL10-1.1.2.1.3-tmp_nosuid_fstab_options-attrs"
-    name: "/etc/fstab: exists"
+  - id: "CIS-RHEL10-1.1.2.1.3-tmp_nosuid_persistent_options"
+    name: "tmp nosuid persistent options: if [ \"$(systemctl show tmp.mount -p SourcePath --value)\" = \"/etc/fstab\" ]; then"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      f='/etc/fstab'
-      if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
-    expect: empty
-    rationale: &rat-e0629b9a5f |
-      /tmp is writable by every user. Mounting it with nosuid makes the kernel ignore setuid and setgid bits on files there, so a planted setuid binary cannot be used to gain privileges. The check looks for the option in the persistent /etc/fstab entry.
-    remediation: *rem-8ee214ccd7
-  - id: "CIS-RHEL10-1.1.2.1.3-tmp_nosuid_fstab_options-content"
-    name: "/etc/fstab has the expected content (1 rule)"
-    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.3. NIST SP 800-53 Rev. 5: CM-7."
-    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      cat '/etc/fstab'
+      if [ "$(systemctl show tmp.mount -p SourcePath --value)" = "/etc/fstab" ]; then
+        findmnt --fstab -n -o OPTIONS /tmp
+      else
+        systemctl cat tmp.mount 2>/dev/null | sed -n 's/^Options=//p' | tail -n 1
+      fi
     allow_rc: any
-    expect: { some: "~ \\s\\/tmp.*nosuid" }
-    rationale: *rat-e0629b9a5f
-    remediation: &rem-0e5e1b118e |
-      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+    expect:
+      - { rc: "== 0" }
+      - { some: "~ \\bnosuid\\b" }
+    rationale: &rat-791ef12991 |
+      /tmp is world-writable and used by every user and service for temporary files. With nosuid, set-user-ID and set-group-ID bits on files there are ignored, so a privileged program planted or copied there cannot be used to gain elevated rights. This check verifies the persistent configuration of /tmp (its /etc/fstab entry or the tmp.mount unit), so the option survives reboots.
+    remediation: &rem-c9f923bdfb |
+      Add nosuid to the persistent mount options of /tmp. If /tmp is defined in /etc/fstab, add it to the options field (fourth column) of the /tmp line, for example:
 
-      - a line matches \s\/tmp.*nosuid
+      tmpfs /tmp tmpfs defaults,rw,nosuid,nodev,noexec,relatime 0 0
+
+      If /tmp is provided by the tmp.mount unit, override its options with a drop-in instead:
+
+      mkdir -p /etc/systemd/system/tmp.mount.d
+      printf '%s\n' '[Mount]' 'Options=mode=1777,strictatime,nosuid,nodev,noexec,size=50%%,nr_inodes=1m' > /etc/systemd/system/tmp.mount.d/50-options.conf
+
+      Then reload systemd and apply the option to the running mount:
+
+      systemctl daemon-reload
+      mount -o remount,nosuid /tmp
   - id: "CIS-RHEL10-1.1.2.1.4-tmp_noexec_options"
     name: "/tmp is a separate mount with noexec"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7."
@@ -536,32 +545,37 @@ checks:
       mount -o remount '/tmp'
 
       If /tmp is not a separate file system yet, create one first.
-  - id: "CIS-RHEL10-1.1.2.1.4-tmp_noexec_fstab_options-attrs"
-    name: "/etc/fstab: exists"
+  - id: "CIS-RHEL10-1.1.2.1.4-tmp_noexec_persistent_options"
+    name: "tmp noexec persistent options: if [ \"$(systemctl show tmp.mount -p SourcePath --value)\" = \"/etc/fstab\" ]; then"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      f='/etc/fstab'
-      if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
-    expect: empty
-    rationale: &rat-a658326e11 |
-      /tmp is writable by every user and a common drop location for downloaded attack tools. Mounting it with noexec prevents programs from being executed directly from it. Some installers and build tools run scripts from /tmp and may need TMPDIR pointed elsewhere.
-    remediation: *rem-8ee214ccd7
-  - id: "CIS-RHEL10-1.1.2.1.4-tmp_noexec_fstab_options-content"
-    name: "/etc/fstab has the expected content (1 rule)"
-    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.4. NIST SP 800-53 Rev. 5: CM-7."
-    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      cat '/etc/fstab'
+      if [ "$(systemctl show tmp.mount -p SourcePath --value)" = "/etc/fstab" ]; then
+        findmnt --fstab -n -o OPTIONS /tmp
+      else
+        systemctl cat tmp.mount 2>/dev/null | sed -n 's/^Options=//p' | tail -n 1
+      fi
     allow_rc: any
-    expect: { some: "~ \\s\\/tmp.*noexec" }
-    rationale: *rat-a658326e11
-    remediation: &rem-180186887e |
-      Edit /etc/fstab so that its lines meet these conditions (regular expressions):
+    expect:
+      - { rc: "== 0" }
+      - { some: "~ \\bnoexec\\b" }
+    rationale: &rat-dbfb783b11 |
+      /tmp is world-writable and used by every user and service for temporary files. With noexec, programs cannot be executed directly from it, which blocks the common attack step of dropping a tool or exploit into a writable directory and running it. Scripts started through an interpreter are not stopped, and some installers may need adjusting. This check verifies the persistent configuration of /tmp (its /etc/fstab entry or the tmp.mount unit), so the option survives reboots.
+    remediation: &rem-3b3ae63b6e |
+      Add noexec to the persistent mount options of /tmp. If /tmp is defined in /etc/fstab, add it to the options field (fourth column) of the /tmp line, for example:
 
-      - a line matches \s\/tmp.*noexec
+      tmpfs /tmp tmpfs defaults,rw,nosuid,nodev,noexec,relatime 0 0
+
+      If /tmp is provided by the tmp.mount unit, override its options with a drop-in instead:
+
+      mkdir -p /etc/systemd/system/tmp.mount.d
+      printf '%s\n' '[Mount]' 'Options=mode=1777,strictatime,nosuid,nodev,noexec,size=50%%,nr_inodes=1m' > /etc/systemd/system/tmp.mount.d/50-options.conf
+
+      Then reload systemd and apply the option to the running mount:
+
+      systemctl daemon-reload
+      mount -o remount,noexec /tmp
   - id: "CIS-RHEL10-1.1.2.2.1-dev_shm_mount"
     name: "/dev/shm is a separate mount"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.2.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -607,7 +621,8 @@ checks:
     expect: empty
     rationale: &rat-0d64c07085 |
       /dev/shm is a world-writable shared-memory file system that any process can write to. With nodev the kernel ignores character and block device files on it, so a device node created there cannot be used to access disks, memory or other hardware directly; legitimate device files live only under /dev. This check verifies the option in /etc/fstab, so it is applied again after every reboot.
-    remediation: *rem-8ee214ccd7
+    remediation: &rem-8ee214ccd7 |
+      Create /etc/fstab.
   - id: "CIS-RHEL10-1.1.2.2.2-dev_shm_nodev_fstab_options-content"
     name: "/etc/fstab has the expected content (1 rule)"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.2.2. NIST SP 800-53 Rev. 5: CM-7."
@@ -730,6 +745,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: CM-7."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/home'"
     run: |
       findmnt -n -o FSTYPE,OPTIONS '/home'
     allow_rc: any
@@ -749,6 +765,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/home'"
     run: |
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -761,6 +778,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.3.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/home'"
     run: |
       cat '/etc/fstab'
     allow_rc: any
@@ -775,6 +793,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/home'"
     run: |
       findmnt -n -o FSTYPE,OPTIONS '/home'
     allow_rc: any
@@ -794,6 +813,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/home'"
     run: |
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -806,6 +826,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.3.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/home'"
     run: |
       cat '/etc/fstab'
     allow_rc: any
@@ -833,6 +854,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var'"
     run: |
       findmnt -n -o FSTYPE,OPTIONS '/var'
     allow_rc: any
@@ -852,6 +874,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var'"
     run: |
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -864,6 +887,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.4.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var'"
     run: |
       cat '/etc/fstab'
     allow_rc: any
@@ -878,6 +902,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var'"
     run: |
       findmnt -n -o FSTYPE,OPTIONS '/var'
     allow_rc: any
@@ -897,6 +922,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var'"
     run: |
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -909,6 +935,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.4.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var'"
     run: |
       cat '/etc/fstab'
     allow_rc: any
@@ -936,6 +963,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/tmp'"
     run: |
       findmnt -n -o FSTYPE,OPTIONS '/var/tmp'
     allow_rc: any
@@ -955,6 +983,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/tmp'"
     run: |
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -967,6 +996,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/tmp'"
     run: |
       cat '/etc/fstab'
     allow_rc: any
@@ -981,6 +1011,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/tmp'"
     run: |
       findmnt -n -o FSTYPE,OPTIONS '/var/tmp'
     allow_rc: any
@@ -1000,6 +1031,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/tmp'"
     run: |
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -1012,6 +1044,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/tmp'"
     run: |
       cat '/etc/fstab'
     allow_rc: any
@@ -1026,6 +1059,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/tmp'"
     run: |
       findmnt -n -o FSTYPE,OPTIONS '/var/tmp'
     allow_rc: any
@@ -1045,6 +1079,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/tmp'"
     run: |
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -1057,6 +1092,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.5.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/tmp'"
     run: |
       cat '/etc/fstab'
     allow_rc: any
@@ -1084,6 +1120,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log'"
     run: |
       findmnt -n -o FSTYPE,OPTIONS '/var/log'
     allow_rc: any
@@ -1103,6 +1140,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log'"
     run: |
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -1115,6 +1153,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.2. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log'"
     run: |
       cat '/etc/fstab'
     allow_rc: any
@@ -1129,6 +1168,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log'"
     run: |
       findmnt -n -o FSTYPE,OPTIONS '/var/log'
     allow_rc: any
@@ -1148,6 +1188,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log'"
     run: |
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -1160,6 +1201,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log'"
     run: |
       cat '/etc/fstab'
     allow_rc: any
@@ -1174,6 +1216,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log'"
     run: |
       findmnt -n -o FSTYPE,OPTIONS '/var/log'
     allow_rc: any
@@ -1193,6 +1236,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log'"
     run: |
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -1205,6 +1249,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.6.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log'"
     run: |
       cat '/etc/fstab'
     allow_rc: any
@@ -1232,6 +1277,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log/audit'"
     run: |
       findmnt -n -o FSTYPE,OPTIONS '/var/log/audit'
     allow_rc: any
@@ -1251,6 +1297,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log/audit'"
     run: |
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -1263,6 +1310,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.2. NIST SP 800-53 Rev. 5: CM-7."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log/audit'"
     run: |
       cat '/etc/fstab'
     allow_rc: any
@@ -1277,6 +1325,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log/audit'"
     run: |
       findmnt -n -o FSTYPE,OPTIONS '/var/log/audit'
     allow_rc: any
@@ -1296,6 +1345,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log/audit'"
     run: |
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -1308,6 +1358,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.3. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log/audit'"
     run: |
       cat '/etc/fstab'
     allow_rc: any
@@ -1322,6 +1373,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: AC-3, MP-2, CM-7."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log/audit'"
     run: |
       findmnt -n -o FSTYPE,OPTIONS '/var/log/audit'
     allow_rc: any
@@ -1341,6 +1393,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: AC-3, MP-2, CM-7."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log/audit'"
     run: |
       f='/etc/fstab'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -1353,6 +1406,7 @@ checks:
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.7.4. NIST SP 800-53 Rev. 5: AC-3, MP-2, CM-7."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "findmnt -n '/var/log/audit'"
     run: |
       cat '/etc/fstab'
     allow_rc: any
@@ -1441,17 +1495,17 @@ checks:
 
       If a repository does not provide signed metadata, dnf reports an error for it; set repo_gpgcheck=0 only in that repository's definition after confirming it is trusted.
   - id: "CIS-RHEL10-1.2.1.3-repo_gpgcheck_repo"
-    name: "repo gpgcheck repo: if [ `find /etc/yum.repos.d -type f | xargs grep 'repo_gpgcheck*' * | grep -v '=1' | wc -…"
+    name: "repo gpgcheck repo: echo \"repo_gpgcheck_disabled_repos=$(grep -Pis -- '^\\h*repo_gpgcheck\\h*=\\h*(0|false|no)\\b…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.2.1.3. NIST SP 800-53 Rev. 5: SI-2."
     tags: [cis, cis-rhel10, cis-section-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     timeout: 120000ms
     run: |
-      if [ `find /etc/yum.repos.d -type f | xargs grep 'repo_gpgcheck*' * | grep -v '=1' | wc -l` -ne 0 ]; then echo FAIL; else echo OK; fi
+      echo "repo_gpgcheck_disabled_repos=$(grep -Pis -- '^\h*repo_gpgcheck\h*=\h*(0|false|no)\b' /etc/yum.repos.d/*.repo | wc -l)"
     allow_rc: any
     expect:
       - { rc: "== 0" }
-      - { some: "~ OK" }
+      - { some: "~ ^repo_gpgcheck_disabled_repos=0$" }
     rationale: &rat-ede943bafc |
       Besides individual packages, the repository metadata (package lists and checksums) can be signed. Verifying it protects against an attacker who serves stale or manipulated metadata, for example to withhold security updates. Repositories should not explicitly disable this verification; enabling it requires that the repository publishes signed metadata.
     remediation: &rem-14b2a0db29 |
@@ -1740,25 +1794,6 @@ checks:
 
       chown root:root '/boot/grub2/grub.cfg'
       chmod u-xs,g-rwxs,o-rwx,a-t '/boot/grub2/grub.cfg'
-  - id: "CIS-RHEL10-1.4.2-grub_user_perms-attrs"
-    name: "/boot/grub2/user.cfg: exists, mode 0600 or stricter, owner root, group root"
-    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.4.2. NIST SP 800-53 Rev. 5: CM-6."
-    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      f='/boot/grub2/user.cfg'
-      if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
-      if [ -n "$(find -H "$f" -maxdepth 0 -perm /7177)" ]; then echo "$f has mode $(stat -L -c %a "$f")"; fi
-      case "$(stat -L -c %U "$f")" in 'root') ;; *) echo "$f is owned by $(stat -L -c %U "$f")" ;; esac
-      case "$(stat -L -c %G "$f")" in 'root') ;; *) echo "$f has group $(stat -L -c %G "$f")" ;; esac
-    expect: empty
-    rationale: &rat-289e79e126 |
-      /boot/grub2/user.cfg contains the hash of the GRUB boot loader password. If other users can read it they can try to crack the password offline; if they can write it they can remove boot protection. Restricting it to root keeps the boot loader password effective.
-    remediation: &rem-60591daf30 |
-      Create /boot/grub2/user.cfg if it is missing, then set owner root and group root and remove the permissions u-xs,g-rwxs,o-rwx,a-t:
-
-      chown root:root '/boot/grub2/user.cfg'
-      chmod u-xs,g-rwxs,o-rwx,a-t '/boot/grub2/user.cfg'
   - id: "CIS-RHEL10-1.4.2-grubenv_perms-attrs"
     name: "/boot/grub2/grubenv: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.4.2. NIST SP 800-53 Rev. 5: CM-6."
@@ -1778,6 +1813,24 @@ checks:
 
       chown root:root '/boot/grub2/grubenv'
       chmod u-xs,g-rwxs,o-rwx,a-t '/boot/grub2/grubenv'
+  - id: "CIS-RHEL10-1.4.2-grub_all_files_perms"
+    name: "grub all files perms: find -L /boot/grub2/ -mindepth 1 -maxdepth 1 -type f \\( -perm /0177 -o ! -user root -o ! …"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.4.2. NIST SP 800-53 Rev. 5: CM-6."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    run: |
+      find -L /boot/grub2/ -mindepth 1 -maxdepth 1 -type f \( -perm /0177 -o ! -user root -o ! -group root \) -exec stat -Lc '%n %#a %U:%G' {} +
+    allow_rc: any
+    expect:
+      - { rc: "== 0" }
+      - { none: "~ ." }
+    rationale: &rat-9387402fa8 |
+      The files in /boot/grub2 describe how the system boots, including kernel parameters and, if a boot password is set, its hash. Restricting them to root with mode 0600 or stricter prevents users from reading these details or altering the boot configuration.
+    remediation: &rem-7962943e55 |
+      Give every reported file to root and remove all permissions of group and others.
+
+      chown root:root /boot/grub2/FILE
+      chmod u-x,go-rwx /boot/grub2/FILE
   - id: "CIS-RHEL10-1.5.1-core_size"
     name: "core size: grep -Psi -- '^\\s*\\S+\\s+hard\\s+core\\b' /etc/security/limits.conf /etc/security/limits.d/*"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.5.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -2221,12 +2274,12 @@ checks:
     run: |
       cat '/etc/crypto-policies/state/CURRENT.pol'
     allow_rc: any
-    expect: { none: "~ /\\^cipher@/\\(lib\\|open\\)ssh\\(-server\\|-client\\)\\?\\\\s\\*=\\\\s\\*\\(\\[\\^#\\\\n\\\\r\\]\\+\\)\\?-CBC\\\\b" }
+    expect: { none: "~ ^cipher@(lib|open)ssh(-server|-client)?\\s*=\\s*([^#\\n\\r]+)?-CBC\\b" }
     rationale: *rat-779955ae7a
-    remediation: &rem-45787716f0 |
+    remediation: &rem-250f8e56db |
       Edit /etc/crypto-policies/state/CURRENT.pol so that its lines meet these conditions (regular expressions):
 
-      - no line matches /\^cipher@/\(lib\|open\)ssh\(-server\|-client\)\?\\s\*=\\s\*\(\[\^#\\n\\r\]\+\)\?-CBC\\b
+      - no line matches ^cipher@(lib|open)ssh(-server|-client)?\s*=\s*([^#\n\r]+)?-CBC\b
   - id: "CIS-RHEL10-1.7.1-motd_config-attrs"
     name: "/etc/motd: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.7.1. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -2261,9 +2314,9 @@ checks:
       - { none: "~ [Rr]ocky.*" }
       - { none: "~ [Aa]lma.*" }
       - { none: "~ x86_64" }
-      - { none: "~ /\\[Ll\\]inux" }
+      - { none: "~ [Ll]inux" }
     rationale: *rat-fcf145da02
-    remediation: &rem-827b75d0ca |
+    remediation: &rem-922a737938 |
       Edit /etc/motd so that its lines meet these conditions (regular expressions):
 
       - no line matches [Cc]ent[Oo][Ss].*
@@ -2272,7 +2325,7 @@ checks:
       - no line matches [Rr]ocky.*
       - no line matches [Aa]lma.*
       - no line matches x86_64
-      - no line matches /\[Ll\]inux
+      - no line matches [Ll]inux
   - id: "CIS-RHEL10-1.7.2-etc_issue_config-attrs"
     name: "/etc/issue: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.7.2. NIST SP 800-53 Rev. 5: CM-1, CM-3, CM-6."
@@ -2355,9 +2408,9 @@ checks:
       - { none: "~ [Rr]ocky.*" }
       - { none: "~ [Aa]lma.*" }
       - { none: "~ x86_64" }
-      - { none: "~ /\\[Ll\\]inux" }
+      - { none: "~ [Ll]inux" }
     rationale: *rat-eb0dc407c8
-    remediation: &rem-4263f692ac |
+    remediation: &rem-2e35675fdc |
       Edit /etc/issue.net so that its lines meet these conditions (regular expressions):
 
       - no line matches [Cc]ent[Oo][Ss].*
@@ -2366,7 +2419,7 @@ checks:
       - no line matches [Rr]ocky.*
       - no line matches [Aa]lma.*
       - no line matches x86_64
-      - no line matches /\[Ll\]inux
+      - no line matches [Ll]inux
   - id: "CIS-RHEL10-1.7.4-motd_perms-attrs"
     name: "/etc/motd: exists, mode 0644 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.7.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -2664,6 +2717,20 @@ checks:
       Remove the package nginx, unless the system needs it:
 
       dnf remove nginx
+  - id: "CIS-RHEL10-2.1.18-nginx_plus_pkg"
+    name: "Package nginx-plus is not installed"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.18. NIST SP 800-53 Rev. 5: CM-7."
+    tags: [cis, cis-rhel10, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    run: |
+      rpm -q --quiet nginx-plus
+    expect: false
+    rationale: &rat-766ebb3818 |
+      NGINX Plus is the commercial edition of the nginx web server and a network-facing service like it. Unless the system is meant to serve web content or act as a reverse proxy, it should not be installed.
+    remediation: &rem-cc04e804d8 |
+      Remove the package nginx-plus, unless the system needs it:
+
+      dnf remove nginx-plus
   - id: "CIS-RHEL10-2.1.19-gdm_pkg"
     name: "Package gdm is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.19. NIST SP 800-53 Rev. 5: CM-7."
@@ -2692,6 +2759,46 @@ checks:
       Remove the package xorg-x11-server-common, unless the system needs it:
 
       dnf remove xorg-x11-server-common
+  - id: "CIS-RHEL10-2.1.21-mta_listening_port25"
+    name: "mta listening port25: ss -lntu | grep -E \":25\\s\" | grep -E -v \"\\s(127.0.0.1|\\[?::1\\]?):25\\s\""
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.21. NIST SP 800-53 Rev. 5: CM-7."
+    tags: [cis, cis-rhel10, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    run: |
+      ss -lntu | grep -E ":25\s" | grep -E -v "\s(127.0.0.1|\[?::1\]?):25\s"
+    allow_rc: any
+    expect:
+      - { rc: "== 1" }
+      - { none: "~ ." }
+    rationale: &rat-a12179a4ee |
+      A mail transfer agent listening on external interfaces can be abused as a relay, attracts spam and exposes the MTA software to remote attacks. Most hosts only need to send local mail, which works with the MTA bound to the loopback interface. Only dedicated mail servers should accept SMTP connections from the network.
+    remediation: &rem-130889d279 |
+      Restrict the MTA to the loopback interface, or remove it if no local mail delivery is needed. For Postfix:
+
+      postconf -e 'inet_interfaces = loopback-only'
+      systemctl restart postfix
+      ss -lntu | grep -E ':25\s'
+
+      For Exim on Debian, set dc_local_interfaces='127.0.0.1 ; ::1' in /etc/exim4/update-exim4.conf.conf, then run update-exim4.conf and systemctl restart exim4.
+  - id: "CIS-RHEL10-2.1.21-mta_postfix_loopback_only"
+    name: "mta postfix loopback only: if command -v postconf \u003e/dev/null 2\u003e\u00261; then postconf -h inet_interfaces; else echo \"post…"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.21. NIST SP 800-53 Rev. 5: CM-7."
+    tags: [cis, cis-rhel10, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    run: |
+      if command -v postconf >/dev/null 2>&1; then postconf -h inet_interfaces; else echo "postfix not installed"; fi
+    allow_rc: any
+    expect:
+      - { rc: "== 0" }
+      - { some: "~ ^(loopback-only|postfix not installed)$" }
+    rationale: &rat-b7106c7b49 |
+      Postfix's inet_interfaces setting decides on which addresses it accepts SMTP connections. Limiting it to the loopback interface lets the host send local mail while preventing others from using it as a relay or attacking the MTA over the network. Only dedicated mail servers need to listen on external interfaces.
+    remediation: &rem-8d0d96dc59 |
+      Restrict Postfix to the loopback interface and restart it (a reload is not enough for this setting).
+
+      postconf -e 'inet_interfaces = loopback-only'
+      systemctl restart postfix
+      postconf -h inet_interfaces
   - id: "CIS-RHEL10-2.1.22-manual_listening_ports"
     name: "manual listening ports: echo \"Manual!! - Please check only approved services are listening\""
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.22. NIST SP 800-53 Rev. 5: CM-7."
@@ -4756,12 +4863,12 @@ checks:
       - a line matches ^Banner /etc/issue.net
       - no line matches ^Banner none
   - id: "CIS-RHEL10-5.1.5-ssh_configd_banner"
-    name: "ssh configd banner: grep -Eis '^\\s*Banner\\s+\"?none\\b'/etc/ssh/sshd_config.d/*.conf"
+    name: "ssh configd banner: grep -Eis '^\\s*Banner\\s+\"?none\\b' /etc/ssh/sshd_config.d/*.conf"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      grep -Eis '^\s*Banner\s+"?none\b'/etc/ssh/sshd_config.d/*.conf
+      grep -Eis '^\s*Banner\s+"?none\b' /etc/ssh/sshd_config.d/*.conf
     allow_rc: any
     expect:
       - { rc: "in [0, 1, 2]" }
@@ -4827,12 +4934,12 @@ checks:
       - a line matches ^ClientAliveInterval ([1-9]|[1-9][0-9]|[1-8][0-9][0-9]|900)
       - a line matches ^ClientAliveCountMax [1-4]
   - id: "CIS-RHEL10-5.1.7-sshd_clientalive_live"
-    name: "sshd clientalive live: sshd -T | grep clientalive"
+    name: "sshd clientalive live: sshd -T | grep -i clientalive"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.7. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      sshd -T | grep clientalive
+      sshd -T | grep -i clientalive
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
@@ -4877,17 +4984,17 @@ checks:
       - a line matches ^(?i)disableforwarding yes
       - no line matches ^(?i)disableforwarding no
   - id: "CIS-RHEL10-5.1.8-ssh_disable_forward_live"
-    name: "ssh disable forward live: sshd -T | grep disableforwarding"
+    name: "ssh disable forward live: sshd -T | grep -i disableforwarding"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.8. NIST SP 800-53 Rev. 5: CM-7."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      sshd -T | grep disableforwarding
+      sshd -T | grep -i disableforwarding
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
-      - { some: "~ ^disableforwarding yes" }
-      - { none: "~ ^disableforwarding no" }
+      - { some: "~ (?i)^disableforwarding yes" }
+      - { none: "~ (?i)^disableforwarding no" }
     rationale: &rat-8b93e4836f |
       SSH forwarding (TCP port, agent, X11 and stream local forwarding) lets users tunnel arbitrary traffic through the server, bypassing firewalls and network monitoring, or expose their agent to a compromised host. DisableForwarding turns off all forwarding types at once. Systems where users legitimately need tunnels should handle this as a documented exception.
     remediation: &rem-e3a56c9870 |
@@ -4977,17 +5084,17 @@ checks:
       - a line matches ^HostbasedAuthentication no
       - no line matches ^HostbasedAuthentication yes
   - id: "CIS-RHEL10-5.1.10-ssh_hostbased_auth_live"
-    name: "ssh hostbased auth live: sshd -T | grep hostbasedauthentication"
+    name: "ssh hostbased auth live: sshd -T | grep -i hostbasedauthentication"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.10. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      sshd -T | grep hostbasedauthentication
+      sshd -T | grep -i hostbasedauthentication
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
-      - { some: "~ ^hostbasedauthentication no" }
-      - { none: "~ ^hostbasedauthentication yes" }
+      - { some: "~ (?i)^hostbasedauthentication no" }
+      - { none: "~ (?i)^hostbasedauthentication yes" }
     rationale: &rat-10e0cd6826 |
       Host-based authentication trusts a user because of the client host they connect from, using .rhosts, shosts.equiv or known host keys. A single compromised or spoofed client host then grants access to accounts on the server without individual credentials. Disabling it forces each user to authenticate personally.
     remediation: &rem-5a00c40bd5 |
@@ -5027,17 +5134,17 @@ checks:
       - a line matches ^IgnoreRhosts yes
       - no line matches ^IgnoreRhosts no
   - id: "CIS-RHEL10-5.1.11-ssh_rhosts_live"
-    name: "ssh rhosts live: sshd -T | grep ignorerhosts"
+    name: "ssh rhosts live: sshd -T | grep -i ignorerhosts"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.11. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      sshd -T | grep ignorerhosts
+      sshd -T | grep -i ignorerhosts
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
-      - { some: "~ ^ignorerhosts yes" }
-      - { none: "~ ^ignorerhosts no" }
+      - { some: "~ (?i)^ignorerhosts yes" }
+      - { none: "~ (?i)^ignorerhosts no" }
     rationale: &rat-208615ee5e |
       The legacy .rhosts and .shosts files let users grant password-less access to their account from other hosts. Such trust relationships are hard to audit and easy to abuse once one host is compromised. Setting IgnoreRhosts makes the SSH server disregard these files for authentication.
     remediation: &rem-be3c8ee8f7 |
@@ -5097,17 +5204,17 @@ checks:
       - a line matches ^LoginGraceTime ([1-9]|[1-5][0-9]|60)
       - no line matches ^LoginGraceTime (6[1-9]|[7-9][0-9]|[1-9][0-9]{2,})
   - id: "CIS-RHEL10-5.1.13-ssh_logingrace_live"
-    name: "ssh logingrace live: sshd -T | grep logingracetime"
+    name: "ssh logingrace live: sshd -T | grep -i logingracetime"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.13. NIST SP 800-53 Rev. 5: CM-6."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      sshd -T | grep logingracetime
+      sshd -T | grep -i logingracetime
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
-      - { some: "~ ^logingracetime ([1-9]|[1-5][0-9]|60)" }
-      - { none: "~ ^logingracetime (6[1-9]|[7-9][0-9]|[1-9][0-9]{2,})" }
+      - { some: "~ (?i)^logingracetime ([1-9]|[1-5][0-9]|60)" }
+      - { none: "~ (?i)^logingracetime (6[1-9]|[7-9][0-9]|[1-9][0-9]{2,})" }
     rationale: &rat-82827b7520 |
       LoginGraceTime limits how long an unauthenticated connection may stay open. A long grace period lets attackers hold many half-open connections and exhaust the server's connection slots, or spend more time on each guessing attempt. A limit of one minute or less still leaves enough time for legitimate logins.
     remediation: &rem-9451437f62 |
@@ -5147,17 +5254,17 @@ checks:
       - a line matches ^LogLevel\s(VERBOSE|INFO)
       - no line matches ^LogLevel DEBUG
   - id: "CIS-RHEL10-5.1.14-ssh_loglevel_live"
-    name: "ssh loglevel live: sshd -T | grep loglevel"
+    name: "ssh loglevel live: sshd -T | grep -i loglevel"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.14. NIST SP 800-53 Rev. 5: AU-3, AU-12, SI-5."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      sshd -T | grep loglevel
+      sshd -T | grep -i loglevel
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
-      - { some: "~ ^loglevel\\s(VERBOSE|INFO)" }
-      - { none: "~ ^loglevel DEBUG" }
+      - { some: "~ (?i)^loglevel\\s(VERBOSE|INFO)" }
+      - { none: "~ (?i)^loglevel DEBUG" }
     rationale: &rat-1456734810 |
       SSH logs are the primary record of who logged in, from where and with which key. INFO records logins and logouts, and VERBOSE additionally records the key fingerprint used, which is valuable for incident investigation. Lower levels lose this information, while DEBUG produces excessive output and may log sensitive details.
     remediation: &rem-27ea57d275 |
@@ -5173,7 +5280,7 @@ checks:
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      sshd -T | grep -Pi -- 'macs\h+([^#\n\r]+,)?(hmac-md5|hmac-md5-96|hmac-ripemd160|hmac-sha1-96|umac-64@openssh\.com|hmac-md5-etm@openssh\.com|hmac-md5-96-etm@openssh\.com|hmac-ripemd160-etm@openssh\.com|hmac-sha1-96-etm@openssh\.com|umac-64-etm@openssh\.com|umac-128-etm@openssh\.com)\b'
+      sshd -T | grep -Pi -- 'macs\h+([^#\n\r]+,)?(hmac-md5|hmac-md5-96|hmac-ripemd160|hmac-sha1-96|umac-64@openssh\.com|hmac-md5-etm@openssh\.com|hmac-md5-96-etm@openssh\.com|hmac-ripemd160-etm@openssh\.com|hmac-sha1-etm@openssh\.com|hmac-sha1-96-etm@openssh\.com|umac-64-etm@openssh\.com|umac-128-etm@openssh\.com)\b'
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
@@ -5209,26 +5316,25 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect:
-      - { some: "~ ^MaxAuthTries [1-4]" }
-      - { none: "~ ^MaxAuthTries [5-9]" }
+      - { some: "~ ^MaxAuthTries [1-4]\\s*$" }
+      - { none: "~ ^MaxAuthTries ([5-9]|[1-9][0-9]+)" }
     rationale: *rat-7ebfd780b6
-    remediation: &rem-f4d1ad0b6e |
+    remediation: &rem-46ee76ec05 |
       Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
 
-      - a line matches ^MaxAuthTries [1-4]
-      - no line matches ^MaxAuthTries [5-9]
+      - a line matches ^MaxAuthTries [1-4]\s*$
+      - no line matches ^MaxAuthTries ([5-9]|[1-9][0-9]+)
   - id: "CIS-RHEL10-5.1.16-sshd_authtries_live"
-    name: "sshd authtries live: sshd -T | grep maxauthtries"
+    name: "sshd authtries live: sshd -T | grep -i maxauthtries"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.16. NIST SP 800-53 Rev. 5: AU-3."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      sshd -T | grep maxauthtries
+      sshd -T | grep -i maxauthtries
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
-      - { some: "~ maxauthtries [1-4]" }
-      - { none: "~ ^maxauthtries [5-9]" }
+      - { some: "~ (?i)^maxauthtries [1-4]$" }
     rationale: &rat-5f11c85db3 |
       MaxAuthTries limits how many authentication attempts a client may make on a single connection. A low limit slows down online password guessing and causes failed attempts to be logged sooner, which helps detection. A value of four or less still tolerates a few mistyped passwords or offered keys.
     remediation: &rem-9a6dc14261 |
@@ -5265,16 +5371,16 @@ checks:
 
       - a line matches MaxStartups 10:30:60
   - id: "CIS-RHEL10-5.1.17-ssh_maxstartups_live"
-    name: "ssh maxstartups live: sshd -T | grep maxstartups"
+    name: "ssh maxstartups live: sshd -T | grep -i maxstartups"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.17. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      sshd -T | grep maxstartups
+      sshd -T | grep -i maxstartups
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
-      - { some: "~ maxstartups 10:30:60" }
+      - { some: "~ (?i)^maxstartups 10:30:60$" }
     rationale: &rat-a5f0c9c489 |
       MaxStartups controls how many unauthenticated connections the SSH server accepts concurrently and when it starts dropping new ones at random. Without a limit an attacker can open many pending connections and deny access to legitimate users. The value 10:30:60 starts random drops at 10 pending connections and refuses all beyond 60.
     remediation: &rem-f1caa80b39 |
@@ -5305,26 +5411,26 @@ checks:
       cat /etc/ssh/sshd_config.d/*.conf /etc/ssh/sshd_config 2>/dev/null
     allow_rc: any
     expect:
-      - { some: "~ ^MaxSessions ([1-9]|10)" }
-      - { none: "~ ^MaxSessions (1[1-9]|[2-9][0-9]|[1-9]{3,})" }
+      - { some: "~ (?i)^\\s*MaxSessions\\s+\"?([1-9]|10)\"?\\s*$" }
+      - { none: "~ (?i)^\\s*MaxSessions\\s+\"?(1[1-9]|[2-9][0-9]|[1-9][0-9][0-9]+)\\b" }
     rationale: *rat-e938ad8ba2
-    remediation: &rem-e681fd6618 |
+    remediation: &rem-519d7242ae |
       Edit /etc/ssh/sshd_config or a file in /etc/ssh/sshd_config.d/ (the first value of a setting wins) so that its lines meet these conditions (regular expressions):
 
-      - a line matches ^MaxSessions ([1-9]|10)
-      - no line matches ^MaxSessions (1[1-9]|[2-9][0-9]|[1-9]{3,})
+      - a line matches (?i)^\s*MaxSessions\s+"?([1-9]|10)"?\s*$
+      - no line matches (?i)^\s*MaxSessions\s+"?(1[1-9]|[2-9][0-9]|[1-9][0-9][0-9]+)\b
   - id: "CIS-RHEL10-5.1.18-ssh_maxsessions_live"
-    name: "ssh maxsessions live: sshd -T | grep maxsessions"
+    name: "ssh maxsessions live: sshd -T | grep -i maxsessions"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.18. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      sshd -T | grep maxsessions
+      sshd -T | grep -i maxsessions
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
-      - { some: "~ ^maxsessions ([1-9]|10)" }
-      - { none: "~ ^maxsessions (1[1-9]|[2-9][0-9]|[1-9]{3,})" }
+      - { some: "~ (?i)^maxsessions ([1-9]|10)$" }
+      - { none: "~ (?i)^maxsessions (1[1-9]|[2-9][0-9]|[1-9][0-9][0-9]+)\\b" }
     rationale: &rat-0bd3db16a6 |
       MaxSessions caps the number of sessions multiplexed over one SSH connection. Limiting it to 10 or less keeps a single authenticated connection from consuming excessive resources and reduces the impact of a hijacked connection.
     remediation: &rem-ce9b3952eb |
@@ -5364,17 +5470,17 @@ checks:
       - a line matches ^PermitEmptyPasswords no
       - no line matches ^PermitEmptyPasswords yes
   - id: "CIS-RHEL10-5.1.19-ssh_empty_passwd_live"
-    name: "ssh empty passwd live: sshd -T | grep permitemptypasswords"
+    name: "ssh empty passwd live: sshd -T | grep -i permitemptypasswords"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.19. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      sshd -T | grep permitemptypasswords
+      sshd -T | grep -i permitemptypasswords
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
-      - { some: "~ ^permitemptypasswords no" }
-      - { none: "~ ^permitemptypasswords yes" }
+      - { some: "~ (?i)^permitemptypasswords no" }
+      - { none: "~ (?i)^permitemptypasswords yes" }
     rationale: &rat-4c6c617237 |
       If the SSH server accepts accounts with an empty password, anyone who knows or guesses such an account name can log in remotely without any secret. PermitEmptyPasswords no rejects these logins even if an account accidentally ends up without a password.
     remediation: &rem-b2fd13ed6b |
@@ -5414,17 +5520,17 @@ checks:
       - a line matches ^PermitRootLogin no
       - no line matches ^PermitRootLogin yes
   - id: "CIS-RHEL10-5.1.20-ssh_permit_root_live"
-    name: "ssh permit root live: sshd -T | grep permitrootlogin"
+    name: "ssh permit root live: sshd -T | grep -i permitrootlogin"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.20. NIST SP 800-53 Rev. 5: AC-6."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      sshd -T | grep permitrootlogin
+      sshd -T | grep -i permitrootlogin
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
-      - { some: "~ ^permitrootlogin no" }
-      - { none: "~ ^permitrootlogin yes" }
+      - { some: "~ (?i)^permitrootlogin no" }
+      - { none: "~ (?i)^permitrootlogin yes" }
     rationale: &rat-f7faa98a32 |
       Direct root login over SSH exposes the most powerful account to password guessing and makes it impossible to tell from the logs which administrator acted. Requiring administrators to log in with a personal account and then use sudo or su provides accountability and an extra barrier. Make sure a non-root administrative account works before disabling root login.
     remediation: &rem-ac34626202 |
@@ -5464,17 +5570,17 @@ checks:
       - a line matches ^PermitUserEnvironment no
       - no line matches ^PermitUserEnvironment yes
   - id: "CIS-RHEL10-5.1.21-ssh_userenv_live"
-    name: "ssh userenv live: sshd -T | grep permituserenvironment"
+    name: "ssh userenv live: sshd -T | grep -i permituserenvironment"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.21. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      sshd -T | grep permituserenvironment
+      sshd -T | grep -i permituserenvironment
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
-      - { some: "~ ^permituserenvironment no" }
-      - { none: "~ ^permituserenvironment yes" }
+      - { some: "~ (?i)^permituserenvironment no" }
+      - { none: "~ (?i)^permituserenvironment yes" }
     rationale: &rat-073f0b3d12 |
       PermitUserEnvironment lets users pass environment variables to the SSH server through ~/.ssh/environment or authorized_keys options. Variables such as LD_PRELOAD or PATH can be used to bypass restrictions like forced commands or to run code in unintended ways. Disabling it keeps the session environment under administrator control.
     remediation: &rem-c975a850e3 |
@@ -5514,17 +5620,17 @@ checks:
       - a line matches ^UsePAM yes
       - no line matches ^UsePAM no
   - id: "CIS-RHEL10-5.1.22-ssh_usepam_live"
-    name: "ssh usepam live: sshd -T | grep usepam"
+    name: "ssh usepam live: sshd -T | grep -i usepam"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.22. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      sshd -T | grep usepam
+      sshd -T | grep -i usepam
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
-      - { some: "~ ^usepam yes" }
-      - { none: "~ ^usepam no" }
+      - { some: "~ (?i)^usepam yes" }
+      - { none: "~ (?i)^usepam no" }
     rationale: &rat-79595c4433 |
       With UsePAM enabled, SSH logins pass through the PAM account and session stacks, which enforce account expiry, lockout after failed attempts, resource limits and session logging. Without PAM these controls are bypassed for SSH, even if they are configured correctly for local logins.
     remediation: &rem-abacb17da8 |
@@ -5549,16 +5655,16 @@ checks:
 
       dnf install sudo
   - id: "CIS-RHEL10-5.2.2-pty_sudoers_d"
-    name: "pty sudoers d: export PTY=`grep -q -Ei '^\\s*Defaults\\s+(\\[^#]+,\\s*)?use_pty' /etc/sudoers /etc/sudoers.d…"
+    name: "pty sudoers d: grep -rPi -- '^\\h*Defaults\\h+([^#\\n\\r]+,\\h*)?use_pty\\b' /etc/sudoers /etc/sudoers.d/"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.2.2. NIST SP 800-53 Rev. 5: AC-6."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      export PTY=`grep -q -Ei '^\s*Defaults\s+(\[^#]+,\s*)?use_pty' /etc/sudoers /etc/sudoers.d/*; echo $?` && if [[ $PTY == 0 ]];then echo OK ;fi
+      grep -rPi -- '^\h*Defaults\h+([^#\n\r]+,\h*)?use_pty\b' /etc/sudoers /etc/sudoers.d/
     allow_rc: any
     expect:
       - { rc: "== 0" }
-      - { some: "~ OK" }
+      - { some: "~ use_pty" }
     rationale: &rat-63218cca98 |
       With use_pty, sudo runs commands in a separate pseudo-terminal. A malicious program started through sudo then cannot inject input into the user's terminal or keep access to it after sudo exits. It also makes I/O logging complete.
     remediation: &rem-bf550576ff |
@@ -5570,6 +5676,26 @@ checks:
       visudo -c
 
       sudo ignores files in /etc/sudoers.d/ whose names contain a dot or end with ~.
+  - id: "CIS-RHEL10-5.2.2-pty_sudoers_d_not_disabled"
+    name: "pty sudoers d not disabled: grep -rPi -- '^\\h*Defaults\\h+([^#\\n\\r]+,\\h*)?!use_pty\\b' /etc/sudoers /etc/sudoers.d/"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.2.2. NIST SP 800-53 Rev. 5: AC-6."
+    tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    run: |
+      grep -rPi -- '^\h*Defaults\h+([^#\n\r]+,\h*)?!use_pty\b' /etc/sudoers /etc/sudoers.d/
+    allow_rc: any
+    expect:
+      - { rc: "== 1" }
+      - { none: "~ ." }
+    rationale: &rat-93dba38922 |
+      With use_pty, sudo runs commands in a separate pseudo-terminal. This prevents a process started with sudo, or one it leaves running in the background, from injecting keystrokes into the user's terminal after the command has finished. Disabling it with !use_pty removes this protection.
+    remediation: &rem-9cfed4d5a0 |
+      Remove !use_pty from every Defaults line the check finds; edit each file with visudo so syntax errors are caught.
+
+      grep -rPin '^\h*Defaults\h+([^#\n\r]+,\h*)?!use_pty\b' /etc/sudoers /etc/sudoers.d/
+      visudo -f FILE
+
+      If use_pty is not the default of the installed sudo version, also add Defaults use_pty.
   - id: "CIS-RHEL10-5.2.3-log_sudoers_d"
     name: "log sudoers d: export LOG=`grep -q -Esi '^\\s*Defaults\\s+([^#]+,\\s*)?logfile=' /etc/sudoers /etc/sudoers.…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.2.3. NIST SP 800-53 Rev. 5: AU-3, AU-12."
@@ -5590,16 +5716,18 @@ checks:
       chmod 0440 /etc/sudoers.d/50-logfile
       visudo -c
   - id: "CIS-RHEL10-5.2.4-nopasswd_sudoers_d"
-    name: "nopasswd sudoers d: grep -R NOPASSWD /etc/sudoers /etc/sudoers.d/* | grep -v '.*\\:#'"
+    name: "nopasswd sudoers d: grep -rhs -- '^[^#]*NOPASSWD' /etc/sudoers /etc/sudoers.d | awk '$1 !~ /^(#|ec2-user|vagr…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.2.4. NIST SP 800-53 Rev. 5: AC-6."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      grep -R NOPASSWD /etc/sudoers /etc/sudoers.d/* | grep -v '.*\:#'
+      grep -rhs -- '^[^#]*NOPASSWD' /etc/sudoers /etc/sudoers.d | awk '$1 !~ /^(#|ec2-user|vagrant)$/ {print "FAIL: " $0}'
+      echo "scan_done"
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
-      - { none: "~ .*" }
+      - { rc: "== 0" }
+      - { some: "~ ^scan_done$" }
+      - { none: "~ ^FAIL:" }
     rationale: &rat-eecb763928 |
       NOPASSWD lets users run commands with elevated privileges without entering their password. Anyone who gains access to such an account, or a process running as it, obtains root immediately. Requiring the password confirms the person and limits the impact of a hijacked session.
     remediation: &rem-a35cd5880e |
@@ -5610,12 +5738,12 @@ checks:
 
       Users who lose NOPASSWD need a password to use sudo. On cloud images the default user (for example via /etc/sudoers.d/90-cloud-init-users) often has none; set one first, or you may lose administrative access.
   - id: "CIS-RHEL10-5.2.5-authenticate_sudoers"
-    name: "authenticate sudoers: grep -r \"^[^#].*\\!authenticate\" /etc/sudoers*"
+    name: "authenticate sudoers: grep -rs -- '^[^#].*!authenticate' /etc/sudoers*"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.2.5. NIST SP 800-53 Rev. 5: AC-6."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      grep -r "^[^#].*\!authenticate" /etc/sudoers*
+      grep -rs -- '^[^#].*!authenticate' /etc/sudoers*
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
@@ -5631,17 +5759,18 @@ checks:
 
       Affected users will be asked for their password again when they use sudo.
   - id: "CIS-RHEL10-5.2.6-sudo_timeout"
-    name: "sudo timeout: grep -rP \"timestamp_timeout=\\K[0-9]*\" /etc/sudoers*"
+    name: "sudo timeout: grep -rhoPi -- '^[^#\\n\\r]*timestamp_timeout\\h*=\\h*\\K-?[0-9.]+' /etc/sudoers /etc/sudoers.…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.2.6. NIST SP 800-53 Rev. 5: IA-11."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      grep -rP "timestamp_timeout=\K[0-9]*" /etc/sudoers*
+      grep -rhoPi -- '^[^#\n\r]*timestamp_timeout\h*=\h*\K-?[0-9.]+' /etc/sudoers /etc/sudoers.d/ | awk '{ if ($1 < 0 || $1 > 15) print "FAIL: timestamp_timeout=" $1 }'
+      echo "scan_done"
     allow_rc: any
     expect:
       - { rc: "== 0" }
-      - { none: "~ timestamp_timeout=(-1|1[6-9]|[2-9][0-9]|[1-9][0-9]{2,})" }
-      - { some: "~ ^[^#]*timestamp_timeout=([5-9]|1[0-5])" }
+      - { some: "~ ^scan_done$" }
+      - { none: "~ ^FAIL:" }
     rationale: &rat-14f3ec7a75 |
       After a successful authentication, sudo caches the credentials for a while so that further commands do not ask for the password again. A long or unlimited cache lets anyone with access to an unattended terminal run privileged commands. Keeping the timeout at 15 minutes or less limits that window while staying practical for administrators.
     remediation: &rem-391bdc9433 |
@@ -5979,18 +6108,18 @@ checks:
       cat '/etc/pam.d/password-auth'
     allow_rc: any
     expect:
-      - { some: "~ auth\\s+sufficient\\s+pam_unix.so" }
-      - { some: "~ account\\s+required\\s+pam_unix.so" }
-      - { some: "~ password\\s+sufficient\\s+pam_unix.so sha512 shadow ({if not \"without-nullok\":nullok}|) use_authtok" }
-      - { some: "~ session\\s+required\\s+pam_unix.so" }
+      - { some: "~ ^\\s*auth\\s+\\S+\\s+pam_unix\\.so\\b" }
+      - { some: "~ ^\\s*account\\s+\\S+\\s+pam_unix\\.so\\b" }
+      - { some: "~ ^\\s*password\\s+\\S+\\s+pam_unix\\.so\\b" }
+      - { some: "~ ^\\s*session\\s+\\S+\\s+pam_unix\\.so\\b" }
     rationale: *rat-994d6a36e9
-    remediation: &rem-3723a5e280 |
+    remediation: &rem-5ba22cd042 |
       Edit /etc/pam.d/password-auth so that its lines meet these conditions (regular expressions):
 
-      - a line matches auth\s+sufficient\s+pam_unix.so
-      - a line matches account\s+required\s+pam_unix.so
-      - a line matches password\s+sufficient\s+pam_unix.so sha512 shadow ({if not "without-nullok":nullok}|) use_authtok
-      - a line matches session\s+required\s+pam_unix.so
+      - a line matches ^\s*auth\s+\S+\s+pam_unix\.so\b
+      - a line matches ^\s*account\s+\S+\s+pam_unix\.so\b
+      - a line matches ^\s*password\s+\S+\s+pam_unix\.so\b
+      - a line matches ^\s*session\s+\S+\s+pam_unix\.so\b
   - id: "CIS-RHEL10-5.3.1.5-system_auth_pam_unix-attrs"
     name: "/etc/pam.d/system-auth: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.1.5. NIST SP 800-53 Rev. 5: IA-5."
@@ -6012,18 +6141,18 @@ checks:
       cat '/etc/pam.d/system-auth'
     allow_rc: any
     expect:
-      - { some: "~ auth\\s+sufficient\\s+pam_unix.so" }
-      - { some: "~ account\\s+required\\s+pam_unix.so" }
-      - { some: "~ password\\s+sufficient\\s+pam_unix.so sha512 shadow ({if not \"without-nullok\":nullok}|) use_authtok" }
-      - { some: "~ session\\s+required\\s+pam_unix.so" }
+      - { some: "~ ^\\s*auth\\s+\\S+\\s+pam_unix\\.so\\b" }
+      - { some: "~ ^\\s*account\\s+\\S+\\s+pam_unix\\.so\\b" }
+      - { some: "~ ^\\s*password\\s+\\S+\\s+pam_unix\\.so\\b" }
+      - { some: "~ ^\\s*session\\s+\\S+\\s+pam_unix\\.so\\b" }
     rationale: *rat-b1afe603a1
-    remediation: &rem-9ed60be7f8 |
+    remediation: &rem-d0a1d4c268 |
       Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
 
-      - a line matches auth\s+sufficient\s+pam_unix.so
-      - a line matches account\s+required\s+pam_unix.so
-      - a line matches password\s+sufficient\s+pam_unix.so sha512 shadow ({if not "without-nullok":nullok}|) use_authtok
-      - a line matches session\s+required\s+pam_unix.so
+      - a line matches ^\s*auth\s+\S+\s+pam_unix\.so\b
+      - a line matches ^\s*account\s+\S+\s+pam_unix\.so\b
+      - a line matches ^\s*password\s+\S+\s+pam_unix\.so\b
+      - a line matches ^\s*session\s+\S+\s+pam_unix\.so\b
   - id: "CIS-RHEL10-5.3.2.1.1-faillock_attempts_deny-attrs"
     name: "/etc/security/faillock.conf: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.1.1. NIST SP 800-53 Rev. 5: NA."
@@ -6097,14 +6226,14 @@ checks:
       cat '/etc/security/faillock.conf'
     allow_rc: any
     expect:
-      - { some: "~ ^unlock_time\\s*=\\s*([1-9]|[1-9][0-9]|[1-8][0-9]{1,2}|900)$" }
-      - { none: "~ ^unlock_time\\s*=\\s*(90[1-9]|9[1-9][0-9]|[1-9][0-9][0-9]{2,})" }
+      - { some: "~ ^\\s*unlock_time\\s*=\\s*(0|9[0-9][0-9]|[1-9][0-9]{3,})\\b" }
+      - { none: "~ ^\\s*unlock_time\\s*=\\s*([1-9]|[1-9][0-9]|[1-8][0-9][0-9])\\b" }
     rationale: *rat-f655eb77df
-    remediation: &rem-aa192ec351 |
+    remediation: &rem-0874c065e1 |
       Edit /etc/security/faillock.conf so that its lines meet these conditions (regular expressions):
 
-      - a line matches ^unlock_time\s*=\s*([1-9]|[1-9][0-9]|[1-8][0-9]{1,2}|900)$
-      - no line matches ^unlock_time\s*=\s*(90[1-9]|9[1-9][0-9]|[1-9][0-9][0-9]{2,})
+      - a line matches ^\s*unlock_time\s*=\s*(0|9[0-9][0-9]|[1-9][0-9]{3,})\b
+      - no line matches ^\s*unlock_time\s*=\s*([1-9]|[1-9][0-9]|[1-8][0-9][0-9])\b
   - id: "CIS-RHEL10-5.3.2.1.2-faillock_unlock_time_removed"
     name: "faillock unlock time removed: grep -Pl -- '\\bpam_faillock\\.so\\s+([^#\\n\\r]+\\s+)?unlock_time\\b' /etc/pam.d/system-auth /e…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.1.2. NIST SP 800-53 Rev. 5: NA."
@@ -6205,7 +6334,7 @@ checks:
     allow_rc: any
     expect:
       - { rc: "in [0, 1, 2]" }
-      - { some: "~ .*\\:difok\\s*=\\s*[2-9]" }
+      - { some: "~ .*\\:\\s*difok\\s*=\\s*([2-9]|[1-9][0-9]+)\\b" }
     rationale: &rat-b71bd8fb5f |
       Requiring that a new password differs from the old one in several characters prevents users from cycling through trivial variations such as appending a digit. Without it, password expiry adds little security because a leaked old password reveals the new one.
     remediation: &rem-30c88d9d14 |
@@ -6225,7 +6354,7 @@ checks:
     allow_rc: any
     expect:
       - { rc: "in [0, 1, 2]" }
-      - { some: "~ .*\\:minlen\\s*=\\s*(1[4-9]|[2-4][0-9])" }
+      - { some: "~ .*\\:\\s*minlen\\s*=\\s*(1[4-9]|[2-9][0-9]|[1-9][0-9]{2,})\\b" }
     rationale: &rat-d3de089d0b |
       Password length is the most important factor for resistance against guessing and cracking. A minimum of 14 characters makes brute force attacks against stolen hashes impractical and encourages passphrases over short complex strings.
     remediation: &rem-3d639df090 |
@@ -6463,12 +6592,12 @@ checks:
     run: |
       cat '/etc/security/pwhistory.conf'
     allow_rc: any
-    expect: { some: "~ ^remember\\s*=\\s*(2[4-9]|[3-9][0-9])" }
+    expect: { some: "~ ^\\s*remember\\s*=\\s*(2[4-9]|[3-9][0-9]|[1-9][0-9]{2,})\\b" }
     rationale: *rat-79480d2a47
-    remediation: &rem-b00f3d4767 |
+    remediation: &rem-f699e052a9 |
       Edit /etc/security/pwhistory.conf so that its lines meet these conditions (regular expressions):
 
-      - a line matches ^remember\s*=\s*(2[4-9]|[3-9][0-9])
+      - a line matches ^\s*remember\s*=\s*(2[4-9]|[3-9][0-9]|[1-9][0-9]{2,})\b
   - id: "CIS-RHEL10-5.3.2.3.1-pwhistory_remember_pam_configs"
     name: "pwhistory remember pam configs: grep -Pi -- '^\\s*password\\s+(requisite|required|sufficient)\\s+pam_pwhistory\\.so\\s+([^#\\n\\…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.3.2.3.1. NIST SP 800-53 Rev. 5: IA-5."
@@ -6776,6 +6905,28 @@ checks:
       Edit /etc/pam.d/system-auth so that its lines meet these conditions (regular expressions):
 
       - a line matches password\s+([^#\n\r]+)\s+pam_unix\.so.*use_authtok
+  - id: "CIS-RHEL10-5.4.1.1-check_user_expiry"
+    name: "check user expiry: awk -F: '($2~/^\\$.+\\$/) {if($5 \u003e 365 || $5 \u003c 1) print \"FAIL: \" $1 \" PASS_MAX_DAYS: \" $5}'…"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
+    tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    run: |
+      awk -F: '($2~/^\$.+\$/) {if($5 > 365 || $5 < 1) print "FAIL: " $1 " PASS_MAX_DAYS: " $5}' /etc/shadow
+      echo "scan_done"
+    allow_rc: any
+    expect:
+      - { rc: "== 0" }
+      - { some: "~ ^scan_done$" }
+      - { none: "~ ^FAIL:" }
+    rationale: &rat-ce451c4e8f |
+      Passwords that never expire stay valid indefinitely after being disclosed, phished or cracked. A maximum password age of at most 365 days limits how long a compromised password can be used. The exact interval should follow site policy.
+    remediation: &rem-995944b710 |
+      Set the maximum password age to 365 days or less for new accounts and for each existing account with a password.
+
+      sed -ri 's/^\s*PASS_MAX_DAYS\s+.*/PASS_MAX_DAYS 365/' /etc/login.defs
+      chage --maxdays 365 USER
+
+      List accounts and their current value with: awk -F: '$2 ~ /^[^!*]/ {print $1 ":" $5}' /etc/shadow. On SUSE 16, copy /usr/etc/login.defs to /etc/login.defs first if it does not exist.
   - id: "CIS-RHEL10-5.4.1.1-login_defs_max_days"
     name: "login defs max days: grep PASS_MAX_DAYS /etc/login.defs"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.1.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -6828,6 +6979,26 @@ checks:
 
       - a line matches ^PASS_MIN_DAYS\s[1-9]
       - no line matches ^PASS_MIN_DAYS\s0
+  - id: "CIS-RHEL10-5.4.1.2-check_users_MIN_DAYS"
+    name: "check users MIN DAYS: awk -F: '($2~/^\\$.+\\$/) {if($4 \u003c 1) print \"FAIL: \" $1 \" PASS_MIN_DAYS: \" $4}' /etc/shadow"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.1.2. NIST SP 800-53 Rev. 5: IA-5."
+    tags: [cis, cis-rhel10, cis-section-5, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
+    severity: low
+    run: |
+      awk -F: '($2~/^\$.+\$/) {if($4 < 1) print "FAIL: " $1 " PASS_MIN_DAYS: " $4}' /etc/shadow
+      echo "scan_done"
+    allow_rc: any
+    expect:
+      - { rc: "== 0" }
+      - { some: "~ ^scan_done$" }
+      - { none: "~ ^FAIL:" }
+    rationale: &rat-97fb70a127 |
+      Without a minimum password age, a user forced to change a password can immediately change it several more times to cycle through the history and return to the old one. A minimum age of at least one day makes password history effective.
+    remediation: &rem-65917eb6bd |
+      Set a minimum password age of 7 days (RHEL 8 requires at least 7, RHEL 9 at least 1) for new accounts and for each existing account with a password.
+
+      sed -ri 's/^\s*PASS_MIN_DAYS\s+.*/PASS_MIN_DAYS 7/' /etc/login.defs
+      chage --mindays 7 USER
   - id: "CIS-RHEL10-5.4.1.3-login_defs_warn_age-attrs"
     name: "/etc/login.defs: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.1.3. NIST SP 800-53 Rev. 5: NA."
@@ -6916,7 +7087,7 @@ checks:
     allow_rc: any
     expect:
       - { rc: "== 0" }
-      - { some: "~ ^INACTIVE=([1-9]|[0-3][0-9]|4[0-5])" }
+      - { some: "~ ^INACTIVE=([0-9]|[1-3][0-9]|4[0-5])$" }
     rationale: &rat-1b1499cc8f |
       The default INACTIVE value used by useradd defines how many days after password expiry an account is disabled. Disabling unused accounts automatically removes forgotten access paths that attackers like to exploit; a value of up to 30 or 45 days, depending on the policy, balances security and usability.
     remediation: &rem-728ced36b8 |
@@ -6928,16 +7099,17 @@ checks:
 
       30 days satisfies every supported release; some releases also accept up to 45 days.
   - id: "CIS-RHEL10-5.4.1.5-inactive_users"
-    name: "inactive users: awk -F':' '($2~/^\\\\$.+\\\\$/) {if($7 \u003e 30 || $7 \u003c 0)print $1}' /etc/shadow"
+    name: "inactive users: awk -F: 'NR==FNR { if ($1 !~ /^(root|halt|sync|shutdown)$/ \u0026\u0026 $7 !~ /(nologin|false)$/ \u0026\u0026…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.1.5. NIST SP 800-53 Rev. 5: NA."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      awk -F':' '($2~/^\\$.+\\$/) {if($7 > 30 || $7 < 0)print $1}' /etc/shadow
+      awk -F: 'NR==FNR { if ($1 !~ /^(root|halt|sync|shutdown)$/ && $7 !~ /(nologin|false)$/ && $7 != "/dev/null") u[$1]=1; next } ($1 in u) && ($2~/^\$.+\$/) {if($7 == "" || $7 > 30 || $7 < 0) print "FAIL: " $1 " INACTIVE: " $7}' /etc/passwd /etc/shadow && echo "scan_done"
     allow_rc: any
     expect:
       - { rc: "== 0" }
-      - { none: "~ ^.*" }
+      - { some: "~ ^scan_done$" }
+      - { none: "~ ^FAIL:" }
     rationale: &rat-c4a4e8be14 |
       Accounts whose password has expired but which remain usable indefinitely are a common foothold for attackers because nobody notices their misuse. Setting a password inactivity period on every account with a password ensures that such accounts are disabled automatically after expiry.
     remediation: &rem-4e712889d3 |
@@ -6969,17 +7141,17 @@ checks:
       chage --lastday "$(date +%Y-%m-%d)" USER
       chage --lastday 0 USER
   - id: "CIS-RHEL10-5.4.2.1-uid_0_check"
-    name: "uid 0 check: awk -F: '($3 == 0) { print $1 }' /etc/passwd"
+    name: "uid 0 check: awk -F: '($3 == 0 \u0026\u0026 $1 == \"root\") {print \"root_ok\"} ($3 == 0 \u0026\u0026 $1 != \"root\") {print \"FA…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.2.1. NIST SP 800-53 Rev. 5: CM-6."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      awk -F: '($3 == 0) { print $1 }' /etc/passwd
+      awk -F: '($3 == 0 && $1 == "root") {print "root_ok"} ($3 == 0 && $1 != "root") {print "FAIL: " $1}' /etc/passwd
     allow_rc: any
     expect:
       - { rc: "== 0" }
-      - { some: "~ root" }
-      - { none: "~ [^root]" }
+      - { some: "~ ^root_ok$" }
+      - { none: "~ ^FAIL:" }
     rationale: &rat-90d4d66c1b |
       Any account with UID 0 has full root privileges, regardless of its name. Additional UID 0 accounts are a classic backdoor and make it impossible to attribute administrative actions; only root should have UID 0.
     remediation: &rem-5c4a8fc9e4 |
@@ -6991,17 +7163,17 @@ checks:
 
       usermod -u cannot be used here because the running root processes share UID 0. Also make sure that root itself has UID 0.
   - id: "CIS-RHEL10-5.4.2.2-gid_0_check"
-    name: "gid 0 check: awk -F: '($1 !~ /^(sync|shutdown|halt|operator)/ \u0026\u0026 $4=='0') {print $1\":\"$4}' /etc/passwd"
+    name: "gid 0 check: awk -F: '($4 == 0 \u0026\u0026 $1 == \"root\") {print \"root_ok\"} ($4 == 0 \u0026\u0026 $1 != \"root\" \u0026\u0026 $1 !~ /^…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.2.2. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      awk -F: '($1 !~ /^(sync|shutdown|halt|operator)/ && $4=='0') {print $1":"$4}' /etc/passwd
+      awk -F: '($4 == 0 && $1 == "root") {print "root_ok"} ($4 == 0 && $1 != "root" && $1 !~ /^(sync|shutdown|halt|operator)$/) {print "FAIL: " $1}' /etc/passwd
     allow_rc: any
     expect:
       - { rc: "== 0" }
-      - { some: "~ root" }
-      - { some: "~ [^root]" }
+      - { some: "~ ^root_ok$" }
+      - { none: "~ ^FAIL:" }
     rationale: &rat-86032dcad6 |
       Group ID 0 is the root group, which owns many sensitive files and directories. Any other account with primary group 0 can read or modify those resources with root-group rights, far beyond its role. Only root should have GID 0 as primary group, which keeps root-group access deliberate and auditable.
     remediation: &rem-d5614bed37 |
@@ -7012,16 +7184,17 @@ checks:
 
       Afterwards review files the account created with group 0: find / -xdev -user USER -group 0
   - id: "CIS-RHEL10-5.4.2.3-group_root_only_0"
-    name: "group root only 0: awk -F: '$3=='0'{print $1\":\"$3}' /etc/group"
+    name: "group root only 0: awk -F: '($3 == 0 \u0026\u0026 $1 == \"root\") {print \"root_ok\"} ($3 == 0 \u0026\u0026 $1 != \"root\") {print \"FA…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.2.3. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      awk -F: '$3=='0'{print $1":"$3}' /etc/group
+      awk -F: '($3 == 0 && $1 == "root") {print "root_ok"} ($3 == 0 && $1 != "root") {print "FAIL: " $1}' /etc/group
     allow_rc: any
     expect:
       - { rc: "== 0" }
-      - { some: "~ root:0" }
+      - { some: "~ ^root_ok$" }
+      - { none: "~ ^FAIL:" }
     rationale: &rat-e6e96aa117 |
       GID 0 is the root group, which owns many sensitive system files and directories. Any other group with GID 0 silently gives its members the same group access as root. Ensuring that only the group named root has GID 0 prevents such hidden privilege.
     remediation: &rem-481abd2b91 |
@@ -7051,16 +7224,33 @@ checks:
 
       Where the check also accepts a locked account (status L), passwd -l root is an alternative if administrators use sudo.
   - id: "CIS-RHEL10-5.4.2.5-root_path_check"
-    name: "root path check: /bin/bash --login -c 'env | grep ^PATH=' | sed -e 's/PATH=//' -e 's/::/:/' -e 's/:$//' -e…"
+    name: "root path check: l_root_path=\"$(su - root -c 'printf \"%s\" \"$PATH\"')\""
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.2.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      /bin/bash --login -c 'env | grep ^PATH=' | sed -e 's/PATH=//' -e 's/::/:/' -e 's/:$//' -e 's/:/\n/g'
+      l_root_path="$(su - root -c 'printf "%s" "$PATH"')"
+      [ -n "$l_root_path" ] && echo "path_found"
+      printf '%s\n' "$l_root_path" | grep -q -- "::" && echo "FAIL: root's PATH contains an empty directory (::)"
+      printf '%s\n' "$l_root_path" | grep -Pq -- ":\h*$" && echo "FAIL: root's PATH ends with a trailing colon (:)"
+      printf '%s\n' "$l_root_path" | grep -Pq -- '(^\h*|:)\.(:|\h*$)' && echo "FAIL: root's PATH contains the current working directory (.)"
+      printf '%s\n' "$l_root_path" | tr ':' '\n' | while IFS= read -r l_path; do
+        [ -z "$l_path" ] && continue
+        if [ -d "$l_path" ]; then
+          stat -Lc '%#a %U' "$l_path" | while read -r l_mode l_own; do
+            [ "$l_own" != "root" ] && echo "FAIL: $l_path is owned by $l_own"
+            [ $(( l_mode & 022 )) -gt 0 ] && echo "FAIL: $l_path is mode $l_mode"
+          done
+        else
+          echo "FAIL: $l_path is not an existing directory"
+        fi
+      done
+      true
     allow_rc: any
     expect:
       - { rc: "== 0" }
-      - { none: "~ \\\\." }
+      - { some: "~ ^path_found$" }
+      - { none: "~ ^FAIL:" }
     rationale: &rat-ee503b897e |
       If root's PATH contains the current directory, empty entries, relative paths or directories that other users can write to, a malicious program placed there can be executed with root privileges when an administrator types a common command name. Root's PATH should contain only absolute, root-owned and non-writable directories.
     remediation: &rem-0afab9f1f3 |
@@ -7070,38 +7260,59 @@ checks:
       grep -sn 'PATH' /root/.bash_profile /root/.bashrc /root/.profile /etc/profile /etc/bashrc /etc/bash.bashrc /etc/environment /etc/profile.d/*.sh
       chown root DIRECTORY
       chmod go-w DIRECTORY
-  - id: "CIS-RHEL10-5.4.2.6-root_umask_bash_profile"
-    name: "root umask bash profile: grep -hi umask /root/.bash_profile /root/.bashrc 2\u003e/dev/null"
+  - id: "CIS-RHEL10-5.4.2.6-root_umask_effective"
+    name: "root umask effective: su - root -c 'umask'"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.2.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      grep -hi umask /root/.bash_profile /root/.bashrc 2>/dev/null
+      su - root -c 'umask'
     allow_rc: any
     expect:
       - { rc: "== 0" }
-      - { some: "~ umask\\s+0?0?[2-7]7\\b" }
-    rationale: &rat-623cb7f319 |
-      The umask determines the permissions of files root creates. With a permissive umask, configuration files, scripts or logs written by root can end up readable or writable by other users, leaking secrets or allowing tampering. Setting umask 027 or 077 in root's shell startup files keeps new files private by default.
-    remediation: &rem-25f34f55b9 |
-      Add umask 0027 (or 0077) at the start of a line in both /root/.bashrc and /root/.bash_profile. If /root/.bash_profile does not exist yet, create it so that it still loads /root/.profile.
+      - { some: "~ ^0?[0-7][2367]7$" }
+    rationale: &rat-448b341f92 |
+      Files created by root inherit permissions from root's umask. A permissive umask makes new configuration files, logs or keys readable or writable by other users. A umask of 027 or stricter removes group write and all access for other users from newly created files.
+    remediation: &rem-aec47e9542 |
+      Set umask 0027 at the end of root's login profile and remove weaker umask settings there.
 
-      echo 'umask 0027' >> /root/.bashrc
-      [ -e /root/.bash_profile ] || echo '[ -f ~/.profile ] && . ~/.profile' > /root/.bash_profile
+      grep -n umask /root/.bash_profile /root/.bashrc /root/.profile
       echo 'umask 0027' >> /root/.bash_profile
 
-      Several variants fail when one of the files is missing, and the line must not be indented. Debian 13 reads /root/.profile instead of /root/.bash_profile; add the line there as well (echo 'umask 0027' >> /root/.profile).
+      The check runs su - root -c umask, which reads /etc/profile, the profile.d scripts and root's profile; the last umask set in that chain wins.
+  - id: "CIS-RHEL10-5.4.2.6-root_umask_files"
+    name: "root umask files: grep -Psi -- '^\\h*umask\\h+((\\d{1,2}(\\d[^7]|[^2-7]\\d)\\b)|(u=[rwx]{1,3},)?(((g=[rx]?[rx]?w[…"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.2.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
+    tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    run: |
+      grep -Psi -- '^\h*umask\h+((\d{1,2}(\d[^7]|[^2-7]\d)\b)|(u=[rwx]{1,3},)?(((g=[rx]?[rx]?w[rx]?[rx]?\b)(,o=[rwx]{1,3})?)|((g=[wrx]{1,3},)?o=[wrx]{1,3}\b)))' /root/.bash_profile /root/.bashrc
+    allow_rc: any
+    expect:
+      - { rc: "in [1, 2]" }
+      - { none: "~ ." }
+    rationale: &rat-623cb7f319 |
+      The umask determines the permissions of files root creates. With a permissive umask, configuration files, scripts or logs written by root can end up readable or writable by other users, leaking secrets or allowing tampering. Setting umask 027 or 077 in root's shell startup files keeps new files private by default.
+    remediation: &rem-a258e248fd |
+      Remove or correct every reported umask line in /root/.bash_profile and /root/.bashrc: the umask must be 027 or stricter (for example 0027 or 0077).
+
+      grep -n umask /root/.bash_profile /root/.bashrc
+      sed -ri 's/^(\s*umask\s+).*/\10027/' /root/.bash_profile /root/.bashrc
   - id: "CIS-RHEL10-5.4.2.7-secure_system_accts"
-    name: "secure system accts: awk -F: '$3\u003c1000' /etc/passwd | grep -Ev 'root|sync|halt|shutdown|nfsnobody|/sbin/nologin…"
+    name: "secure system accts: l_valid_shells=\"^($(awk -F/ '($NF != \"nologin\" \u0026\u0026 $NF != \"false\") {print}' /etc/shells | …"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.2.7. NIST SP 800-53 Rev. 5: AC-2(5), AC-3, AC-11, MP-2."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      awk -F: '$3<1000' /etc/passwd | grep -Ev 'root|sync|halt|shutdown|nfsnobody|/sbin/nologin|/bin/false'
+      l_valid_shells="^($(awk -F/ '($NF != "nologin" && $NF != "false") {print}' /etc/shells | sed -rn '/^\//{s,/,\\\\/,g;p}' | paste -s -d '|' - ))$"
+      l_uid_min="$(awk '/^\s*UID_MIN/{print $2}' /etc/login.defs)"
+      awk -v pat="$l_valid_shells" -v uidmin="${l_uid_min:-1000}" -F: '($1 !~ /^(root|halt|sync|shutdown|nfsnobody)$/ && ($3 < uidmin || $3 == 65534) && $(NF) ~ pat) {print "FAIL: " $1 " has a valid shell: " $7}' /etc/passwd
+      echo "scan_done"
     allow_rc: any
     expect:
-      - { rc: "== 1" }
-      - { none: "~ ." }
+      - { rc: "== 0" }
+      - { some: "~ ^scan_done$" }
+      - { none: "~ ^FAIL:" }
     rationale: &rat-6f6bd67ce7 |
       System and service accounts do not need an interactive shell. If one of them has a valid login shell, a weakness in a service or a misconfigured password can give an attacker an interactive session under that account. Setting the shell to nologin prevents this.
     remediation: &rem-3badb6c42f |
@@ -7154,25 +7365,34 @@ checks:
     run: |
       cat '/etc/shells'
     allow_rc: any
-    expect: { none: "~ .*nologin" }
+    expect: { none: "~ ^\\s*[^#\\n]*\\/nologin\\b" }
     rationale: *rat-1371eb889f
-    remediation: &rem-852b96f5ad |
+    remediation: &rem-7931d4a79a |
       Edit /etc/shells so that its lines meet these conditions (regular expressions):
 
-      - no line matches .*nologin
+      - no line matches ^\s*[^#\n]*\/nologin\b
   - id: "CIS-RHEL10-5.4.3.2-check_timeout"
-    name: "check timeout: grep TMOUT /etc/profile.d/*.sh /etc/profile /etc/profile.d/*.sh| cut -d \":\" -f2"
+    name: "check timeout: l_set=0"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.3.2. NIST SP 800-53 Rev. 5: NA."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      grep TMOUT /etc/profile.d/*.sh /etc/profile /etc/profile.d/*.sh| cut -d ":" -f2
+      l_set=0
+      for l_file in $(grep -Pls -- '^([^#\n\r]+)?\bTMOUT\b' /etc/*bashrc /etc/profile /etc/profile.d/*.sh /etc/profile.d/sh.local /usr/etc/profile.d/*.sh /usr/etc/profile.d/sh.local 2>/dev/null); do
+        l_val="$(grep -Po -- '^([^#\n\r]+)?\bTMOUT=\d+\b' "$l_file" | awk -F= '{v=$NF} END{if (NR>0) print v}')"
+        [ -z "$l_val" ] && continue
+        l_set=1
+        grep -Pq -- '^\h*(typeset\h\-xr\hTMOUT=\d+|([^#\n\r]+)?\breadonly\h+TMOUT\b)' "$l_file" || echo "FAIL: $l_file TMOUT is not marked readonly"
+        grep -Pq -- '^\h*(typeset\h\-xr\hTMOUT=\d+|([^#\n\r]+)?\bexport\b([^#\n\r]+\b)?TMOUT\b)' "$l_file" || echo "FAIL: $l_file TMOUT is not exported"
+        { [ "$l_val" -gt 0 ] && [ "$l_val" -le 900 ]; } || echo "FAIL: $l_file TMOUT=$l_val is out of range"
+      done
+      [ "$l_set" -eq 1 ] && echo "tmout_set"
+      true
     allow_rc: any
     expect:
       - { rc: "== 0" }
-      - { some: "~ ^(readonly |)TMOUT" }
-      - { some: "~ TMOUT=([1-8][0-9]{0,2}|900)$" }
-      - { some: "~ export TMOUT" }
+      - { some: "~ ^tmout_set$" }
+      - { none: "~ ^FAIL:" }
     rationale: &rat-e92d54c805 |
       An interactive shell left open on an unattended terminal can be used by anyone passing by. TMOUT makes the shell exit automatically after a period of inactivity. Marking it readonly and exporting it prevents users from disabling the timeout in their own session; long-running interactive work may need to account for it.
     remediation: &rem-d216d7a191 |
@@ -7181,18 +7401,76 @@ checks:
       printf '%s\n' 'TMOUT=900' 'readonly TMOUT' 'export TMOUT' > /etc/profile.d/50-tmout.sh
 
       Remove other TMOUT settings with larger or zero values from /etc/profile, /etc/bashrc and /etc/profile.d. The timeout applies to new login shells.
-  - id: "CIS-RHEL10-5.4.3.3-umask_profile_scripts"
-    name: "umask profile scripts: grep -i \"^\\s*umask\" /etc/profile /etc/profile.d/*.sh /etc/login.defs | cut -d \":\" -f 2"
+  - id: "CIS-RHEL10-5.4.3.3-login_defs_umask-attrs"
+    name: "/etc/login.defs: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.3.3. NIST SP 800-53 Rev. 5: CM-6."
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      grep -i "^\s*umask" /etc/profile /etc/profile.d/*.sh /etc/login.defs | cut -d ":" -f 2
+      f='/etc/login.defs'
+      if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
+    expect: empty
+    rationale: &rat-5c3aa29de0 |
+      The UMASK value in login.defs defines the default permissions for home directories and files created by tools such as useradd. A permissive value lets other users read or modify new users' files. A umask of 027 or stricter keeps new data private to the owner and group.
+    remediation: *rem-0b6bdc1798
+  - id: "CIS-RHEL10-5.4.3.3-login_defs_umask-content"
+    name: "/etc/login.defs has the expected content (1 rule)"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.3.3. NIST SP 800-53 Rev. 5: CM-6."
+    tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    run: |
+      cat '/etc/login.defs'
+    allow_rc: any
+    expect: { some: "~ ^\\s*UMASK\\s+0?[0-7][2367]7\\b" }
+    rationale: *rat-5c3aa29de0
+    remediation: &rem-b032431b46 |
+      Edit /etc/login.defs so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\s*UMASK\s+0?[0-7][2367]7\b
+  - id: "CIS-RHEL10-5.4.3.3-umask_profile_scripts"
+    name: "umask profile scripts: l_floor=23"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.4.3.3. NIST SP 800-53 Rev. 5: CM-6."
+    tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    run: |
+      l_floor=23
+      for l_file in /etc/profile /etc/bashrc /etc/bash.bashrc /etc/profile.d/sh.local /etc/profile.d/*.sh; do
+        [ -r "$l_file" ] || continue
+        grep -Psi -- '^\h*umask\h+\S' "$l_file" | while IFS= read -r l_line; do
+          l_arg="$(printf '%s' "$l_line" | grep -Poi -- '^\h*umask\h+\K[^[:space:]#;]+')"
+          [ -n "$l_arg" ] || continue
+          l_dec="INVALID"
+          if printf '%s' "$l_arg" | grep -Eq '^[0-7]{3,4}$'; then
+            l_dec="$(( 8#$l_arg ))"
+          elif printf '%s' "$l_arg" | grep -Eq '^([augo]+=[rwx]*)(,[augo]+=[rwx]*)*$'; then
+            l_u=0; l_g=0; l_o=0
+            for l_clause in $(printf '%s' "$l_arg" | tr ',' ' '); do
+              l_who="${l_clause%%=*}"; l_perms="${l_clause#*=}"; l_bits=0
+              case "$l_perms" in *r*) l_bits=$(( l_bits | 4 ));; esac
+              case "$l_perms" in *w*) l_bits=$(( l_bits | 2 ));; esac
+              case "$l_perms" in *x*) l_bits=$(( l_bits | 1 ));; esac
+              l_deny=$(( 7 - l_bits ))
+              case "$l_who" in *a*) l_u=$l_deny; l_g=$l_deny; l_o=$l_deny;; esac
+              case "$l_who" in *u*) l_u=$l_deny;; esac
+              case "$l_who" in *g*) l_g=$l_deny;; esac
+              case "$l_who" in *o*) l_o=$l_deny;; esac
+            done
+            l_dec=$(( l_u * 64 + l_g * 8 + l_o ))
+          fi
+          if [ "$l_dec" = "INVALID" ] || [ $(( l_dec & l_floor )) -ne "$l_floor" ]; then
+            echo "FAIL: $l_file: $l_line"
+          else
+            case "$l_file" in /etc/profile.d/*.sh) echo "profile_d_umask_set";; esac
+          fi
+        done
+      done
+      echo "scan_done"
     allow_rc: any
     expect:
       - { rc: "== 0" }
-      - { some: "~ (?i)umask\\s+00[2-7][7]" }
-      - { none: "~ (?i)umask\\s+[7][0-1][0-6]" }
+      - { some: "~ ^profile_d_umask_set$" }
+      - { some: "~ ^scan_done$" }
+      - { none: "~ ^FAIL:" }
     rationale: &rat-0e0a7af57b |
       The umask set in shell profile scripts determines the permissions of files that users create. A permissive umask such as 022 makes new files readable by everyone, which can expose sensitive data. A system-wide umask of 027 or stricter removes access for other users by default.
     remediation: &rem-5bcc36ecf9 |
@@ -7736,6 +8014,46 @@ checks:
       - a line matches ^local2,local3.\*\s+-/var/log/localmessages
       - a line matches ^local4,local5.\*\s+-/var/log/localmessages
       - a line matches ^local6,local7.\*\s+-/var/log/localmessages
+  - id: "CIS-RHEL10-6.2.3.7-local_syslog_input"
+    name: "local syslog input: grep -E \"imtcp\\\" port|InputTCPServerRun\" /etc/rsyslog.conf /etc/rsyslog.d/*.conf | grep -…"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.3.7. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12, CM-6."
+    tags: [cis, cis-rhel10, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    run: |
+      grep -E "imtcp\" port|InputTCPServerRun" /etc/rsyslog.conf /etc/rsyslog.d/*.conf | grep -v ":#"
+    allow_rc: any
+    expect:
+      - { rc: "in [0, 1, 2]" }
+      - { none: "~ .*" }
+    rationale: &rat-46d6ea0433 |
+      rsyslog can accept log messages from other hosts over TCP. On a system that is not a designated log server, such a listener opens an unneeded network port and lets anyone who can reach it inject forged log entries or fill the disk.
+    remediation: &rem-30523f0cee |
+      Remove the TCP input definitions from the rsyslog configuration, or comment them out with # as the first character of the line, then restart rsyslog.
+
+      grep -En 'imtcp" port|InputTCPServerRun' /etc/rsyslog.conf /etc/rsyslog.d/*.conf
+      systemctl restart rsyslog
+
+      Lines to disable look like input(type="imtcp" port="514") or $InputTCPServerRun 514. Keep them only on dedicated log servers.
+  - id: "CIS-RHEL10-6.2.3.7-local_syslog_module"
+    name: "local syslog module: grep \"imtcp\" /etc/rsyslog.conf /etc/rsyslog.d/*.conf | grep -Ev \":#|port=\""
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.3.7. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12, CM-6."
+    tags: [cis, cis-rhel10, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    run: |
+      grep "imtcp" /etc/rsyslog.conf /etc/rsyslog.d/*.conf | grep -Ev ":#|port="
+    allow_rc: any
+    expect:
+      - { rc: "in [0, 1, 2]" }
+      - { none: "~ .*" }
+    rationale: &rat-035740240e |
+      Loading rsyslog's imtcp module is the first step to accepting log messages from the network. On a system that is not a designated log server the module is not needed, and leaving it loaded makes it easy to open a listener by accident. Not loading it keeps the host from receiving remote log data.
+    remediation: &rem-2c410b4533 |
+      Remove the lines that load the imtcp module, or comment them out with # as the first character of the line, then restart rsyslog.
+
+      grep -n 'imtcp' /etc/rsyslog.conf /etc/rsyslog.d/*.conf
+      systemctl restart rsyslog
+
+      Lines to disable look like module(load="imtcp") or $ModLoad imtcp. The check ignores a commented line only if the # is at the very start.
   - id: "CIS-RHEL10-6.2.3.8-etc_logrotate.conf-attrs"
     name: "/etc/logrotate.conf: exists"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.2.3.8. NIST SP 800-53 Rev. 5: AU-8."
@@ -9985,37 +10303,47 @@ checks:
 
       chown root:root '/etc/security/opasswd'
       chmod u-xs,g-rwxs,o-rwx,a-t '/etc/security/opasswd'
-  - id: "CIS-RHEL10-7.1.11-sticky_bit"
-    name: "sticky bit: df --local -P | awk '{if (NR!=1) print $7}' | xargs -I '{}' find '{}' -xdev -type d \\( -p…"
+  - id: "CIS-RHEL10-7.1.11-world_writable_secured"
+    name: "world writable secured: findmnt -Dkerno fstype,target | awk '($1 !~ /^[[:space:]]*(nfs|proc|cifs|smb|vfat|iso9660…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.1.11. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-7, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     timeout: 120000ms
     run: |
-      df --local -P | awk '{if (NR!=1) print $7}' | xargs -I '{}' find '{}' -xdev -type d \( -perm -0002 -a ! -perm -1000 \) 2>/dev/null
+      findmnt -Dkerno fstype,target | awk '($1 !~ /^[[:space:]]*(nfs|proc|cifs|smb|vfat|iso9660|efivarfs|selinuxfs|ncpfs)/ && $2 !~ /^(\/run|\/tmp|\/var\/tmp)(\/|$)/){print $2}' | while IFS= read -r l_mount; do
+        find "$l_mount" -mount -xdev \( -path "*/containers/storage/*" -o -path "*/containerd/*" -o -path "*/kubelet/*" -o -path "/sys/*" -o -path "/snap/*" -o -path "/boot/efi/*" \) -prune -o \( \( -type f -perm -0002 \) -o \( -type d -perm -0002 ! -perm -1000 \) \) -printf 'FAIL: %y %p\n' 2>/dev/null
+      done
+      echo "scan_done"
     allow_rc: any
     expect:
-      - { rc: "in [0, 1]" }
-      - { none: "~ .*" }
-    rationale: &rat-efff70ba56 |
-      In a world-writable directory without the sticky bit, any user can delete or rename files owned by others, enabling denial of service and attacks such as swapping a file another process is about to use. The sticky bit limits removal and renaming to the file owner, the directory owner and root, as is standard for /tmp.
-    remediation: &rem-2801f3f799 |
-      Review each directory reported by the check. Set the sticky bit if it must remain world-writable, otherwise remove the write permission for others.
+      - { rc: "== 0" }
+      - { some: "~ ^scan_done$" }
+      - { none: "~ ^FAIL:" }
+    rationale: &rat-c403fdbb4d |
+      World-writable files can be changed by any user, allowing tampering with scripts, data or configuration that other users or services trust. World-writable directories without the sticky bit let any user delete or replace files of other users. Removing world write access or setting the sticky bit closes these paths to privilege escalation and data manipulation.
+    remediation: &rem-8fa5579c10 |
+      Review every path reported with FAIL. Remove world write permission from files, and set the sticky bit on directories that must remain writable for everyone (or remove world write permission from them).
 
-      chmod a+t DIR
-      chmod o-w DIR
+      chmod o-w FILE
+      chmod +t DIRECTORY
+
+      Check with the owner of the data before changing permissions that an application may depend on.
   - id: "CIS-RHEL10-7.1.12-unowned_ungrouped_dirs"
-    name: "unowned ungrouped dirs: df --local -P | awk {'if (NR!=1) print $7'} | xargs -I '{}' find '{}' -xdev \\( ! -path \"/…"
+    name: "unowned ungrouped dirs: findmnt -Dkerno fstype,target | awk '($1 !~ /^[[:space:]]*(nfs|proc|cifs|smb|vfat|iso9660…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.1.12. NIST SP 800-53 Rev. 5: CM-6."
     tags: [cis, cis-rhel10, cis-section-7, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     timeout: 120000ms
     run: |
-      df --local -P | awk {'if (NR!=1) print $7'} | xargs -I '{}' find '{}' -xdev \( ! -path "/run/user/*" -a ! -path "/proc/*" -a ! -path "*/containerd/*" -a ! -path "*/kubelet/pods/*" -a ! -path "*/kubelet/plugins/*" -a ! -path "/sys/fs/cgroup/memory/*" -a ! -path "/var/*/private/*" \)
+      findmnt -Dkerno fstype,target | awk '($1 !~ /^[[:space:]]*(nfs|proc|cifs|smb|vfat|iso9660|efivarfs|selinuxfs|ncpfs)/ && $2 !~ /^(\/run|\/tmp|\/var\/tmp)(\/|$)/){print $2}' | while IFS= read -r l_mount; do
+        find "$l_mount" -xdev \( ! -path "/run/user/*" -a ! -path "/proc/*" -a ! -path "*/containerd/*" -a ! -path "*/kubelet/pods/*" -a ! -path "*/kubelet/plugins/*" -a ! -path "/sys/fs/cgroup/memory/*" -a ! -path "/var/*/private/*" \) \( -nouser -o -nogroup \) -printf 'FAIL: %u %g %p\n' 2>/dev/null
+      done
+      echo "scan_done"
     allow_rc: any
     expect:
       - { rc: "== 0" }
-      - { none: "~ .*" }
+      - { some: "~ ^scan_done$" }
+      - { none: "~ ^FAIL:" }
     rationale: &rat-6853b0549c |
       Files and directories whose owner or group does not match any existing account are usually left over from deleted users or unpacked archives. If a new account later receives the same UID or GID, it silently gains access to that data. Assigning valid owners keeps access control predictable.
     remediation: &rem-87eb4e1869 |
@@ -10024,17 +10352,29 @@ checks:
       ls -ld PATH
       chown USER:GROUP PATH
   - id: "CIS-RHEL10-7.1.13-audit_sgid_suid"
-    name: "audit sgid suid: df --local -P | awk '{if (NR!=1) print $7}' | xargs -I '{}' find '{}' -xdev -type f \\( -p…"
+    name: "audit sgid suid: findmnt -Dkerno fstype,target,options | awk '($1 !~ /^[[:space:]]*(nfs|proc|smb|vfat|iso9…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.1.13. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5, AC-3, MP-2."
     tags: [cis, cis-rhel10, cis-section-7, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     timeout: 120000ms
     run: |
-      df --local -P | awk '{if (NR!=1) print $7}' | xargs -I '{}' find '{}' -xdev -type f \( -perm -2000 -o -perm -4000 \)
+      findmnt -Dkerno fstype,target,options | awk '($1 !~ /^[[:space:]]*(nfs|proc|smb|vfat|iso9660|efivarfs|selinuxfs)/ && $2 !~ /^\/run\/user\// && $3 !~ /noexec/ && $3 !~ /nosuid/){print $2}' | while IFS= read -r l_mount; do
+        find "$l_mount" -xdev \( -path "*/containers/storage/*" -o -path "*/.local/share/containers/*" -o -path "*/containerd/*" -o -path "*/kubelet/*" \) -prune -o -type f \( -perm -4000 -o -perm -2000 \) -print 2>/dev/null
+      done | sort -u | while IFS= read -r l_file; do
+        echo "reviewed: $l_file"
+        if ! rpm -qf "$l_file" >/dev/null 2>&1; then
+          echo "FAIL: $l_file is not owned by any package"
+        else
+          rpm -Vf "$l_file" 2>/dev/null | awk -v f="$l_file" '$NF == f && $1 ~ /(5|M)/ {print "FAIL: " f " differs from its package (" $1 ")"}'
+        fi
+      done
+      echo "scan_done"
     allow_rc: any
     expect:
       - { rc: "== 0" }
-      - { none: "~ ." }
+      - { some: "~ ^scan_done$" }
+      - { some: "~ ^reviewed: " }
+      - { none: "~ ^FAIL:" }
     rationale: &rat-a5e81e314d |
       Programs with the setuid or setgid bit run with the privileges of their owner or group, usually root, so a flaw in such a file or a replaced copy leads directly to privilege escalation. Reviewing these files, and checking that they belong to an installed package and match the packaged version, finds planted or modified privileged binaries.
     remediation: &rem-844c18c942 |
@@ -10191,17 +10531,19 @@ checks:
       vigr
       vigr -s
   - id: "CIS-RHEL10-7.2.8-home_dirs_exist"
-    name: "home dirs exist: pwck -r | grep -v journal | grep \"does not exist\""
+    name: "home dirs exist: awk -F: 'NR == FNR { if ($0 ~ /^\\// \u0026\u0026 $0 !~ /\\/nologin$/) l_shells[$0] = 1; next } ($7 i…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.2.8. NIST SP 800-53 Rev. 5: CM-6."
     tags: [cis, cis-rhel10, cis-section-7, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     timeout: 120000ms
     run: |
-      pwck -r | grep -v journal | grep "does not exist"
+      awk -F: 'NR == FNR { if ($0 ~ /^\// && $0 !~ /\/nologin$/) l_shells[$0] = 1; next } ($7 in l_shells) { print $1 ":" $6 }' /etc/shells /etc/passwd | while IFS=: read -r l_user l_home; do
+        [ -d "$l_home" ] || echo "User $l_user home $l_home does not exist"
+      done
     allow_rc: any
     expect:
-      - { rc: "== 1" }
-      - { none: "~ does not exist" }
+      - { rc: "== 0" }
+      - { none: "~ ." }
     rationale: &rat-93950236f2 |
       An account whose home directory does not exist gets / as its working directory at login, and some programs then try to create files in unexpected places. Missing home directories also indicate stale accounts. Every account, and in particular every interactive one, should have an existing home directory.
     remediation: &rem-16e7619e2c |
@@ -10214,13 +10556,17 @@ checks:
 
       On RHEL 7 the check also requires that home directories of users with UID 1000 to 60000 have mode 750 or 700. On Ubuntu 18.04 every finding of pwck -r fails the check, not only missing home directories.
   - id: "CIS-RHEL10-7.2.8-home_dirs_owned"
-    name: "home dirs owned: getent passwd {1000..60000} |  awk -F: '{ print $1  \" \"  $6 }' | while read user dir; do …"
+    name: "home dirs owned: awk -F: 'NR == FNR { if ($0 ~ /^\\// \u0026\u0026 $0 !~ /\\/nologin$/) l_shells[$0] = 1; next } ($7 i…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.2.8. NIST SP 800-53 Rev. 5: CM-6."
     tags: [cis, cis-rhel10, cis-section-7, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     timeout: 120000ms
     run: |
-      getent passwd {1000..60000} |  awk -F: '{ print $1  " "  $6 }' | while read user dir; do if [ $user != 'ftpd' ]; then owner=$(stat -L -c "%U" "$dir"); if [ "$owner" != "$user" ]; then echo "home dir for $user owned by $owner"; fi; fi; done
+      awk -F: 'NR == FNR { if ($0 ~ /^\// && $0 !~ /\/nologin$/) l_shells[$0] = 1; next } ($7 in l_shells) { print $1 ":" $6 }' /etc/shells /etc/passwd | while IFS=: read -r l_user l_home; do
+        [ -d "$l_home" ] || continue
+        l_own="$(stat -Lc '%U' "$l_home")"
+        [ "$l_own" = "$l_user" ] || echo "User $l_user home $l_home is owned by $l_own"
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -10233,17 +10579,21 @@ checks:
       ls -ld HOMEDIR
       chown USER HOMEDIR
   - id: "CIS-RHEL10-7.2.8-home_dirs_restrict"
-    name: "home dirs restrict: for i in `getent passwd {1000..60000} |  awk '{split($0,a,\":\");print a[6]}'`; do stat -c …"
+    name: "home dirs restrict: awk -F: 'NR == FNR { if ($0 ~ /^\\// \u0026\u0026 $0 !~ /\\/nologin$/) l_shells[$0] = 1; next } ($7 i…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.2.8. NIST SP 800-53 Rev. 5: CM-6."
     tags: [cis, cis-rhel10, cis-section-7, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     timeout: 120000ms
     run: |
-      for i in `getent passwd {1000..60000} |  awk '{split($0,a,":");print a[6]}'`; do stat -c "%a %n" $i ; done
+      awk -F: 'NR == FNR { if ($0 ~ /^\// && $0 !~ /\/nologin$/) l_shells[$0] = 1; next } ($7 in l_shells) { print $1 ":" $6 }' /etc/shells /etc/passwd | while IFS=: read -r l_user l_home; do
+        [ -d "$l_home" ] || continue
+        l_mode="$(stat -Lc '%a' "$l_home")"
+        [ $(( 0$l_mode & 027 )) -eq 0 ] || echo "User $l_user home $l_home is mode $l_mode, should be 750 or more restrictive"
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
-      - { some: "~ ^7(0|5)0\\s" }
+      - { none: "~ ." }
     rationale: &rat-38c62d069f |
       Home directories hold private data, shell startup files and credentials such as SSH keys. Modes of 750 or 700 prevent other users from reading or modifying them while still allowing optional group access.
     remediation: &rem-b0aa30ee8d |
@@ -10253,24 +10603,42 @@ checks:
       chmod 750 HOMEDIR
 
       Set the default for new home directories as well (HOME_MODE in /etc/login.defs; DIR_MODE in /etc/adduser.conf on Debian and Ubuntu).
-  - id: "CIS-RHEL10-7.2.9-dot_netrc_perms"
-    name: "dot netrc perms: find /home/  \\( -name .netrc -o -name .rhost -o -name .forward \\)"
+  - id: "CIS-RHEL10-7.2.9-dot_files_access"
+    name: "dot files access: l_valid_shells=\"^($(awk -F/ '$NF != \"nologin\" {print}' /etc/shells | sed -rn '/^\\//p' | p…"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 7.2.9. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-rhel10, cis-section-7, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     timeout: 120000ms
     run: |
-      find /home/  \( -name .netrc -o -name .rhost -o -name .forward \)
+      l_valid_shells="^($(awk -F/ '$NF != "nologin" {print}' /etc/shells | sed -rn '/^\//p' | paste -s -d '|' - ))$"
+      awk -v pat="$l_valid_shells" -F: '$(NF) ~ pat { print $1 " " $(NF-1) }' /etc/passwd | while read -r l_user l_home; do
+        [ -d "$l_home" ] || continue
+        l_group="$(id -gn "$l_user")"
+        find "$l_home" -xdev -type f -name '.*' 2>/dev/null | while IFS= read -r l_hdfile; do
+          case "$(basename "$l_hdfile")" in
+            .forward|.rhost|.rhosts) echo "FAIL: $l_hdfile exists"; continue ;;
+            .netrc|.bash_history) l_mask=0177 ;;
+            *) l_mask=0133 ;;
+          esac
+          stat -Lc '%#a %U %G' "$l_hdfile" | while read -r l_mode l_owner l_gowner; do
+            [ $(( l_mode & l_mask )) -gt 0 ] && echo "FAIL: $l_hdfile is mode $l_mode"
+            [ "$l_owner" != "$l_user" ] && echo "FAIL: $l_hdfile is owned by $l_owner"
+            [ "$l_gowner" != "$l_group" ] && echo "FAIL: $l_hdfile is group owned by $l_gowner"
+          done
+        done
+      done
+      echo "scan_done"
     allow_rc: any
     expect:
       - { rc: "== 0" }
-      - { none: "~ ." }
-    rationale: &rat-d1da7f7d6c |
-      .netrc files store login credentials for FTP and other services in clear text, .rhosts files grant password-less remote access, and .forward files can pipe a user's mail into arbitrary commands. All three bypass central account controls and can expose credentials or allow code execution, so they should not exist in home directories unless explicitly approved.
-    remediation: &rem-a93153e945 |
-      Review every file reported by the check together with its owner. Remove the files that are not required once nothing depends on them, and document any approved exception.
+      - { some: "~ ^scan_done$" }
+      - { none: "~ ^FAIL:" }
+    rationale: &rat-eb85dec2ca |
+      Dot files in a home directory configure the user's shell and tools and may hold credentials or command history. If other users can write to them, they can run commands as the owner at the next login; .netrc and .bash_history must not be readable by others either. .forward and .rhosts files bypass central mail and login controls and should not exist at all.
+    remediation: &rem-93d0f8e373 |
+      For every reported file: remove .forward, .rhost and .rhosts files, give the other files to the user and the user's primary group, and remove the excess permissions (0600 or stricter for .netrc and .bash_history, 0644 or stricter for all other dot files).
 
-      ls -l FILE
       rm FILE
-
-      The check reports these files regardless of their permissions.
+      chown USER:GROUP FILE
+      chmod u-x,go-wx FILE
+      chmod go-rwx HOME/.netrc HOME/.bash_history

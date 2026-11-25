@@ -101,7 +101,7 @@ type check struct {
 	When        []string
 	Rationale   string
 	Remediation string
-	TextKey     string // Windows: the setting the check reads, for texts/windows.yml
+	TextKey     string // the concept in texts/*.yml, if it is not the one of the ID
 }
 
 // ruleMeta is the meta block of a goss resource.
@@ -252,7 +252,11 @@ func convert(src string, b benchmark, out string) (stats, error) {
 		return st, err
 	}
 	sort.Slice(files, func(i, j int) bool { return naturalLess(files[i], files[j]) })
-	kinds := []string{"kernel-param", "mount", "package", "service", "file", "command", "user", "group"}
+	kinds := []string{"kernel-param", "mount", "package", "service", "file", "command", "user", "group", "matching"}
+	discovery, err := loadDiscovery(src, b, vars)
+	if err != nil {
+		return st, err
+	}
 	if b.windows() {
 		if err := loadWindowsTargets(src); err != nil {
 			return st, err
@@ -292,7 +296,11 @@ func convert(src string, b benchmark, out string) (stats, error) {
 			if ri == 0 {
 				st.files++
 			}
-			rendered, err := render(f, vars)
+			rendered, err := render(f, vars, "")
+			if err != nil {
+				return st, fmt.Errorf("%s: %w", f, err)
+			}
+			onlyIf, err := discoveryConditions(f, vars, discovery)
 			if err != nil {
 				return st, fmt.Errorf("%s: %w", f, err)
 			}
@@ -308,8 +316,8 @@ func convert(src string, b benchmark, out string) (stats, error) {
 						if ri > 0 {
 							continue
 						}
-						reason := ""
-						if m, ok := attrs["meta"].(map[string]any); ok {
+						reason := str(attrs["skip-reason"])
+						if m, ok := attrs["meta"].(map[string]any); ok && reason == "" {
 							reason = str(m["skip_reason"])
 						}
 						fmt.Fprintf(os.Stderr, "  skipped %s (%s): upstream skip %s\n", name, filepath.Base(f), firstLine(reason, 100))
@@ -332,6 +340,7 @@ func convert(src string, b benchmark, out string) (stats, error) {
 						texts, meta, textMatch, textNote = stigTexts(meta)
 					}
 					generated := convertResource(b, kind, name, attrs, meta)
+					generated = addOnlyIf(generated, onlyIf[resourceKey(kind, name)], dependsOn(b, attrs))
 					if len(generated) == 0 {
 						if ri == 0 {
 							st.skipped++
@@ -403,6 +412,22 @@ func convert(src string, b benchmark, out string) (stats, error) {
 	return st, writePolicy(out, b, version, checks, len(rules))
 }
 
+// auditVars override upstream defaults that leave rules of the benchmark
+// out of an audit. Some say whether the Ansible role changes a setting on a
+// host (not whether the benchmark asks for it), others declare a service as
+// required. An audit checks these rules on every host; what a host is
+// allowed to deviate from is recorded in a waiver file.
+var auditVars = map[string]bool{
+	"rhel10cis_disruption_high":        true,
+	"rhel10cis_force_user_maxdays":     true,
+	"rhel10cis_force_user_mindays":     true,
+	"rhel10cis_dotperm_ansiblemanaged": true,
+	"rhel10cis_rhel_default_repo":      false,
+	"ubtu24cis_nfs_server":             false,
+	"ubtu24cis_nis_server":             false,
+	"ubtu24cis_rpc_server":             false,
+}
+
 func loadVars(src string) (map[string]any, string, error) {
 	vars := map[string]any{}
 	matches, _ := filepath.Glob(filepath.Join(src, "vars", "*.yml"))
@@ -427,6 +452,11 @@ func loadVars(src string) (map[string]any, string, error) {
 		}
 	}
 	vars["run_heavy_tests"] = true
+	for k, v := range auditVars {
+		if _, ok := vars[k]; ok {
+			vars[k] = v
+		}
+	}
 	for k := range vars {
 		if strings.HasSuffix(k, "_snapshot_dir") {
 			vars[k] = snapshotSentinel
@@ -566,18 +596,24 @@ var funcs = template.FuncMap{
 	"trim":    strings.TrimSpace,
 	"toLower": strings.ToLower,
 	"toUpper": strings.ToUpper,
-	"toJson": func(v any) string {
-		data, _ := json.Marshal(v)
-		return string(data)
-	},
+	"toJson":  toJSON,
+	"toJSON":  toJSON,
 }
 
-func render(path string, vars map[string]any) ([]byte, error) {
+func toJSON(v any) string {
+	data, _ := json.Marshal(v)
+	return string(data)
+}
+
+// render executes a rule file. undiscovered names one .Discovered fact that
+// is rendered as absent; all others are present.
+func render(path string, vars map[string]any, undiscovered string) ([]byte, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	tpl, err := template.New(filepath.Base(path)).Funcs(funcs).Option("missingkey=zero").Parse(string(data))
+	data = globCount.ReplaceAll(data, []byte(globCountVar+"$1"))
+	tpl, err := template.New(filepath.Base(path)).Funcs(funcs).Funcs(hostFuncs(data)).Option("missingkey=zero").Parse(string(data))
 	if err != nil {
 		return nil, err
 	}
@@ -586,7 +622,7 @@ func render(path string, vars map[string]any) ([]byte, error) {
 	// option rules get an only_if instead (see mountChecks).
 	discovered := map[string]any{}
 	for _, m := range discoveredRe.FindAllStringSubmatch(string(data), -1) {
-		discovered[m[1]] = true
+		discovered[m[1]] = m[1] != undiscovered
 	}
 	var buf bytes.Buffer
 	if err := tpl.Execute(&buf, map[string]any{"Vars": vars, "Env": map[string]string{}, "Discovered": discovered}); err != nil {
@@ -607,7 +643,20 @@ func convertResource(b benchmark, kind, name string, attrs map[string]any, m rul
 	} else if b.windows() {
 		idName = winRuleName.ReplaceAllString(name, "")
 	}
-	id := fmt.Sprintf("CIS-%s-%s-%s", strings.ToUpper(b.Key), m.CISID, sanitize(idName))
+	// Upstream generates one resource per file from a fixed list and names
+	// it "<rule>_<path>": the path becomes a part of its own in the ID, and
+	// the texts are those of the rule. Not every host has every file of such
+	// a list, and the benchmark only looks at the files that exist.
+	textKey := ""
+	rule, path, listed := strings.Cut(name, "_/")
+	if _, legacy := textBase[sanitize(name)]; listed && !legacy && !b.windows() && rule != "" && kind == "file" {
+		textKey = sanitize(rule)
+		idName = textKey + "-" + strings.Trim(unsafeID.ReplaceAllString(path, "_"), "_")
+		attrs[optionalFile] = true
+	} else {
+		idName = sanitize(idName)
+	}
+	id := fmt.Sprintf("CIS-%s-%s-%s", strings.ToUpper(b.Key), m.CISID, idName)
 	if b.stig() {
 		id = fmt.Sprintf("STIG-%s-%s", m.CISID, sanitize(name))
 	}
@@ -616,6 +665,7 @@ func convertResource(b benchmark, kind, name string, attrs map[string]any, m rul
 		Description: description(b, m),
 		Tags:        tags(b, m),
 		Severity:    severity(m),
+		TextKey:     textKey,
 	}
 	if t, ok := attrs["timeout"]; ok {
 		base.Timeout = fmt.Sprintf("%vms", t)
@@ -672,6 +722,8 @@ func convertKind(b benchmark, kind, name string, attrs map[string]any, base chec
 		return kernelParamCheck(base, name, attrs)
 	case "user", "group":
 		return accountCheck(base, kind, name, attrs)
+	case "matching":
+		return matchingCheck(base, name, attrs)
 	}
 	return nil
 }
@@ -692,7 +744,7 @@ func commandCheck(c check, name string, attrs map[string]any) []check {
 		}
 	}
 	c.Run = rewriteExec(exec)
-	c.Name = fmt.Sprintf("%s: %s", humanize(name), firstLine(exec, 90))
+	c.Name = fmt.Sprintf("%s: %s", humanize(name), firstLine(auditLogDirRef.ReplaceAllString(exec, `"$$d"`), 90))
 	codes := exitCodes(attrs["exit-status"])
 	patterns := patternConditions(attrs["stdout"])
 	patterns = append(patterns, stderrConditions(attrs["stderr"])...)
@@ -709,6 +761,9 @@ func commandCheck(c check, name string, attrs map[string]any) []check {
 	c.Expect = append([]string{rcCondition(codes)}, patterns...)
 	return []check{c}
 }
+
+// optionalFile marks a file resource that passes if the file does not exist.
+const optionalFile = "checkmate-optional"
 
 func fileChecks(base check, name string, attrs map[string]any) []check {
 	path := str(attrs["path"])
@@ -730,9 +785,21 @@ func fileChecks(base check, name string, attrs map[string]any) []check {
 		c.Remediation = fileAbsentRemediation(path)
 		return []check{c}
 	}
-	lines = append(lines, fmt.Sprintf("f=%s", q))
-	lines = append(lines, `if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi`)
-	if hasExists {
+	auditLogDir := auditLogDirRef.FindStringSubmatch(path)
+	optional := truthy(attrs[optionalFile])
+	if auditLogDir != nil {
+		// The path is the directory of log_file in auditd.conf.
+		lines = append(lines, auditLogDirShell(auditLogDir[1]), `f=$d`)
+		path = "The audit log directory"
+	} else {
+		lines = append(lines, fmt.Sprintf("f=%s", q))
+	}
+	if optional {
+		lines = append(lines, `if [ ! -e "$f" ] && [ ! -L "$f" ]; then exit 0; fi`)
+	} else {
+		lines = append(lines, `if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi`)
+	}
+	if hasExists && !optional {
 		parts = append(parts, "exists")
 	}
 	var fixType, fixTarget string
@@ -758,6 +825,7 @@ func fileChecks(base check, name string, attrs map[string]any) []check {
 		fixTarget = target
 	}
 	modes := stringList(attrs["mode"])
+	anySpecial := false // the pattern allows any setuid, setgid and sticky bit
 	if m, ok := attrs["mode"].(map[string]any); ok && m["match-regexp"] != nil {
 		// {match-regexp: '^0[0246][04]0$'}: the highest mode the pattern
 		// allows, if it allows every stricter mode as well.
@@ -768,6 +836,7 @@ func fileChecks(base check, name string, attrs map[string]any) []check {
 			return nil
 		}
 		modes = []string{fmt.Sprintf("%04o", allowed)}
+		anySpecial = allowed&0o7000 == 0o7000
 	}
 	if len(modes) > 0 {
 		var allowed int64
@@ -780,6 +849,9 @@ func fileChecks(base check, name string, attrs map[string]any) []check {
 		mask := ^allowed & 0o7777
 		fixMask = mask
 		lines = append(lines, fmt.Sprintf(`if [ -n "$(find -H "$f" -maxdepth 0 -perm /%04o)" ]; then echo "$f has mode $(stat -L -c %%a "$f")"; fi`, mask))
+		if anySpecial {
+			allowed &= 0o777
+		}
 		parts = append(parts, fmt.Sprintf("mode %04o or stricter", allowed))
 	}
 	if owners := stringList(attrs["owner"]); len(owners) > 0 {
@@ -799,6 +871,13 @@ func fileChecks(base check, name string, attrs map[string]any) []check {
 		c.Run = strings.Join(lines, "\n")
 		c.Expect = []string{"empty"}
 		c.Remediation = fileAttrRemediation(path, fixType, fixTarget, fixOwners, fixGroups, fixMask)
+		if optional {
+			c.Name += ", if it exists"
+			c.Remediation = strings.Replace(c.Remediation, "Create "+path+" if it is missing, then ", "If "+path+" exists, ", 1)
+		}
+		if auditLogDir != nil {
+			c.Remediation = "" // from the texts: the path depends on the host
+		}
 		out = append(out, c)
 	}
 
@@ -837,11 +916,7 @@ func packageChecks(c check, b benchmark, name string, attrs map[string]any) []ch
 	if !ok {
 		installed = true
 	}
-	query := fmt.Sprintf("rpm -q --quiet %s", pkg)
-	if b.Package == "dpkg" {
-		query = fmt.Sprintf("dpkg-query -W -f='${Status}' %s 2>/dev/null | grep -q 'install ok installed'", pkg)
-	}
-	c.Run = query
+	c.Run = packageQuery(b, pkg)
 	if installed {
 		c.Name = "Package " + pkg + " is installed"
 		c.Expect = []string{"true"}
@@ -894,6 +969,23 @@ func serviceChecks(base check, name string, attrs map[string]any) []check {
 			c.Name = "Service " + name + " is not enabled"
 			c.Expect = []string{yamlString("!~ ^enabled")}
 			c.Remediation = unitRemediation(name, "not enabled")
+		}
+		out = append(out, c)
+	}
+	if v, ok := attrs["masked"].(bool); ok {
+		c := base
+		c.ID += "-masked"
+		// A unit that is not installed cannot run either; the benchmark
+		// asks for the mask only where the package has to stay.
+		c.Run = fmt.Sprintf("systemctl show -p LoadState %s | cut -d= -f2", name)
+		if v {
+			c.Name = "Service " + name + " is masked or not installed"
+			c.Expect = []string{yamlString("~ ^(masked|not-found)$")}
+			c.Remediation = unitRemediation(name, "masked")
+		} else {
+			c.Name = "Service " + name + " is not masked"
+			c.Expect = []string{yamlString("!= masked")}
+			c.Remediation = unitRemediation(name, "not masked")
 		}
 		out = append(out, c)
 	}
@@ -1402,6 +1494,9 @@ func rewriteExec(exec string) string {
 		return `f=$(awk -F= '/^[[:space:]]*log_file[[:space:]]*=/ {gsub(/[[:space:]]/, "", $2); print $2}' /etc/audit/auditd.conf 2>/dev/null)
 if [ -z "$f" ]; then echo "log_file is not set in /etc/audit/auditd.conf"; exit 0; fi
 find ` + m[1] + `"$(dirname "$f")" ` + m[2]
+	}
+	if m := auditLogDirRef.FindStringSubmatch(exec); m != nil {
+		return auditLogDirShell(m[1]) + "\n" + auditLogDirRef.ReplaceAllString(exec, `"$$d"`)
 	}
 	return exec
 }

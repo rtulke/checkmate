@@ -83,7 +83,7 @@ func (b benchmark) family() string {
 
 var (
 	cisIDSuffix = regexp.MustCompile(`^CIS-[A-Z0-9]+-[0-9.]+-(.*)$`)
-	checkPart   = regexp.MustCompile(`-(attrs|content|absent|enabled|running|version|[0-9]+)$`)
+	checkPart   = regexp.MustCompile(`-(attrs|content|absent|enabled|running|masked|version|[0-9]+)$`)
 )
 
 // linuxConcept is the concept of a Linux check, from its ID.
@@ -109,7 +109,9 @@ func applyTexts(b benchmark, checks []check) (missing []string) {
 		key := c.TextKey
 		family := "all"
 		if !b.windows() {
-			key = linuxConcept(c.ID)
+			if key == "" {
+				key = linuxConcept(c.ID)
+			}
 			family = b.family()
 		}
 		t, ok := textBase[key]
