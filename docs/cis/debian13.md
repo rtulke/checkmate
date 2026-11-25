@@ -1,6 +1,6 @@
 # CIS Debian 13
 
-Automated checks for 325 recommendations of the CIS Debian 13 benchmark (version 1.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
+Automated checks for 322 recommendations of the CIS Debian 13 benchmark (version 1.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
 
 **Policy:** [`cis/debian13.yml`](https://github.com/rtulke/checkmate/blob/main/cis/debian13.yml) · **Benchmark version:** 1.0.0
 
@@ -171,7 +171,6 @@ checkmate run cis/debian13.yml --tags cis-level-2 -v
 | `CIS-DEBIAN13-2.1.21-xwindow_pkg` | Package xserver-common is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-2.1.22-mta_listening_port25` | mta listening port25: ss -lntu \| grep -E ":25\\s" \| grep -E -v "\\s(127.0.0.1\|\\[?::1\\]?):25\\s" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-2.1.22-mta_postfix_inet_interfaces` | mta postfix inet interfaces: if [ -f /etc/postfix/main.cf ]; then grep -E '^\\s\*inet_interfaces' /etc/postfix/main.cf \|… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN13-2.1.23-manual_listening_ports` | manual listening ports: echo "Manual!! - Please check only approved services are listening" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-2.2.1-nis_client` | Package nis is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-2.2.2-rsh` | Package rsh is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-2.2.3-talk_client` | Package talk is not installed | L1 server | <span class="sev sev-medium">medium</span> |
@@ -273,7 +272,6 @@ checkmate run cis/debian13.yml --tags cis-level-2 -v
 | `CIS-DEBIAN13-4.1.2-ufw_running-enabled` | Service ufw is enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-4.1.2-ufw_running-running` | Service ufw is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-4.1.3-ufw_def_incoming_deny` | ufw def incoming deny: ufw status verbose \| awk -F',' '$1~/Default/ {print $1}' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN13-4.1.4-ufw_outbound` | ufw outbound: echo "Manual - Please confirm firewall outbound Policies match site policies" | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-DEBIAN13-4.1.5-ufw_def_routed` | ufw def routed: ufw status verbose \| awk -F',' '$1="Default"{print $3}' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-5.1.1-sshd_config_perms-attrs` | /etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-5.1.1-ssh_config.d_perms` | ssh config.d perms: find /etc/ssh/sshd_config.d -perm /137 ! -user root ! -group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -412,7 +410,6 @@ checkmate run cis/debian13.yml --tags cis-level-2 -v
 | `CIS-DEBIAN13-5.4.3.3-umask_profile_scripts` | umask profile scripts: grep -i "^\\s\*umask" /etc/profile /etc/profile.d/\*.sh /etc/login.defs \| cut -d ":" -f 2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-6.1.1.1.1-systemd-journald-enabled` | Service systemd-journald is enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-6.1.1.1.1-systemd-journald-running` | Service systemd-journald is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN13-6.1.1.1.2-etc_tmpfiles.d_systemd.conf` | /etc/tmpfiles.d/systemd.conf: echo "Manual - Please check journald default permissions" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-6.1.1.1.3-log_rotate_journald_conf` | log rotate journald conf: grep -Ei "max\|keep" /etc/systemd/journald.conf /etc/systemd/journald.conf.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-6.1.1.1.4-forward_journald_disabled` | forward journald disabled: grep -i forwardtosyslog /etc/systemd/journald.conf /etc/systemd/journald.conf.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN13-6.1.1.1.5-storage_journald_conf` | storage journald conf: grep -i Storage= /etc/systemd/journald.conf /etc/systemd/journald.conf.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

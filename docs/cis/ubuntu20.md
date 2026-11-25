@@ -1,6 +1,6 @@
 # CIS Ubuntu 20.04 LTS
 
-Automated checks for 293 recommendations of the CIS Ubuntu 20.04 LTS benchmark (version 3.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
+Automated checks for 274 recommendations of the CIS Ubuntu 20.04 LTS benchmark (version 3.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
 
 **Policy:** [`cis/ubuntu20.yml`](https://github.com/rtulke/checkmate/blob/main/cis/ubuntu20.yml) · **Benchmark version:** 3.0.0
 
@@ -47,7 +47,6 @@ checkmate run cis/ubuntu20.yml --tags cis-level-2 -v
 | `CIS-UBUNTU20-1.1.1.9-usb-storage_blacklist-content` | /etc/modprobe.d/blacklist.conf has the expected content (1 rule) | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-1.1.1.9-usb-storage_disabled-attrs` | /etc/modprobe.d/usb_storage.conf: exists | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-1.1.1.9-usb-storage_disabled-content` | /etc/modprobe.d/usb_storage.conf has the expected content (1 rule) | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-1.1.1.10-cve_fs` | cve fs: /var/fs_with_cves.sh | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-1.1.2.1.1-tmp_mount` | /tmp is a separate mount | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-1.1.2.1.2-tmp_nodev_options` | /tmp is a separate mount with nodev | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-1.1.2.1.2-tmp_nodev_fstab_options-attrs` | /etc/fstab: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -112,8 +111,6 @@ checkmate run cis/ubuntu20.yml --tags cis-level-2 -v
 | `CIS-UBUNTU20-1.1.2.7.4-var_log_audit_noexec_options` | /var/log/audit is a separate mount with noexec | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-1.1.2.7.4-var_log_audit_noexec_fstab_options-attrs` | /etc/fstab: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-1.1.2.7.4-var_log_audit_noexec_fstab_options-content` | /etc/fstab has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-1.2.1.1-gpg_keys_list` | gpg keys list: echo "MANUAL - Please check manually for gpg keys" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-1.2.1.2-gpg_configd` | gpg configd: echo "MANUAL - Please check manually that repositories are configured as expected" | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-1.2.2.1-check_updates` | check updates: apt update \| tail -1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-1.3.1.1-apparmor` | Package apparmor is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-1.3.1.2-apparmor_boot_grub-attrs` | /boot/grub/grub.cfg: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -167,7 +164,6 @@ checkmate run cis/ubuntu20.yml --tags cis-level-2 -v
 | `CIS-UBUNTU20-2.1.18-nginx_pkg` | Package nginx is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-2.1.19-xinetd_pkg` | Package xinetd is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-2.1.20-xwindow_pkg` | Package xserver-common is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-2.1.22-manual_listening_ports` | manual listening ports: echo "Manual!! - Please check only approved services are listening" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-2.2.1-nis_client` | Package nis is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-2.2.2-rsh-client` | Package rsh-client is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-2.2.3-talk` | Package talk is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -260,34 +256,18 @@ checkmate run cis/ubuntu20.yml --tags cis-level-2 -v
 | `CIS-UBUNTU20-4.2.4-ufw-enabled` | Service ufw is enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-4.2.4-ufw-running` | Service ufw is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-4.2.5-ufw_loopback` | ufw loopback: ufw status verbose | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-4.2.6-ufw_outbound` | ufw outbound: echo "Manual - Please confirm firewall outbound Policies match site policies" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-4.2.7-ufw_open_ports` | ufw open ports: echo "Manual - Please confirm firewall rules exist for open ports match site policies" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-4.2.8-ufw_def_deny` | ufw def deny: ufw status verbose \| grep Default: | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-4.3.1-nftables` | Package nftables is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-4.3.2-ufw` | Package ufw is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-4.3.3-ip6tables_flushed` | ip6tables flushed: ip6tables -L | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-4.3.3-iptables_flushed` | iptables flushed: iptables -L | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-4.3.4-nft_tables` | nft tables: echo "Manual - Please confirm nfttables table exists and matched site policy" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-4.3.5-nft_chains` | nft chains: echo "Manual - Please confirm nfttables base chain exists and matched site policy" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-4.3.6-nft_loopback` | nft loopback: echo "Manual - Please confirm nfttables loopback traffic configured and matched site poli… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-4.3.7-nft_conns` | nft conns: echo "Manual - Please confirm nfttables connections are configured and matched site polic… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-4.3.8-nft_def_deny` | nft def deny: echo "Manual - Please confirm nfttables default denies are configured and matched site po… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-4.3.9-nftables-enabled` | Service nftables is enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-4.3.9-nftables-running` | Service nftables is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-4.3.10-nftable_perm-attrs` | /etc/nftables.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-4.3.10-nft_rules` | nft rules: echo "Manual - Please review nfttables configuration and matches site policy" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-4.4.1.1-iptables` | Package iptables is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-4.4.1.1-iptables-persistent` | Package iptables-persistent is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-4.4.1.2-nftables` | Package nftables is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-4.4.1.3-ufw` | Package ufw is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-4.4.2.1-ipt_def_deny` | ipt def deny: echo "Manual - Please confirm iptables default denies are configured and matched site pol… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-4.4.2.2-ipt_loopback` | ipt loopback: echo "Manual - Please confirm iptables loopback connections are configured and matched si… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-4.4.2.3-ipt_conns_config` | ipt conns config: echo "Manual - Please confirm iptables outbound and connections are configured and matche… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-4.4.2.4-ipt_open_ports` | ipt open ports: echo "Manual - Please confirm iptables rules for open ports configured and matched site p… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-4.4.3.1-ipt6_def_deny` | ipt6 def deny: echo "Manual - Please confirm ip6tables default denies are configured and matched site po… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-4.4.3.2-ipt6_loopback` | ipt6 loopback: echo "Manual - Please confirm ip6tables loopback connections are configured and matched s… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-4.4.3.3-ipt6_conns_config` | ipt6 conns config: echo "Manual - Please confirm ip6tables outbound and connections are configured and match… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-4.4.3.4-ipt6_open_ports` | ipt6 open ports: echo "Manual - Please confirm ip6tables rules for open ports configured and matched site … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.1.1-sshd_config_perms-attrs` | /etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.1.2-etc_ssh_ssh_host_prv_key_group` | /etc/ssh/ssh host prv key group: groupkeys=$(sudo find /etc/ssh/ -name \*_key -type f ! -group root ); echo $groupkeys | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.1.2-etc_ssh_ssh_host_prv_key_perms` | /etc/ssh/ssh host prv key perms: keyperms=$(sudo find /etc/ssh/ -name \*_key -type f -perm /137 ); echo $keyperms | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -544,7 +524,7 @@ checkmate run cis/ubuntu20.yml --tags cis-level-2 -v
 | `CIS-UBUNTU20-7.1.10-etc_security_opasswd_old_perms-attrs` | /etc/security/opasswd.old: mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-7.1.10-etc_security_opasswd_perms-attrs` | /etc/security/opasswd: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-7.1.11-world_writable` | world writable: df --local -P \| awk '{if (NR!=1) print $6}' \| xargs -I '{}' find '{}' -xdev -type f -perm… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-7.1.12-unowned_dirs` | unowned dirs: df --local -P \| awk {'if (NR!=1) print $6'} \| xargs -I '{}' find '{}' -xdev -nouser -o -n… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU20-7.1.12-unowned_dirs` | No file or directory is without an owner or a group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-7.1.13-audit_sgid` | audit sgid: df --local -P \| awk '{if (NR!=1) print $6}' \| xargs -I '{}' find '{}' -xdev -type f -perm… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-7.2.1-shadowed_passwds-attrs` | /etc/passwd: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-7.2.1-shadowed_passwds-content` | /etc/passwd has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

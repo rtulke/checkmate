@@ -3,7 +3,7 @@
 name: DISA STIG Red Hat Enterprise Linux 8
 version: "2.9.0"
 description: >
-  Automated checks for 344 rules of the DISA Security Technical
+  Automated checks for 343 rules of the DISA Security Technical
   Implementation Guide for Red Hat Enterprise Linux 8 (version 2.9.0), converted from the goss
   audit content of the ansible-lockdown project. Severity follows the STIG
   category: CAT I high, CAT II medium, CAT III low. Rationale and fix
@@ -9263,50 +9263,6 @@ checks:
       Document the tuned package with the ISSO as an operational requirement or remove it from the system with the following command:
 
       $ sudo yum remove tuned
-  - id: "STIG-RHEL-08-040400-selinux_grouping"
-    name: "RHEL 8 must prevent nonprivileged users from executing privileged functions, including disabling, circumventing, or altering implemented security safeguards/countermeasures. (Manual Check)"
-    description: "DISA STIG for Red Hat Enterprise Linux 8, RHEL-08-040400, V-254520, SV-254520r1069331_rule, CAT II. CCI-002235. NIST SP 800-53 Rev. 4: AC-6."
-    tags: [stig, stig-rhel8, stig-cat-2]
-    severity: medium
-    run: |
-      echo "Manual Investigation to confirm selinux context for rule"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ .*" }
-    rationale: *rat-622589058b
-    remediation: &rem-fc7c10411e |
-      Configure RHEL 8 to prevent nonprivileged users from executing privileged functions, including disabling, circumventing, or altering implemented security safeguards/countermeasures.
-
-      Use the following command to map a new user to the "sysadm_u" role:
-
-           $ sudo semanage login -a -s sysadm_u <username>
-
-      Use the following command to map an existing user to the "sysadm_u" role:
-
-           $ sudo semanage login -m -s sysadm_u <username>
-
-      Use the following command to map a new user to the "staff_u" role:
-
-           $ sudo semanage login -a -s staff_u <username>
-
-      Use the following command to map an existing user to the "staff_u" role:
-
-           $ sudo semanage login -m -s staff_u <username>
-
-      Use the following command to map a new user to the "user_u" role:
-
-           $ sudo  semanage login -a -s user_u <username>
-
-      Use the following command to map an existing user to the "user_u" role:
-
-           $ sudo semanage login -m -s user_u <username>
-
-      Note: SELinux confined users mapped to sysadm_u are not allowed to log in to the system over SSH, by default. If this is a required function, it can be configured by setting the ssh_sysadm_login SELinux boolean to "on" with the following command:
-
-           $ sudo setsebool -P ssh_sysadm_login on
-
-      This must be documented with the information system security officer (ISSO) as an operational requirement.
   - id: "STIG-RHEL-08-010171-policycoreutils"
     name: "RHEL 8 must have policycoreutils package installed."
     description: "DISA STIG for Red Hat Enterprise Linux 8, RHEL-08-010171, V-230241, SV-230241r1017060_rule, CAT III. CCI-001084. NIST SP 800-53 Rev. 4: SC-3."

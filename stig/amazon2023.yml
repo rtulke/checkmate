@@ -3,7 +3,7 @@
 name: DISA STIG Amazon Linux 2023
 version: "1r5"
 description: >
-  Automated checks for 187 rules of the DISA Security Technical
+  Automated checks for 182 rules of the DISA Security Technical
   Implementation Guide for Amazon Linux 2023 (version 1r5), converted from the goss
   audit content of the ansible-lockdown project. Severity follows the STIG
   category: CAT I high, CAT II medium, CAT III low. Rationale and fix
@@ -713,28 +713,6 @@ checks:
       SELINUX=enforcing
 
       A reboot is required for the changes to take effect.
-  - id: "STIG-AZLX-23-000110-azlx_23_000110_check"
-    name: "MEDIUM (Amazon Linux 2023 must ensure cryptographic verification of vendor so…)"
-    description: "DISA STIG for Amazon Linux 2023, AZLX-23-000110, V-273995, SV-273995r1119973_rule, CAT II. CCI-003992. NIST SP 800-53 Rev. 4: NA."
-    tags: [stig, stig-amazon2023, stig-cat-2]
-    severity: medium
-    run: |
-      echo "MANUAL - Please check manually for gpg keys"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^MANUAL.*" }
-    rationale: &rat-01dbd6fae5 |
-      Cryptographic verification of vendor software packages ensures that all software packages are obtained from a valid source and protects against spoofing that could lead to installation of malware on the system. Amazon Linux cryptographically signs all software packages, which includes updates, with a GPG key to Verify they are valid.
-    remediation: &rem-d13b0e4f1a |
-      Configure Amazon Linux 2023 to have the public key for verifying RPM packages to be installed with the "system-release" package.
-
-      Install the system-release installation with the following command:
-      $ sudo dnf install -y system-release
-
-      Ensure cryptographic verification of software packages is enabled by editing /etc/dnf/dnf.conf and under '[main]' in the configuration file add:
-
-      gpgcheck=1
   - id: "STIG-AZLX-23-000135-systemd-journald_service-enabled"
     name: "MEDIUM (Service systemd-journald is enabled)"
     description: "DISA STIG for Amazon Linux 2023, AZLX-23-000135, V-274000, SV-274000r1119988_rule, CAT II. CCI-001665. NIST SP 800-53 Rev. 4: SC-2."
@@ -4124,25 +4102,6 @@ checks:
       - { none: "~ /\\^UMASK 0\\[1-6\\]\\{2;\\}" }
     rationale: *rat-4ee9105023
     remediation: *rem-d130fa57a4
-  - id: "STIG-AZLX-23-002415-azlx_23_002415_temporary_user_accounts_c"
-    name: "MEDIUM (Amazon Linux 2023 must automatically remove or disable temporary user…)"
-    description: "DISA STIG for Amazon Linux 2023, AZLX-23-002415, V-274146, SV-274146r1120426_rule, CAT II. CCI-000016. NIST SP 800-53 Rev. 4: AC-2."
-    tags: [stig, stig-amazon2023, stig-cat-2]
-    severity: medium
-    run: |
-      echo "Manual audit check required"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual audit check required" }
-    rationale: &rat-bc2937dc79 |
-      If temporary user accounts remain active when no longer needed or for an excessive period, these accounts may be used to gain unauthorized access. To mitigate this risk, automated termination of all temporary accounts must be set upon account creation.
-    remediation: &rem-eff42a04d6 |
-      Configure Amazon Linux 2023 temporary accounts to have an expiration date of 72 hours.
-
-      If a temporary account must be created configure the system to terminate the account after a 72 hour time period with the following command to set an expiration date on it. Substitute "system_account_name" with the account to be created.
-
-      $ sudo chage -E $(date -d +3days +%Y-%m-%d) system_account_name
   - id: "STIG-AZLX-23-002420-azlx_23_002420_initial_authentication_ch"
     name: "MEDIUM (Amazon Linux 2023 must automatically lock an account when three unsuc…)"
     description: "DISA STIG for Amazon Linux 2023, AZLX-23-002420, V-274147, SV-274147r1184027_rule, CAT II. CCI-000044. NIST SP 800-53 Rev. 4: AC-7."
@@ -4250,27 +4209,6 @@ checks:
       - { none: "~ INACTIVE\\\\s\\*=\\\\s\\*\\(-1\\|\\[1-9\\]\\|\\[1-2\\]\\[0-9\\]\\|2\\[0-4\\]\\)/" }
     rationale: *rat-27643871b5
     remediation: *rem-36aff21464
-  - id: "STIG-AZLX-23-002435-azlx_23_002435_temporary_accounts_check"
-    name: "MEDIUM (Amazon Linux 2023 must automatically expire temporary accounts within…)"
-    description: "DISA STIG for Amazon Linux 2023, AZLX-23-002435, V-274150, SV-274150r1120438_rule, CAT II. CCI-001682. NIST SP 800-53 Rev. 4: AC-2."
-    tags: [stig, stig-amazon2023, stig-cat-2]
-    severity: medium
-    run: |
-      echo "Manual audit check required"
-    allow_rc: any
-    expect:
-      - { rc: "in [0, 1]" }
-      - { none: "~ Manual audit check required" }
-    rationale: &rat-e6c39558ef |
-      Temporary accounts are privileged or nonprivileged accounts that are established during pressing circumstances, such as new software or hardware configuration or an incident response, where the need for prompt account activation requires bypassing normal account authorization procedures. If any inactive temporary accounts are left enabled on the system and are not either manually removed or automatically expired within 72 hours, the security posture of the system will be degraded and exposed to exploitation by unauthorized users or insider threat actors.
-
-      Temporary accounts are different from emergency accounts. Emergency accounts, also known as "last resort" or "break glass" accounts, are local logon accounts enabled on the system for emergency use by authorized system administrators to manage a system when standard logon methods are failing or not available. Emergency accounts are not subject to manual removal or scheduled expiration requirements.
-
-      The automatic expiration of temporary accounts may be extended as needed by the circumstances but it must not be extended indefinitely. A documented permanent account must be established for privileged users who need long-term maintenance accounts.
-    remediation: &rem-26de7d68d2 |
-      Configure Amazon Linux 2023 to expire temporary accounts after 72 hours with the following command:
-
-      $ sudo chage -E $(date -d +3days +%Y-%m-%d) <temporary_account_name>
   - id: "STIG-AZLX-23-002440-azlx_23_002440_config_su_use_uid-attrs"
     name: "MEDIUM (/etc/pam.d/su: exists)"
     description: "DISA STIG for Amazon Linux 2023, AZLX-23-002440, V-274151, SV-274151r1120441_rule, CAT II. CCI-002165. NIST SP 800-53 Rev. 4: AC-3."
@@ -4465,26 +4403,6 @@ checks:
       - { none: "~ ^unlock_time\\s*=\\s*(-|[1-9])" }
     rationale: *rat-c7aa300a3e
     remediation: *rem-5f3fb44ca3
-  - id: "STIG-AZLX-23-002475-azlx_23_002475_check_firewalld_services"
-    name: "MEDIUM (Amazon Linux 2023 must be configured to prohibit or restrict the use …)"
-    description: "DISA STIG for Amazon Linux 2023, AZLX-23-002475, V-274158, SV-274158r1184031_rule, CAT II. CCI-000381, CCI-000382, CCI-002314. NIST SP 800-53 Rev. 4: CM-7, AC-17."
-    tags: [stig, stig-amazon2023, stig-cat-2]
-    severity: medium
-    run: |
-      echo "Manual audit check required"
-    allow_rc: any
-    expect:
-      - { rc: "in [0, 1]" }
-      - { none: "~ Manual audit check required" }
-    rationale: *rat-b24efa70b3
-    remediation: &rem-14523feda5 |
-      Configure Amazon Linux 2023 to prohibit/restrict Functions, Ports, Protocols, and Services. Use firewall-cmd to manage firewalld.
-
-      To open a port for a service, configure firewalld using the following command:
-
-      $ sudo firewall-cmd --permanent --add-port=port_number/tcp
-      or
-      $ sudo firewall-cmd --permanent --add-service=service_name
   - id: "STIG-AZLX-23-002480-azlx_23_002480_check_interactive_users_p"
     name: "MEDIUM (Amazon Linux 2023 must insure all interactive users have a primary gr…)"
     description: "DISA STIG for Amazon Linux 2023, AZLX-23-002480, V-274159, SV-274159r1120465_rule, CAT II. CCI-000764, CCI-000804, CCI-000135. NIST SP 800-53 Rev. 4: IA-2, IA-8, AU-3."
@@ -5020,23 +4938,6 @@ checks:
       - { some: "~ ^(masked|disabled|not-found)$|Failed to get unit file state for autofs\\.service" }
     rationale: *rat-fc30c6f6d5
     remediation: *rem-8e586ac404
-  - id: "STIG-AZLX-23-002605-azlx_23_002605_check_rate_limiting_measu"
-    name: "MEDIUM (Amazon Linux 2023 must protect against or limit the effects of denial…)"
-    description: "DISA STIG for Amazon Linux 2023, AZLX-23-002605, V-274183, SV-274183r1120714_rule, CAT II. CCI-002385. NIST SP 800-53 Rev. 4: SC-5."
-    tags: [stig, stig-amazon2023, stig-cat-2]
-    severity: medium
-    run: |
-      echo "Manual audit check required"
-    allow_rc: any
-    expect:
-      - { rc: "in [0, 1]" }
-      - { none: "~ .*" }
-    rationale: &rat-6c7b1e1822 |
-      DoS is a condition when a resource is not available for legitimate users. When this occurs, the organization either cannot accomplish its mission or must operate at degraded capacity.
-
-      This requirement addresses the configuration of Amazon Linux 2023 to mitigate the impact of DoS attacks that have occurred or are ongoing on system availability. For each system, known and potential DoS attacks must be identified and solutions for each type implemented. A variety of technologies exist to limit or, in some cases, eliminate the effects of DoS attacks (e.g., limiting processes or establishing memory partitions). Employing increased capacity and bandwidth, combined with service redundancy, may reduce the susceptibility to some DoS attacks.
-    remediation: &rem-80a3dbfdfb |
-      Configure Amazon Linux 2023 to use the AWS ALB rate limiting feature using its built-in rate limiting capabilities. This allows the user to set rate limits at the ALB level, which will apply to all traffic passing through the load balancer.
   - id: "STIG-AZLX-23-002610-azlx_23_002610_check_nonexecutable_data"
     name: "MEDIUM (Amazon Linux 2023 must implement nonexecutable data to protect its me…)"
     description: "DISA STIG for Amazon Linux 2023, AZLX-23-002610, V-274184, SV-274184r1120540_rule, CAT II. CCI-002824. NIST SP 800-53 Rev. 4: SI-16."

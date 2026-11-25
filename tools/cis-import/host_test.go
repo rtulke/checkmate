@@ -201,3 +201,76 @@ func TestDropSiteChoices(t *testing.T) {
 		t.Error("covers accepts a pattern that is not included")
 	}
 }
+
+func TestHostVarConditions(t *testing.T) {
+	dir := t.TempDir()
+	path := writeFile(t, dir, "cis_1.7.1.yml", `
+command:
+  gdm_banner:
+    exec: cat /etc/dconf/db/local.d/*
+    skip: {{ if (not .Vars.ubtu24cis_desktop_required) }}true{{ else }}false{{ end }}
+  xorg_absent:
+    exec: dpkg -l xserver-xorg
+    skip: {{ if .Vars.ubtu24cis_desktop_required }}true{{ else }}false{{ end }}
+  always:
+    exec: "true"
+`)
+	b := benchmarks["ubuntu24"]
+	conds, unskip, err := hostVarConditions(path, b, map[string]any{"ubtu24cis_desktop_required": true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	gdm := packageQuery(b, "gdm3")
+	if got := conds[resourceKey("command", "gdm_banner")]; len(got) != 1 || got[0] != gdm {
+		t.Errorf("gdm_banner: %v", got)
+	}
+	if got := conds[resourceKey("command", "xorg_absent")]; len(got) != 1 || got[0] != "! "+gdm || !unskip[resourceKey("command", "xorg_absent")] {
+		t.Errorf("xorg_absent: %v", got)
+	}
+	if len(conds[resourceKey("command", "always")]) != 0 {
+		t.Error("a resource that does not depend on the variable got a condition")
+	}
+}
+
+func TestModuleCondition(t *testing.T) {
+	for want, attrs := range map[string]map[string]any{
+		"modinfo dccp >/dev/null 2>&1": {"exec": `modprobe --showconfig | grep -P '\b(install|blacklist)\h+dccp\b'`},
+		"":                             {"exec": "modprobe -n -v dccp"},
+	} {
+		got := strings.Join(moduleCondition("command", attrs), "")
+		if got != want {
+			t.Errorf("%v: got %q, want %q", attrs, got, want)
+		}
+	}
+	got := moduleCondition("file", map[string]any{"contents": []any{`/^blacklist firewire[-_]core$/`}})
+	if len(got) != 1 || got[0] != "modinfo firewire_core >/dev/null 2>&1" {
+		t.Errorf("firewire: %v", got)
+	}
+	got = moduleCondition("file", map[string]any{"contents": []any{`/^install overlay(fs)? \/bin\/(true|false)/`}})
+	if len(got) != 1 || got[0] != "modinfo overlay >/dev/null 2>&1" {
+		t.Errorf("overlay: %v", got)
+	}
+	if got := moduleCondition("file", map[string]any{"contents": []any{`/^PermitRootLogin no/`}}); got != nil {
+		t.Errorf("unrelated file: %v", got)
+	}
+}
+
+func TestLeftOutCommands(t *testing.T) {
+	for exec, left := range map[string]bool{
+		`echo "Manual!! - Please check only approved services are listening"`: true,
+		`echo "Manual test"`:           true,
+		`/var/fs_with_cves.sh`:         true,
+		`echo "scan_done"`:             false,
+		`echo manual | grep -c manual`: false,
+		`/usr/sbin/sshd -T`:            false,
+	} {
+		got := commandCheck(check{ID: "x"}, "name", map[string]any{"exec": exec})
+		if (len(got) == 0) != left {
+			t.Errorf("%q: left out = %v, want %v", exec, len(got) == 0, left)
+		}
+	}
+	got := rewriteExec(`find /home/ -name "\.*" -perm /g+w,o+w | grep -v .bash_history`)
+	if !strings.Contains(got, `find "$d" -xdev -name "\.*" -perm /g+w,o+w 2>/dev/null`) || !strings.HasSuffix(got, "done | grep -v .bash_history") {
+		t.Errorf("home find: %s", got)
+	}
+}

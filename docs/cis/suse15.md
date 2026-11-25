@@ -1,6 +1,6 @@
 # CIS SUSE Linux Enterprise 15
 
-Automated checks for 267 recommendations of the CIS SUSE Linux Enterprise 15 benchmark (version 2.0.1), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
+Automated checks for 263 recommendations of the CIS SUSE Linux Enterprise 15 benchmark (version 2.0.1), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
 
 **Policy:** [`cis/suse15.yml`](https://github.com/rtulke/checkmate/blob/main/cis/suse15.yml) · **Benchmark version:** 2.0.1
 
@@ -155,7 +155,6 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-2.1.19-nginx_pkg` | Package nginx is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-2.1.20-xinetd_pkg` | Package xinetd is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-2.1.21-xwindow_pkg` | Package xorg-x11-server is not installed | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-SUSE15-2.1.23-manual_listening_ports` | manual listening ports: echo "Manual!! - Please check only approved services are listening" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-2.2.1-ftp_client` | Package ftp is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-2.2.2-openldap2-client_removed` | Package openldap2-client is not installed | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE15-2.2.2-openldap2_5_removed` | Package openldap2_5 is not installed | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
@@ -237,9 +236,6 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-4.1.1-nftables_stopped-running` | Service nftables is not running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-4.1.1-nftables_masked-attrs` | /etc/systemd/system/nftables.service: exists, is a symbolic link, links to /dev/null | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-4.2.1-firewalld_installed` | Package firewalld is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-4.2.2-firewall_drops_unnecessary` | firewall drops unnecessary: echo "Manual check - review 'firewall-cmd --list-all' and confirm only approved services … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-4.2.3-firewall_loopback_manual` | firewall loopback manual: echo "Manual check - confirm the loopback interface is trusted and that traffic to 127.0.… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-4.2.4-firewall_default_zone` | firewall default zone: echo "Manual check - review 'firewall-cmd --get-default-zone' and confirm it matches site… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-4.2.5-firewalld_started_enabled-enabled` | Service firewalld is enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-4.2.5-firewalld_started_enabled-running` | Service firewalld is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.1.1-sshd_config_perms-attrs` | /etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -441,7 +437,7 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-7.1.9-etc_shells_perms-attrs` | /etc/shells: exists, mode 0644 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-7.1.10-etc_security_opasswd_perms-attrs` | /etc/security/opasswd: mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-7.1.11-world_writable` | world writable: df --local -P \| awk '{if (NR!=1) print $6}' \| xargs -I '{}' find '{}' -xdev -type f -perm… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-7.1.12-unowned_dirs` | unowned dirs: df --local -P \| awk {'if (NR!=1) print $6'} \| xargs -I '{}' find '{}' -xdev -nouser -o -n… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-7.1.12-unowned_dirs` | No file or directory is without an owner or a group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-7.1.13-audit_sgid` | audit sgid: df --local -P \| awk '{if (NR!=1) print $6}' \| xargs -I '{}' find '{}' -xdev -type f -perm… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-7.2.1-shadowed_passwds-attrs` | /etc/passwd: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-7.2.1-shadowed_passwds-content` | /etc/passwd has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

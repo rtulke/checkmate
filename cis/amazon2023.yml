@@ -3,7 +3,7 @@
 name: CIS Amazon Linux 2023
 version: "1.0.0"
 description: >
-  Automated checks for 239 recommendations of the CIS Amazon Linux 2023 benchmark
+  Automated checks for 232 recommendations of the CIS Amazon Linux 2023 benchmark
   (version 1.0.0), converted from the goss audit content of the
   ansible-lockdown project. Check names describe what is verified; the
   recommendation number is in the ID and the description. Select profiles
@@ -19,6 +19,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 1.1.1.1."
     tags: [cis, cis-amazon2023, cis-section-1, cis-level-2, cis-server, cis-level2-server]
     severity: low
+    only_if: "modinfo squashfs \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -32,6 +33,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 1.1.1.1."
     tags: [cis, cis-amazon2023, cis-section-1, cis-level-2, cis-server, cis-level2-server]
     severity: low
+    only_if: "modinfo squashfs \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -66,6 +68,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 1.1.1.2."
     tags: [cis, cis-amazon2023, cis-section-1, cis-level-2, cis-server, cis-level2-server]
     severity: low
+    only_if: "modinfo udf \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -78,6 +81,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 1.1.1.2."
     tags: [cis, cis-amazon2023, cis-section-1, cis-level-2, cis-server, cis-level2-server]
     severity: low
+    only_if: "modinfo udf \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -112,6 +116,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 1.1.1.3."
     tags: [cis, cis-amazon2023, cis-section-1]
     severity: low
+    only_if: "modinfo cramfs \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -124,6 +129,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 1.1.1.3."
     tags: [cis, cis-amazon2023, cis-section-1]
     severity: low
+    only_if: "modinfo cramfs \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -158,6 +164,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 1.1.1.4."
     tags: [cis, cis-amazon2023, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
+    only_if: "modinfo freevxfs \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -170,6 +177,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 1.1.1.4."
     tags: [cis, cis-amazon2023, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
+    only_if: "modinfo freevxfs \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -204,6 +212,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 1.1.1.5."
     tags: [cis, cis-amazon2023, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
+    only_if: "modinfo jffs2 \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -216,6 +225,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 1.1.1.5."
     tags: [cis, cis-amazon2023, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
+    only_if: "modinfo jffs2 \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -250,6 +260,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 1.1.1.6."
     tags: [cis, cis-amazon2023, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
+    only_if: "modinfo hfs \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -262,6 +273,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 1.1.1.6."
     tags: [cis, cis-amazon2023, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
+    only_if: "modinfo hfs \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -296,6 +308,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 1.1.1.7."
     tags: [cis, cis-amazon2023, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
+    only_if: "modinfo hfsplus \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -308,6 +321,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 1.1.1.7."
     tags: [cis, cis-amazon2023, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
+    only_if: "modinfo hfsplus \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -794,6 +808,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 1.1.9."
     tags: [cis, cis-amazon2023, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
+    only_if: "modinfo usb-storage \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -806,6 +821,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 1.1.9."
     tags: [cis, cis-amazon2023, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
+    only_if: "modinfo usb-storage \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -2068,6 +2084,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 3.1.2."
     tags: [cis, cis-amazon2023, cis-section-3, cis-level-2, cis-server, cis-level2-server]
     severity: low
+    only_if: "modinfo dccp \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -2080,6 +2097,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 3.1.2."
     tags: [cis, cis-amazon2023, cis-section-3, cis-level-2, cis-server, cis-level2-server]
     severity: low
+    only_if: "modinfo dccp \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -2114,6 +2132,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 3.1.3."
     tags: [cis, cis-amazon2023, cis-section-3, cis-level-2, cis-server, cis-level2-server]
     severity: low
+    only_if: "modinfo sctp \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -2126,6 +2145,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 3.1.3."
     tags: [cis, cis-amazon2023, cis-section-3, cis-level-2, cis-server, cis-level2-server]
     severity: low
+    only_if: "modinfo sctp \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -2160,6 +2180,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 3.1.4."
     tags: [cis, cis-amazon2023, cis-section-3, cis-level-2, cis-server, cis-level2-server]
     severity: low
+    only_if: "modinfo rds \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -2172,6 +2193,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 3.1.4."
     tags: [cis, cis-amazon2023, cis-section-3, cis-level-2, cis-server, cis-level2-server]
     severity: low
+    only_if: "modinfo rds \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -2206,6 +2228,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 3.1.5."
     tags: [cis, cis-amazon2023, cis-section-3, cis-level-2, cis-server, cis-level2-server]
     severity: low
+    only_if: "modinfo tipc \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -2218,6 +2241,7 @@ checks:
     description: "CIS Amazon Linux 2023 benchmark recommendation 3.1.5."
     tags: [cis, cis-amazon2023, cis-section-3, cis-level-2, cis-server, cis-level2-server]
     severity: low
+    only_if: "modinfo tipc \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -2813,93 +2837,6 @@ checks:
       firewall-cmd --get-default-zone
 
       Review the services and ports allowed in that zone with firewall-cmd --list-all.
-  - id: "CIS-AMAZON2023-3.4.2.2-nftables_table_list_manual"
-    name: "nftables table list manual: echo \"Manual test\""
-    description: "CIS Amazon Linux 2023 benchmark recommendation 3.4.2.2."
-    tags: [cis, cis-amazon2023, cis-section-3, cis-level-2, cis-server, cis-level2-server]
-    severity: low
-    run: |
-      echo "Manual test"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual test" }
-    rationale: &rat-3aadfc2f4b |
-      nftables rules only take effect inside a table; without one, no filtering happens at all even though the tools are installed. Verifying that a table exists confirms that a firewall rule set is actually loaded. This is a manual review item.
-    remediation: &rem-6ab191f657 |
-      List the loaded nftables tables and confirm that a firewall table exists; when nftables is managed directly, create one and make it persistent.
-
-      nft list tables
-      nft create table inet filter
-      nft list ruleset > /etc/sysconfig/nftables.conf
-
-      When firewalld is used, its inet firewalld table appears while firewalld runs. This is a manual check that always reports a failure for review.
-  - id: "CIS-AMAZON2023-3.4.2.3-nftables_base_chain_manual"
-    name: "nftables base chain manual: echo \"Manual test\""
-    description: "CIS Amazon Linux 2023 benchmark recommendation 3.4.2.3."
-    tags: [cis, cis-amazon2023, cis-section-3, cis-level-2, cis-server, cis-level2-server]
-    severity: low
-    run: |
-      echo "Manual test"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual test" }
-    rationale: &rat-39947e041d |
-      Base chains attach nftables rules to the kernel's netfilter hooks. Without base chains for the input, forward and output hooks, packets passing those points are not filtered at all.
-    remediation: &rem-31d5774eaf |
-      Create base chains for the input, forward and output hooks in the firewall table. Add rules for required traffic, such as SSH, before switching any chain policy to drop.
-
-      nft create chain inet filter input '{ type filter hook input priority 0 ; }'
-      nft create chain inet filter forward '{ type filter hook forward priority 0 ; }'
-      nft create chain inet filter output '{ type filter hook output priority 0 ; }'
-
-      On Amazon Linux 2023 and RHEL 9 this is a manual check that always reports a failure; review the chains with nft list ruleset. Save the rule set to the file loaded by nftables.service (/etc/sysconfig/nftables.conf or a file it includes) to keep it after a reboot.
-  - id: "CIS-AMAZON2023-3.4.2.4-firewall_loopback_manual"
-    name: "firewall loopback manual: echo \"Manual test\""
-    description: "CIS Amazon Linux 2023 benchmark recommendation 3.4.2.4."
-    tags: [cis, cis-amazon2023, cis-section-3, cis-level-2, cis-server, cis-level2-server]
-    severity: low
-    run: |
-      echo "Manual test"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual test" }
-    rationale: &rat-3a75f7c813 |
-      Local services often trust connections from the loopback interface. The firewall should accept all loopback traffic so local communication works, but drop packets that arrive on other interfaces while claiming a 127.0.0.0/8 or ::1 source, because such spoofed packets could reach services that only expect local clients.
-    remediation: &rem-e17bfc925b |
-      Accept all traffic on the loopback interface and drop packets with a loopback source address that arrive on other interfaces.
-
-      firewall-cmd --permanent --zone=trusted --add-interface=lo
-      firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="127.0.0.0/8" destination not address="127.0.0.0/8" drop'
-      firewall-cmd --permanent --add-rich-rule='rule family="ipv6" source address="::1" destination not address="::1" drop'
-      firewall-cmd --reload
-
-      This is a manual check: on Amazon Linux 2023 and RHEL 9 it always reports a failure for review, on SUSE 15 it always passes.
-  - id: "CIS-AMAZON2023-3.4.2.5-firewall_drop_unncessary_ports_manual"
-    name: "firewall drop unncessary ports manual: echo \"Manual test\""
-    description: "CIS Amazon Linux 2023 benchmark recommendation 3.4.2.5."
-    tags: [cis, cis-amazon2023, cis-section-3, cis-level-2, cis-server, cis-level2-server]
-    severity: low
-    run: |
-      echo "Manual test"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual test" }
-    rationale: &rat-90809a00fd |
-      Every port the firewall allows is a path into the system. Services that were opened for testing or are no longer used remain reachable until removed from the firewall configuration. Regularly reviewing the allowed services and ports ensures that only those required by the system's role are open.
-    remediation: &rem-629ba92304 |
-      Review the services and ports allowed in each active firewalld zone and remove those the system does not need.
-
-      firewall-cmd --get-active-zones
-      firewall-cmd --list-all --zone=ZONE
-      firewall-cmd --permanent --zone=ZONE --remove-service=SERVICE
-      firewall-cmd --permanent --zone=ZONE --remove-port=PORT/PROTOCOL
-      firewall-cmd --reload
-
-      This is a manual check that always reports a failure for review.
   - id: "CIS-AMAZON2023-4.1.1-cronie"
     name: "Package cronie is installed"
     description: "CIS Amazon Linux 2023 benchmark recommendation 4.1.1."
@@ -5079,27 +5016,6 @@ checks:
       sed -ri '/^#?\s*(SystemMaxUse|SystemKeepFree|RuntimeMaxUse|RuntimeKeepFree|MaxFileSec)\s*=/d' /etc/systemd/journald.conf
       printf '%s\n' 'SystemMaxUse=1G' 'SystemKeepFree=500M' 'RuntimeMaxUse=200M' 'RuntimeKeepFree=50M' 'MaxFileSec=1month' >> /etc/systemd/journald.conf
       systemctl restart systemd-journald
-  - id: "CIS-AMAZON2023-5.1.2.7-etc_tmpfiles.d_systemd.conf"
-    name: "/etc/tmpfiles.d/systemd.conf: echo \"Manual - Please check journald default permissions\""
-    description: "CIS Amazon Linux 2023 benchmark recommendation 5.1.2.7."
-    tags: [cis, cis-amazon2023, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please check journald default permissions"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-653475c412 |
-      systemd-tmpfiles sets the ownership and permissions of journal directories and files at boot. Overly permissive defaults would let unprivileged users read journal data containing sensitive information. Reviewing the tmpfiles entries ensures journal files are created with restrictive modes (0640 or stricter).
-    remediation: &rem-a12b519b39 |
-      Review the permissions systemd-tmpfiles applies to journal files and directories. To change them, copy the vendor file to /etc/tmpfiles.d/ (which overrides it) and tighten the modes.
-
-      grep -E '^[fdzZ]' /usr/lib/tmpfiles.d/systemd.conf
-      cp /usr/lib/tmpfiles.d/systemd.conf /etc/tmpfiles.d/systemd.conf
-      systemd-tmpfiles --create /etc/tmpfiles.d/systemd.conf
-
-      This is a manual check that always reports a failure for review.
   - id: "CIS-AMAZON2023-5.1.3-logfile_configured"
     name: "logfile configured: find /var/log/ -type f -perm /g+wx,o+rwx -exec ls -l \"{}\" + | grep -Ev \"[b,u,w]tmp.*|last…"
     description: "CIS Amazon Linux 2023 benchmark recommendation 5.1.3."
@@ -5595,27 +5511,6 @@ checks:
     rationale: &rat-f14e01285d |
       Changes to the host name, domain name, login banners or network configuration can redirect traffic, disguise a system or prepare further attacks. Auditing them makes such modifications traceable. This check verifies that the rules are loaded in the running kernel.
     remediation: *rem-71eab26d13
-  - id: "CIS-AMAZON2023-5.2.3.6-auditd_priv_cmds_cnf"
-    name: "auditd priv cmds cnf: echo \"Manual - Please investigate privilege commands are collected as per documentation\""
-    description: "CIS Amazon Linux 2023 benchmark recommendation 5.2.3.6."
-    tags: [cis, cis-amazon2023, cis-section-5, cis-level-2, cis-server, cis-level2-server]
-    severity: low
-    run: |
-      echo "Manual - Please investigate privilege commands are collected as per documentation"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual" }
-    rationale: &rat-8e8800ac94 |
-      Programs with the setuid or setgid bit run with the privileges of their owner or group and are a common route for privilege escalation. Auditing every execution of these programs by regular users shows who used elevated privileges and helps detect misuse of vulnerable binaries.
-    remediation: &rem-c3e83b859d |
-      Generate an audit rule for every setuid and setgid program on the local file systems, write the rules to a file in /etc/audit/rules.d/ and load them. Repeat this whenever software that installs such programs is added.
-
-      UID_MIN=$(awk '/^\s*UID_MIN/ {print $2}' /etc/login.defs)
-      df --local -P | awk 'NR > 1 {print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm /6000 2>/dev/null | sort -u | awk -v m="${UID_MIN:-1000}" '{print "-a always,exit -F path=" $0 " -F perm=x -F auid>=" m " -F auid!=unset -k privileged"}' > /etc/audit/rules.d/50-privileged.rules
-      augenrules --load
-
-      On Amazon Linux 2/2023, RHEL 8 to 10 and Debian 11 this is a manual check that always asks for a review. On RHEL 7, SUSE 15 and Ubuntu 18.04/20.04 the check only looks for an audit rule containing the word delete, which the file deletion rules provide. If the audit configuration is immutable (-e 2), reboot to activate the rules.
   - id: "CIS-AMAZON2023-5.2.3.7-auditd_access_cnf"
     name: "auditd access cnf: grep access /etc/audit/rules.d/*.rules"
     description: "CIS Amazon Linux 2023 benchmark recommendation 5.2.3.7."
@@ -6514,27 +6409,6 @@ checks:
       chgrp root /sbin/auditctl /sbin/aureport /sbin/ausearch /sbin/autrace /sbin/auditd /sbin/augenrules
 
       On Amazon Linux 2027 the tools are located in /usr/bin and autrace is not checked; adjust the paths accordingly.
-  - id: "CIS-AMAZON2023-5.3-logrotate_manual"
-    name: "logrotate manual: echo \"Manually Check logrotate files are configured with site policy\""
-    description: "CIS Amazon Linux 2023 benchmark recommendation 5.3."
-    tags: [cis, cis-amazon2023, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
-    severity: medium
-    run: |
-      echo "Manually Check logrotate files are configured with site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manually" }
-    rationale: &rat-97ac8b19cd |
-      logrotate decides how long log files are kept, how often they are rotated and whether they are compressed. Rotation that is too aggressive destroys evidence needed for investigations, while missing rotation can fill the disk. The configuration must be reviewed against the site's log retention policy.
-    remediation: &rem-d70a68b9a4 |
-      Review the logrotate configuration so that rotation frequency, retention, compression and file permissions match the site's log retention policy.
-
-      cat /etc/logrotate.conf
-      ls /etc/logrotate.d/
-      logrotate -d /etc/logrotate.conf
-
-      This is a manual check that always reports a failure for review.
   - id: "CIS-AMAZON2023-6.1.1-passwd_perms"
     name: "passwd perms: stat -L -c \"%a %U %G\" /etc/passwd"
     description: "CIS Amazon Linux 2023 benchmark recommendation 6.1.1."
@@ -7088,7 +6962,9 @@ checks:
     severity: medium
     timeout: 60000ms
     run: |
-      find /home/ -name "\.*" -perm /g+w,o+w
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name "\.*" -perm /g+w,o+w 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -7107,7 +6983,9 @@ checks:
     severity: medium
     timeout: 60000ms
     run: |
-      find /home/ -name .forward -name .netrc -name .rhosts
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name .forward -name .netrc -name .rhosts 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }

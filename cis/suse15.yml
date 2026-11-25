@@ -3,7 +3,7 @@
 name: CIS SUSE Linux Enterprise 15
 version: "2.0.1"
 description: >
-  Automated checks for 267 recommendations of the CIS SUSE Linux Enterprise 15 benchmark
+  Automated checks for 263 recommendations of the CIS SUSE Linux Enterprise 15 benchmark
   (version 2.0.1), converted from the goss audit content of the
   ansible-lockdown project. Check names describe what is verified; the
   recommendation number is in the ID and the description. Select profiles
@@ -2324,23 +2324,6 @@ checks:
       Remove the package xorg-x11-server, unless the system needs it:
 
       zypper remove xorg-x11-server
-  - id: "CIS-SUSE15-2.1.23-manual_listening_ports"
-    name: "manual listening ports: echo \"Manual!! - Please check only approved services are listening\""
-    description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.1.23. NIST SP 800-53 Rev. 5: CM-7."
-    tags: [cis, cis-suse15, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual!! - Please check only approved services are listening"
-    expect: { rc: "in [0, 1]" }
-    rationale: &rat-71d1cf147e |
-      Every listening network service is a potential entry point. Reviewing listening ports and the processes behind them ensures that only approved services are reachable and reveals forgotten or unexpected ones. This is a manual review.
-    remediation: &rem-905c71ee6f |
-      This is a manual review. List all listening sockets with their processes, then stop and disable, or block with the firewall, every service that is not approved, and document the result.
-
-      ss -tulpn
-      systemctl disable --now SERVICE
-
-      The check itself only prints a reminder and reports a failure on most platforms regardless of the result.
   - id: "CIS-SUSE15-2.2.1-ftp_client"
     name: "Package ftp is not installed"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 2.2.1. NIST SP 800-53 Rev. 5: CM-7, CM-11."
@@ -3797,61 +3780,6 @@ checks:
       Install the package firewalld:
 
       zypper install firewalld
-  - id: "CIS-SUSE15-4.2.2-firewall_drops_unnecessary"
-    name: "firewall drops unnecessary: echo \"Manual check - review 'firewall-cmd --list-all' and confirm only approved services …"
-    description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 4.2.2. NIST SP 800-53 Rev. 5: CA-9."
-    tags: [cis, cis-suse15, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual check - review 'firewall-cmd --list-all' and confirm only approved services and ports are open"
-    expect: { rc: "== 0" }
-    rationale: &rat-8627c37b7c |
-      Every open port or allowed service in the firewall is a potential entry point. Restricting the active zones to the services and ports that are actually required limits what an attacker can reach on the network.
-    remediation: &rem-d7e8220092 |
-      Review the active zones and remove every service and port that is not approved.
-
-      firewall-cmd --list-all
-      firewall-cmd --permanent --zone=ZONE --remove-service=SERVICE
-      firewall-cmd --permanent --zone=ZONE --remove-port=PORT/PROTOCOL
-      firewall-cmd --reload
-
-      This is a manual control; the automated check only displays a reminder and always passes.
-  - id: "CIS-SUSE15-4.2.3-firewall_loopback_manual"
-    name: "firewall loopback manual: echo \"Manual check - confirm the loopback interface is trusted and that traffic to 127.0.…"
-    description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 4.2.3. NIST SP 800-53 Rev. 5: CA-9."
-    tags: [cis, cis-suse15, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual check - confirm the loopback interface is trusted and that traffic to 127.0.0.1 and ::1 from other interfaces is dropped"
-    expect: { rc: "== 0" }
-    rationale: &rat-3a75f7c813 |
-      Local services often trust connections from the loopback interface. The firewall should accept all loopback traffic so local communication works, but drop packets that arrive on other interfaces while claiming a 127.0.0.0/8 or ::1 source, because such spoofed packets could reach services that only expect local clients.
-    remediation: &rem-e17bfc925b |
-      Accept all traffic on the loopback interface and drop packets with a loopback source address that arrive on other interfaces.
-
-      firewall-cmd --permanent --zone=trusted --add-interface=lo
-      firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="127.0.0.0/8" destination not address="127.0.0.0/8" drop'
-      firewall-cmd --permanent --add-rich-rule='rule family="ipv6" source address="::1" destination not address="::1" drop'
-      firewall-cmd --reload
-
-      This is a manual check: on Amazon Linux 2023 and RHEL 9 it always reports a failure for review, on SUSE 15 it always passes.
-  - id: "CIS-SUSE15-4.2.4-firewall_default_zone"
-    name: "firewall default zone: echo \"Manual check - review 'firewall-cmd --get-default-zone' and confirm it matches site…"
-    description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 4.2.4. NIST SP 800-53 Rev. 5: NA."
-    tags: [cis, cis-suse15, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual check - review 'firewall-cmd --get-default-zone' and confirm it matches site policy"
-    expect: { rc: "== 0" }
-    rationale: &rat-75ecca7891 |
-      Interfaces and connections without an explicit zone use firewalld's default zone. If it is a permissive zone, new interfaces are exposed with weak rules. The default zone should match site policy, typically a restrictive zone such as public or drop.
-    remediation: &rem-49f6c6b1cc |
-      Check the default zone and set it according to site policy.
-
-      firewall-cmd --get-default-zone
-      firewall-cmd --set-default-zone=ZONE
-
-      The change is persistent and takes effect immediately. This is a manual control; the automated check always passes.
   - id: "CIS-SUSE15-4.2.5-firewalld_started_enabled-enabled"
     name: "Service firewalld is enabled"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 4.2.5. NIST SP 800-53 Rev. 5: CA-9."
@@ -7646,24 +7574,22 @@ checks:
 
       Shared directories such as /tmp and /var/tmp need mode 1777; clarify with the owning application before changing other files.
   - id: "CIS-SUSE15-7.1.12-unowned_dirs"
-    name: "unowned dirs: df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -o -n…"
+    name: "No file or directory is without an owner or a group"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 7.1.12. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-suse15, cis-section-7, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     timeout: 120000ms
     run: |
-      df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -o -nogroup | grep -v journal-upload
-    allow_rc: any
-    expect:
-      - { rc: "in [0, 1]" }
-      - { none: "~ ." }
+      df --local -P | awk 'NR!=1 {print $6}' | while read -r m; do
+        find "$m" -xdev \( -nouser -o -nogroup \) 2>/dev/null || true
+      done | grep -v journal-upload || true
+    expect: empty
     rationale: &rat-ffe83ecc3b |
       Files whose owner (or group) ID does not correspond to any existing account are usually left over from deleted users or unpacked archives. If a new account later receives that ID, it automatically becomes the owner of these files. They should be assigned to a valid owner or removed.
-    remediation: &rem-42672275f0 |
-      Review each file listed by the check and assign it to an appropriate existing user and group, or remove it if it belonged to a deleted account and is no longer needed.
+    remediation: &rem-a0251b5d28 |
+      Give every listed file and directory an existing owner and group, or remove it if it is no longer needed:
 
-      ls -ln FILE
-      chown USER:GROUP FILE
+      chown USER:GROUP PATH
   - id: "CIS-SUSE15-7.1.13-audit_sgid"
     name: "audit sgid: df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm…"
     description: "CIS SUSE Linux Enterprise 15 benchmark recommendation 7.1.13. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5, AC-3, MP-2."
@@ -7917,7 +7843,9 @@ checks:
     severity: medium
     timeout: 120000ms
     run: |
-      find /home/ -name "\.forward" -o -name "\.netrc" -o -name "\.rhosts"
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name "\.forward" -o -name "\.netrc" -o -name "\.rhosts" 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -7937,7 +7865,9 @@ checks:
     tags: [cis, cis-suse15, cis-section-7, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      find /home/ -name "\.bash_history" -perm /go+rwx
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name "\.bash_history" -perm /go+rwx 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -7956,7 +7886,9 @@ checks:
     tags: [cis, cis-suse15, cis-section-7, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      find /home/ -name "\.*" -perm /g+w,o+w | grep -v .bash_history
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name "\.*" -perm /g+w,o+w 2>/dev/null || true; fi
+      done | grep -v .bash_history
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }

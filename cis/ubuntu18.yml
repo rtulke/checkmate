@@ -3,7 +3,7 @@
 name: CIS Ubuntu 18.04 LTS
 version: "2.1.0"
 description: >
-  Automated checks for 229 recommendations of the CIS Ubuntu 18.04 LTS benchmark
+  Automated checks for 210 recommendations of the CIS Ubuntu 18.04 LTS benchmark
   (version 2.1.0), converted from the goss audit content of the
   ansible-lockdown project. Check names describe what is verified; the
   recommendation number is in the ID and the description. Select profiles
@@ -1531,28 +1531,6 @@ checks:
       Remove the package rpcbind, unless the system needs it:
 
       apt-get purge rpcbind
-  - id: "CIS-UBUNTU18-2.3-non_essen_svcs"
-    name: "non essen svcs: echo \"Manual -  checking of services that are not required are removed or masked\""
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 2.3."
-    tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual -  checking of services that are not required are removed or masked"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { some: "~ ^Manual" }
-    rationale: &rat-bc8e0605a2 |
-      Every running network service is a potential entry point. Services that are not required for the system's role should be removed or masked so they cannot be started or exploited.
-    remediation: &rem-9d2bbae22f |
-      Review the listening and running services and remove or mask those that are not required.
-
-      ss -plntu
-      systemctl list-units --type=service --state=running
-      apt-get purge PACKAGE
-      systemctl --now mask SERVICE
-
-      This is a manual review; the check always passes.
   - id: "CIS-UBUNTU18-3.1.2-wireless_disabled"
     name: "wireless disabled: nmcli radio all | tail -1"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.1.2."
@@ -2740,72 +2718,6 @@ checks:
       ufw enable
 
       Add the allow rules before the deny rules, because ufw evaluates rules in order.
-  - id: "CIS-UBUNTU18-3.5.1.5-ufw_outbound"
-    name: "ufw outbound: echo \"Manual - Please confirm firewall outbound Policies match site policies\""
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.1.5."
-    tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm firewall outbound Policies match site policies"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-9eae47b76a |
-      Outbound rules decide which connections the host may initiate. Limiting them to what the system needs restricts data exfiltration and the ability of malware to reach command-and-control servers. Because the right rules depend on the system's role, this is a manual review item.
-    remediation: &rem-ed9bb3aa66 |
-      Review the outbound ufw rules against the site policy and allow only the outgoing traffic the system needs.
-
-      ufw status verbose
-      ufw allow out PORT/PROTOCOL
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU18-3.5.1.6-ufw_open_ports"
-    name: "ufw open ports: echo \"Manual - Please confirm firewall rules exist for open ports match site policies\""
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.1.6."
-    tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm firewall rules exist for open ports match site policies"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-2b1e73def8 |
-      Every port the system listens on should be covered by a deliberate firewall rule. Comparing listening services with the firewall configuration finds services exposed by accident and rules left over from removed services. Because the required ports depend on the system's role, this is a manual review item.
-    remediation: &rem-7fe6e6d4a7 |
-      Compare the listening ports with the ufw rules. Add an allow rule for each port the system must offer, and stop or remove services that should not be listening.
-
-      ss -tulnH
-      ufw status verbose
-      ufw allow in PORT/PROTOCOL
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU18-3.5.1.7-ufw_def_deny"
-    name: "ufw def deny: echo \"Manual - Please confirm firewall default deny policy match site policies\""
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.1.7."
-    tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm firewall default deny policy match site policies"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-6599e3e627 |
-      A default deny policy for incoming, outgoing and routed traffic means that anything not explicitly allowed is blocked, so new services or misconfigurations are not exposed automatically. Required traffic must be allowed first, otherwise the system may become unreachable.
-    remediation: &rem-b1ac0ee840 |
-      Allow all required traffic first, then set the default policies to deny incoming and outgoing and to disable routing.
-
-      ufw allow in on lo
-      ufw allow out on lo
-      ufw allow in ssh
-      ufw allow out PORT/PROTOCOL
-      ufw default deny incoming
-      ufw default deny outgoing
-      ufw default disable routed
-
-      Denying outgoing traffic blocks DNS, NTP and package updates unless allowed. On Ubuntu 18.04 this is a manual review item that the check always reports.
   - id: "CIS-UBUNTU18-3.5.2.1-nftables"
     name: "Package nftables is installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.2.1."
@@ -2874,110 +2786,6 @@ checks:
       iptables -Z
 
       If iptables-persistent is installed, remove it (apt-get purge iptables-persistent) or empty /etc/iptables/rules.v4, otherwise the rules are restored at boot.
-  - id: "CIS-UBUNTU18-3.5.2.4-nft_tables"
-    name: "nft tables: echo \"Manual - Please confirm nfttables table exists and matched site policy\""
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.2.4."
-    tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm nfttables table exists and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-d4612286c4 |
-      nftables only filters traffic once a table exists to hold its chains and rules. Confirming that a table exists and matches the site policy ensures the firewall is actually configured rather than just installed. This is a manual review item.
-    remediation: &rem-9e08a19679 |
-      List the nftables tables and create one if none exists.
-
-      nft list tables
-      nft create table inet filter
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU18-3.5.2.5-nft_chains"
-    name: "nft chains: echo \"Manual - Please confirm nfttables base chain exists and matched site policy\""
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.2.5."
-    tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm nfttables base chain exists and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-03d23b9486 |
-      Base chains attach nftables rules to the kernel's packet processing hooks. Without input, forward and output base chains, the rules in a table never see any traffic. This is a manual review item.
-    remediation: &rem-ca04b9bc75 |
-      Create base chains for the input, forward and output hooks in the filter table.
-
-      nft create chain inet filter input '{ type filter hook input priority 0; }'
-      nft create chain inet filter forward '{ type filter hook forward priority 0; }'
-      nft create chain inet filter output '{ type filter hook output priority 0; }'
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU18-3.5.2.6-nft_loopback"
-    name: "nft loopback: echo \"Manual - Please confirm nfttables loopback traffic configured and matched site poli…"
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.2.6."
-    tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm nfttables loopback traffic configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-9e8cd593c2 |
-      Local services rely on loopback traffic, so it must be accepted, while packets from the network claiming a loopback source address are always spoofed and must be dropped. This protects services that only listen on localhost. This is a manual review item.
-    remediation: &rem-ac197a7b1e |
-      Accept loopback traffic and drop loopback source addresses arriving on other interfaces.
-
-      nft add rule inet filter input iif lo accept
-      nft add rule inet filter input ip saddr 127.0.0.0/8 counter drop
-      nft add rule inet filter input ip6 saddr ::1 counter drop
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU18-3.5.2.7-nft_conns"
-    name: "nft conns: echo \"Manual - Please confirm nfttables connections are configured and matched site polic…"
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.2.7."
-    tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm nfttables connections are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-f8a74f167a |
-      Rules for outbound and established connections decide which sessions the host may start and which replies it accepts. Accepting replies to established connections while restricting new ones keeps legitimate traffic working under a default deny policy. This is a manual review item.
-    remediation: &rem-64c8180d2d |
-      Allow return traffic for established connections and the outbound connections the system needs.
-
-      nft add rule inet filter input ct state established,related accept
-      nft add rule inet filter output ct state new,established,related accept
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU18-3.5.2.8-nft_def_deny"
-    name: "nft def deny: echo \"Manual - Please confirm nfttables default denies are configured and matched site po…"
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.2.8."
-    tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm nfttables default denies are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-1b662cefab |
-      With a default drop policy on the base chains, anything not explicitly allowed is blocked, so new services or mistakes are not exposed automatically. Required traffic must be permitted before the policy is changed. This is a manual review item.
-    remediation: &rem-86c73c8e3c |
-      Allow required traffic, including remote administration, then set the policy of the base chains to drop.
-
-      nft add rule inet filter input tcp dport 22 accept
-      nft chain inet filter input '{ policy drop; }'
-      nft chain inet filter forward '{ policy drop; }'
-      nft chain inet filter output '{ policy drop; }'
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
   - id: "CIS-UBUNTU18-3.5.2.9-nftables-enabled"
     name: "Service nftables is enabled"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.2.9."
@@ -3017,28 +2825,6 @@ checks:
       Firewall rules that only exist in the running kernel are lost on reboot, leaving the system unprotected. /etc/nftables.conf holds the persistent nftables ruleset that is loaded at boot.
     remediation: &rem-0111bdad91 |
       Create /etc/nftables.conf.
-  - id: "CIS-UBUNTU18-3.5.2.10-nft_rules"
-    name: "nft rules: echo \"Manual - Please review nfttables configuration and matches site policy\""
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.2.10."
-    tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please review nfttables configuration and matches site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ .*" }
-    rationale: &rat-b580f821a1 |
-      The nftables rule set must be saved in the boot configuration and loaded by the nftables service, otherwise the system starts unprotected after a reboot. Reviewing the stored configuration against the site policy ensures the persistent rules match what is intended. This is a manual review item.
-    remediation: &rem-8ec412dee0 |
-      Save the reviewed rule set to /etc/nftables.conf and enable the nftables service so it is loaded at boot.
-
-      nft list ruleset
-      printf '%s\n' '#!/usr/sbin/nft -f' 'flush ruleset' > /etc/nftables.conf
-      nft list ruleset >> /etc/nftables.conf
-      systemctl enable nftables
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
   - id: "CIS-UBUNTU18-3.5.3.1.1-iptables"
     name: "Package iptables is installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.3.1.1."
@@ -3089,189 +2875,6 @@ checks:
     expect: false
     rationale: *rat-8061e449a6
     remediation: *rem-7f6d83d359
-  - id: "CIS-UBUNTU18-3.5.3.2.1-ipt_def_deny"
-    name: "ipt def deny: echo \"Manual - Please confirm iptables default denies are configured and matched site pol…"
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.3.2.1."
-    tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm iptables default denies are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-0eae3bbf05 |
-      With a default DROP policy on the INPUT, FORWARD and OUTPUT chains, any traffic not explicitly allowed is blocked, so new services or mistakes are not exposed automatically. Rules for required traffic must exist before the policy is changed, or the system becomes unreachable.
-    remediation: &rem-395a4cf9e0 |
-      Add accept rules for required traffic first, then set the default policy of the built-in chains to DROP and save the rules.
-
-      iptables -A INPUT -i lo -j ACCEPT
-      iptables -A OUTPUT -o lo -j ACCEPT
-      iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-      iptables -A OUTPUT -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
-      iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW -j ACCEPT
-      iptables -P INPUT DROP
-      iptables -P FORWARD DROP
-      iptables -P OUTPUT DROP
-      netfilter-persistent save
-
-      On Debian 11 and Ubuntu this is a manual review item that the check always reports; on Debian 12 the check reads the chain policies.
-  - id: "CIS-UBUNTU18-3.5.3.2.2-ipt_loopback"
-    name: "ipt loopback: echo \"Manual - Please confirm iptables loopback connections are configured and matched si…"
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.3.2.2."
-    tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm iptables loopback connections are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-b82eb32e30 |
-      Local services rely on loopback traffic, so it must be accepted, while packets from the network with a source address in 127.0.0.0/8 are always spoofed and should be dropped. This protects services that only listen on localhost. This is a manual review item.
-    remediation: &rem-393b25b7bb |
-      Accept loopback traffic, drop loopback source addresses on other interfaces and save the rules.
-
-      iptables -A INPUT -i lo -j ACCEPT
-      iptables -A OUTPUT -o lo -j ACCEPT
-      iptables -A INPUT -s 127.0.0.0/8 -j DROP
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU18-3.5.3.2.3-ipt_conns_config"
-    name: "ipt conns config: echo \"Manual - Please confirm iptables outbound and connections are configured and matche…"
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.3.2.3."
-    tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm iptables outbound and connections are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-1bcd349780 |
-      Rules for outbound and established connections decide which sessions the host may start and which replies it accepts. Accepting replies to established connections while limiting new outbound connections keeps legitimate traffic working under a default deny policy. This is a manual review item.
-    remediation: &rem-edd392aae3 |
-      Allow return traffic for established connections and the outbound connections the system needs, then save the rules.
-
-      iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-      iptables -A OUTPUT -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU18-3.5.3.2.4-ipt_open_ports"
-    name: "ipt open ports: echo \"Manual - Please confirm iptables rules for open ports configured and matched site p…"
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.3.2.4."
-    tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm iptables rules for open ports configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-627639aeaf |
-      Every port the system listens on should have a deliberate firewall rule. Comparing listening services with the iptables rules finds services exposed by accident and rules left from removed services. Because the required ports depend on the system's role, this is a manual review item.
-    remediation: &rem-d49de86ca0 |
-      Compare the listening ports with the iptables rules and add an accept rule for each port the system must offer; stop services that should not listen.
-
-      ss -tulnH
-      iptables -L INPUT -v -n
-      iptables -A INPUT -p PROTOCOL --dport PORT -m conntrack --ctstate NEW -j ACCEPT
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU18-3.5.3.3.1-ipt6_def_deny"
-    name: "ipt6 def deny: echo \"Manual - Please confirm ip6tables default denies are configured and matched site po…"
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.3.3.1."
-    tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm ip6tables default denies are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-f2b453bff8 |
-      With a default DROP policy on the ip6tables INPUT, FORWARD and OUTPUT chains, IPv6 traffic not explicitly allowed is blocked. Without it, IPv6 can become an unfiltered path around an IPv4-only firewall. Required traffic must be allowed first. This is a manual review item.
-    remediation: &rem-2d69897fbe |
-      Add accept rules for required IPv6 traffic first, then set the default policy of the built-in ip6tables chains to DROP and save the rules.
-
-      ip6tables -A INPUT -i lo -j ACCEPT
-      ip6tables -A OUTPUT -o lo -j ACCEPT
-      ip6tables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-      ip6tables -A OUTPUT -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
-      ip6tables -P INPUT DROP
-      ip6tables -P FORWARD DROP
-      ip6tables -P OUTPUT DROP
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU18-3.5.3.3.2-ipt6_loopback"
-    name: "ipt6 loopback: echo \"Manual - Please confirm ip6tables loopback connections are configured and matched s…"
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.3.3.2."
-    tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm ip6tables loopback connections are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-9ebd3a7683 |
-      Local services rely on IPv6 loopback traffic, so it must be accepted, while packets from the network with the source address ::1 are always spoofed and should be dropped. This protects services that only listen on localhost. This is a manual review item.
-    remediation: &rem-b11bd52f16 |
-      Accept IPv6 loopback traffic, drop ::1 as source address on other interfaces and save the rules.
-
-      ip6tables -A INPUT -i lo -j ACCEPT
-      ip6tables -A OUTPUT -o lo -j ACCEPT
-      ip6tables -A INPUT -s ::1 -j DROP
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU18-3.5.3.3.3-ipt6_conns_config"
-    name: "ipt6 conns config: echo \"Manual - Please confirm ip6tables outbound and connections are configured and match…"
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.3.3.3."
-    tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm ip6tables outbound and connections are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-a1c355e722 |
-      Rules for outbound and established IPv6 connections decide which sessions the host may start and which replies it accepts. Accepting replies to established connections while limiting new ones keeps legitimate IPv6 traffic working under a default deny policy. This is a manual review item.
-    remediation: &rem-d0f10fb243 |
-      Allow return traffic for established IPv6 connections and the outbound connections the system needs, then save the rules.
-
-      ip6tables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-      ip6tables -A OUTPUT -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU18-3.5.3.3.4-ipt6_open_ports"
-    name: "ipt6 open ports: echo \"Manual - Please confirm ip6tables rules for open ports configured and matched site …"
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 3.5.3.3.4."
-    tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm ip6tables rules for open ports configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-9ecee60e4a |
-      Every port a host listens on over IPv6 is reachable by any IPv6 peer unless the firewall restricts it. With a default-drop policy, missing rules break needed services, while overly broad rules expose services that should stay internal. Comparing the ip6tables rules with the sockets actually listening keeps IPv6 exposure limited to what the site has approved.
-    remediation: &rem-757b9bba24 |
-      Compare the IPv6 sockets the host listens on with the ip6tables INPUT rules. Add an accept rule for each port the site policy allows (example for SSH below), remove rules for ports that are not needed, and save the rule set.
-
-      ss -6tuln
-      ip6tables -L INPUT -v -n
-      ip6tables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW -j ACCEPT
-      netfilter-persistent save
-
-      This is a manual review item: the check only prints a reminder and reports a failure until the review is accepted.
   - id: "CIS-UBUNTU18-4.1.1.1-audispd-plugins"
     name: "Package audispd-plugins is installed"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 4.1.1.1."
@@ -6013,25 +5616,6 @@ checks:
 
       - a line matches ^TMOUT=([1-8][0-9]{0,2}|900)
       - a line matches ^readonly TMOUT
-  - id: "CIS-UBUNTU18-5.6-root_system_console"
-    name: "root system console: echo \"Manual check of valid terminal in /etc/securetty is required\""
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.6."
-    tags: [cis, cis-ubuntu18, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual check of valid terminal in /etc/securetty is required"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual.*" }
-    rationale: &rat-f83340509c |
-      /etc/securetty lists the terminals on which root may log in directly. Restricting it to physically secured consoles forces administrators to log in as themselves and escalate, which leaves an audit trail.
-    remediation: &rem-8729f134b1 |
-      Review /etc/securetty and remove every terminal that is not in a physically secure location.
-
-      cat /etc/securetty
-
-      This is a manual review.
   - id: "CIS-UBUNTU18-5.7-etc_group-attrs"
     name: "/etc/group: exists"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 5.7."
@@ -6086,28 +5670,6 @@ checks:
       Edit /etc/pam.d/su so that its lines meet these conditions (regular expressions):
 
       - a line matches ^auth.*required.*pam_wheel.so\suse_uid
-  - id: "CIS-UBUNTU18-6.1.1-rpm_filecheck"
-    name: "rpm filecheck: echo \"Manual Check of packages required\""
-    description: "CIS Ubuntu 18.04 LTS benchmark recommendation 6.1.1."
-    tags: [cis, cis-ubuntu18, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
-    severity: low
-    timeout: 60000ms
-    run: |
-      echo "Manual Check of packages required"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-9f88d7b65b |
-      Comparing installed files against the package database detects changed permissions, ownership or content of system files. Unexpected differences in files that are not configuration files can indicate tampering or a broken installation and should be investigated.
-    remediation: &rem-c12b95e610 |
-      Review the package verification output and reinstall packages whose files have changed without a legitimate reason.
-
-      dpkg --verify
-      dpkg -S FILE
-      apt-get install --reinstall PACKAGE
-
-      This is a manual check on Ubuntu 18.04 that always reports a finding; document the result of the review.
   - id: "CIS-UBUNTU18-6.1.2-passwd_perms"
     name: "passwd perms: stat -L -c \"%a %U %G\" /etc/passwd"
     description: "CIS Ubuntu 18.04 LTS benchmark recommendation 6.1.2."
@@ -6512,7 +6074,9 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      find /home/ -name "\.*" -perm /g+w,o+w
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name "\.*" -perm /g+w,o+w 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -6530,7 +6094,9 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      find /home/ -name .netrc
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name .netrc 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -6550,7 +6116,9 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      find /home/ -name .forward
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name .forward 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -6570,7 +6138,9 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      find /home/ -name .rhosts
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name .rhosts 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }

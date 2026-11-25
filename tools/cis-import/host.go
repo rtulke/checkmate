@@ -219,3 +219,108 @@ func matchingCheck(c check, name string, attrs map[string]any) []check {
 }
 
 var safeGlob = regexp.MustCompile(`^[A-Za-z0-9_./*?-]+$`)
+
+// hostVars are upstream variables that say what a host is used for, by
+// benchmark. The rules they switch on are generated for every host and
+// apply only if the package is installed.
+var hostVars = map[string]map[string]string{
+	"ubuntu24": {"ubtu24cis_desktop_required": "gdm3"},
+	"rhel10":   {"desktop_required": "gdm"},
+}
+
+// hostVarConditions compares a rule file rendered with a host variable set
+// and unset. A resource that only one of the two includes gets a command
+// that tests the package behind the variable (by resourceKey). Resources
+// that upstream skips when the variable is set are returned in unskip.
+func hostVarConditions(path string, b benchmark, vars map[string]any) (conds map[string][]string, unskip map[string]bool, err error) {
+	conds, unskip = map[string][]string{}, map[string]bool{}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, nil, err
+	}
+	active := func(vars map[string]any) (map[string]bool, map[string]bool, error) {
+		rendered, err := render(path, vars, "")
+		if err != nil {
+			return nil, nil, err
+		}
+		doc, err := decodeResources(rendered)
+		if err != nil {
+			return nil, nil, err
+		}
+		on, all := map[string]bool{}, map[string]bool{}
+		for kind, resources := range doc {
+			for name, attrs := range resources {
+				all[resourceKey(kind, name)] = true
+				on[resourceKey(kind, name)] = !truthy(attrs["skip"])
+			}
+		}
+		return on, all, nil
+	}
+	for _, name := range sortedKeys(hostVars[b.Key]) {
+		if !strings.Contains(string(data), ".Vars."+name) {
+			continue
+		}
+		installed := packageQuery(b, hostVars[b.Key][name])
+		with, all, err := active(vars)
+		if err != nil {
+			return nil, nil, err
+		}
+		unset := map[string]any{}
+		for k, v := range vars {
+			unset[k] = v
+		}
+		unset[name] = false
+		without, _, err := active(unset)
+		if err != nil {
+			return nil, nil, err
+		}
+		for key := range all {
+			switch {
+			case with[key] && !without[key]:
+				conds[key] = append(conds[key], installed)
+			case !with[key] && without[key]:
+				conds[key] = append(conds[key], "! "+installed)
+				unskip[key] = true
+			}
+		}
+	}
+	return conds, unskip, nil
+}
+
+var (
+	// modprobe --showconfig | grep -P '\b(install|blacklist)\h+dccp\b'
+	showconfigGrep = regexp.MustCompile(`^modprobe --showconfig \| grep -P '\\b\(install\|blacklist\)\\h\+([A-Za-z0-9_-]+)\\b'$`)
+	// /^blacklist firewire[-_]core$/, /^install overlay(fs)? /bin/...
+	modprobeLine = regexp.MustCompile(`^/\^(?:blacklist|install) ([A-Za-z0-9_()\[\]?-]+)`)
+	moduleName   = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
+)
+
+// moduleCondition returns a command that succeeds if the kernel module a
+// resource is about exists for the running kernel. A module the kernel does
+// not ship cannot be loaded, so there is nothing to disable.
+func moduleCondition(kind string, attrs map[string]any) []string {
+	module := ""
+	switch kind {
+	case "command":
+		if m := showconfigGrep.FindStringSubmatch(strings.TrimSpace(str(attrs["exec"]))); m != nil {
+			module = m[1]
+		}
+	case "file":
+		contents, _ := attrs["contents"].([]any)
+		for _, p := range contents {
+			m := modprobeLine.FindStringSubmatch(fmt.Sprint(p))
+			if m == nil {
+				return nil
+			}
+			name := strings.NewReplacer("(fs)?", "", "[-_]", "_").Replace(m[1])
+			if module != "" && module != name {
+				return nil
+			}
+			module = name
+		}
+	}
+	if !moduleName.MatchString(module) {
+		return nil
+	}
+	return []string{"modinfo " + module + " >/dev/null 2>&1"}
+}

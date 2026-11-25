@@ -1,6 +1,6 @@
 # CIS Red Hat Enterprise Linux 10
 
-Automated checks for 318 recommendations of the CIS Red Hat Enterprise Linux 10 benchmark (version 1.0.1), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
+Automated checks for 319 recommendations of the CIS Red Hat Enterprise Linux 10 benchmark (version 1.0.1), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
 
 **Policy:** [`cis/rhel10.yml`](https://github.com/rtulke/checkmate/blob/main/cis/rhel10.yml) · **Benchmark version:** 1.0.1
 
@@ -31,7 +31,6 @@ checkmate run cis/rhel10.yml --tags cis-level-2 -v
 | `CIS-RHEL10-1.1.1.9-firewire-core` | firewire core: modprobe -n -v firewire-core \| grep -E '(firewire-core\|install)' | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.1.1.10-blacklist_usb-storage` | blacklist usb storage: grep usb-storage /etc/modprobe.d/\*.conf | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.1.1.10-usb-storage` | usb storage: modprobe -n -v usb-storage \| grep -E '(usb-storage\|install)' | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-1.1.1.11-cve_fs` | cve fs: /var/fs_with_cves.sh | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.1.2.1.1-tmp_mount` | /tmp is a separate mount | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.1.2.1.2-tmp_nodev_options` | /tmp is a separate mount with nodev | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.1.2.1.2-tmp_nodev_persistent_options` | tmp nodev persistent options: if [ "$(systemctl show tmp.mount -p SourcePath --value)" = "/etc/fstab" ]; then | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -148,6 +147,26 @@ checkmate run cis/rhel10.yml --tags cis-level-2 -v
 | `CIS-RHEL10-1.7.4-motd_perms-attrs` | /etc/motd: exists, mode 0644 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.7.5-issue_perms-attrs` | /etc/issue: exists, mode 0644 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.7.6-issue_net_perms-attrs` | /etc/issue.net: exists, mode 0644 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.1-gdm_banner_lock` | gdm banner lock: grep -R banner-message /etc/dconf/db/local.d/locks/ | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.1-gdm_banner_msg` | gdm banner msg: grep -h banner-message /etc/dconf/db/local.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.1-gdm_profile_banner` | gdm profile banner: cat /etc/dconf/profile/user | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.2-gdm_disable_user` | gdm disable user: grep -h disable-user-list /etc/dconf/db/local.d/60-login-screen | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.2-gdm_disable_user_locks` | gdm disable user locks: grep disable-user-list /etc/dconf/db/local.d/locks/60-login-screen \| grep disable-user-li… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.2-gdm_last_login` | gdm last login: cat /etc/dconf/profile/user | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.3-60-screensaver-attrs` | /etc/dconf/db/local.d/60-screensaver: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.3-60-screensaver-content` | /etc/dconf/db/local.d/60-screensaver has the expected content (5 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.3-60-screensaver-lock-attrs` | /etc/dconf/db/local.d/locks/60-screensaver: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.3-60-screensaver-lock-content` | /etc/dconf/db/local.d/locks/60-screensaver has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.4-60-automount-attrs` | /etc/dconf/db/local.d/60-automount: exists | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.4-60-automount-content` | /etc/dconf/db/local.d/60-automount has the expected content (5 rules) | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.4-60-automount-locks-attrs` | /etc/dconf/db/local.d/locks/60-automount: exists | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.4-60-automount-locks-content` | /etc/dconf/db/local.d/locks/60-automount has the expected content (2 rules) | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.5-60-media-autorun-attrs` | /etc/dconf/db/local.d/60-media-autorun: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.5-60-media-autorun-content` | /etc/dconf/db/local.d/60-media-autorun has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.5-60-media-autorun-locks-attrs` | /etc/dconf/db/local.d/locks/60-media-autorun: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.5-60-media-autorun-locks-content` | /etc/dconf/db/local.d/locks/60-media-autorun has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.8.6-etc_gdm_custom.conf-attrs` | /etc/gdm/custom.conf: exists | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL10-1.8.6-etc_gdm_custom.conf-content` | /etc/gdm/custom.conf has the expected content (1 rule) | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL10-2.1.1-autofs_pkg` | Package autofs is not installed | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-2.1.2-avahi_pkg` | Package avahi is not installed | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-2.1.3-cockpit_pkg` | Package cockpit-ws is not installed | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
@@ -167,11 +186,9 @@ checkmate run cis/rhel10.yml --tags cis-level-2 -v
 | `CIS-RHEL10-2.1.18-httpd_pkg` | Package httpd is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-2.1.18-nginx_pkg` | Package nginx is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-2.1.18-nginx_plus_pkg` | Package nginx-plus is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-2.1.19-gdm_pkg` | Package gdm is not installed | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-RHEL10-2.1.20-xwindow_pkg` | Package xorg-x11-server-common is not installed | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-RHEL10-2.1.21-mta_listening_port25` | mta listening port25: ss -lntu \| grep -E ":25\\s" \| grep -E -v "\\s(127.0.0.1\|\\[?::1\\]?):25\\s" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-2.1.21-mta_postfix_loopback_only` | mta postfix loopback only: if command -v postconf >/dev/null 2>&1; then postconf -h inet_interfaces; else echo "post… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-2.1.22-manual_listening_ports` | manual listening ports: echo "Manual!! - Please check only approved services are listening" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-2.2.1-ftp` | Package ftp is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-2.2.2-openldap-clients` | Package openldap-clients is not installed | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL10-2.2.3-telnet_client` | Package telnet is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -269,7 +286,6 @@ checkmate run cis/rhel10.yml --tags cis-level-2 -v
 | `CIS-RHEL10-4.1.4-active_firewalld` | active firewalld: for fw in `firewall-cmd --get-active-zones \| grep -P -B 4  'interfaces: (?!lo\|virbr)' \| h… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-4.1.5-loopback_traffic_firewalld` | loopback traffic firewalld: firewall-cmd --list-all --zone="$(firewall-cmd --get-zone-of-interface=lo \| xargs)" \| gre… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-4.1.6-loopback_firewalld` | loopback firewalld: while IFS= read -r l_zone; do | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-4.1.7-firewall_drop_unncessary_ports_manual` | firewall drop unncessary ports manual: echo "Manual test" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.1-sshd_config_perms-attrs` | /etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.2-ssh_host_private_key_access` | ssh host private key access: l_ssh_group="" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.3-etc_ssh_ssh_host_pub_key_group` | /etc/ssh/ssh host pub key group: groupkeys=$(sudo find /etc/ssh/ -name '\*_key.pub' -type f ! -group root ); echo $groupkeys | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -494,7 +510,6 @@ checkmate run cis/rhel10.yml --tags cis-level-2 -v
 | `CIS-RHEL10-6.3.3.8-auditd_network_live` | auditd network live: auditctl -l \| grep -i network | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL10-6.3.3.9-auditd_networkmgr_cnf` | auditd networkmgr cnf: grep Network /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL10-6.3.3.9-auditd_networkmgr_live` | auditd networkmgr live: auditctl -l \| grep Network | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL10-6.3.3.10-auditd_priv_cmds_cnf` | auditd priv cmds cnf: echo "Manual - Please investigate privilege commands are collected as per documentation" | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL10-6.3.3.11-auditd_access_cnf` | auditd access cnf: grep access /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL10-6.3.3.11-auditd_access_live` | auditd access live: auditctl -l \| grep access | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL10-6.3.3.12-auditd_group_cnf` | auditd group cnf: grep group /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |

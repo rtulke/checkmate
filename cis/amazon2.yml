@@ -3,7 +3,7 @@
 name: CIS Amazon Linux 2
 version: "3.0.0"
 description: >
-  Automated checks for 276 recommendations of the CIS Amazon Linux 2 benchmark
+  Automated checks for 272 recommendations of the CIS Amazon Linux 2 benchmark
   (version 3.0.0), converted from the goss audit content of the
   ansible-lockdown project. Check names describe what is verified; the
   recommendation number is in the ID and the description. Select profiles
@@ -2286,26 +2286,6 @@ checks:
       Remove the package xorg-x11-server-common, unless the system needs it:
 
       yum remove xorg-x11-server-common
-  - id: "CIS-AMAZON2-2.2.22-manual_listening_ports"
-    name: "manual listening ports: echo \"Manual!! - Please check only approved services are listening\""
-    description: "CIS Amazon Linux 2 benchmark recommendation 2.2.22. NIST SP 800-53 Rev. 5: CM-7."
-    tags: [cis, cis-amazon2, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual!! - Please check only approved services are listening"
-    allow_rc: any
-    expect:
-      - { rc: "in [0, 1]" }
-      - { none: "~ ." }
-    rationale: &rat-71d1cf147e |
-      Every listening network service is a potential entry point. Reviewing listening ports and the processes behind them ensures that only approved services are reachable and reveals forgotten or unexpected ones. This is a manual review.
-    remediation: &rem-905c71ee6f |
-      This is a manual review. List all listening sockets with their processes, then stop and disable, or block with the firewall, every service that is not approved, and document the result.
-
-      ss -tulpn
-      systemctl disable --now SERVICE
-
-      The check itself only prints a reminder and reports a failure on most platforms regardless of the result.
   - id: "CIS-AMAZON2-2.3.1-ftp_client"
     name: "Package ftp is not installed"
     description: "CIS Amazon Linux 2 benchmark recommendation 2.3.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -3502,25 +3482,6 @@ checks:
       service ip6tables save
 
       service ip6tables save writes the rules to /etc/sysconfig/ip6tables (package iptables-services).
-  - id: "CIS-AMAZON2-3.4.4.3.3-ip6tables_manual"
-    name: "ip6tables manual: echo \"Manual - Ensure ip6tables firewall rules exist for all open ports\""
-    description: "CIS Amazon Linux 2 benchmark recommendation 3.4.4.3.3. NIST SP 800-53 Rev. 5: CA-9."
-    tags: [cis, cis-amazon2, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
-    severity: medium
-    run: |
-      echo "Manual - Ensure ip6tables firewall rules exist for all open ports"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-38088b5fb2 |
-      With a default-deny IPv6 firewall every approved service needs an explicit rule, while services without one stay unreachable. Reviewing open ports against the ip6tables rules ensures that exactly the approved IPv6 services are reachable.
-    remediation: &rem-6168738646 |
-      This is a manual check that always reports a failure. List the listening IPv6 ports and make sure an ip6tables rule accepts each approved one, then save the rules.
-
-      ss -6tuln
-      ip6tables -A INPUT -p tcp --dport PORT -m state --state NEW -j ACCEPT
-      service ip6tables save
   - id: "CIS-AMAZON2-3.4.4.3.5-false-attrs"
     name: "false: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 3.4.4.3.5. NIST SP 800-53 Rev. 5: CA-9."
@@ -6436,27 +6397,6 @@ checks:
       MaxFileSec=1month
 
       systemctl restart systemd-journald
-  - id: "CIS-AMAZON2-5.1.3-logrotate_configured"
-    name: "logrotate configured: echo \"Manual!! Check logrotate configuration\""
-    description: "CIS Amazon Linux 2 benchmark recommendation 5.1.3. NIST SP 800-53 Rev. 5: AU-8."
-    tags: [cis, cis-amazon2, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual!! Check logrotate configuration"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual" }
-    rationale: &rat-494b4ee6d0 |
-      logrotate rotates, compresses and removes log files on a schedule. A configuration that matches the site's retention policy prevents log files from filling the file system while keeping enough history for investigations.
-    remediation: &rem-80a8b8bca9 |
-      Review the logrotate configuration and make sure every log file is rotated, compressed and kept according to the site's retention policy. Test the configuration with a dry run.
-
-      cat /etc/logrotate.conf
-      ls -l /etc/logrotate.d/
-      logrotate -d /etc/logrotate.conf
-
-      This is a manual check that always reports a finding; document the result of the review.
   - id: "CIS-AMAZON2-5.1.4-logfile_configured"
     name: "logfile configured: find /var/log/ -type f \\( -name 'lastlog' -o -name 'wtmp' -o -name 'btmp' \\) -perm /g+x,o…"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.1.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -6986,27 +6926,6 @@ checks:
     rationale: &rat-f14e01285d |
       Changes to the host name, domain name, login banners or network configuration can redirect traffic, disguise a system or prepare further attacks. Auditing them makes such modifications traceable. This check verifies that the rules are loaded in the running kernel.
     remediation: *rem-71eab26d13
-  - id: "CIS-AMAZON2-5.2.3.6-auditd_priv_cmds_cnf"
-    name: "auditd priv cmds cnf: echo \"Manual - Please investigate privilege commands are collected as per documentation\""
-    description: "CIS Amazon Linux 2 benchmark recommendation 5.2.3.6. NIST SP 800-53 Rev. 5: AU-3."
-    tags: [cis, cis-amazon2, cis-section-5, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
-    severity: low
-    run: |
-      echo "Manual - Please investigate privilege commands are collected as per documentation"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-8e8800ac94 |
-      Programs with the setuid or setgid bit run with the privileges of their owner or group and are a common route for privilege escalation. Auditing every execution of these programs by regular users shows who used elevated privileges and helps detect misuse of vulnerable binaries.
-    remediation: &rem-c3e83b859d |
-      Generate an audit rule for every setuid and setgid program on the local file systems, write the rules to a file in /etc/audit/rules.d/ and load them. Repeat this whenever software that installs such programs is added.
-
-      UID_MIN=$(awk '/^\s*UID_MIN/ {print $2}' /etc/login.defs)
-      df --local -P | awk 'NR > 1 {print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm /6000 2>/dev/null | sort -u | awk -v m="${UID_MIN:-1000}" '{print "-a always,exit -F path=" $0 " -F perm=x -F auid>=" m " -F auid!=unset -k privileged"}' > /etc/audit/rules.d/50-privileged.rules
-      augenrules --load
-
-      On Amazon Linux 2/2023, RHEL 8 to 10 and Debian 11 this is a manual check that always asks for a review. On RHEL 7, SUSE 15 and Ubuntu 18.04/20.04 the check only looks for an audit rule containing the word delete, which the file deletion rules provide. If the audit configuration is immutable (-e 2), reboot to activate the rules.
   - id: "CIS-AMAZON2-5.2.3.7-auditd_access_cnf"
     name: "auditd access cnf: grep access /etc/audit/rules.d/*.rules"
     description: "CIS Amazon Linux 2 benchmark recommendation 5.2.3.7. NIST SP 800-53 Rev. 5: NA."
@@ -8474,7 +8393,9 @@ checks:
     tags: [cis, cis-amazon2, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      find /home/ -name .bash_history -perm /go+rwx
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name .bash_history -perm /go+rwx 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -8491,7 +8412,9 @@ checks:
     tags: [cis, cis-amazon2, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      find /home/ -name "\.*" -perm /g+w,o+w
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name "\.*" -perm /g+w,o+w 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -8509,7 +8432,9 @@ checks:
     tags: [cis, cis-amazon2, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      find /home/ \( -name '.netrc' -o -name '.forward' -o -name '.rhosts' \)
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev \( -name '.netrc' -o -name '.forward' -o -name '.rhosts' \) 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }

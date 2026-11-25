@@ -1,6 +1,6 @@
 # DISA STIG Amazon Linux 2023
 
-Automated checks for 187 rules of the DISA Security Technical Implementation Guide for Amazon Linux 2023 (version 1r5), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Rationale and fix texts are taken from the DISA STIG V1R5 (30 Sep 2026). Select categories with tags, e.g. `--tags stig-cat-1`.
+Automated checks for 182 rules of the DISA Security Technical Implementation Guide for Amazon Linux 2023 (version 1r5), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Rationale and fix texts are taken from the DISA STIG V1R5 (30 Sep 2026). Select categories with tags, e.g. `--tags stig-cat-1`.
 
 **Policy:** [`stig/amazon2023.yml`](https://github.com/rtulke/checkmate/blob/main/stig/amazon2023.yml) · **STIG version:** 1r5
 
@@ -49,7 +49,6 @@ sudo checkmate run stig/amazon2023.yml -v
 | `STIG-AZLX-23-001285-opensslcnf-attrs` | HIGH (Amazon Linux 2023 crypto policy must not be overridden.) | I | <span class="sev sev-high">high</span> |
 | `STIG-AZLX-23-001286-bind_installed_check` | HIGH (Amazon Linux 2023 must implement DoW-approved encryption in the bind …) | I | <span class="sev sev-high">high</span> |
 | `STIG-AZLX-23-002450-azlx_23_002450_check` | HIGH (Amazon Linux 2023 must use a Linux Security Module configured to enfo…) | I | <span class="sev sev-high">high</span> |
-| `STIG-AZLX-23-000110-azlx_23_000110_check` | MEDIUM (Amazon Linux 2023 must ensure cryptographic verification of vendor so…) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-000135-systemd-journald_service-enabled` | MEDIUM (Service systemd-journald is enabled) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-000135-systemd-journald_service-running` | MEDIUM (Service systemd-journald is running) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-000200-kernel.dmesg_restrict` | MEDIUM (Amazon Linux 2023 must restrict access to the kernel message buffer.) | II | <span class="sev sev-medium">medium</span> |
@@ -232,14 +231,12 @@ sudo checkmate run stig/amazon2023.yml -v
 | `STIG-AZLX-23-002405-azlx_23_002405_config_fail_delay-content` | MEDIUM (/etc/login.defs has the expected content (2 rules)) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002410-azlx_23_002410_config_umask-attrs` | MEDIUM (/etc/login.defs: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002410-azlx_23_002410_config_umask-content` | MEDIUM (/etc/login.defs has the expected content (2 rules)) | II | <span class="sev sev-medium">medium</span> |
-| `STIG-AZLX-23-002415-azlx_23_002415_temporary_user_accounts_c` | MEDIUM (Amazon Linux 2023 must automatically remove or disable temporary user…) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002420-azlx_23_002420_initial_authentication_ch` | MEDIUM (Amazon Linux 2023 must automatically lock an account when three unsuc…) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002425-azlx_23_002425_config_pass_max_days-attrs` | MEDIUM (/etc/login.defs: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002425-azlx_23_002425_config_pass_max_days-content` | MEDIUM (/etc/login.defs has the expected content (3 rules)) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002425-azlx_23_002425_users_pass_max_days` | MEDIUM (Amazon Linux 2023 must be able to enforce a 180-day maximum password …) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002430-azlx_23_002430_config_inactive-attrs` | MEDIUM (/etc/default/useradd: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002430-azlx_23_002430_config_inactive-content` | MEDIUM (/etc/default/useradd has the expected content (2 rules)) | II | <span class="sev sev-medium">medium</span> |
-| `STIG-AZLX-23-002435-azlx_23_002435_temporary_accounts_check` | MEDIUM (Amazon Linux 2023 must automatically expire temporary accounts within…) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002440-azlx_23_002440_config_su_use_uid-attrs` | MEDIUM (/etc/pam.d/su: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002440-azlx_23_002440_config_su_use_uid-content` | MEDIUM (/etc/pam.d/su has the expected content (1 rule)) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002445-azlx_23_002445_config_selinux_targeted_p-attrs` | MEDIUM (/etc/selinux/config: exists) | II | <span class="sev sev-medium">medium</span> |
@@ -252,7 +249,6 @@ sudo checkmate run stig/amazon2023.yml -v
 | `STIG-AZLX-23-002465-azlx_23_002465_config_fail_interval-content` | MEDIUM (/etc/security/faillock.conf has the expected content (2 rules)) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002470-azlx_23_002470_config_unlock_time-attrs` | MEDIUM (/etc/security/faillock.conf: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002470-azlx_23_002470_config_unlock_time-content` | MEDIUM (/etc/security/faillock.conf has the expected content (2 rules)) | II | <span class="sev sev-medium">medium</span> |
-| `STIG-AZLX-23-002475-azlx_23_002475_check_firewalld_services` | MEDIUM (Amazon Linux 2023 must be configured to prohibit or restrict the use …) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002480-azlx_23_002480_check_interactive_users_p` | MEDIUM (Amazon Linux 2023 must insure all interactive users have a primary gr…) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002485-azlx_23_002485_check_unique_uids` | MEDIUM (Amazon Linux 2023 must ensure all interactive users have unique User …) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002489-azlx_23_002489_config_password_complexit-attrs` | MEDIUM (/etc/pam.d/password-auth: exists) | II | <span class="sev sev-medium">medium</span> |
@@ -286,7 +282,6 @@ sudo checkmate run stig/amazon2023.yml -v
 | `STIG-AZLX-23-002600-azlx_23_002600_check_automount_function-enabled` | MEDIUM (Service autofs is not enabled) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002600-azlx_23_002600_check_automount_function-running` | MEDIUM (Service autofs is not running) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002600-azlx_23_002600_check_automount_function_` | MEDIUM (Amazon Linux 2023 file system automount function must be disabled.) | II | <span class="sev sev-medium">medium</span> |
-| `STIG-AZLX-23-002605-azlx_23_002605_check_rate_limiting_measu` | MEDIUM (Amazon Linux 2023 must protect against or limit the effects of denial…) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002610-azlx_23_002610_check_nonexecutable_data` | MEDIUM (Amazon Linux 2023 must implement nonexecutable data to protect its me…) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002615-azlx_23_002615_config-attrs` | MEDIUM (/etc/dnf/dnf.conf: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-AZLX-23-002615-azlx_23_002615_config-content` | MEDIUM (/etc/dnf/dnf.conf has the expected content (2 rules)) | II | <span class="sev sev-medium">medium</span> |

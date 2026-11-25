@@ -3,7 +3,7 @@
 name: DISA STIG Ubuntu 24.04 LTS
 version: "1.7.0"
 description: >
-  Automated checks for 179 rules of the DISA Security Technical
+  Automated checks for 176 rules of the DISA Security Technical
   Implementation Guide for Ubuntu 24.04 LTS (version 1.7.0), converted from the goss
   audit content of the ansible-lockdown project. Severity follows the STIG
   category: CAT I high, CAT II medium, CAT III low. Rationale and fix
@@ -1125,27 +1125,6 @@ checks:
       For the changes to take effect, restart the "rsyslog" service with the following command:
 
       $ sudo systemctl restart rsyslog.service
-  - id: "STIG-UBTU-24-200250-Temp_accts"
-    name: "Ubuntu 24.04 LTS must automatically remove or disable emergency accounts after 72 hours. (Manual)"
-    description: "DISA STIG for Ubuntu 24.04 LTS, UBTU-24-200250, V-270682, SV-270682r1268212_rule, CAT II. CCI-000016, CCI-001682. NIST SP 800-53 Rev. 4: AC-2."
-    tags: [stig, stig-ubuntu24, stig-cat-2]
-    severity: medium
-    run: |
-      echo "Manual! Test - Please check temporary accounts"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual" }
-    rationale: &rat-120f05312b |
-      Temporary accounts are privileged or nonprivileged accounts established during pressing circumstances, such as new software or hardware configuration or an incident response, where the need for prompt account activation requires bypassing normal account authorization procedures. If any inactive temporary accounts are left enabled on the system and are not either manually removed or automatically expired within 72 hours, the security posture of the system will be degraded and exposed to exploitation by unauthorized users or insider threat actors.
-
-      Temporary accounts are different from emergency accounts. Emergency accounts, also known as "last resort" or "break glass" accounts, are local logon accounts enabled on the system for emergency use by authorized system administrators to manage a system when standard logon methods are failing or not available. Emergency accounts are not subject to manual removal or scheduled expiration requirements.
-
-      The automatic expiration of temporary accounts may be extended as needed by the circumstances but it must not be extended indefinitely. A documented permanent account must be established for privileged users who need long-term maintenance accounts.
-    remediation: &rem-442888671e |
-      Configure Ubuntu 24.04 LTS to expire temporary accounts after 72 hours with the following command:
-
-      $ sudo chage -E $(date -d +3days +%Y-%m-%d) <temporary_account_name>
   - id: "STIG-UBTU-24-200260-user_inactive-attrs"
     name: "Ubuntu 24.04 LTS must disable account identifiers (individuals, groups, roles, and devices) after 35 days of inactivity. (/etc/default/useradd: exists)"
     description: "DISA STIG for Ubuntu 24.04 LTS, UBTU-24-200260, V-270683, SV-270683r1261521_rule, CAT II. CCI-003627, CCI-003628. NIST SP 800-53 Rev. 4: NA."
@@ -1988,33 +1967,6 @@ checks:
       Configure Ubuntu 24.04 LTS to disable the ability to use USB mass storage devices with the following command:
 
       $ sudo su -c "echo blacklist usb-storage >> /etc/modprobe.d/DISASTIG.conf"
-  - id: "STIG-UBTU-24-300041-ufw_proto_svcs"
-    name: "Ubuntu 24.04 LTS must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the Ports, Protocols, and Services Management Category Assurance List (PPSM CAL) and vulnerability assessments. (Manual)"
-    description: "DISA STIG for Ubuntu 24.04 LTS, UBTU-24-300041, V-270719, SV-270719r1067172_rule, CAT II. CCI-000382. NIST SP 800-53 Rev. 4: CM-7."
-    tags: [stig, stig-ubuntu24, stig-cat-2]
-    severity: medium
-    run: |
-      echo "Manual - Please ensure ports, protocols and services are configured on UFW"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual" }
-    rationale: &rat-fba20ecbb1 |
-      To prevent unauthorized connection of devices, unauthorized transfer of information, or unauthorized tunneling (i.e., embedding of data types within data types), organizations must disable or restrict unused or unnecessary physical and logical ports/protocols on information systems.
-
-      Operating systems are capable of providing a wide variety of functions and services. Some of the functions and services provided by default may not be necessary to support essential organizational operations. Additionally, it is sometimes convenient to provide multiple services from a single component (e.g., VPN and IPS); however, doing so increases risk over limiting the services provided by any one component.
-
-      To support the requirements and principles of least functionality, Ubuntu 24.04 LTS must support the organizational requirements, providing only essential capabilities and limiting the use of ports, protocols, and/or services to only those required, authorized, and approved to conduct official business or to address authorized quality of life issues.
-    remediation: &rem-8b79f53e18 |
-      Add all ports, protocols, or services allowed by the PPSM CLSA by using the following command:
-
-      $ sudo ufw allow <direction> <port/protocol/service>
-
-      Where the direction is "in" or "out" and the port is the one corresponding to the protocol or service allowed.
-
-      To deny access to ports, protocols, or services, use:
-
-      $ sudo ufw deny <direction> <port/protocol/service>
   - id: "STIG-UBTU-24-400000-unique_userID"
     name: "Ubuntu 24.04 LTS must uniquely identify interactive users."
     description: "DISA STIG for Ubuntu 24.04 LTS, UBTU-24-400000, V-270720, SV-270720r1066649_rule, CAT II. CCI-000764, CCI-000804. NIST SP 800-53 Rev. 4: IA-2, IA-8."
@@ -2732,40 +2684,6 @@ checks:
       - { none: "~ ^*.conf:net.ipv4.tcp_syncookies\\s*=\\s*0" }
     rationale: *rat-c1001b492b
     remediation: *rem-b79aa8a651
-  - id: "STIG-UBTU-24-600200-ufw_int_limited"
-    name: "Ubuntu 24.04 LTS must configure the uncomplicated firewall to rate-limit impacted network interfaces. (Manual)"
-    description: "DISA STIG for Ubuntu 24.04 LTS, UBTU-24-600200, V-270754, SV-270754r1066751_rule, CAT II. CCI-002385. NIST SP 800-53 Rev. 4: SC-5."
-    tags: [stig, stig-ubuntu24, stig-cat-2]
-    severity: medium
-    run: |
-      echo "Manual - Please ensure service or interfaces are rate limits on UFW"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual" }
-    rationale: &rat-8c0e523ce2 |
-      Denial of service (DoS) occurs when a resource is not available for legitimate users, resulting in the organization not being able to accomplish its mission or causing it to operate at degraded capacity.
-
-      This requirement addresses the configuration of Ubuntu 24.04 LTS to mitigate the impact of DoS attacks that have occurred or are ongoing on system availability. For each system, known and potential DoS attacks must be identified and solutions for each type implemented. A variety of technologies exist to limit or, in some cases, eliminate the effects of DoS attacks (e.g., limiting processes or establishing memory partitions). Employing increased capacity and bandwidth, combined with service redundancy, may reduce the susceptibility to some DoS attacks.
-    remediation: &rem-9e2637fca8 |
-      Configure the application firewall to protect against or limit the effects of DoS attacks by ensuring Ubuntu 24.04 LTS is implementing rate-limiting measures on impacted network interfaces.
-
-      To change the Status of ufw to "active" use the following command:
-      $ sudo ufw enable
-
-      Check all the services listening to the ports with the following command:
-
-      $ sudo ss -l46ut
-      Netid               State                Recv-Q                Send-Q                               Local Address:Port                               Peer Address:Port               Process
-      tcp                 LISTEN               0                     128                                           [::]:ssh                                        [::]:*
-
-      For each service with a port listening to connections, run the following command, replacing "[service]" with the service that needs to be rate limited.
-
-      $ sudo ufw limit [service]
-
-      Rate-limiting can also be done on an interface. An example of adding a rate-limit on the eth0 interface follows:
-
-      $ sudo ufw limit in on eth0
   - id: "STIG-UBTU-24-600230-wireless_disabled"
     name: "Ubuntu 24.04 LTS must disable all wireless network adapters."
     description: "DISA STIG for Ubuntu 24.04 LTS, UBTU-24-600230, V-270755, SV-270755r1268254_rule, CAT II. CCI-002418. NIST SP 800-53 Rev. 4: SC-8."

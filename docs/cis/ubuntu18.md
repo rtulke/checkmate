@@ -1,6 +1,6 @@
 # CIS Ubuntu 18.04 LTS
 
-Automated checks for 229 recommendations of the CIS Ubuntu 18.04 LTS benchmark (version 2.1.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
+Automated checks for 210 recommendations of the CIS Ubuntu 18.04 LTS benchmark (version 2.1.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
 
 **Policy:** [`cis/ubuntu18.yml`](https://github.com/rtulke/checkmate/blob/main/cis/ubuntu18.yml) · **Benchmark version:** 2.1.0
 
@@ -107,7 +107,6 @@ checkmate run cis/ubuntu18.yml --tags cis-level-2 -v
 | `CIS-UBUNTU18-2.2.4-telnet` | Package telnet is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-2.2.5-ldap-utils` | Package ldap-utils is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-2.2.6-rpcbind` | Package rpcbind is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-2.3-non_essen_svcs` | non essen svcs: echo "Manual -  checking of services that are not required are removed or masked" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-3.1.2-wireless_disabled` | wireless disabled: nmcli radio all \| tail -1 | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-3.2.1-net.ipv4.conf.all.send_redirects` | Kernel parameter net.ipv4.conf.all.send_redirects is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-3.2.1-net.ipv4.conf.default.send_redirects` | Kernel parameter net.ipv4.conf.default.send_redirects is 0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -168,34 +167,17 @@ checkmate run cis/ubuntu18.yml --tags cis-level-2 -v
 | `CIS-UBUNTU18-3.5.1.3-ufw-enabled` | Service ufw is enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-3.5.1.3-ufw-running` | Service ufw is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-3.5.1.4-ufw_local` | ufw local: ufw status verbose | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-3.5.1.5-ufw_outbound` | ufw outbound: echo "Manual - Please confirm firewall outbound Policies match site policies" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-3.5.1.6-ufw_open_ports` | ufw open ports: echo "Manual - Please confirm firewall rules exist for open ports match site policies" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-3.5.1.7-ufw_def_deny` | ufw def deny: echo "Manual - Please confirm firewall default deny policy match site policies" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-3.5.2.1-nftables` | Package nftables is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-3.5.2.2-ufw` | Package ufw is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-3.5.2.3-ip6tables_flushed` | ip6tables flushed: ip6tables -L | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-3.5.2.3-iptables_flushed` | iptables flushed: iptables -L | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-3.5.2.4-nft_tables` | nft tables: echo "Manual - Please confirm nfttables table exists and matched site policy" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-3.5.2.5-nft_chains` | nft chains: echo "Manual - Please confirm nfttables base chain exists and matched site policy" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-3.5.2.6-nft_loopback` | nft loopback: echo "Manual - Please confirm nfttables loopback traffic configured and matched site poli… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-3.5.2.7-nft_conns` | nft conns: echo "Manual - Please confirm nfttables connections are configured and matched site polic… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-3.5.2.8-nft_def_deny` | nft def deny: echo "Manual - Please confirm nfttables default denies are configured and matched site po… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-3.5.2.9-nftables-enabled` | Service nftables is enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-3.5.2.9-nftables-running` | Service nftables is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-3.5.2.10-etc_nftables.conf-attrs` | /etc/nftables.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-3.5.2.10-nft_rules` | nft rules: echo "Manual - Please review nfttables configuration and matches site policy" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-3.5.3.1.1-iptables` | Package iptables is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-3.5.3.1.1-iptables-persistent` | Package iptables-persistent is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-3.5.3.1.2-nftables` | Package nftables is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-3.5.3.1.3-ufw` | Package ufw is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-3.5.3.2.1-ipt_def_deny` | ipt def deny: echo "Manual - Please confirm iptables default denies are configured and matched site pol… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-3.5.3.2.2-ipt_loopback` | ipt loopback: echo "Manual - Please confirm iptables loopback connections are configured and matched si… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-3.5.3.2.3-ipt_conns_config` | ipt conns config: echo "Manual - Please confirm iptables outbound and connections are configured and matche… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-3.5.3.2.4-ipt_open_ports` | ipt open ports: echo "Manual - Please confirm iptables rules for open ports configured and matched site p… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-3.5.3.3.1-ipt6_def_deny` | ipt6 def deny: echo "Manual - Please confirm ip6tables default denies are configured and matched site po… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-3.5.3.3.2-ipt6_loopback` | ipt6 loopback: echo "Manual - Please confirm ip6tables loopback connections are configured and matched s… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-3.5.3.3.3-ipt6_conns_config` | ipt6 conns config: echo "Manual - Please confirm ip6tables outbound and connections are configured and match… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-3.5.3.3.4-ipt6_open_ports` | ipt6 open ports: echo "Manual - Please confirm ip6tables rules for open ports configured and matched site … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-4.1.1.1-audispd-plugins` | Package audispd-plugins is installed | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-UBUNTU18-4.1.1.1-auditd` | Package auditd is installed | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-UBUNTU18-4.1.1.2-auditd-enabled` | Service auditd is enabled | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
@@ -352,12 +334,10 @@ checkmate run cis/ubuntu18.yml --tags cis-level-2 -v
 | `CIS-UBUNTU18-5.5.4-umask_027` | umask 027: grep -RPi "'(^\|^[^#]\*)\\s\*umask\\s+([0-7][0-7][01][0-7]\\b\|[0-7][0-7][0-7][0-6]\\b\|[0-7][01][… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-5.5.5-etc_profile.d_tmout.sh-attrs` | /etc/profile.d/tmout.sh: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-5.5.5-etc_profile.d_tmout.sh-content` | /etc/profile.d/tmout.sh has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-5.6-root_system_console` | root system console: echo "Manual check of valid terminal in /etc/securetty is required" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-5.7-etc_group-attrs` | /etc/group: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-5.7-etc_group-content` | /etc/group has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-5.7-etc_pam.d_su-attrs` | /etc/pam.d/su: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-5.7-etc_pam.d_su-content` | /etc/pam.d/su has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU18-6.1.1-rpm_filecheck` | rpm filecheck: echo "Manual Check of packages required" | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-UBUNTU18-6.1.2-passwd_perms` | passwd perms: stat -L -c "%a %U %G" /etc/passwd | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-6.1.3-passwd-_perms` | passwd perms: stat -L -c "%a %U %G" /etc/passwd- | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU18-6.1.4-group_perms` | group perms: stat -L -c "%a %U %G" /etc/group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

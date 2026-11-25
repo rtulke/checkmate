@@ -1,6 +1,6 @@
 # CIS Debian 11
 
-Automated checks for 284 recommendations of the CIS Debian 11 benchmark (version 2.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
+Automated checks for 264 recommendations of the CIS Debian 11 benchmark (version 2.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
 
 **Policy:** [`cis/debian11.yml`](https://github.com/rtulke/checkmate/blob/main/cis/debian11.yml) · **Benchmark version:** 2.0.0
 
@@ -91,8 +91,6 @@ checkmate run cis/debian11.yml --tags cis-level-2 -v
 | `CIS-DEBIAN11-1.1.2.7.4-var_log_audit_noexec_options` | /var/log/audit is a separate mount with noexec | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-1.1.2.7.4-var_log_audit_noexec_fstab_options-attrs` | /etc/fstab: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-1.1.2.7.4-var_log_audit_noexec_fstab_options-content` | /etc/fstab has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-1.2.1.1-gpg_keys` | gpg keys: echo "MANUAL - Ensure gpg keys match site policy" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-1.2.1.2-repos_configured` | repos configured: echo "MANUAL - Ensure repos match site policy" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-1.2.2.1-security-updates` | security updates: apt update | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-1.3.1.1-apparmor` | Package apparmor is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-1.3.1.2-apparmor_enabled_boot-attrs` | /etc/default/grub: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -140,7 +138,6 @@ checkmate run cis/debian11.yml --tags cis-level-2 -v
 | `CIS-DEBIAN11-2.1.18-nginx_pkg` | Package nginx is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-2.1.19-xinetd_pkg` | Package xinetd is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-2.1.20-xwindow_pkg` | Package xserver-common is not installed | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-DEBIAN11-2.1.22-manual_listening_ports` | manual listening ports: echo "Manual!! - Please check only approved services are listening" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-2.2.1-nis_client` | Package nis is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-2.2.2-rsh` | Package rsh is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-2.2.3-talk_client` | Package talk is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -229,34 +226,18 @@ checkmate run cis/debian11.yml --tags cis-level-2 -v
 | `CIS-DEBIAN11-4.1.3-ufw-enabled` | Service ufw is enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-4.1.3-ufw-running` | Service ufw is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-4.1.4-ufw_loopback` | ufw loopback: ufw status verbose | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-4.1.5-ufw_outbound` | ufw outbound: echo "Manual - Please confirm firewall outbound Policies match site policies" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-4.1.6-ufw_open_ports` | ufw open ports: echo "Manual - Please confirm firewall rules exist for open ports match site policies" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-4.1.7-ufw_def_deny` | ufw def deny: ufw status verbose \| grep Default: | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-4.2.1-nftables` | Package nftables is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-4.2.2-ufw` | Package ufw is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-4.2.3-ip6tables_flushed` | ip6tables flushed: ip6tables -S 2>/dev/null \| grep -v '^-P ' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-4.2.3-iptables_flushed` | iptables flushed: iptables -S 2>/dev/null \| grep -v '^-P ' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-4.2.4-nft_tables` | nft tables: echo "Manual - Please confirm nfttables table exists and matched site policy" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-4.2.5-nft_chains` | nft chains: echo "Manual - Please confirm nfttables base chain exists and matched site policy" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-4.2.6-nft_loopback` | nft loopback: echo "Manual - Please confirm nfttables loopback traffic configured and matched site poli… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-4.2.7-nft_conns` | nft conns: echo "Manual - Please confirm nfttables connections are configured and matched site polic… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-4.2.8-nft_def_deny` | nft def deny: echo "Manual - Please confirm nfttables default denies are configured and matched site po… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-4.2.9-nftables-enabled` | Service nftables is enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-4.2.9-nftables-running` | Service nftables is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-4.2.10-nftable_perm-attrs` | /etc/nftables.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-4.2.10-nft_rules` | nft rules: echo "Manual - Please review nfttables configuration and matches site policy" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-4.3.1.1-iptables` | Package iptables is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-4.3.1.1-iptables-persistent` | Package iptables-persistent is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-4.3.1.2-nftables` | Package nftables is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-4.3.1.3-ufw` | Package ufw is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-4.3.2.1-ipt_def_deny` | ipt def deny: echo "Manual - Please confirm iptables default denies are configured and matched site pol… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-4.3.2.2-ipt_loopback` | ipt loopback: echo "Manual - Please confirm iptables loopback connections are configured and matched si… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-4.3.2.3-ipt_conns_config` | ipt conns config: echo "Manual - Please confirm iptables outbound and connections are configured and matche… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-4.3.2.4-ipt_open_ports` | ipt open ports: echo "Manual - Please confirm iptables rules for open ports configured and matched site p… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-4.3.3.1-ipt6_def_deny` | ipt6 def deny: echo "Manual - Please confirm ip6tables default denies are configured and matched site po… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-4.3.3.2-ipt6_loopback` | ipt6 loopback: echo "Manual - Please confirm ip6tables loopback connections are configured and matched s… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-4.3.3.3-ipt6_conns_config` | ipt6 conns config: echo "Manual - Please confirm ip6tables outbound and connections are configured and match… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-4.3.3.4-ipt6_open_ports` | ipt6 open ports: echo "Manual - Please confirm ip6tables rules for open ports configured and matched site … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-5.1.1-sshd_config_perms-attrs` | /etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-5.1.2-etc_ssh_ssh_host_prv_key_group` | /etc/ssh/ssh host prv key group: groupkeys=$(sudo find /etc/ssh/ -name '\*_key' -type f ! -group root ); echo $groupkeys | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-5.1.2-etc_ssh_ssh_host_prv_key_perms` | /etc/ssh/ssh host prv key perms: keyperms=$(sudo find /etc/ssh/ -name '\*_key' -type f \\( -perm /137 -o \\( -group root -per… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -396,7 +377,6 @@ checkmate run cis/debian11.yml --tags cis-level-2 -v
 | `CIS-DEBIAN11-6.1.3-audit_bins_crypto_aide-content` | /etc/aide/aide.conf has the expected content (6 rules) | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-DEBIAN11-6.2.1.1.1-systemd-journald-enabled` | Service systemd-journald is enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-6.2.1.1.1-systemd-journald-running` | Service systemd-journald is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-DEBIAN11-6.2.1.1.2-etc_tmpfiles.d_systemd.conf` | /etc/tmpfiles.d/systemd.conf: echo "Manual - Please check journald default permissions" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-6.2.1.1.3-log_rotate_journald_conf` | log rotate journald conf: systemd-analyze cat-config systemd/journald.conf \| grep -Pi -- '^\\h\*(SystemMaxUse\|SystemK… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-6.2.1.1.4-forward_journald_disabled` | forward journald disabled: systemd-analyze cat-config systemd/journald.conf \| grep -Pi -- '^\\h\*ForwardToSyslog\\h\*=' … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-DEBIAN11-6.2.1.1.5-storage_journald_conf` | storage journald conf: systemd-analyze cat-config systemd/journald.conf \| grep -Pi -- '^\\h\*Storage\\h\*=' \| tail -… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -433,7 +413,6 @@ checkmate run cis/debian11.yml --tags cis-level-2 -v
 | `CIS-DEBIAN11-6.4.3.4-auditd_time_live` | auditd time live: auditctl -l \| grep time-change | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-DEBIAN11-6.4.3.5-auditd_locale_cnf` | auditd locale cnf: grep system-locale /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-DEBIAN11-6.4.3.5-auditd_locale_live` | auditd locale live: auditctl -l \| grep system-locale | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-DEBIAN11-6.4.3.6-auditd_priv_cmds_cnf` | auditd priv cmds cnf: echo "Manual - Please investigate privilege commands are collected as per documentation" | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-DEBIAN11-6.4.3.7-auditd_access_cnf` | auditd access cnf: grep access /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-DEBIAN11-6.4.3.7-auditd_access_live` | auditd access live: auditctl -l \| grep access | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-DEBIAN11-6.4.3.8-auditd_identity_cnf` | auditd identity cnf: grep identity /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |

@@ -3,7 +3,7 @@
 name: CIS Red Hat Enterprise Linux 9
 version: "2.0.0"
 description: >
-  Automated checks for 274 recommendations of the CIS Red Hat Enterprise Linux 9 benchmark
+  Automated checks for 267 recommendations of the CIS Red Hat Enterprise Linux 9 benchmark
   (version 2.0.0), converted from the goss audit content of the
   ansible-lockdown project. Check names describe what is verified; the
   recommendation number is in the ID and the description. Select profiles
@@ -2324,26 +2324,6 @@ checks:
       Remove the package xorg-x11-server-common, unless the system needs it:
 
       dnf remove xorg-x11-server-common
-  - id: "CIS-RHEL9-2.1.22-manual_listening_ports"
-    name: "manual listening ports: echo \"Manual!! - Please check only approved services are listening\""
-    description: "CIS Red Hat Enterprise Linux 9 benchmark recommendation 2.1.22. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
-    tags: [cis, cis-rhel9, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual!! - Please check only approved services are listening"
-    allow_rc: any
-    expect:
-      - { rc: "in [0, 1]" }
-      - { none: "~ ." }
-    rationale: &rat-71d1cf147e |
-      Every listening network service is a potential entry point. Reviewing listening ports and the processes behind them ensures that only approved services are reachable and reveals forgotten or unexpected ones. This is a manual review.
-    remediation: &rem-905c71ee6f |
-      This is a manual review. List all listening sockets with their processes, then stop and disable, or block with the firewall, every service that is not approved, and document the result.
-
-      ss -tulpn
-      systemctl disable --now SERVICE
-
-      The check itself only prints a reminder and reports a failure on most platforms regardless of the result.
   - id: "CIS-RHEL9-2.2.1-ftp"
     name: "Package ftp is not installed"
     description: "CIS Red Hat Enterprise Linux 9 benchmark recommendation 2.2.1. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
@@ -3969,93 +3949,6 @@ checks:
       Create /etc/systemd/system/nftables.service if it is missing, then point the link to /dev/null:
 
       ln -sfn '/dev/null' '/etc/systemd/system/nftables.service'
-  - id: "CIS-RHEL9-4.2.1-firewall_drop_unncessary_ports_manual"
-    name: "firewall drop unncessary ports manual: echo \"Manual test\""
-    description: "CIS Red Hat Enterprise Linux 9 benchmark recommendation 4.2.1. NIST SP 800-53 Rev. 5: CA-9. CIS Controls v8: 4.4."
-    tags: [cis, cis-rhel9, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual test"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual test" }
-    rationale: &rat-90809a00fd |
-      Every port the firewall allows is a path into the system. Services that were opened for testing or are no longer used remain reachable until removed from the firewall configuration. Regularly reviewing the allowed services and ports ensures that only those required by the system's role are open.
-    remediation: &rem-629ba92304 |
-      Review the services and ports allowed in each active firewalld zone and remove those the system does not need.
-
-      firewall-cmd --get-active-zones
-      firewall-cmd --list-all --zone=ZONE
-      firewall-cmd --permanent --zone=ZONE --remove-service=SERVICE
-      firewall-cmd --permanent --zone=ZONE --remove-port=PORT/PROTOCOL
-      firewall-cmd --reload
-
-      This is a manual check that always reports a failure for review.
-  - id: "CIS-RHEL9-4.2.2-firewalld_loopback_manual"
-    name: "firewalld loopback manual: echo \"Manual test\""
-    description: "CIS Red Hat Enterprise Linux 9 benchmark recommendation 4.2.2. NIST SP 800-53 Rev. 5: CA-9. CIS Controls v8: 4.4."
-    tags: [cis, cis-rhel9, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual test"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual test" }
-    rationale: &rat-d8b4dfc2ac |
-      Loopback traffic must be allowed for local services to work, but packets claiming a loopback source address must never arrive on a real network interface; such packets are spoofed and can bypass access controls that trust localhost. The firewall should accept traffic on lo and drop loopback-sourced traffic elsewhere.
-    remediation: &rem-d053915081 |
-      Verify manually that the lo interface is trusted and that loopback-sourced traffic from other interfaces is dropped; configure it if missing.
-
-      firewall-cmd --permanent --zone=trusted --add-interface=lo
-      firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="127.0.0.1" destination not address="127.0.0.1" drop'
-      firewall-cmd --permanent --add-rich-rule='rule family="ipv6" source address="::1" destination not address="::1" drop'
-      firewall-cmd --reload
-
-      This is a manual control; the automated check always reports a failure and the result must be documented separately.
-  - id: "CIS-RHEL9-4.3.1-nftables_base_chain_manual"
-    name: "nftables base chain manual: echo \"Manual test\""
-    description: "CIS Red Hat Enterprise Linux 9 benchmark recommendation 4.3.1. NIST SP 800-53 Rev. 5: CA-9. CIS Controls v8: 4.4."
-    tags: [cis, cis-rhel9, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual test"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual test" }
-    rationale: &rat-39947e041d |
-      Base chains attach nftables rules to the kernel's netfilter hooks. Without base chains for the input, forward and output hooks, packets passing those points are not filtered at all.
-    remediation: &rem-31d5774eaf |
-      Create base chains for the input, forward and output hooks in the firewall table. Add rules for required traffic, such as SSH, before switching any chain policy to drop.
-
-      nft create chain inet filter input '{ type filter hook input priority 0 ; }'
-      nft create chain inet filter forward '{ type filter hook forward priority 0 ; }'
-      nft create chain inet filter output '{ type filter hook output priority 0 ; }'
-
-      On Amazon Linux 2023 and RHEL 9 this is a manual check that always reports a failure; review the chains with nft list ruleset. Save the rule set to the file loaded by nftables.service (/etc/sysconfig/nftables.conf or a file it includes) to keep it after a reboot.
-  - id: "CIS-RHEL9-4.3.2-firewall_established_conns_manual"
-    name: "firewall established conns manual: echo \"Manual test\""
-    description: "CIS Red Hat Enterprise Linux 9 benchmark recommendation 4.3.2. NIST SP 800-53 Rev. 5: CA-9. CIS Controls v8: 4.4."
-    tags: [cis, cis-rhel9, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual test"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual test" }
-    rationale: &rat-b009f60b7d |
-      A default-deny firewall must still allow replies to connections the host initiated, otherwise outbound traffic breaks. Rules that accept only established and related traffic do this without opening ports for new inbound connections.
-    remediation: &rem-7a8eefce94 |
-      Verify manually that the nftables input chain accepts established and related connections; add the rule if missing and save the ruleset.
-
-      nft list ruleset
-      nft add rule inet filter input ct state established,related accept
-      nft list ruleset > /etc/nftables/main.nft
-
-      Make sure /etc/sysconfig/nftables.conf includes /etc/nftables/main.nft. Where firewalld manages the firewall, its default rules already accept established traffic. This is a manual control; the automated check always reports a failure.
   - id: "CIS-RHEL9-4.3.3-nftables_default_deny_input"
     name: "nftables default deny input: systemctl --quiet is-enabled nftables.service \u0026\u0026 nft list ruleset | grep -E 'hook (input|…"
     description: "CIS Red Hat Enterprise Linux 9 benchmark recommendation 4.3.3. NIST SP 800-53 Rev. 5: CA-9. CIS Controls v8: 4.4."
@@ -4078,28 +3971,6 @@ checks:
       systemctl enable nftables
 
       Allow SSH first or you lock yourself out; a drop policy on output also needs rules for outgoing traffic. Save the rule set to the file loaded by nftables.service (/etc/sysconfig/nftables.conf or a file it includes) to keep it after a reboot.
-  - id: "CIS-RHEL9-4.3.4-firewall_loopback_manual"
-    name: "firewall loopback manual: echo \"Manual test\""
-    description: "CIS Red Hat Enterprise Linux 9 benchmark recommendation 4.3.4. NIST SP 800-53 Rev. 5: CA-9. CIS Controls v8: 4.4."
-    tags: [cis, cis-rhel9, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual test"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual test" }
-    rationale: &rat-3a75f7c813 |
-      Local services often trust connections from the loopback interface. The firewall should accept all loopback traffic so local communication works, but drop packets that arrive on other interfaces while claiming a 127.0.0.0/8 or ::1 source, because such spoofed packets could reach services that only expect local clients.
-    remediation: &rem-e17bfc925b |
-      Accept all traffic on the loopback interface and drop packets with a loopback source address that arrive on other interfaces.
-
-      firewall-cmd --permanent --zone=trusted --add-interface=lo
-      firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="127.0.0.0/8" destination not address="127.0.0.0/8" drop'
-      firewall-cmd --permanent --add-rich-rule='rule family="ipv6" source address="::1" destination not address="::1" drop'
-      firewall-cmd --reload
-
-      This is a manual check: on Amazon Linux 2023 and RHEL 9 it always reports a failure for review, on SUSE 15 it always passes.
   - id: "CIS-RHEL9-5.1.1-sshd_config_perms-attrs"
     name: "/etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 9 benchmark recommendation 5.1.1. NIST SP 800-53 Rev. 5: AC-3, MP-2. CIS Controls v8: 3.3."
@@ -7840,27 +7711,6 @@ checks:
     rationale: &rat-f14e01285d |
       Changes to the host name, domain name, login banners or network configuration can redirect traffic, disguise a system or prepare further attacks. Auditing them makes such modifications traceable. This check verifies that the rules are loaded in the running kernel.
     remediation: *rem-71eab26d13
-  - id: "CIS-RHEL9-6.3.3.6-auditd_priv_cmds_cnf"
-    name: "auditd priv cmds cnf: echo \"Manual - Please investigate privilege commands are collected as per documentation\""
-    description: "CIS Red Hat Enterprise Linux 9 benchmark recommendation 6.3.3.6. NIST SP 800-53 Rev. 5: AU-3. CIS Controls v8: 8.5."
-    tags: [cis, cis-rhel9, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
-    severity: low
-    run: |
-      echo "Manual - Please investigate privilege commands are collected as per documentation"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual" }
-    rationale: &rat-8e8800ac94 |
-      Programs with the setuid or setgid bit run with the privileges of their owner or group and are a common route for privilege escalation. Auditing every execution of these programs by regular users shows who used elevated privileges and helps detect misuse of vulnerable binaries.
-    remediation: &rem-c3e83b859d |
-      Generate an audit rule for every setuid and setgid program on the local file systems, write the rules to a file in /etc/audit/rules.d/ and load them. Repeat this whenever software that installs such programs is added.
-
-      UID_MIN=$(awk '/^\s*UID_MIN/ {print $2}' /etc/login.defs)
-      df --local -P | awk 'NR > 1 {print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm /6000 2>/dev/null | sort -u | awk -v m="${UID_MIN:-1000}" '{print "-a always,exit -F path=" $0 " -F perm=x -F auid>=" m " -F auid!=unset -k privileged"}' > /etc/audit/rules.d/50-privileged.rules
-      augenrules --load
-
-      On Amazon Linux 2/2023, RHEL 8 to 10 and Debian 11 this is a manual check that always asks for a review. On RHEL 7, SUSE 15 and Ubuntu 18.04/20.04 the check only looks for an audit rule containing the word delete, which the file deletion rules provide. If the audit configuration is immutable (-e 2), reboot to activate the rules.
   - id: "CIS-RHEL9-6.3.3.7-auditd_access_cnf"
     name: "auditd access cnf: grep access /etc/audit/rules.d/*.rules"
     description: "CIS Red Hat Enterprise Linux 9 benchmark recommendation 6.3.3.7. NIST SP 800-53 Rev. 5: AU-3. CIS Controls v8: 8.5."
@@ -9249,7 +9099,9 @@ checks:
     severity: medium
     timeout: 120000ms
     run: |
-      find /home/  \( -name .netrc -o -name .rhost -o -name .forward \)
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev  \( -name .netrc -o -name .rhost -o -name .forward \) 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }

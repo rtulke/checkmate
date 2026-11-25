@@ -1,6 +1,6 @@
 # CIS Amazon Linux 2
 
-Automated checks for 276 recommendations of the CIS Amazon Linux 2 benchmark (version 3.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
+Automated checks for 272 recommendations of the CIS Amazon Linux 2 benchmark (version 3.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
 
 **Policy:** [`cis/amazon2.yml`](https://github.com/rtulke/checkmate/blob/main/cis/amazon2.yml) · **Benchmark version:** 3.0.0
 
@@ -155,7 +155,6 @@ checkmate run cis/amazon2.yml --tags cis-level-2 -v
 | `CIS-AMAZON2-2.2.18-nginx_pkg` | Package nginx is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-2.2.19-xinetd_pkg` | Package xinetd is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-2.2.20-xwindow_pkg` | Package xorg-x11-server-common is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2-2.2.22-manual_listening_ports` | manual listening ports: echo "Manual!! - Please check only approved services are listening" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-2.3.1-ftp_client` | Package ftp is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-2.3.2-ldap_client` | Package openldap-clients is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-2.3.3-nis_client` | Package ypbind is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -224,7 +223,6 @@ checkmate run cis/amazon2.yml --tags cis-level-2 -v
 | `CIS-AMAZON2-3.4.4.2.6-iptables_running-enabled` | Service iptables is enabled | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-3.4.4.2.6-iptables_running-running` | Service iptables is running | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-3.4.4.3.1-iptables6_loopback` | iptables6 loopback: cat false | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2-3.4.4.3.3-ip6tables_manual` | ip6tables manual: echo "Manual - Ensure ip6tables firewall rules exist for all open ports" | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-3.4.4.3.5-false-attrs` | false: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-3.4.4.3.6-ip6tables-enabled` | Service ip6tables is enabled | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-3.4.4.3.6-ip6tables-running` | Service ip6tables is running | L1 server | <span class="sev sev-medium">medium</span> |
@@ -416,7 +414,6 @@ checkmate run cis/amazon2.yml --tags cis-level-2 -v
 | `CIS-AMAZON2-5.1.2.4-journald_storage` | journald storage: grep -i "storage" /etc/systemd/journald.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-5.1.2.5-journald_forwardtosyslog` | journald forwardtosyslog: grep -i "ForwardToSyslog" /etc/systemd/journald.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-5.1.2.6-journald_log_rotation` | journald log rotation: grep -Ei "(MaxFileSec\|KeepFree\|MaxUse)" /etc/systemd/journald.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2-5.1.3-logrotate_configured` | logrotate configured: echo "Manual!! Check logrotate configuration" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-5.1.4-logfile_configured` | logfile configured: find /var/log/ -type f \\( -name 'lastlog' -o -name 'wtmp' -o -name 'btmp' \\) -perm /g+x,o… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-5.2.1.1-audit-libs_installed` | Package audit-libs is installed | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2-5.2.1.1-audit_installed` | Package audit is installed | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
@@ -442,7 +439,6 @@ checkmate run cis/amazon2.yml --tags cis-level-2 -v
 | `CIS-AMAZON2-5.2.3.4-auditd_time_live` | auditd time live: auditctl -l \| grep time-change | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2-5.2.3.5-auditd_locale_cnf` | auditd locale cnf: grep system-locale /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2-5.2.3.5-auditd_locale_live` | auditd locale live: auditctl -l \| grep system-locale | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2-5.2.3.6-auditd_priv_cmds_cnf` | auditd priv cmds cnf: echo "Manual - Please investigate privilege commands are collected as per documentation" | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2-5.2.3.7-auditd_access_cnf` | auditd access cnf: grep access /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2-5.2.3.7-auditd_access_live` | auditd access live: auditctl -l \| grep access | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2-5.2.3.8-auditd_identity_cnf` | auditd identity cnf: grep identity /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |

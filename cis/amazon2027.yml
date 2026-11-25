@@ -3,7 +3,7 @@
 name: CIS Amazon Linux 2027
 version: "0.0.1"
 description: >
-  Automated checks for 309 recommendations of the CIS Amazon Linux 2027 benchmark
+  Automated checks for 307 recommendations of the CIS Amazon Linux 2027 benchmark
   (version 0.0.1), converted from the goss audit content of the
   ansible-lockdown project. Check names describe what is verified; the
   recommendation number is in the ID and the description. Select profiles
@@ -2807,26 +2807,6 @@ checks:
       Remove the package xorg-x11-server-Xwayland, unless the system needs it:
 
       dnf remove xorg-x11-server-Xwayland
-  - id: "CIS-AMAZON2027-2.1.21-manual_listening_ports"
-    name: "manual listening ports: echo \"Manual!! - Please check only approved services are listening\""
-    description: "CIS Amazon Linux 2027 benchmark recommendation 2.1.21. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
-    tags: [cis, cis-amazon2027, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
-    severity: medium
-    run: |
-      echo "Manual!! - Please check only approved services are listening"
-    allow_rc: any
-    expect:
-      - { rc: "in [0, 1]" }
-      - { none: "~ ." }
-    rationale: &rat-71d1cf147e |
-      Every listening network service is a potential entry point. Reviewing listening ports and the processes behind them ensures that only approved services are reachable and reveals forgotten or unexpected ones. This is a manual review.
-    remediation: &rem-905c71ee6f |
-      This is a manual review. List all listening sockets with their processes, then stop and disable, or block with the firewall, every service that is not approved, and document the result.
-
-      ss -tulpn
-      systemctl disable --now SERVICE
-
-      The check itself only prints a reminder and reports a failure on most platforms regardless of the result.
   - id: "CIS-AMAZON2027-2.2.1-cis_2_2_1_ftp_pkg"
     name: "Package ftp is not installed"
     description: "CIS Amazon Linux 2027 benchmark recommendation 2.2.1. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
@@ -4752,29 +4732,6 @@ checks:
       firewall-cmd --reload
 
       The loopback interface must be bound to a zone first (see the loopback zone check).
-  - id: "CIS-AMAZON2027-4.1.7-firewall_drop_unncessary_ports_manual"
-    name: "firewall drop unncessary ports manual: echo \"Manual test\""
-    description: "CIS Amazon Linux 2027 benchmark recommendation 4.1.7. NIST SP 800-53 Rev. 5: CA-9. CIS Controls v8: 4.4."
-    tags: [cis, cis-amazon2027, cis-section-4, cis-level-2, cis-server, cis-level2-server]
-    severity: low
-    run: |
-      echo "Manual test"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual test" }
-    rationale: &rat-90809a00fd |
-      Every port the firewall allows is a path into the system. Services that were opened for testing or are no longer used remain reachable until removed from the firewall configuration. Regularly reviewing the allowed services and ports ensures that only those required by the system's role are open.
-    remediation: &rem-629ba92304 |
-      Review the services and ports allowed in each active firewalld zone and remove those the system does not need.
-
-      firewall-cmd --get-active-zones
-      firewall-cmd --list-all --zone=ZONE
-      firewall-cmd --permanent --zone=ZONE --remove-service=SERVICE
-      firewall-cmd --permanent --zone=ZONE --remove-port=PORT/PROTOCOL
-      firewall-cmd --reload
-
-      This is a manual check that always reports a failure for review.
   - id: "CIS-AMAZON2027-4.1.8-cis_4_1_8_default_zone_drop"
     name: "cis 4 1 8 default zone drop: firewall-cmd --get-default-zone"
     description: "CIS Amazon Linux 2027 benchmark recommendation 4.1.8. NIST SP 800-53 Rev. 5: CA-9."

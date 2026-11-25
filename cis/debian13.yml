@@ -3,7 +3,7 @@
 name: CIS Debian 13
 version: "1.0.0"
 description: >
-  Automated checks for 325 recommendations of the CIS Debian 13 benchmark
+  Automated checks for 322 recommendations of the CIS Debian 13 benchmark
   (version 1.0.0), converted from the goss audit content of the
   ansible-lockdown project. Check names describe what is verified; the
   recommendation number is in the ID and the description. Select profiles
@@ -2634,26 +2634,6 @@ checks:
       postconf -h inet_interfaces
 
       The Debian 13 check accepts only the value loopback-only; Ubuntu 24.04 also accepts localhost, 127.0.0.1 or ::1.
-  - id: "CIS-DEBIAN13-2.1.23-manual_listening_ports"
-    name: "manual listening ports: echo \"Manual!! - Please check only approved services are listening\""
-    description: "CIS Debian 13 benchmark recommendation 2.1.23. NIST SP 800-53 Rev. 5: CM-7."
-    tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual!! - Please check only approved services are listening"
-    allow_rc: any
-    expect:
-      - { rc: "in [0, 1]" }
-      - { none: "~ Manual" }
-    rationale: &rat-71d1cf147e |
-      Every listening network service is a potential entry point. Reviewing listening ports and the processes behind them ensures that only approved services are reachable and reveals forgotten or unexpected ones. This is a manual review.
-    remediation: &rem-905c71ee6f |
-      This is a manual review. List all listening sockets with their processes, then stop and disable, or block with the firewall, every service that is not approved, and document the result.
-
-      ss -tulpn
-      systemctl disable --now SERVICE
-
-      The check itself only prints a reminder and reports a failure on most platforms regardless of the result.
   - id: "CIS-DEBIAN13-2.2.1-nis_client"
     name: "Package nis is not installed"
     description: "CIS Debian 13 benchmark recommendation 2.2.1. NIST SP 800-53 Rev. 5: CM-11."
@@ -4543,26 +4523,6 @@ checks:
       ufw status verbose
 
       Add allow rules for every other required service first, or remote access may be cut off.
-  - id: "CIS-DEBIAN13-4.1.4-ufw_outbound"
-    name: "ufw outbound: echo \"Manual - Please confirm firewall outbound Policies match site policies\""
-    description: "CIS Debian 13 benchmark recommendation 4.1.4. NIST SP 800-53 Rev. 5: CM-7."
-    tags: [cis, cis-debian13, cis-section-4, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
-    severity: low
-    run: |
-      echo "Manual - Please confirm firewall outbound Policies match site policies"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-9eae47b76a |
-      Outbound rules decide which connections the host may initiate. Limiting them to what the system needs restricts data exfiltration and the ability of malware to reach command-and-control servers. Because the right rules depend on the system's role, this is a manual review item.
-    remediation: &rem-ed9bb3aa66 |
-      Review the outbound ufw rules against the site policy and allow only the outgoing traffic the system needs.
-
-      ufw status verbose
-      ufw allow out PORT/PROTOCOL
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
   - id: "CIS-DEBIAN13-4.1.5-ufw_def_routed"
     name: "ufw def routed: ufw status verbose | awk -F',' '$1=\"Default\"{print $3}'"
     description: "CIS Debian 13 benchmark recommendation 4.1.5. NIST SP 800-53 Rev. 5: CM-7."
@@ -6891,27 +6851,6 @@ checks:
       Start the service systemd-journald:
 
       systemctl start systemd-journald
-  - id: "CIS-DEBIAN13-6.1.1.1.2-etc_tmpfiles.d_systemd.conf"
-    name: "/etc/tmpfiles.d/systemd.conf: echo \"Manual - Please check journald default permissions\""
-    description: "CIS Debian 13 benchmark recommendation 6.1.1.1.2. NIST SP 800-53 Rev. 5: AC-3, AU-2, AU-12, MP-2, SI-5."
-    tags: [cis, cis-debian13, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please check journald default permissions"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-653475c412 |
-      systemd-tmpfiles sets the ownership and permissions of journal directories and files at boot. Overly permissive defaults would let unprivileged users read journal data containing sensitive information. Reviewing the tmpfiles entries ensures journal files are created with restrictive modes (0640 or stricter).
-    remediation: &rem-a12b519b39 |
-      Review the permissions systemd-tmpfiles applies to journal files and directories. To change them, copy the vendor file to /etc/tmpfiles.d/ (which overrides it) and tighten the modes.
-
-      grep -E '^[fdzZ]' /usr/lib/tmpfiles.d/systemd.conf
-      cp /usr/lib/tmpfiles.d/systemd.conf /etc/tmpfiles.d/systemd.conf
-      systemd-tmpfiles --create /etc/tmpfiles.d/systemd.conf
-
-      This is a manual check that always reports a failure for review.
   - id: "CIS-DEBIAN13-6.1.1.1.3-log_rotate_journald_conf"
     name: "log rotate journald conf: grep -Ei \"max|keep\" /etc/systemd/journald.conf /etc/systemd/journald.conf.d/*.conf"
     description: "CIS Debian 13 benchmark recommendation 6.1.1.1.3. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -10046,7 +9985,9 @@ checks:
     severity: medium
     timeout: 120000ms
     run: |
-      find /home/  \( -name .netrc -o -name .rhost -o -name .forward \)
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev  \( -name .netrc -o -name .rhost -o -name .forward \) 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }

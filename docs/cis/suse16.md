@@ -1,6 +1,6 @@
 # CIS SUSE Linux Enterprise 16
 
-Automated checks for 324 recommendations of the CIS SUSE Linux Enterprise 16 benchmark (version 1.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
+Automated checks for 315 recommendations of the CIS SUSE Linux Enterprise 16 benchmark (version 1.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
 
 **Policy:** [`cis/suse16.yml`](https://github.com/rtulke/checkmate/blob/main/cis/suse16.yml) · **Benchmark version:** 1.0.0
 
@@ -29,7 +29,6 @@ checkmate run cis/suse16.yml --tags cis-level-2 -v
 | `CIS-SUSE16-1.1.1.8-squashfs` | squashfs: modprobe -n -v squashfs \| grep -E '(squashfs\|install)' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE16-1.1.1.9-blacklist_udf` | blacklist udf: grep udf /etc/modprobe.d/\*.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE16-1.1.1.9-udf` | udf: modprobe -n -v udf \| grep -E '(udf\|install)' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE16-1.1.1.10-manual_review` | manual review: echo 'Manual review required: verify unused fs kernel modules are blacklisted and not loa… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-1.1.1.10-mounted_fstypes` | mounted fstypes: findmnt -klo FSTYPE \| sort -u | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-1.1.2.1.1-tmp_mount` | /tmp is a separate mount | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-1.1.2.1.2-tmp_nodev_options` | /tmp is a separate mount with nodev | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -181,7 +180,6 @@ checkmate run cis/suse16.yml --tags cis-level-2 -v
 | `CIS-SUSE16-2.1.20-xwindow_pkg` | Package xwayland is not installed | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-SUSE16-2.1.21-mta_listening_port25` | mta listening port25: ss -lntu \| grep -E ":25\\s" \| grep -E -v "\\s(127.0.0.1\|\\[?::1\\]?):25\\s" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-2.1.21-postfix_inet_interfaces` | postfix inet interfaces: if command -v postconf >/dev/null 2>&1; then postconf inet_interfaces; else echo 'postfix… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE16-2.1.22-approved_listening_services_manual` | approved listening services manual: echo "Manual check - review the output of 'ss -plntu' and confirm every listening service… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-2.2.1-ftp_client` | Package ftp is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-2.2.2-openldap2_6-client_removed` | Package openldap2_6-client is not installed | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE16-2.2.3-nis_client` | Package ypbind is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -268,7 +266,6 @@ checkmate run cis/suse16.yml --tags cis-level-2 -v
 | `CIS-SUSE16-4.1.4-cis_4_1_4` | cis 4 1 4: for z in $(firewall-cmd --get-active-zones 2>/dev/null \| awk '!/^ /{print $1}'); do i=$(f… | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-SUSE16-4.1.5-cis_4_1_5_lo_zone` | cis 4 1 5 lo zone: firewall-cmd --get-zone-of-interface=lo | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-4.1.6-cis_4_1_6_ipv4` | cis 4 1 6 ipv4: firewall-cmd --zone trusted --list-rich-rules | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE16-4.1.7-cis_4_1_7` | cis 4 1 7: echo "Manual check - review 'firewall-cmd --list-all' and confirm only approved services … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-4.1.8-cis_4_1_8` | cis 4 1 8: firewall-cmd --get-default-zone | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-5.1.1-sshd_config_perms-attrs` | /etc/ssh/sshd_config: mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-5.1.1-sshd_config_root_path_perms-attrs` | /usr/etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -369,19 +366,13 @@ checkmate run cis/suse16.yml --tags cis-level-2 -v
 | `CIS-SUSE16-6.1.1.2-journald_remote_socket_masked` | journald remote socket masked: systemctl is-enabled systemd-journal-remote.socket | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-6.1.1.3-journald_compress` | journald compress: grep -i compress /etc/systemd/journald.conf /etc/systemd/journald.conf.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-6.1.1.4-journald_storage` | journald storage: grep -i storage /etc/systemd/journald.conf /etc/systemd/journald.conf.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE16-6.1.1.6-journald_log_rotation_manual` | journald log rotation manual: echo "Manual check - review journald log rotation settings in /etc/systemd/journald.conf … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE16-6.1.1.7-journald_log_access_manual` | journald log access manual: echo "Manual check - review journald log file permissions to ensure access is restricted … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-6.1.2.1-rsyslog` | Package rsyslog is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-6.1.2.2-rsyslog-enabled` | Service rsyslog is enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-6.1.2.2-rsyslog-running` | Service rsyslog is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-6.1.2.4-rsyslog_filecreatemode` | rsyslog filecreatemode: grep -P '^\\$FileCreateMode' /etc/rsyslog.conf /etc/rsyslog.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE16-6.1.2.5-rsyslog_logging_manual` | rsyslog logging manual: echo "Manual check - review rsyslog.conf for appropriate logging rules per site policy" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE16-6.1.2.6-rsyslog_remote_logging_manual` | rsyslog remote logging manual: echo "Manual check - verify rsyslog is configured to forward logs to a remote log server … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-6.1.2.7-rsyslog_no_imtcp` | rsyslog no imtcp: grep -P '^\\s\*\\$ModLoad\\s+imtcp\|^\\s\*\\$InputTCPServerRun' /etc/rsyslog.conf /etc/rsyslog.d/… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE16-6.1.2.8-rsyslog_logrotate_manual` | rsyslog logrotate manual: echo "Manual check - review /etc/logrotate.conf and /etc/logrotate.d/ for appropriate log… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-6.1.2.9-rsyslog-module-gtls` | Package rsyslog-module-gtls is installed | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE16-6.1.2.10-rsyslog_gtls_configured` | rsyslog gtls configured: grep -P '^\\$DefaultNetstreamDriver\\s+gtls' /etc/rsyslog.conf /etc/rsyslog.d/\*.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE16-6.1.2.11-rsyslog_tls_cert_manual` | rsyslog tls cert manual: echo "Manual check - verify CA certificate, client certificate, and key files are configu… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE16-6.1.3.1-logfile_permissions_cloud_init` | logfile permissions cloud init: find /var/log -type f -regextype posix-extended -regex '/var/log/(cloud-init\\.log.\*\|local… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-6.1.3.1-logfile_permissions_default` | logfile permissions default: find /var/log -type f -regextype posix-extended -not -regex '/var/log/apt/.\*' -not -regex… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-6.1.3.1-logfile_permissions_gdm` | logfile permissions gdm: find /var/log -type f -regextype posix-extended -regex '.\*/(gdm\|gdm3)(/.\*)?' \\( -perm /01… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -468,7 +459,6 @@ checkmate run cis/suse16.yml --tags cis-level-2 -v
 | `CIS-SUSE16-6.2.3.32-cis_6_2_3_32_live` | cis 6 2 3 32 live: auditctl -l \| grep -E -- 'arch=b64.\*create_module.\*key=kernel_modules' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE16-6.2.3.33-cis_6_2_3_33_cnf` | cis 6 2 3 33 cnf: grep -Ph -- '^\\h\*-c\\b' /etc/audit/rules.d/\*.rules \| tail -1 | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE16-6.2.3.34-cis_6_2_3_34_cnf` | cis 6 2 3 34 cnf: grep -Ph -- '^\\h\*-e\\h+2\\b' /etc/audit/rules.d/\*.rules \| tail -1 | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-SUSE16-6.2.3.35-cis_6_2_3_35` | cis 6 2 3 35: echo 'Manual review required: compare auditctl -l output with /etc/audit/rules.d/\*.rules' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE16-6.2.4.1-auditd_log_directory_mode` | auditd log directory mode: d="$(dirname "$(awk -F= '/^\\s\*log_file\\s\*/{print $2}' /etc/audit/auditd.conf 2>/dev/null … | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE16-6.2.4.1-auditd_log_group_configured` | auditd log group configured: grep -Psi -- '^\\h\*log_group\\h\*=\\h\*(root\|adm)\\b' /etc/audit/auditd.conf \|\| true | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-SUSE16-6.2.4.2-cis_6_2_4_2` | cis 6 2 4 2: [ -f /etc/audit/auditd.conf ] && find "$(dirname "$(awk -F= '/^\\s\*log_file\\s\*/{print $2}'… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
@@ -507,7 +497,7 @@ checkmate run cis/suse16.yml --tags cis-level-2 -v
 | `CIS-SUSE16-7.1.9-etc_shells_perms-attrs` | /etc/shells: exists, mode 0644 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-7.1.10-etc_security_opasswd_perms-attrs` | /etc/security/opasswd: mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-7.1.11-world_writable` | world writable: df --local -P \| awk '{if (NR!=1) print $6}' \| xargs -I '{}' find '{}' -xdev -type f -perm… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE16-7.1.12-unowned_dirs` | unowned dirs: df --local -P \| awk {'if (NR!=1) print $6'} \| xargs -I '{}' find '{}' -xdev -nouser -o -n… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE16-7.1.12-unowned_dirs` | No file or directory is without an owner or a group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-7.1.13-audit_sgid` | audit sgid: df --local -P \| awk '{if (NR!=1) print $6}' \| xargs -I '{}' find '{}' -xdev -type f -perm… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-7.2.1-shadowed_passwds-attrs` | /etc/passwd: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-7.2.1-shadowed_passwds-content` | /etc/passwd has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

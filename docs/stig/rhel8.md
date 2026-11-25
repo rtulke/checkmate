@@ -1,6 +1,6 @@
 # DISA STIG Red Hat Enterprise Linux 8
 
-Automated checks for 344 rules of the DISA Security Technical Implementation Guide for Red Hat Enterprise Linux 8 (version 2.9.0), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Rationale and fix texts are taken from the DISA STIG V2R9 (30 Sep 2026). Select categories with tags, e.g. `--tags stig-cat-1`.
+Automated checks for 343 rules of the DISA Security Technical Implementation Guide for Red Hat Enterprise Linux 8 (version 2.9.0), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Rationale and fix texts are taken from the DISA STIG V2R9 (30 Sep 2026). Select categories with tags, e.g. `--tags stig-cat-1`.
 
 **Policy:** [`stig/rhel8.yml`](https://github.com/rtulke/checkmate/blob/main/stig/rhel8.yml) · **STIG version:** 2.9.0
 
@@ -484,7 +484,6 @@ sudo checkmate run stig/rhel8.yml -v
 | `STIG-RHEL-08-040370-gssproxy` | The gssproxy package must not be installed unless mission essential on RHEL 8. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-08-040380-iprutils` | The iprutils package must not be installed unless mission essential on RHEL 8. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-08-040390-tuned` | The tuned package must not be installed unless mission essential on RHEL 8. | II | <span class="sev sev-medium">medium</span> |
-| `STIG-RHEL-08-040400-selinux_grouping` | RHEL 8 must prevent nonprivileged users from executing privileged functions, including disabling, circumventing, or altering implemented security safeguards/countermeasures. (Manual Check) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-08-010171-policycoreutils` | RHEL 8 must have policycoreutils package installed. | III | <span class="sev sev-low">low</span> |
 | `STIG-RHEL-08-010292-sysconfig_sshd_strong_entropy` | RHEL 8 must ensure the SSH server uses strong entropy. | III | <span class="sev sev-low">low</span> |
 | `STIG-RHEL-08-010375-kernel.dmesg_restrict` | RHEL 8 must restrict access to the kernel message buffer. (live_check) | III | <span class="sev sev-low">low</span> |

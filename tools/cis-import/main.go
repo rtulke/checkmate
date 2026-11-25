@@ -237,6 +237,9 @@ func convert(src string, b benchmark, out string) (stats, error) {
 	if err != nil {
 		return st, err
 	}
+	for name := range hostVars[b.Key] {
+		vars[name] = true
+	}
 	var files []string
 	err = filepath.WalkDir(src, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
@@ -304,6 +307,10 @@ func convert(src string, b benchmark, out string) (stats, error) {
 			if err != nil {
 				return st, fmt.Errorf("%s: %w", f, err)
 			}
+			hostConds, unskip, err := hostVarConditions(f, b, vars)
+			if err != nil {
+				return st, fmt.Errorf("%s: %w", f, err)
+			}
 			doc, err := decodeResources(rendered)
 			if err != nil {
 				return st, fmt.Errorf("%s: %w", f, err)
@@ -312,6 +319,9 @@ func convert(src string, b benchmark, out string) (stats, error) {
 				resources := doc[kind]
 				for _, name := range sortedKeys(resources) {
 					attrs := resources[name]
+					if unskip[resourceKey(kind, name)] {
+						delete(attrs, "skip")
+					}
 					if truthy(attrs["skip"]) {
 						if ri > 0 {
 							continue
@@ -340,7 +350,10 @@ func convert(src string, b benchmark, out string) (stats, error) {
 						texts, meta, textMatch, textNote = stigTexts(meta)
 					}
 					generated := convertResource(b, kind, name, attrs, meta)
-					generated = addOnlyIf(generated, onlyIf[resourceKey(kind, name)], dependsOn(b, attrs))
+					generated = addOnlyIf(generated, onlyIf[resourceKey(kind, name)], hostConds[resourceKey(kind, name)], dependsOn(b, attrs))
+					if !b.windows() {
+						generated = addOnlyIf(generated, moduleCondition(kind, attrs))
+					}
 					if len(generated) == 0 {
 						if ri == 0 {
 							st.skipped++
@@ -743,6 +756,14 @@ func commandCheck(c check, name string, attrs map[string]any) []check {
 	if exec == "" {
 		return nil
 	}
+	switch {
+	case manualEcho.MatchString(exec):
+		fmt.Fprintf(os.Stderr, "  skipped %s: a manual review, not a test\n", c.ID)
+		return nil
+	case roleScript.MatchString(exec):
+		fmt.Fprintf(os.Stderr, "  skipped %s: runs a script of the Ansible role\n", c.ID)
+		return nil
+	}
 	for _, f := range commandFixes {
 		if f.match(name, exec) {
 			c.Run = f.run
@@ -762,6 +783,11 @@ func commandCheck(c check, name string, attrs map[string]any) []check {
 		// grep exits with 2 when the drop-in directory does not exist, even
 		// if it found the setting in the main file. The output decides.
 		codes = append(codes, 2)
+	}
+	if len(patterns) > 0 && showconfigGrep.MatchString(exec) && !slices.Contains(codes, 1) {
+		// grep exits with 1 when the module is not configured at all; the
+		// missing line says more than the exit code.
+		codes = append(codes, 1)
 	}
 	if len(patterns) == 0 {
 		c.Expect = []string{rcCondition(codes)}
@@ -1211,6 +1237,8 @@ func patternCondition(p string) string {
 	// then accepts any value in its place.
 	re = strings.ReplaceAll(re, " <no value>", "")
 	re = strings.ReplaceAll(re, "<no value>", "")
+	// The text of the login banner is the choice of the site.
+	re = bannerText.ReplaceAllString(re, "banner-message-text='.+'")
 	// A disabled module may point to /bin/true or /bin/false; both are fine.
 	re = strings.ReplaceAll(re, "install /bin/true", "install /(usr/)?bin/(true|false)")
 	if _, err := regexp.Compile(re); err != nil {
@@ -1222,6 +1250,8 @@ func patternCondition(p string) string {
 	}
 	return fmt.Sprintf("{ %s: %s }", key, yamlString("~ "+re))
 }
+
+var bannerText = regexp.MustCompile(`banner-message-text='[^']*'`)
 
 func stderrConditions(v any) []string {
 	var out []string
@@ -1475,6 +1505,18 @@ done`,
 			"chage --lastday \"$(date +%Y-%m-%d)\" USER\nchage --lastday 0 USER",
 	},
 	{
+		why: "find reports files it cannot read, xargs then exits with 123 and the check fails without a finding",
+		match: func(name, exec string) bool {
+			return strings.Contains(exec, "xargs -I '{}' find '{}' -xdev -nouser -o -nogroup")
+		},
+		name: "No file or directory is without an owner or a group",
+		run: `df --local -P | awk 'NR!=1 {print $6}' | while read -r m; do
+  find "$m" -xdev \( -nouser -o -nogroup \) 2>/dev/null || true
+done | grep -v journal-upload || true`,
+		expect:      []string{"empty"},
+		remediation: "Give every listed file and directory an existing owner and group, or remove it if it is no longer needed:\n\nchown USER:GROUP PATH",
+	},
+	{
 		why: "stat fails without an operand when no banner is configured",
 		match: func(name, exec string) bool {
 			return strings.Contains(exec, "stat -Lc '%a %U %G' $(sshd -T")
@@ -1488,6 +1530,19 @@ stat -Lc '%a %U %G' "$b"`,
 			"chown root:root FILE\nchmod u-x,go-wx FILE",
 	},
 }
+
+// manualEcho matches a command that only prints a reminder to review
+// something by hand.
+var manualEcho = regexp.MustCompile(`(?i)^echo\s+["']?manual[^|;&<>$` + "`" + `]*$`)
+
+// roleScript matches a command that is only a script: upstream runs scripts
+// that its Ansible role installs on the host.
+var roleScript = regexp.MustCompile(`^/\S+\.sh$`)
+
+// homeFind matches a find over all of /home. The benchmark looks at the home
+// directories of the local interactive users; /home can hold much more, or
+// be a network mount.
+var homeFind = regexp.MustCompile(`^find /home/ ([^|]+?)( \| grep -v \S+)?$`)
 
 // missingGlobGrep matches a grep over pwquality.conf and its drop-ins. The
 // drop-in directory is optional.
@@ -1505,6 +1560,11 @@ func rewriteExec(exec string) string {
 		return `f=$(awk -F= '/^[[:space:]]*log_file[[:space:]]*=/ {gsub(/[[:space:]]/, "", $2); print $2}' /etc/audit/auditd.conf 2>/dev/null)
 if [ -z "$f" ]; then echo "log_file is not set in /etc/audit/auditd.conf"; exit 0; fi
 find ` + m[1] + `"$(dirname "$f")" ` + m[2]
+	}
+	if m := homeFind.FindStringSubmatch(exec); m != nil {
+		return `awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+  if [ -d "$d" ]; then find "$d" -xdev ` + m[1] + ` 2>/dev/null || true; fi
+done` + m[2]
 	}
 	if m := auditLogDirRef.FindStringSubmatch(exec); m != nil {
 		return auditLogDirShell(m[1]) + "\n" + auditLogDirRef.ReplaceAllString(exec, `"$$d"`)

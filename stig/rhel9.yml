@@ -3,7 +3,7 @@
 name: DISA STIG Red Hat Enterprise Linux 9
 version: "2.10.0"
 description: >
-  Automated checks for 426 rules of the DISA Security Technical
+  Automated checks for 422 rules of the DISA Security Technical
   Implementation Guide for Red Hat Enterprise Linux 9 (version 2.10.0), converted from the goss
   audit content of the ansible-lockdown project. Severity follows the STIG
   category: CAT I high, CAT II medium, CAT III low. Rationale and fix
@@ -3141,7 +3141,9 @@ checks:
     tags: [stig, stig-rhel9, stig-cat-2]
     severity: medium
     run: |
-      find /home/ -name "\.*" -perm /g+wx,o+wx
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name "\.*" -perm /g+wx,o+wx 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -4035,25 +4037,6 @@ checks:
     expect: { some: "~ FirewallBackend\\s*=\\s*nftables" }
     rationale: *rat-971fbc32b0
     remediation: *rem-bf0c6af582
-  - id: "STIG-RHEL-09-251035-firewalld_prohibit_manual"
-    name: "RHEL 9 must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the Ports, Protocols, and Services Management (PPSM) Category Assignments List (CAL) and vulnerability assessments. (Manual)"
-    description: "DISA STIG for Red Hat Enterprise Linux 9, RHEL-09-251035, V-257940, SV-257940r1106312_rule, CAT II. CCI-000382. NIST SP 800-53 Rev. 4: CM-6."
-    tags: [stig, stig-rhel9, stig-cat-2]
-    severity: medium
-    run: |
-      echo "MANUAL - Investigation required - Firewalld RHEL-09-251035"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ /MANUAL" }
-    rationale: &rat-ce55bef2a9 |
-      To prevent unauthorized connection of devices, unauthorized transfer of information, or unauthorized tunneling (i.e., embedding of data types within data types), organizations must disable or restrict unused or unnecessary ports, protocols, and services on information systems.
-    remediation: &rem-69869de92b |
-      Update the host's firewall settings and/or running services to comply with the PPSM CLSA for the site or program and the PPSM CAL.
-
-      Then run the following command to load the newly created rule(s):
-
-      $ sudo firewall-cmd --reload
   - id: "STIG-RHEL-09-251040-network_promicuous"
     name: "RHEL 9 network interfaces must not be in promiscuous mode."
     description: "DISA STIG for Red Hat Enterprise Linux 9, RHEL-09-251040, V-257941, SV-257941r1268251_rule, CAT II. CCI-000366. NIST SP 800-53 Rev. 4: CM-6."
@@ -7931,29 +7914,6 @@ checks:
       To lock an account:
 
       $ sudo passwd -l [username]
-  - id: "STIG-RHEL-09-611190-private_keys_password"
-    name: "RHEL 9, for PKI-based authentication, must enforce authorized access to the corresponding private key. (Manual)"
-    description: "DISA STIG for Red Hat Enterprise Linux 9, RHEL-09-611190, V-258127, SV-258127r1155648_rule, CAT II. CCI-000186. NIST SP 800-53 Rev. 4: IA-2."
-    tags: [stig, stig-rhel9, stig-cat-2]
-    severity: medium
-    run: |
-      echo "MANUAL - Please validate all private keys have a password set"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ .*" }
-    rationale: &rat-1804dd3ce2 |
-      If the private key is discovered, an attacker can use the key to authenticate as an authorized user and gain access to the network infrastructure.
-
-      The cornerstone of the PKI is the private key used to encrypt or digitally sign information.
-
-      If the private key is stolen, this will lead to the compromise of the authentication and nonrepudiation gained through PKI because the attacker can use the private key to digitally sign documents and pretend to be the authorized user.
-
-      Both the holders of a digital certificate and the issuing authority must protect the computers, storage devices, or whatever they use to keep the private keys.
-    remediation: &rem-d31fda743f |
-      Create a new private and public key pair that utilizes a passcode with the following command:
-
-      $ sudo ssh-keygen -N [passphrase]
   - id: "STIG-RHEL-09-611195-authenticate_emergency_mode"
     name: "RHEL 9 must require authentication to access emergency mode."
     description: "DISA STIG for Red Hat Enterprise Linux 9, RHEL-09-611195, V-258128, SV-258128r1268226_rule, CAT II. CCI-000213. NIST SP 800-53 Rev. 4: AC-3."
@@ -8630,27 +8590,6 @@ checks:
       Run the following command to disable the interactive shell for a specific noninteractive user account:
 
       $ sudo usermod --shell /usr/sbin/nologin <user>
-  - id: "STIG-RHEL-09-411040-temp_accts_manual"
-    name: "RHEL 9 must automatically expire temporary accounts within 72 hours. (Manual)"
-    description: "DISA STIG for Red Hat Enterprise Linux 9, RHEL-09-411040, V-258047, SV-258047r1101951_rule, CAT II. CCI-000016, CCI-001682. NIST SP 800-53 Rev. 4: AC-2."
-    tags: [stig, stig-rhel9, stig-cat-2]
-    severity: medium
-    run: |
-      echo "MANUAL - check for temporary accounts ensure 72hr expiry"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^MANUAL" }
-    rationale: &rat-11aaeaabd1 |
-      Temporary accounts are privileged or nonprivileged accounts that are established during pressing circumstances, such as new software or hardware configuration or an incident response, where the need for prompt account activation requires bypassing normal account authorization procedures. If any inactive temporary accounts are left enabled on the system and are not either manually removed or automatically expired within 72 hours, the security posture of the system will be degraded and exposed to exploitation by unauthorized users or insider threat actors.
-
-      Temporary accounts are different from emergency accounts. Emergency accounts, also known as "last resort" or "break glass" accounts, are local logon accounts enabled on the system for emergency use by authorized system administrators to manage a system when standard logon methods are failing or not available. Emergency accounts are not subject to manual removal or scheduled expiration requirements.
-
-      The automatic expiration of temporary accounts may be extended as needed by the circumstances but it must not be extended indefinitely. A documented permanent account should be established for privileged users who need long-term maintenance accounts.
-    remediation: &rem-67900775cd |
-      Configure the operating system to expire temporary accounts after 72 hours with the following command:
-
-      $ sudo chage -E $(date -d +3days +%Y-%m-%d) <temporary_account_name>
   - id: "STIG-RHEL-09-411045-primary_group_exists"
     name: "All RHEL 9 interactive users must have a primary group that exists."
     description: "DISA STIG for Red Hat Enterprise Linux 9, RHEL-09-411045, V-258048, SV-258048r1069380_rule, CAT II. CCI-000764. NIST SP 800-53 Rev. 4: IA-2."
@@ -8745,25 +8684,6 @@ checks:
       $ sudo chown disauser /home/disauser
       $ sudo chgrp users /home/disauser
       $ sudo chmod 0750 /home/disauser
-  - id: "STIG-RHEL-09-411070-primary_group_set_manual"
-    name: "All RHEL 9 local interactive user home directories must be group-owned by the home directory owner's primary group. (Manual)"
-    description: "DISA STIG for Red Hat Enterprise Linux 9, RHEL-09-411070, V-258053, SV-258053r1268251_rule, CAT II. CCI-000366. NIST SP 800-53 Rev. 4: CM-6."
-    tags: [stig, stig-rhel9, stig-cat-2]
-    severity: medium
-    run: |
-      echo "MANUAL - Validate users primary groups are set as expected"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ .*" }
-    rationale: &rat-76d9e3ae7f |
-      If the Group Identifier (GID) of a local interactive users home directory is not the same as the primary GID of the user, this would allow unauthorized access to the users files, and users that share the same group may not be able to access files that they legitimately should.
-    remediation: &rem-f932fcafa7 |
-      Change the group owner of a local interactive user's home directory to the group found in "/etc/passwd". To change the group owner of a local interactive user's home directory, use the following command:
-
-      Note: The example will be for the user "disauser", who has a home directory of "/home/disauser", and has a primary group of users.
-
-      $ sudo chgrp users /home/disauser
   - id: "STIG-RHEL-09-411075-faillock_deny-attrs"
     name: "RHEL 9 must automatically lock an account when three unsuccessful logon attempts occur. (/etc/security/faillock.conf: exists)"
     description: "DISA STIG for Red Hat Enterprise Linux 9, RHEL-09-411075, V-258054, SV-258054r958736_rule, CAT II. CCI-000044, CCI-002238. NIST SP 800-53 Rev. 4: AC-7."
