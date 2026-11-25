@@ -164,6 +164,7 @@ The rules:
 - No line of output: one result `N/A`. There was nothing to check.
 - The command fails (non-zero exit code, timeout, more than 10,000 items): one result `ERROR`. A list that cannot be read must never look compliant.
 - A `when` condition that does not mention `item` is evaluated first. If it is false, the command does not run and there is one result `SKIP`.
+- That condition may ask for the outcome of an earlier check, see [Checks that depend on other checks](#checks-that-depend-on-other-checks).
 - `validate`, `list` and `diff` do not run commands. They show the check once, with `{item}` in place of the item, e.g. `KEYS-{item}`. The same id appears in the results of the three cases above.
 - `loop` and `loop_run` cannot be combined.
 
@@ -208,7 +209,17 @@ The rules:
 - The registered check is an ordinary check and appears in the report. If its failure is not a finding (nginx is simply not installed), give it `severity: info`.
 - Selecting a check with `--tags` or `--id` also selects the checks it refers to.
 - The name must not be a variable or one of `facts`, `vars`, `item`. In a `loop` it needs the item: `register: "svc_{{ item }}"`.
-- `register` and `loop_run` cannot be combined, and a `loop_run` check cannot refer to a registered name.
+- A `loop_run` check can refer to a registered name: its item command only runs once the conditions hold. It cannot register a name itself, since it stands for many checks.
+
+```yaml
+  - id: "NGINX-VHOST-{{ item }}"
+    name: "{{ item }} redirects HTTP to HTTPS"
+    when: nginx.passed
+    loop_run: ls /etc/nginx/sites-enabled
+    run: grep -c 'return 301 https://' "/etc/nginx/sites-enabled/$CHECKMATE_ITEM"
+    allow_rc: [0, 1]
+    expect: ">= 1"
+```
 
 ## Building command lines from lists
 

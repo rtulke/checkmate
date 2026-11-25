@@ -151,7 +151,9 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 		}
 	}
 
-	checkResults := make([]Result, len(selected))
+	// One slot per selected check; a deferred loop_run check fills its
+	// slot with one result per item.
+	checkResults := make([][]Result, len(selected))
 	sem := make(chan struct{}, jobs)
 	var wg sync.WaitGroup
 	platformKeys := opts.Facts.PlatformKeys()
@@ -177,12 +179,66 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 		notices[s] = true
 		noticeMu.Unlock()
 	}
+	// evaluate runs one check and applies waivers and the severity
+	// threshold. The outcome is what the check itself found.
+	evaluate := func(c *policy.Check) (Result, policy.Outcome) {
+		w, err := findWaiver(c, waivers, now, notice)
+		if err != nil {
+			return withStatus(baseResult(c), StatusError, err.Error()), policy.Outcome{Status: "error"}
+		}
+		if w != nil && w.Skip {
+			res := withStatus(baseResult(c), StatusWaived, "waived, not run: "+w.Reason)
+			res.Waiver = &WaiverInfo{Reason: w.Reason, Until: w.UntilString(), Source: w.Source}
+			return res, policy.Outcome{Status: "waived"}
+		}
+		res := runCheck(ctx, p, c, platformKeys)
+		outcome := policy.Outcome{Status: outcomeStatus(res.Status), RC: res.RC}
+		// Failures below the threshold (always including "info") are
+		// warnings. Errors are never downgraded: a check that cannot be
+		// evaluated must not look harmless.
+		if res.Status == StatusFail && (policy.SeverityRank(res.Severity) < threshold || res.Severity == "info") {
+			res.Status = StatusWarn
+		}
+		if w != nil && (res.Status == StatusFail || res.Status == StatusWarn || res.Status == StatusError) {
+			res.Waiver = &WaiverInfo{Reason: w.Reason, Until: w.UntilString(), Source: w.Source, Status: res.Status}
+			msg := "waived: " + w.Reason
+			if res.Message != "" {
+				msg += " (" + string(res.Status) + ": " + res.Message + ")"
+			}
+			res.Status = StatusWaived
+			res.Message = msg
+		}
+		return res, outcome
+	}
+
+	// IDs are unique. Checks that a deferred loop_run creates during the
+	// run are compared with everything that exists by then.
+	var idMu sync.Mutex
+	ids := map[string]bool{}
+	for _, c := range checks {
+		ids[c.ID] = true
+	}
+	claimID := func(id string) bool {
+		idMu.Lock()
+		defer idMu.Unlock()
+		if ids[id] {
+			return false
+		}
+		ids[id] = true
+		return true
+	}
+
 	for i, c := range selected {
 		wg.Add(1)
 		sem <- struct{}{}
 		go func(i int, c *policy.Check) {
 			defer wg.Done()
-			defer func() { <-sem }()
+			holdsSlot := true
+			defer func() {
+				if holdsSlot {
+					<-sem
+				}
+			}()
 			// Publish the outcome whatever happens, so that no dependent
 			// check waits forever.
 			outcome := policy.Outcome{Status: "error"}
@@ -192,51 +248,68 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 					close(reg.done)
 				}()
 			}
-			if len(c.Needs) > 0 {
-				// Needed checks are defined earlier, so they were started
-				// earlier and do not wait for a free slot behind this one.
-				outcomes := map[string]policy.Outcome{}
-				for _, name := range c.Needs {
-					reg := registered[name]
-					<-reg.done
-					outcomes[name] = reg.outcome
-				}
-				c = c.WithOutcomes(outcomes)
+			// Needed checks are defined earlier, so they were started
+			// earlier and do not wait for a free slot behind this one.
+			outcomes := map[string]policy.Outcome{}
+			for _, name := range c.Needs {
+				reg := registered[name]
+				<-reg.done
+				outcomes[name] = reg.outcome
 			}
-			w, err := findWaiver(c, waivers, now, notice)
-			if err != nil {
-				checkResults[i] = withStatus(baseResult(c), StatusError, err.Error())
+			if !c.Deferred() {
+				if len(outcomes) > 0 {
+					c = c.WithOutcomes(outcomes)
+				}
+				var res Result
+				res, outcome = evaluate(c)
+				checkResults[i] = []Result{res}
 				return
 			}
-			if w != nil && w.Skip {
-				res := withStatus(baseResult(c), StatusWaived, "waived, not run: "+w.Reason)
-				res.Waiver = &WaiverInfo{Reason: w.Reason, Until: w.UntilString(), Source: w.Source}
-				checkResults[i] = res
-				outcome = policy.Outcome{Status: "waived"}
+
+			items, cerr := c.ExpandDeferred(ctx, platformKeys, outcomes)
+			if cerr != nil {
+				checkResults[i] = []Result{{ID: c.ID, Name: "invalid check definition", Status: StatusError,
+					Message: cerr.Err.Error(), Location: c.Source.Location()}}
 				return
 			}
-			res := runCheck(ctx, p, c, platformKeys)
-			outcome = policy.Outcome{Status: outcomeStatus(res.Status), RC: res.RC}
-			// Failures below the threshold (always including "info") are
-			// warnings. Errors are never downgraded: a check that cannot be
-			// evaluated must not look harmless.
-			if res.Status == StatusFail && (policy.SeverityRank(res.Severity) < threshold || res.Severity == "info") {
-				res.Status = StatusWarn
-			}
-			if w != nil && (res.Status == StatusFail || res.Status == StatusWarn || res.Status == StatusError) {
-				res.Waiver = &WaiverInfo{Reason: w.Reason, Until: w.UntilString(), Source: w.Source, Status: res.Status}
-				msg := "waived: " + w.Reason
-				if res.Message != "" {
-					msg += " (" + string(res.Status) + ": " + res.Message + ")"
+			// The items run side by side like any other checks. Nothing
+			// waits for them, so this slot is free for one of them.
+			<-sem
+			holdsSlot = false
+			itemResults := make([]*Result, len(items))
+			var itemWG sync.WaitGroup
+			for n, item := range items {
+				if item.Fixed == nil {
+					if !opts.Filter.Match(item.ID, item.Tags) {
+						continue
+					}
+					if !claimID(item.ID) {
+						itemResults[n] = &Result{ID: item.ID, Name: "invalid check definition", Status: StatusError,
+							Message: "duplicate check id", Location: item.Source.Location()}
+						continue
+					}
 				}
-				res.Status = StatusWaived
-				res.Message = msg
+				itemWG.Add(1)
+				sem <- struct{}{}
+				go func(n int, item *policy.Check) {
+					defer itemWG.Done()
+					defer func() { <-sem }()
+					res, _ := evaluate(item)
+					itemResults[n] = &res
+				}(n, item)
 			}
-			checkResults[i] = res
+			itemWG.Wait()
+			for _, res := range itemResults {
+				if res != nil {
+					checkResults[i] = append(checkResults[i], *res)
+				}
+			}
 		}(i, c)
 	}
 	wg.Wait()
-	results = append(results, checkResults...)
+	for _, r := range checkResults {
+		results = append(results, r...)
+	}
 
 	report := &Report{
 		Tool:          "checkmate",
@@ -289,7 +362,11 @@ func selectChecks(checks []*policy.Check, filter Filter) []*policy.Check {
 	keep := make([]bool, len(checks))
 	owner := map[string]int{}
 	for i, c := range checks {
-		keep[i] = filter.Match(c.ID, c.Tags)
+		if c.Deferred() {
+			keep[i] = mayMatch(filter, c)
+		} else {
+			keep[i] = filter.Match(c.ID, c.Tags)
+		}
 		if c.Register != "" {
 			owner[c.Register] = i
 		}
@@ -311,6 +388,36 @@ func selectChecks(checks []*policy.Check, filter Filter) []*policy.Check {
 		}
 	}
 	return selected
+}
+
+// mayMatch reports whether a check created from a deferred loop_run check
+// could pass the filter. The IDs and tags of those checks are not known
+// yet; where they contain the item, the answer is yes. The checks
+// themselves are filtered once they exist.
+func mayMatch(filter Filter, c *policy.Check) bool {
+	tagsKnown := true
+	for _, tag := range c.Tags {
+		if strings.Contains(tag, policy.ItemPlaceholder) {
+			tagsKnown = false
+		}
+	}
+	if tagsKnown && !(Filter{Tags: filter.Tags, SkipTags: filter.SkipTags}).Match(c.ID, c.Tags) {
+		return false
+	}
+	if len(filter.IDs) == 0 {
+		return true
+	}
+	fixed, _, _ := strings.Cut(c.ID, policy.ItemPlaceholder)
+	for _, pattern := range filter.IDs {
+		literal := pattern
+		if at := strings.IndexAny(pattern, "*?[\\"); at >= 0 {
+			literal = pattern[:at]
+		}
+		if strings.HasPrefix(fixed, literal) || strings.HasPrefix(literal, fixed) {
+			return true
+		}
+	}
+	return false
 }
 
 // findWaiver returns the first waiver that covers the check and whose

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -58,6 +59,10 @@ type Check struct {
 
 	context  map[string]any
 	snippets map[string]CommandSpec
+
+	// A loop_run check that is expanded during the run, see ExpandDeferred.
+	deferred    bool
+	expandItems func(exec *loopExec, outcomes map[string]any) ([]*Check, error)
 }
 
 // CheckError is a problem with a single check found during expansion.
@@ -216,36 +221,50 @@ func expand(p *Policy, f facts.Facts, extraVars map[string]any, exec *loopExec) 
 		err    *CheckError
 	}
 	expanded := make([]expansion, len(p.Checks))
-	one := func(i int) {
-		expanded[i].checks, expanded[i].err = expandSource(p, p.Checks[i], base, exec)
-	}
-	var wg sync.WaitGroup
 	for i, src := range p.Checks {
-		if exec == nil || !hasKey(src.Node, "loop_run") {
-			one(i)
-			continue
-		}
-		// Item commands are independent of each other, so they may run
-		// side by side; the results keep the order of the policy.
-		if exec.sem == nil {
-			exec.sem = make(chan struct{}, exec.jobs)
-		}
-		wg.Add(1)
-		exec.sem <- struct{}{}
-		go func(i int) {
-			defer wg.Done()
-			defer func() { <-exec.sem }()
-			defer func() {
-				if r := recover(); r != nil {
-					src := p.Checks[i]
-					expanded[i] = expansion{err: &CheckError{ID: scalarValue(src.Node, "id"), Source: src,
-						Err: fmt.Errorf("loop_run: internal error: %v", r)}}
-				}
-			}()
-			one(i)
-		}(i)
+		expanded[i].checks, expanded[i].err = expandSource(p, src, base, nil)
 	}
-	wg.Wait()
+	if exec != nil {
+		// A loop_run check whose conditions refer to a registered check has
+		// to wait for that check; it stays unexpanded and the run expands
+		// it (ExpandDeferred). All others get their items now. Item
+		// commands are independent of each other, so they may run side by
+		// side; the results keep the order of the policy.
+		var names []*regexp.Regexp
+		for _, e := range expanded {
+			for _, c := range e.checks {
+				if c.Register != "" {
+					names = append(names, referencePattern(c.Register))
+				}
+			}
+		}
+		sem := make(chan struct{}, exec.jobs)
+		var wg sync.WaitGroup
+		for i, src := range p.Checks {
+			if expanded[i].err != nil || !hasKey(src.Node, "loop_run") {
+				continue
+			}
+			proto := expanded[i].checks[0]
+			if refersToAny(proto.When, names) {
+				proto.deferred = true
+				continue
+			}
+			wg.Add(1)
+			sem <- struct{}{}
+			go func(i int, src CheckSource) {
+				defer wg.Done()
+				defer func() { <-sem }()
+				defer func() {
+					if r := recover(); r != nil {
+						expanded[i] = expansion{err: &CheckError{ID: scalarValue(src.Node, "id"), Source: src,
+							Err: fmt.Errorf("loop_run: internal error: %v", r)}}
+					}
+				}()
+				expanded[i].checks, expanded[i].err = expandSource(p, src, base, exec)
+			}(i, src)
+		}
+		wg.Wait()
+	}
 
 	var checks []*Check
 	var errs []*CheckError
@@ -287,6 +306,14 @@ func expandSource(p *Policy, src CheckSource, base map[string]any, exec *loopExe
 			return nil, fail(fmt.Errorf("loop and loop_run cannot be combined"))
 		}
 		checks, err := expandLoopRun(p, src, node, loopRunNode, ctx, exec)
+		if err == nil && exec == nil {
+			// Kept for ExpandDeferred, see expand.
+			checks[0].expandItems = func(exec *loopExec, outcomes map[string]any) ([]*Check, error) {
+				withOutcomes := copyMap(ctx)
+				mergeInto(withOutcomes, outcomes)
+				return expandLoopRun(p, src, node, loopRunNode, withOutcomes, exec)
+			}
+		}
 		if err != nil {
 			var ce *CheckError
 			if errors.As(err, &ce) {
