@@ -15,4 +15,4 @@ Users, sudo, SSH, PAM, services, kernel, boot, time, logging, packages, cron and
 | [OpenSSH server](ssh.md) | Hardening of sshd based on its effective configuration (`sshd -T`), which already resolves Include files, defaults and the case-insensitive, first-value-wins semantics of sshd_config. | 17 |
 | [sudo](sudo.md) | sudo configuration: syntax, file permissions, dangerous rules, logging and an allowlist of approved sudoers files by SHA-256 checksum. | 8 |
 | [Time synchronisation](time.md) | Clock synchronisation with chrony or systemd-timesyncd, the allowed clock offset and the configured time zone. | 5 |
-| [Users and groups](users.md) | Account hygiene on Linux: privileged accounts, password hashes, duplicate IDs, login shells of system accounts and home directory permissions. | 13 |
+| [Users and groups](users.md) | Account hygiene on Linux: privileged accounts, password hashes, duplicate IDs, login shells of system accounts and home directory permissions. | 14 |

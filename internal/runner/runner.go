@@ -40,6 +40,8 @@ type Result struct {
 	Stderr   string
 	Duration time.Duration
 	Shell    string
+	// Truncated reports that stdout exceeded the output cap and was cut.
+	Truncated bool
 }
 
 // ErrTimeout is returned when a command exceeds its timeout.
@@ -83,6 +85,7 @@ func Run(ctx context.Context, req Request) (Result, error) {
 		Duration: time.Since(start),
 		Shell:    shell,
 	}
+	res.Truncated = stdout.truncated
 
 	if ctx.Err() == context.DeadlineExceeded {
 		return res, fmt.Errorf("%w after %s", ErrTimeout, req.Timeout)

@@ -1,9 +1,12 @@
 package policy
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/rtulke/checkmate/internal/expect"
@@ -37,6 +40,15 @@ type Check struct {
 	Remediation string
 	Reference   string
 	Source      CheckSource
+
+	// LoopRun is the item command of a check written with loop_run.
+	LoopRun CommandSpec
+	// Env holds extra environment variables for the commands of the check
+	// (CHECKMATE_ITEM for loop_run checks).
+	Env map[string]string
+	// Fixed is set when the outcome is known without running the check,
+	// e.g. because its loop_run command printed no items.
+	Fixed *FixedOutcome
 
 	context  map[string]any
 	snippets map[string]CommandSpec
@@ -76,7 +88,8 @@ type rawCheck struct {
 	Reference   string      `yaml:"reference"`
 }
 
-// checkKeys are the keys allowed in a check ("loop" is removed before).
+// checkKeys are the keys allowed in a check ("loop" and "loop_run" are
+// removed before).
 var checkKeys = []string{"id", "name", "description", "tags", "severity", "when", "only_if",
 	"run", "expect", "as", "shell", "timeout", "allow_rc", "rationale", "remediation", "reference"}
 
@@ -91,7 +104,7 @@ func checkKnownKeys(n *yaml.Node, allowed []string) error {
 			}
 		}
 		if !known {
-			return fmt.Errorf("line %d: unknown key %q (allowed: loop, %s)", key.Line, key.Value, strings.Join(allowed, ", "))
+			return fmt.Errorf("line %d: unknown key %q (allowed: loop, loop_run, %s)", key.Line, key.Value, strings.Join(allowed, ", "))
 		}
 	}
 	return nil
@@ -173,20 +186,69 @@ func Context(p *Policy, f facts.Facts, extraVars map[string]any) map[string]any 
 
 // Expand expands loops, renders templates and validates every check.
 // Checks that fail to expand are returned as errors; the others are
-// returned in policy order.
+// returned in policy order. Nothing is executed: a loop_run check is
+// returned once, with the placeholder ItemPlaceholder as its item.
 func Expand(p *Policy, f facts.Facts, extraVars map[string]any) ([]*Check, []*CheckError) {
+	return expand(p, f, extraVars, nil)
+}
+
+// ExpandRun is Expand for a run: it executes the loop_run commands, at most
+// jobs of them at a time, and returns one check per item.
+func ExpandRun(ctx context.Context, p *Policy, f facts.Facts, extraVars map[string]any, jobs int) ([]*Check, []*CheckError) {
+	if jobs < 1 {
+		jobs = 1
+	}
+	return expand(p, f, extraVars, &loopExec{ctx: ctx, platformKeys: f.PlatformKeys(), jobs: jobs})
+}
+
+func expand(p *Policy, f facts.Facts, extraVars map[string]any, exec *loopExec) ([]*Check, []*CheckError) {
 	base := Context(p, f, extraVars)
+
+	type expansion struct {
+		checks []*Check
+		err    *CheckError
+	}
+	expanded := make([]expansion, len(p.Checks))
+	one := func(i int) {
+		expanded[i].checks, expanded[i].err = expandSource(p, p.Checks[i], base, exec)
+	}
+	var wg sync.WaitGroup
+	for i, src := range p.Checks {
+		if exec == nil || !hasKey(src.Node, "loop_run") {
+			one(i)
+			continue
+		}
+		// Item commands are independent of each other, so they may run
+		// side by side; the results keep the order of the policy.
+		if exec.sem == nil {
+			exec.sem = make(chan struct{}, exec.jobs)
+		}
+		wg.Add(1)
+		exec.sem <- struct{}{}
+		go func(i int) {
+			defer wg.Done()
+			defer func() { <-exec.sem }()
+			defer func() {
+				if r := recover(); r != nil {
+					src := p.Checks[i]
+					expanded[i] = expansion{err: &CheckError{ID: scalarValue(src.Node, "id"), Source: src,
+						Err: fmt.Errorf("loop_run: internal error: %v", r)}}
+				}
+			}()
+			one(i)
+		}(i)
+	}
+	wg.Wait()
+
 	var checks []*Check
 	var errs []*CheckError
 	seen := map[string]string{}
-
-	for _, src := range p.Checks {
-		expanded, err := expandSource(p, src, base)
-		if err != nil {
-			errs = append(errs, err)
+	for i, src := range p.Checks {
+		if expanded[i].err != nil {
+			errs = append(errs, expanded[i].err)
 			continue
 		}
-		for _, c := range expanded {
+		for _, c := range expanded[i].checks {
 			if prev, dup := seen[c.ID]; dup {
 				errs = append(errs, &CheckError{ID: c.ID, Source: src,
 					Err: fmt.Errorf("duplicate check id (first defined at %s)", prev)})
@@ -199,7 +261,7 @@ func Expand(p *Policy, f facts.Facts, extraVars map[string]any) ([]*Check, []*Ch
 	return checks, errs
 }
 
-func expandSource(p *Policy, src CheckSource, base map[string]any) ([]*Check, *CheckError) {
+func expandSource(p *Policy, src CheckSource, base map[string]any, exec *loopExec) ([]*Check, *CheckError) {
 	rawID := scalarValue(src.Node, "id")
 	fail := func(err error) *CheckError {
 		return &CheckError{ID: rawID, Source: src, Err: err}
@@ -207,9 +269,25 @@ func expandSource(p *Policy, src CheckSource, base map[string]any) ([]*Check, *C
 
 	node := cloneNode(src.Node)
 	loopNode := removeKey(node, "loop")
+	loopRunNode := removeKey(node, "loop_run")
 
 	ctx := copyMap(base)
 	ctx["policy_dir"] = src.Dir
+
+	if loopRunNode != nil {
+		if loopNode != nil {
+			return nil, fail(fmt.Errorf("loop and loop_run cannot be combined"))
+		}
+		checks, err := expandLoopRun(p, src, node, loopRunNode, ctx, exec)
+		if err != nil {
+			var ce *CheckError
+			if errors.As(err, &ce) {
+				return nil, ce
+			}
+			return nil, fail(err)
+		}
+		return checks, nil
+	}
 
 	items := []any{nil}
 	if loopNode != nil {
@@ -231,24 +309,34 @@ func expandSource(p *Policy, src CheckSource, base map[string]any) ([]*Check, *C
 		if err := renderNode(n, itemCtx); err != nil {
 			return nil, fail(err)
 		}
-		if err := checkKnownKeys(n, checkKeys); err != nil {
-			return nil, fail(err)
-		}
-		var raw rawCheck
-		if err := n.Decode(&raw); err != nil {
-			return nil, fail(err)
-		}
-		c, err := build(p, src, raw, itemCtx)
+		c, err := decodeCheck(p, src, n, itemCtx)
 		if err != nil {
-			id := raw.ID
-			if id == "" {
-				id = rawID
-			}
-			return nil, &CheckError{ID: id, Source: src, Err: err}
+			return nil, err
 		}
 		checks = append(checks, c)
 	}
 	return checks, nil
+}
+
+// decodeCheck turns a rendered check node into a check.
+func decodeCheck(p *Policy, src CheckSource, n *yaml.Node, ctx map[string]any) (*Check, *CheckError) {
+	rawID := scalarValue(src.Node, "id")
+	if err := checkKnownKeys(n, checkKeys); err != nil {
+		return nil, &CheckError{ID: rawID, Source: src, Err: err}
+	}
+	var raw rawCheck
+	if err := n.Decode(&raw); err != nil {
+		return nil, &CheckError{ID: rawID, Source: src, Err: err}
+	}
+	c, err := build(p, src, raw, ctx)
+	if err != nil {
+		id := raw.ID
+		if id == "" {
+			id = rawID
+		}
+		return nil, &CheckError{ID: id, Source: src, Err: err}
+	}
+	return c, nil
 }
 
 func build(p *Policy, src CheckSource, raw rawCheck, ctx map[string]any) (*Check, error) {
@@ -360,6 +448,11 @@ func (c *Check) Command(spec CommandSpec, platformKeys []string) (cmd string, ok
 		return "", false, nil
 	}
 	ctx := copyMap(c.context)
+	if !c.LoopRun.IsZero() {
+		// The item is data from the host and reaches commands only through
+		// the environment, see renderLoopRunCheck.
+		delete(ctx, "item")
+	}
 	ctx["arg"] = spec.Arg
 	args := map[string]any{}
 	mergeInto(args, spec.Args)
@@ -520,16 +613,22 @@ func lookupPath(ctx map[string]any, path string) (any, bool) {
 
 // renderNode renders all scalar values (not mapping keys) in place.
 func renderNode(n *yaml.Node, ctx map[string]any) error {
+	return renderNodeWith(n, ctx, nil)
+}
+
+// renderNodeWith is renderNode with a fallback: if recover is set, it
+// supplies the value of a scalar that cannot be rendered.
+func renderNodeWith(n *yaml.Node, ctx map[string]any, recover func(src string) string) error {
 	switch n.Kind {
 	case yaml.DocumentNode, yaml.SequenceNode:
 		for _, child := range n.Content {
-			if err := renderNode(child, ctx); err != nil {
+			if err := renderNodeWith(child, ctx, recover); err != nil {
 				return err
 			}
 		}
 	case yaml.MappingNode:
 		for i := 0; i+1 < len(n.Content); i += 2 {
-			if err := renderNode(n.Content[i+1], ctx); err != nil {
+			if err := renderNodeWith(n.Content[i+1], ctx, recover); err != nil {
 				return fmt.Errorf("%s: %w", n.Content[i].Value, err)
 			}
 		}
@@ -539,7 +638,10 @@ func renderNode(n *yaml.Node, ctx map[string]any) error {
 		}
 		out, err := tmpl.Render(n.Value, ctx)
 		if err != nil {
-			return err
+			if recover == nil {
+				return err
+			}
+			out = recover(n.Value)
 		}
 		if out != n.Value && n.Tag != "!!str" {
 			n.Tag = "" // let YAML resolve the rendered value's type

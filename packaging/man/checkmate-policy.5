@@ -124,6 +124,23 @@ or a template that evaluates to a list.
 The check is expanded once per item, available as
 .BR item .
 .TP
+.B loop_run
+A command; the check is expanded once per line of its output.
+The item is data from the host, so
+.B run
+and
+.B only_if
+cannot use the
+.B item
+template and read the environment variable
+.B CHECKMATE_ITEM
+instead.
+No output gives one result N/A, a failing command one result ERROR.
+.BR validate ", " list " and " diff
+do not run the command and show the check once, with
+.B {item}
+as the item.
+.TP
 .B run
 The command; required.
 A string, a mapping of platform variants, or a snippet reference.
