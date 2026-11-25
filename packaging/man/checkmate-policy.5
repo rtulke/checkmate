@@ -254,6 +254,12 @@ Regular expressions see the untrimmed line.
 .TP
 .BI "{ if: " c ", then: " a ", else: " b " }"
 A conditional expectation.
+.TP
+.BI "{ cases: [{ if: " c ", then: " a " }, ...], else: " b " }"
+The first case whose condition holds decides.
+If none does,
+.B else
+decides; without it the expectation fails.
 .SH TEMPLATING
 Strings are rendered with Jinja2 (gonja) in strict mode: an undefined
 variable is an error.

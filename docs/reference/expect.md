@@ -164,6 +164,24 @@ expect:
 
 Without `else`, the expectation holds when the condition does not.
 
+### Several cases
+
+A chain of `if` in `else` in `else` gets hard to read. `cases` is the flat form: the first case whose `if` holds decides, the others are not looked at.
+
+```yaml
+run: . /etc/os-release && echo "$ID $VERSION_ID"
+expect:
+  cases:
+    - { if: "~ ^ubuntu", then: "~ 2[4-9]\\." }
+    - { if: { any: ["~ ^debian", "~ ^raspbian"] }, then: "~ 1[2-9]" }
+    - { if: "~ ^rhel", then: "~ (9|1[0-9])\\." }
+  else: "~ ^alpine 3\\.(2[0-9])"
+```
+
+If no case applies, `else` decides. **Without `else`, the expectation fails**: an output that nobody thought of must not pass. This is the difference to a single `if` without `else`, which says "only if applicable".
+
+A failure names the case that decided: `expected stdout ~ "2[4-9]\\.", got "ubuntu 22.04" (case 1, because stdout ~ "^ubuntu" holds)`.
+
 ### Conditions on facts and variables
 
 The condition of `if` looks at the command output. To choose an expectation by **facts or variables**, use Jinja2 directly in `expect`, or split the check with `when`:
@@ -194,6 +212,7 @@ expect: "{{ '>= 9' if facts.distro == 'rhel' else '>= 12' }}"
 | negation | `{ not: … }` |
 | per line | `{ each: … }`, `{ some: … }`, `{ none: … }` |
 | conditional | `{ if: …, then: …, else: … }` |
+| several cases | `{ cases: [{ if: …, then: … }, …], else: … }` |
 
 All of them nest freely:
 
