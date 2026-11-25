@@ -4,11 +4,11 @@
 [![Release](https://github.com/rtulke/checkmate/actions/workflows/release.yml/badge.svg)](https://github.com/rtulke/checkmate/actions/workflows/release.yml)
 [![Docs](https://img.shields.io/badge/docs-rtulke.github.io%2Fcheckmate-3f51b5)](https://rtulke.github.io/checkmate/)
 
-**Compliance checks as commands.** Every check is a shell command and a condition on its result, written in YAML. checkmate runs on Linux, macOS and Windows, checks network devices and remote servers from a management host, and ships more than **15,000 checks** for CIS Benchmarks, DISA STIGs, BSI IT-Grundschutz, Si001 and MITRE ATT&CK.
+**Compliance checks as commands.** Every check is a shell command and a condition on its result, written in YAML. checkmate runs on Linux, macOS and Windows, checks network devices and remote servers from a management host, and ships more than **14,900 checks** for CIS Benchmarks, DISA STIGs, BSI IT-Grundschutz, Si001 and MITRE ATT&CK.
 
 [Deutsche Version](README_de.md) · [Documentation](https://rtulke.github.io/checkmate/) · [Security standards](https://rtulke.github.io/checkmate/standards/) · [Examples](https://rtulke.github.io/checkmate/examples/)
 
-![checkmate: show a policy, run it, fix a finding, run it with a severity threshold, list checks, JSON summary](docs/assets/demo.gif)
+![checkmate: show a policy, run it, fix a finding, run it with a severity threshold, show the details of one check, JSON summary](docs/assets/demo.gif)
 
 ```yaml
 - id: SSH-001
@@ -32,11 +32,11 @@ Result NOT COMPLIANT
 
 Most compliance tools need a plugin or module for every kind of check. checkmate needs one thing: a command. If you can test it in a shell, you can turn it into a check, and you can copy any check straight into a terminal to see what it does.
 
-- **Readable**: YAML with Jinja2 variables, loops and reusable snippets, familiar from Ansible.
+- **Readable**: YAML with Jinja2 variables, loops and reusable snippets, familiar from Ansible. A loop can also run over the output of a command (one check per account, mount point or virtual host), and the outcome of one check can decide whether others run.
 - **Portable**: one static binary; platform variants pick the right command for RHEL, Debian, SUSE, Alpine, macOS or PowerShell.
 - **Fail-closed**: a check that cannot be evaluated (timeout, missing tool, unexpected exit code) is an error, and errors always make a run non-compliant.
 - **Prioritized**: severities, a `--fail-on` threshold with warnings below it, a weighted compliance score, and waivers for accepted deviations.
-- **Independent checks**: every check collects its own data; no shared scans or caches between checks.
+- **Independent checks**: every check collects its own data; no shared scans or caches between checks. A check can steer other checks, but never hands its output to them.
 - **Reports for everyone**: HTML and PDF for auditors, CSV for spreadsheets, JSON Lines and syslog for SIEMs, Prometheus metrics, JUnit for CI, XCCDF/ARF for SCAP tools and ATT&CK Navigator layers; reports of many hosts merge into one, and `checkmate diff` shows what changed.
 
 ## Install
@@ -75,7 +75,7 @@ checkmate run baseline.yml --tags ssh --fail-on high --export junit,html -o repo
 | [BSI IT-Grundschutz](https://rtulke.github.io/checkmate/examples/compliance/bsi-grundschutz/) | Linux servers (SYS.1.1, SYS.1.3) | 1 | | 53 | host-verifiable requirements, Basis/Standard/Hoch |
 | [Si001 IT-Grundschutz Bund (CH)](https://rtulke.github.io/checkmate/examples/compliance/si001/) | Linux, macOS and Windows clients | 1 | | 35 | host-verifiable requirements, Grundschutz and increased protection (Schuban) |
 | [MITRE ATT&CK](https://rtulke.github.io/checkmate/examples/attack/) | Linux, Windows, macOS | 3 | 63 techniques | 75 | traces and mitigations of selected techniques, ATT&CK Navigator layers |
-| **Total** | | **38** | | **13,940** | |
+| **Total** | | **38** | | **13,895** | |
 
 Rules are recommendations, STIG rules or techniques; one rule can need several checks. Rules that cannot be automated (organizational measures, manual reviews) are not included. NIST SP 800-53, NIST 800-171 and CMMC are covered through the mappings of the STIG and macOS policies (`--tags nist-800-53r5-moderate`). Accepted deviations go into [waivers](https://rtulke.github.io/checkmate/reference/waivers/), not into the policies.
 
@@ -119,6 +119,26 @@ checks:
     allow_rc: [0, 1]                         # grep exits 1 when nothing matches
     expect: empty
 ```
+
+Two more keys cover what a fixed list cannot. `loop_run` creates one check per line a command prints, and `register` lets later checks ask in `when` how a check turned out:
+
+```yaml
+  - id: NGINX-INSTALLED
+    severity: info                           # not a finding, only a question
+    register: nginx
+    run: command -v nginx
+    expect: true
+
+  - id: "NGINX-VHOST-{{ item }}"             # one check per enabled site
+    name: "{{ item }} redirects HTTP to HTTPS"
+    when: nginx.passed
+    loop_run: ls /etc/nginx/sites-enabled
+    run: grep -c 'return 301 https://' "/etc/nginx/sites-enabled/$CHECKMATE_ITEM"
+    allow_rc: [0, 1]
+    expect: ">= 1"
+```
+
+The items of a `loop_run` come from the host, so commands read them from the environment variable `CHECKMATE_ITEM` instead of having them pasted into the command line.
 
 `rationale` says why a check matters and `remediation` how to fix a failure; both appear with `-vv` and in the reports. Every bundled CIS and STIG check carries both.
 
@@ -176,13 +196,13 @@ See [reports and exports](https://rtulke.github.io/checkmate/reference/exports/)
 
 ## Examples
 
-66 tested policies with 1,193 checks, organized like the documentation:
+66 tested policies with 1,194 checks, organized like the documentation:
 
 | Category | Policies | Checks | Contents |
 |---|---:|---:|---|
 | [Getting started](examples/getting-started.yml) | 1 | 11 | a first policy |
 | [Platforms](examples/platforms) | 6 | 60 | generic Linux, RHEL family, Debian/Ubuntu, SUSE, macOS, Windows |
-| [System](examples/system) | 12 | 136 | users, sudo, SSH, PAM, services, kernel, boot, time, logging, packages, cron, SELinux/AppArmor |
+| [System](examples/system) | 12 | 137 | users, sudo, SSH, PAM, services, kernel, boot, time, logging, packages, cron, SELinux/AppArmor |
 | [Files](examples/files) | 6 | 63 | permissions, content, integrity, searches, mounts, disk space |
 | [Network](examples/network) | 5 | 36 | interfaces, ports, firewalls, DNS, TLS |
 | [Hardware](examples/hardware) | 3 | 19 | CPU, memory, disks, RAID, virtualization, IPMI |
@@ -200,7 +220,7 @@ See [reports and exports](https://rtulke.github.io/checkmate/reference/exports/)
 | | Runs on | Tested in CI |
 |---|---|---|
 | Linux | any distribution with a POSIX shell (bash or sh, also BusyBox) | examples on Rocky Linux 8/9, Debian 12, Ubuntu 24.04, openSUSE Leap 15, Alpine; CIS and STIG policies on 16 distributions in containers; hardened PostgreSQL and Apache servers; Postfix, NFS, vsftpd, BIND, Kea, Dovecot, Samba and OpenLDAP in default and hardened configuration; planted ATT&CK artifacts; XCCDF/ARF validated with OpenSCAP, metrics with promtool, syslog with rsyslog |
-| Windows | Windows 10/11, Windows Server 2016 and later (PowerShell 5.1 or 7) | CIS and ATT&CK policies on real Windows Server 2022 and 2025; every PowerShell command through the PowerShell parser |
+| Windows | Windows 10/11, Windows Server 2016 and later (PowerShell 5.1 or 7) | CIS and ATT&CK policies on real Windows Server 2022 and 2025, each with PowerShell 7 and Windows PowerShell 5.1; every PowerShell command through the PowerShell parser |
 | macOS | macOS 13 and later | unit tests and Homebrew installation on macOS runners |
 | Network devices, remote servers | over SSH or SNMP from a management host | syntax of every command |
 

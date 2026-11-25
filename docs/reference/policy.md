@@ -53,6 +53,7 @@ checks:
 | `env` | mapping | Environment variables for all commands. |
 | `defaults` | mapping | `timeout`, `severity`, `fail_on`, `shell`, and `when` (a condition or list of conditions added to every check **of this file**, e.g. to limit a policy to one distribution). Other defaults of an including file override those of included files. |
 | `snippets` | mapping | Named, reusable commands. See [Templating](templating.md#snippets). |
+| `waivers` | list | Accepted deviations: checks whose failure is known and accepted for a reason, until a date. See [Waivers](waivers.md). |
 | `checks` | list | The checks. See [Check keys](checks.md). |
 
 ## Precedence of variables

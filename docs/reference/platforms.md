@@ -81,6 +81,8 @@ Use `only_if` when the decision depends on the system state, for example whether
 | Linux, macOS | `bash` (falls back to `sh`) | `bash --noprofile --norc -o pipefail -c '<command>'` |
 | Windows | `pwsh` (falls back to `powershell`) | `pwsh -NoProfile -NonInteractive -Command` with `$ErrorActionPreference = 'Stop'` |
 
-On POSIX systems, commands run with `LC_ALL=C` and `LANG=C`, so output is not translated and sorting is stable. Set `shell:` per check or in `defaults` to use `sh`, `zsh`, `pwsh`, `powershell` or `cmd`.
+On POSIX systems, commands run with `LC_ALL=C` and `LANG=C`, so output is not translated and sorting is stable. On Windows, PowerShell output is read as UTF-8 whatever the code page of the console is; `cmd` writes in the code page of the console.
+
+A timeout ends the command together with every process it started, on all platforms. Ctrl+C, `SIGTERM` and `SIGHUP` stop a run the same way, so no checks are left running. Set `shell:` per check or in `defaults` to use `sh`, `zsh`, `pwsh`, `powershell` or `cmd`.
 
 Exit codes 126 and 127 mean "not executable" and "not found" for POSIX shells and are always reported as errors. PowerShell reports a missing command as an ordinary failure (exit code 1).
