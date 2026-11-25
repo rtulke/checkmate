@@ -74,11 +74,16 @@ func Run(ctx context.Context, req Request) (Result, error) {
 	stderr := &limitedBuffer{limit: maxOutput}
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
-	setProcessGroup(cmd)
+	tree := isolate(cmd)
 	cmd.WaitDelay = 2 * time.Second
 
 	start := time.Now()
-	runErr := cmd.Run()
+	runErr := cmd.Start()
+	if runErr == nil {
+		tree.started(cmd)
+		runErr = cmd.Wait()
+		tree.release()
+	}
 	res := Result{
 		Stdout:   normalizeNewlines(stdout.String()),
 		Stderr:   normalizeNewlines(stderr.String()),
@@ -149,7 +154,13 @@ func shellArgv(shell, command string) ([]string, error) {
 		// reaches the exit handling. A script that completes exits 0, even if
 		// a silenced error left $? false; terminating errors exit 1 and the
 		// exit code of a failed native command is passed on.
-		script := "$ErrorActionPreference = 'Stop'\n& {\n" + command +
+		//
+		// Output is UTF-8 whatever the code page of the console is, also
+		// for the programs the script starts. Without a console the setting
+		// cannot be changed and stays as it is.
+		script := "try { [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $false; " +
+			"$OutputEncoding = [Console]::OutputEncoding } catch {}\n" +
+			"$ErrorActionPreference = 'Stop'\n& {\n" + command +
 			"\n}\nif ($LASTEXITCODE) { exit $LASTEXITCODE }\nexit 0"
 		return []string{shell, "-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script}, nil
 	case "cmd":

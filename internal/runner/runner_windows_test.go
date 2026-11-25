@@ -1,0 +1,119 @@
+//go:build windows
+
+package runner
+
+import (
+	"context"
+	"errors"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+	"testing"
+	"time"
+)
+
+// powershells are the PowerShell variants found on this machine. Servers
+// usually have only Windows PowerShell 5.1 ("powershell"), so both count.
+func powershells(t *testing.T) []string {
+	t.Helper()
+	var found []string
+	for _, shell := range []string{"powershell", "pwsh"} {
+		if _, err := exec.LookPath(shell); err == nil {
+			found = append(found, shell)
+		}
+	}
+	if len(found) == 0 {
+		t.Fatal("no PowerShell found")
+	}
+	return found
+}
+
+func TestPowerShellExitCodes(t *testing.T) {
+	cases := map[string]int{
+		"Write-Output ok":             0,
+		"cmd /c exit 3":               3,
+		"exit 5":                      5,
+		"throw 'broken'":              1,
+		"Get-Item C:\\no\\such\\path": 1,
+		"$null = Get-Item C:\\nope -ErrorAction SilentlyContinue": 0,
+	}
+	for _, shell := range powershells(t) {
+		for command, want := range cases {
+			res, err := Run(context.Background(), Request{Command: command, Shell: shell})
+			if err != nil {
+				t.Errorf("%s: %q: %v", shell, command, err)
+				continue
+			}
+			if res.RC != want {
+				t.Errorf("%s: %q: exit code %d, want %d (stderr: %s)", shell, command, res.RC, want, res.Stderr)
+			}
+		}
+	}
+}
+
+func TestPowerShellOutputIsUTF8(t *testing.T) {
+	// The characters are built from code points so that the test does not
+	// depend on how the command line itself is encoded.
+	const want = "\u00e4\u20ac\u4e2d"
+	commands := map[string]string{
+		"pipeline": "Write-Output ([string][char]0xE4 + [char]0x20AC + [char]0x4E2D)",
+		"console":  "[Console]::Out.Write([string][char]0xE4 + [char]0x20AC + [char]0x4E2D)",
+		"env":      "Write-Output $env:CHECKMATE_TEXT",
+	}
+	for _, shell := range powershells(t) {
+		for name, command := range commands {
+			res, err := Run(context.Background(), Request{Command: command, Shell: shell,
+				Env: map[string]string{"CHECKMATE_TEXT": want}})
+			if err != nil {
+				t.Errorf("%s: %s: %v", shell, name, err)
+				continue
+			}
+			if got := strings.TrimSpace(res.Stdout); got != want {
+				t.Errorf("%s: %s: stdout %q, want %q (stderr: %s)", shell, name, got, want, res.Stderr)
+			}
+		}
+	}
+}
+
+func TestTimeoutEndsChildProcesses(t *testing.T) {
+	for _, shell := range append(powershells(t), "cmd") {
+		// The child would create the marker a few seconds after the timeout
+		// if it survived the shell. The timeout leaves the shell enough time
+		// to start it.
+		marker := filepath.Join(t.TempDir(), "marker")
+		command := `cmd /c "ping -n 12 127.0.0.1 >nul & echo alive > ""` + marker + `"""`
+		if shell == "cmd" {
+			command = `ping -n 12 127.0.0.1 >nul & echo alive > "` + marker + `"`
+		}
+		start := time.Now()
+		_, err := Run(context.Background(), Request{Command: command, Shell: shell, Timeout: 4 * time.Second})
+		if !errors.Is(err, ErrTimeout) {
+			t.Errorf("%s: expected a timeout, got %v", shell, err)
+			continue
+		}
+		if elapsed := time.Since(start); elapsed > 6500*time.Millisecond {
+			t.Errorf("%s: the timeout took %s", shell, elapsed)
+		}
+		time.Sleep(9 * time.Second)
+		if _, err := os.Stat(marker); err == nil {
+			t.Errorf("%s: a child process survived the timeout", shell)
+		}
+	}
+}
+
+// Without a timeout the marker must appear: the test above would also pass
+// if the command never worked.
+func TestChildProcessCommandWorks(t *testing.T) {
+	for _, shell := range powershells(t) {
+		marker := filepath.Join(t.TempDir(), "marker")
+		command := `cmd /c "ping -n 2 127.0.0.1 >nul & echo alive > ""` + marker + `"""`
+		if _, err := Run(context.Background(), Request{Command: command, Shell: shell, Timeout: 20 * time.Second}); err != nil {
+			t.Errorf("%s: %v", shell, err)
+			continue
+		}
+		if _, err := os.Stat(marker); err != nil {
+			t.Errorf("%s: the marker was not written: %v", shell, err)
+		}
+	}
+}
