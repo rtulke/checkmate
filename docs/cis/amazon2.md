@@ -248,7 +248,7 @@ checkmate run cis/amazon2.yml --tags cis-level-2 -v
 | `CIS-AMAZON2-4.2.3-etc_ssh_ssh_pub_host_key_group` | /etc/ssh/ssh pub host key group: groupkeys=$(sudo find /etc/ssh/ -name \*_key.pub -type f ! -group root ); echo $groupkeys | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-4.2.3-etc_ssh_ssh_pub_host_key_perms` | /etc/ssh/ssh pub host key perms: keysperm=$(sudo find /etc/ssh/ -name \*_key.pub -type f  -perm /137 ); echo $keyperms | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-4.2.3-etc_ssh_ssh_pub_host_key_user` | /etc/ssh/ssh pub host key user: userkeys=$(sudo find /etc/ssh/ -name \*_key.pub -type f ! -user root ); echo $userkeys | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2-4.2.4-sshd_access_limited` | sshd access limited: grep -Ei "^(Allow\|Deny)(Users\|Groups)" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2-4.2.4-sshd_access_limited` | SSH access is limited with AllowUsers, AllowGroups, DenyUsers or DenyGroups | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-4.2.5-ssh_banner-attrs` | /etc/ssh/sshd_config: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-4.2.5-ssh_banner-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2-4.2.6-sshd_ciphers-attrs` | /etc/ssh/sshd_config: exists | L1 server | <span class="sev sev-medium">medium</span> |

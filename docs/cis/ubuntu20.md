@@ -122,8 +122,7 @@ checkmate run cis/ubuntu20.yml --tags cis-level-2 -v
 | `CIS-UBUNTU20-1.3.1.2-grub_app_armor-content` | /etc/default/grub has the expected content (3 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-1.3.1.3-apparmor_enf_or_comp` | apparmor enf or comp: LOADED=`apparmor_status \| grep 'profiles are loaded' \| awk '{print $1}'` && ENFORCE=`appa… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-1.3.1.4-apparmor_enf_only` | apparmor enf only: if [ `apparmor_status \| grep 'profiles are in complain mode.' \| awk '{print $1}'` == 0 ];… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-UBUNTU20-1.4.1-bootloader_password_set-attrs` | /etc/grub.d/00_user: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-1.4.1-bootloader_password_set-content` | /etc/grub.d/00_user has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU20-1.4.1-bootloader_password_set` | The boot loader has a superuser and a PBKDF2 password | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-1.4.2-default_grub_perms-attrs` | /boot/grub/grub.cfg: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-1.5.1-kernel.randomize_va_space` | Kernel parameter kernel.randomize_va_space is 2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-1.5.1-aslr_enabled_2` | aslr enabled 2: grep "^kernel\\.randomize_va_space" /etc/sysctl.conf /etc/sysctl.d/\* \| cut -d ":" -f2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -296,8 +295,7 @@ checkmate run cis/ubuntu20.yml --tags cis-level-2 -v
 | `CIS-UBUNTU20-5.1.3-etc_ssh_ssh_host_pub_key_group` | /etc/ssh/ssh host pub key group: groupkeys=$(sudo find /etc/ssh/ -name \*_key.pub -type f ! -group root ); echo $groupkeys | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.1.3-etc_ssh_ssh_host_pub_key_perms` | /etc/ssh/ssh host pub key perms: keysperm=$(sudo find /etc/ssh/ -name \*_key.pub -type f  -perm /137 ); echo $keyperms | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.1.3-etc_ssh_ssh_host_pub_key_user` | /etc/ssh/ssh host pub key user: userkeys=$(sudo find /etc/ssh/ -name \*_key.pub -type f ! -user root ); echo $userkeys | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-5.1.4-sshd_access_limited-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-5.1.4-sshd_access_limited-content` | /etc/ssh/sshd_config has the expected content (4 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU20-5.1.4-sshd_access_limited` | SSH access is limited with AllowUsers, AllowGroups, DenyUsers or DenyGroups | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.1.5-ssh_banner-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.1.5-ssh_banner-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.1.5-ssh_configd_banner` | ssh configd banner: grep -Eis '^\\s\*Banner\\s+"?none\\b'/etc/ssh/sshd_config.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -345,7 +343,7 @@ checkmate run cis/ubuntu20.yml --tags cis-level-2 -v
 | `CIS-UBUNTU20-5.2.6-sudo_timeout` | sudo timeout: grep -rP "timestamp_timeout=\\K[0-9]\*" /etc/sudoers\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.2.7-su_conf-attrs` | /etc/pam.d/su: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.2.7-su_conf-content` | /etc/pam.d/su has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU20-5.2.7-sugroup_etc_group` | sugroup etc group: grep nosugroup /etc/group  \| awk -F':' '{print $NF}' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU20-5.2.7-sugroup_etc_group` | The group that pam_wheel allows to use su has no members | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.3.1.1-libpam-runtime` | Package libpam-runtime is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.3.1.2-libpam-modules` | Package libpam-modules is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU20-5.3.1.3-libpam-pwquality` | Package libpam-pwquality is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

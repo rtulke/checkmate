@@ -5210,27 +5210,23 @@ checks:
 
       chown root FILE
   - id: "CIS-RHEL8-5.1.6-sshd_access_limited"
-    name: "sshd access limited: grep -Ei \"^(Allow|Deny)(Users|Groups)\" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf"
+    name: "SSH access is limited with AllowUsers, AllowGroups, DenyUsers or DenyGroups"
     description: "CIS Red Hat Enterprise Linux 8 benchmark recommendation 5.1.6. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel8, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      grep -Ei "^(Allow|Deny)(Users|Groups)" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf
+      sshd -T 2>/dev/null | grep -Ei '^(allow|deny)(users|groups) +[^ ]'
     allow_rc: any
-    expect:
-      - { rc: "in [0, 1, 2]" }
-      - { some: "~ (?i)(||denyusers nobody| )" }
+    expect: { some: "~ ." }
     rationale: &rat-8e5700f652 |
       Restricting SSH logins to explicitly allowed users or groups ensures that only accounts with a need for remote access can log in, even if other accounts have valid credentials or weak passwords. It limits the impact of compromised, forgotten or service accounts.
-    remediation: &rem-eb1a516d02 |
-      Restrict SSH logins to the users or groups that need them with AllowUsers, AllowGroups, DenyUsers or DenyGroups, according to site policy. Insert the directives at the top of /etc/ssh/sshd_config so they are in the global section and are read on every version, then validate and reload. The RHEL 10 check only recognises the exact entries AllowUsers vagrant or DenyUsers nobody, so the harmless DenyUsers nobody line is included for it.
+    remediation: &rem-804a07286e |
+      Restrict SSH logins to the users or groups that need them with AllowUsers, AllowGroups, DenyUsers or DenyGroups, according to site policy. Set the directive in the global section of the sshd configuration (in /etc/ssh/sshd_config before any Match block, or in a file in /etc/ssh/sshd_config.d/ where the distribution includes that directory), then validate and reload the SSH service.
 
-      sed -i '1i DenyUsers nobody' /etc/ssh/sshd_config
-      sed -i '1i AllowGroups GROUP' /etc/ssh/sshd_config
+      echo 'AllowGroups GROUP' > /etc/ssh/sshd_config.d/10-access.conf
       sshd -t
-      systemctl reload sshd
 
-      Make sure your own administrative account is allowed before reloading.
+      When both AllowUsers and AllowGroups are set, a user must match both lists. Make sure your own administrative account is allowed before reloading.
   - id: "CIS-RHEL8-5.1.7-sshd_banner-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Red Hat Enterprise Linux 8 benchmark recommendation 5.1.7. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -6194,34 +6190,35 @@ checks:
     run: |
       cat '/etc/pam.d/su'
     allow_rc: any
-    expect: { some: "~ ^auth.*required.*pam_wheel.so\\suse_uid\\sgroup=sugroup" }
+    expect: { some: "~ ^\\s*auth\\s+(required|requisite)\\s+pam_wheel\\.so\\s+(\\S+\\s+)*(use_uid\\s+(\\S+\\s+)*group=\\S+|group=\\S+\\s+(\\S+\\s+)*use_uid)(\\s|$)" }
     rationale: *rat-43a7e69d11
-    remediation: &rem-f77cd2d086 |
+    remediation: &rem-ee23a5a1dd |
       Edit /etc/pam.d/su so that its lines meet these conditions (regular expressions):
 
-      - a line matches ^auth.*required.*pam_wheel.so\suse_uid\sgroup=sugroup
+      - a line matches ^\s*auth\s+(required|requisite)\s+pam_wheel\.so\s+(\S+\s+)*(use_uid\s+(\S+\s+)*group=\S+|group=\S+\s+(\S+\s+)*use_uid)(\s|$)
   - id: "CIS-RHEL8-5.2.7-sugroup_etc_group"
-    name: "sugroup etc group: grep sugroup /etc/group"
+    name: "The group that pam_wheel allows to use su has no members"
     description: "CIS Red Hat Enterprise Linux 8 benchmark recommendation 5.2.7. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-rhel8, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      grep sugroup /etc/group
+      g=$(sed -nE 's/^[[:space:]]*auth[[:space:]]+(required|requisite)[[:space:]]+pam_wheel\.so[[:space:]](.*[[:space:]])?group=([^[:space:]]+).*/\3/p' /etc/pam.d/su 2>/dev/null | head -n 1)
+      if [ -z "$g" ]; then echo "pam_wheel in /etc/pam.d/su names no group"; exit 0; fi
+      e=$(getent group "$g")
+      if [ -z "$e" ]; then echo "group $g does not exist"; exit 0; fi
+      echo "$e" | awk -F: '$4 != "" {print "group " $1 " has members: " $4}'
     allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { some: "~ ^sugroup:x:\\d+:$" }
-      - { none: "~ ^sugroup:x:\\d+:.*:" }
+    expect: empty
     rationale: &rat-575a3911d0 |
       Restricting su with pam_wheel to members of a dedicated group prevents ordinary users from switching to root or other accounts by guessing or knowing their passwords. Using an empty group makes su usable only by root, so administrators must use sudo, which is logged per user. The group must exist and have no members.
-    remediation: &rem-f454845d9c |
-      Create an empty group named sugroup and restrict su to its members with pam_wheel.
+    remediation: &rem-80fba87223 |
+      Create a group without members and restrict su to it with pam_wheel in /etc/pam.d/su. The group can have any name; sugroup is an example.
 
       groupadd sugroup
       gpasswd -M '' sugroup
-      grep -q 'pam_wheel.so.*group=sugroup' /etc/pam.d/su || sed -i '/^auth\s\+sufficient\s\+pam_rootok.so/a auth required pam_wheel.so use_uid group=sugroup' /etc/pam.d/su
+      grep -Eq '^\s*auth\s+(required|requisite)\s+pam_wheel\.so\s.*group=' /etc/pam.d/su || sed -i '/^auth\s\+sufficient\s\+pam_rootok.so/a auth required pam_wheel.so use_uid group=sugroup' /etc/pam.d/su
 
-      On Amazon Linux 2023 the check expects the group to be named nosugroup; use that name instead. The group must not have any members.
+      If pam_wheel already names a group, remove its members instead: gpasswd -M '' GROUP.
   - id: "CIS-RHEL8-5.3.1.1-pam_version"
     name: "pam version: dnf check-update pam"
     description: "CIS Red Hat Enterprise Linux 8 benchmark recommendation 5.3.1.1. NIST SP 800-53 Rev. 5: NA."

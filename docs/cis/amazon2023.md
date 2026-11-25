@@ -200,7 +200,7 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-4.2.3-etc_ssh_ssh_public_key_group` | /etc/ssh/ssh public key group: groupkeys=$(sudo find /etc/ssh/ -name \*_key.pub -type f ! -group root ); echo $groupkeys | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.2.3-etc_ssh_ssh_public_key_perms` | /etc/ssh/ssh public key perms: keysperm=$(sudo find /etc/ssh/ -name \*_key.pub -type f  -perm /137 ); echo $keyperms | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.2.3-etc_ssh_ssh_public_key_user` | /etc/ssh/ssh public key user: userkeys=$(sudo find /etc/ssh/ -name \*_key.pub -type f ! -user root ); echo $userkeys | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-4.2.4-sshd_access_limited` | sshd access limited: grep -Ei "^(Allow\|Deny)(Users\|Groups)" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-4.2.4-sshd_access_limited` | SSH access is limited with AllowUsers, AllowGroups, DenyUsers or DenyGroups | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.2.5-sshd_config_loglevel-attrs` | /etc/ssh/sshd_config: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.2.5-sshd_config_loglevel-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.2.6-sshd_config_pam_enable-attrs` | /etc/ssh/sshd_config: exists | L1 server | <span class="sev sev-medium">medium</span> |
@@ -245,7 +245,7 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-4.3.5-sudo_timeout` | sudo timeout: grep -rP "timestamp_timeout=\\K[0-9]\*" /etc/sudoers\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.3.6-su_restricted-attrs` | /etc/pam.d/su: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.3.6-su_restricted-content` | /etc/pam.d/su has the expected content (1 rule) | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-4.3.6-sugroup_etc_group` | sugroup etc group: grep nosugroup /etc/group | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2023-4.3.6-sugroup_etc_group` | The group that pam_wheel allows to use su has no members | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.4.1-custom_profile` | custom profile: head -1 /etc/authselect/authselect.conf \| grep 'custom/' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.4.2-etc_pam.d_system-auth-attrs` | /etc/pam.d/system-auth: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.4.2-etc_pam.d_system-auth-content` | /etc/pam.d/system-auth has the expected content (3 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

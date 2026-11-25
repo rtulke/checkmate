@@ -159,6 +159,14 @@ Deviations from the Ansible Lockdown content, each applied deliberately:
   declare NFS, NIS and rpcbind as required do not remove rules from the
   policy (`auditVars` in the converter). Use a waiver for a host that needs
   such a service.
+- Values that are the choice of the site are not compared with those of the
+  Ansible role (`resourceFixes` in the converter): SSH access needs any
+  `AllowUsers`, `AllowGroups`, `DenyUsers` or `DenyGroups` in the effective
+  configuration (`sshd -T`), not the users of the upstream test setup; the
+  group that may use `su` can have any name and must have no members; the
+  Ubuntu boot loader password is looked up in `/boot/grub/grub.cfg`, for any
+  superuser. Where upstream tests the value of its role next to the values
+  the benchmark allows (`space_left_action`), only the latter is tested.
 - Windows: a registry value given as a regular expression (`match-regexp`,
   the logon message text) is matched as one; the hardened UNC path values
   (`HardenedPaths::\\*\NETLOGON`) are read under their own key; a registry

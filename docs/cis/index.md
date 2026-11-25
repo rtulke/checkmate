@@ -9,7 +9,7 @@ The recommendation number is part of the ID. The policies contain no benchmark t
 |---|---|---|---|---|
 | [CIS Amazon Linux 2](amazon2.md) | 276 | 221 | 55 | 502 |
 | [CIS Amazon Linux 2023](amazon2023.md) | 239 | 177 | 62 | 402 |
-| [CIS Amazon Linux 2027](amazon2027.md) | 309 | 215 | 94 | 491 |
+| [CIS Amazon Linux 2027](amazon2027.md) | 309 | 215 | 94 | 490 |
 | [CIS Apache HTTP Server 2.4](apache.md) | 70 | 49 | 20 | 70 |
 | [CIS Debian 11](debian11.md) | 284 | 226 | 58 | 489 |
 | [CIS Debian 12](debian12.md) | 290 | 233 | 57 | 501 |
@@ -25,15 +25,15 @@ The recommendation number is part of the ID. The policies contain no benchmark t
 | [CIS SUSE Linux Enterprise 15](suse15.md) | 267 | 207 | 60 | 447 |
 | [CIS SUSE Linux Enterprise 16](suse16.md) | 324 | 246 | 78 | 514 |
 | [CIS Ubuntu 18.04 LTS](ubuntu18.md) | 229 | 200 | 29 | 379 |
-| [CIS Ubuntu 20.04 LTS](ubuntu20.md) | 293 | 238 | 55 | 554 |
-| [CIS Ubuntu 22.04 LTS](ubuntu22.md) | 280 | 225 | 55 | 500 |
-| [CIS Ubuntu 24.04 LTS](ubuntu24.md) | 311 | 245 | 66 | 630 |
-| [CIS Ubuntu 26.04 LTS](ubuntu26.md) | 332 | 257 | 75 | 555 |
+| [CIS Ubuntu 20.04 LTS](ubuntu20.md) | 293 | 238 | 55 | 552 |
+| [CIS Ubuntu 22.04 LTS](ubuntu22.md) | 280 | 225 | 55 | 499 |
+| [CIS Ubuntu 24.04 LTS](ubuntu24.md) | 311 | 245 | 66 | 627 |
+| [CIS Ubuntu 26.04 LTS](ubuntu26.md) | 332 | 257 | 75 | 553 |
 | [CIS Microsoft Windows 11 Enterprise](win11.md) | 471 | 374 | 97 | 510 |
 | [CIS Microsoft Windows Server 2019](win2019.md) | 424 | 352 | 72 | 458 |
 | [CIS Microsoft Windows Server 2022](win2022.md) | 433 | 357 | 76 | 467 |
 | [CIS Microsoft Windows Server 2025](win2025.md) | 452 | 374 | 78 | 486 |
-| **Total** | **7017** | | | **10819** |
+| **Total** | **7017** | | | **10810** |
 
 ## Selecting profiles
 

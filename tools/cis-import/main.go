@@ -673,7 +673,17 @@ func convertResource(b benchmark, kind, name string, attrs map[string]any, m rul
 	if b.windows() && !roleRendering && m.DomainScoped {
 		base.When = append(base.When, "not cis_windows_domain_joined")
 	}
-	generated := convertKind(b, kind, name, attrs, base)
+	var generated []check
+	fix := fixResource(name)
+	switch {
+	case fix == nil || b.windows() || b.stig():
+		generated = convertKind(b, kind, name, attrs, base)
+	case fix.rewrite != nil:
+		fix.rewrite(attrs)
+		generated = convertKind(b, kind, name, attrs, base)
+	default:
+		generated = fix.check(base)
+	}
 	if b.stig() && m.Title != "" {
 		for i := range generated {
 			what := generated[i].Name
@@ -885,6 +895,7 @@ func fileChecks(base check, name string, attrs map[string]any) []check {
 	if contents == nil {
 		contents = attrs["contains"]
 	}
+	contents = dropSiteChoices(contents)
 	if conds := patternConditions(contents); len(conds) > 0 {
 		c := base
 		c.ID += "-content"

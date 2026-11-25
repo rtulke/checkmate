@@ -135,8 +135,7 @@ checkmate run cis/ubuntu24.yml --tags cis-level-2 -v
 | `CIS-UBUNTU24-1.3.1.3-apparmor_enf_only` | apparmor enf only: apparmor_status 2>/dev/null \| grep -E '^[0-9]+ (profiles are loaded\|profiles are in compl… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-UBUNTU24-1.3.1.4-kernel.apparmor_restrict_unprivileged_un` | Kernel parameter kernel.apparmor_restrict_unprivileged_unconfined is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-1.3.1.4-apparmor_restrict_unconfined_conf` | apparmor restrict unconfined conf: { /usr/lib/systemd/systemd-sysctl --cat-config; f=$(awk -F= '/^\\s\*IPT_SYSCTL=/{print $2}'… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU24-1.4.1-bootloader_password_set-attrs` | /etc/grub.d/00_user: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU24-1.4.1-bootloader_password_set-content` | /etc/grub.d/00_user has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.4.1-bootloader_password_set` | The boot loader has a superuser and a PBKDF2 password | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-1.4.2-default_grub_perms-attrs` | /boot/grub/grub.cfg: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-1.5.1-fs.protected_hardlinks` | Kernel parameter fs.protected_hardlinks is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-1.5.1-protected_hardlinks_configured` | protected hardlinks configured: grep "fs\\.protected_hardlinks" /etc/sysctl.conf /etc/sysctl.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -326,8 +325,7 @@ checkmate run cis/ubuntu24.yml --tags cis-level-2 -v
 | `CIS-UBUNTU24-5.1.3-etc_ssh_ssh_host_pub_key_group` | /etc/ssh/ssh host pub key group: find /etc/ssh/ -name '\*_key.pub' -type f ! -group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-5.1.3-etc_ssh_ssh_host_pub_key_perms` | /etc/ssh/ssh host pub key perms: find /etc/ssh/ -name '\*_key.pub' -type f -perm /133 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-5.1.3-etc_ssh_ssh_host_pub_key_user` | /etc/ssh/ssh host pub key user: find /etc/ssh/ -name '\*_key.pub' -type f ! -user root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU24-5.1.4-sshd_access_limited-attrs` | /etc/ssh/sshd_config.d/00-cis-sshd.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU24-5.1.4-sshd_access_limited-content` | /etc/ssh/sshd_config.d/00-cis-sshd.conf has the expected content (4 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-5.1.4-sshd_access_limited` | SSH access is limited with AllowUsers, AllowGroups, DenyUsers or DenyGroups | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-5.1.5-ssh_banner` | ssh banner: sshd -T 2>/dev/null \| grep -Ei '^(banner) ' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-5.1.5-ssh_configd_banner` | ssh configd banner: grep -Eis '^\\s\*Banner\\s+"?none\\b' /etc/ssh/sshd_config.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-5.1.6-sshd_ciphers` | sshd ciphers: sshd -T \| grep -Pi -- '^ciphers\\h+\\"?([^#\\n\\r]+,)?((3des\|blowfish\|cast128\|aes(128\|192\|256… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -358,8 +356,7 @@ checkmate run cis/ubuntu24.yml --tags cis-level-2 -v
 | `CIS-UBUNTU24-5.2.6-sudo_timeout` | sudo timeout: grep -rP "timestamp_timeout=\\K[0-9]\*" /etc/sudoers\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-5.2.7-su_conf-attrs` | /etc/pam.d/su: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-5.2.7-su_conf-content` | /etc/pam.d/su has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU24-5.2.7-sugroup_etc_group-attrs` | /etc/group: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU24-5.2.7-sugroup_etc_group-content` | /etc/group has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-5.2.7-sugroup_etc_group` | The group that pam_wheel allows to use su has no members | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-5.3.1.1-libpam-runtime` | Package libpam-runtime is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-5.3.1.1-libpam_runtime_upgradable` | libpam runtime upgradable: apt list --upgradable 2>/dev/null \| grep -P '^libpam-runtime\\b' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-5.3.1.2-libpam-modules` | Package libpam-modules is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -486,7 +483,7 @@ checkmate run cis/ubuntu24.yml --tags cis-level-2 -v
 | `CIS-UBUNTU24-6.2.2.3-auditd_space_actions-attrs` | /etc/audit/auditd.conf: exists | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-UBUNTU24-6.2.2.3-auditd_space_actions-content` | /etc/audit/auditd.conf has the expected content (2 rules) | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-UBUNTU24-6.2.2.4-auditd_space_left_actions-attrs` | /etc/audit/auditd.conf: exists | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-UBUNTU24-6.2.2.4-auditd_space_left_actions-content` | /etc/audit/auditd.conf has the expected content (4 rules) | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-UBUNTU24-6.2.2.4-auditd_space_left_actions-content` | /etc/audit/auditd.conf has the expected content (2 rules) | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-UBUNTU24-6.2.3.1-auditd_admin_scope_cnf` | auditd admin scope cnf: grep scope /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-UBUNTU24-6.2.3.1-auditd_admin_scope_live` | auditd admin scope live: auditctl -l \| grep scope | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-UBUNTU24-6.2.3.2-auditd_sudo_actions` | auditd sudo actions: grep user_emulation /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |

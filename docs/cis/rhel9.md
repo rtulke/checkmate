@@ -256,7 +256,7 @@ checkmate run cis/rhel9.yml --tags cis-level-2 -v
 | `CIS-RHEL9-5.1.4-no_weak_ssh_ciphers` | no weak ssh ciphers: sshd -T \| grep -Pi --'^ciphers\\h+\\"?([^#\\n\\r]+,)?((3des\|blowfish\|cast128\|aes(128\|192\|256)… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-5.1.5-no_weak_ssh_kex` | no weak ssh kex: sshd -T \| grep -Pi -- 'kexalgorithms\\h+([^#\\n\\r]+,)?(diffie-hellman-group1-sha1\|diffie-he… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-5.1.6-no_weak_ssh_macs` | no weak ssh macs: sshd -T \| grep -Pi -- 'macs\\h+([^#\\n\\r]+,)?(hmac-md5\|hmac-md5-96\|hmac-ripemd160\|hmac-sha1… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL9-5.1.7-sshd_access_limited` | sshd access limited: grep -Ei "^(Allow\|Deny)(Users\|Groups)" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL9-5.1.7-sshd_access_limited` | SSH access is limited with AllowUsers, AllowGroups, DenyUsers or DenyGroups | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-5.1.8-sshd_banner-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-5.1.8-sshd_banner-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-5.1.8-ssh_configd_banner` | ssh configd banner: grep -Eis '^\\s\*Banner\\s+"?none\\b'/etc/ssh/sshd_config.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -310,7 +310,7 @@ checkmate run cis/rhel9.yml --tags cis-level-2 -v
 | `CIS-RHEL9-5.2.6-sudo_timeout` | sudo timeout: grep -rP "timestamp_timeout=\\K[0-9]\*" /etc/sudoers\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-5.2.7-restrict_su-attrs` | /etc/pam.d/su: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-5.2.7-restrict_su-content` | /etc/pam.d/su has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL9-5.2.7-sugroup_etc_group` | sugroup etc group: grep sugroup /etc/group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL9-5.2.7-sugroup_etc_group` | The group that pam_wheel allows to use su has no members | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-5.3.1.1-pam_version` | pam version: rpm -q pam \| grep -E "pam-1.5.1-(19\|2)" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-5.3.1.2-authselect_version` | Package authselect is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-5.3.1.2-authselect_version-version` | Package authselect version > 1.2.6-1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

@@ -1029,32 +1029,6 @@ etc_ssh_ssh_pub_host_key_user:
 sshd_access_limited:
   rationale: |-
     Restricting SSH logins to explicitly allowed users or groups ensures that only accounts with a need for remote access can log in, even if other accounts have valid credentials or weak passwords. It limits the impact of compromised, forgotten or service accounts.
-  remediation:
-    rhel: |-
-      Restrict SSH logins to the users or groups that need them with AllowUsers, AllowGroups, DenyUsers or DenyGroups, according to site policy. Insert the directives at the top of /etc/ssh/sshd_config so they are in the global section and are read on every version, then validate and reload. The RHEL 10 check only recognises the exact entries AllowUsers vagrant or DenyUsers nobody, so the harmless DenyUsers nobody line is included for it.
-
-      sed -i '1i DenyUsers nobody' /etc/ssh/sshd_config
-      sed -i '1i AllowGroups GROUP' /etc/ssh/sshd_config
-      sshd -t
-      systemctl reload sshd
-
-      Make sure your own administrative account is allowed before reloading.
-    debian: |-
-      Restrict SSH logins to the users or groups that need them with AllowUsers, AllowGroups, DenyUsers and DenyGroups, according to site policy, then validate and reload. The Ubuntu 20.04, 24.04 and 26.04 checks require all four directives to be present, and Ubuntu 24.04 and 26.04 read only /etc/ssh/sshd_config.d/00-cis-sshd.conf, so set all four in that file.
-
-      printf '%s\n' 'AllowUsers USER' 'AllowGroups GROUP' 'DenyUsers nobody' 'DenyGroups nogroup' >> /etc/ssh/sshd_config.d/00-cis-sshd.conf
-      sshd -t
-      systemctl reload ssh
-
-      When both AllowUsers and AllowGroups are set, a user must match both lists. Make sure your own administrative account is allowed before reloading.
-    suse: |-
-      Restrict SSH logins to the users or groups that need them with AllowUsers, AllowGroups, DenyUsers or DenyGroups, according to site policy, in a drop-in file, then validate and reload.
-
-      echo 'AllowGroups GROUP' > /etc/ssh/sshd_config.d/10-access.conf
-      sshd -t
-      systemctl reload sshd
-
-      Make sure your own administrative account is allowed before reloading.
 ssh_banner:
   rationale: |-
     A banner shown before SSH authentication informs users that access is restricted and monitored. Such a notice can be a prerequisite for legal action against unauthorized users. The banner text should not reveal system details.
@@ -4521,23 +4495,6 @@ sudoers_reauth_d:
 sugroup_etc_group:
   rationale: |-
     Restricting su with pam_wheel to members of a dedicated group prevents ordinary users from switching to root or other accounts by guessing or knowing their passwords. Using an empty group makes su usable only by root, so administrators must use sudo, which is logged per user. The group must exist and have no members.
-  remediation:
-    rhel: |-
-      Create an empty group named sugroup and restrict su to its members with pam_wheel.
-
-      groupadd sugroup
-      gpasswd -M '' sugroup
-      grep -q 'pam_wheel.so.*group=sugroup' /etc/pam.d/su || sed -i '/^auth\s\+sufficient\s\+pam_rootok.so/a auth required pam_wheel.so use_uid group=sugroup' /etc/pam.d/su
-
-      On Amazon Linux 2023 the check expects the group to be named nosugroup; use that name instead. The group must not have any members.
-    all: |-
-      Create an empty group named nosugroup and restrict su to its members with pam_wheel.
-
-      groupadd nosugroup
-      gpasswd -M '' nosugroup
-      grep -q 'pam_wheel.so.*group=nosugroup' /etc/pam.d/su || sed -i '/^auth\s\+sufficient\s\+pam_rootok.so/a auth required pam_wheel.so use_uid group=nosugroup' /etc/pam.d/su
-
-      The group must not have any members.
 custom_profile:
   rationale: |-
     authselect manages the PAM and nsswitch configuration from profiles. Changes made directly to files of a stock profile are overwritten when authselect applies it again, silently undoing hardening. A custom profile keeps site-specific PAM settings under authselect control and persistent across updates.
