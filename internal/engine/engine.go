@@ -120,7 +120,11 @@ type Options struct {
 // Run expands and executes all selected checks of a policy.
 func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 	started := time.Now()
-	checks, expandErrs := policy.Expand(p, opts.Facts, opts.Vars)
+	jobs := opts.Jobs
+	if jobs <= 0 {
+		jobs = runtime.NumCPU()
+	}
+	checks, expandErrs := policy.ExpandRun(ctx, p, opts.Facts, opts.Vars, jobs)
 
 	// Broken checks are always reported, regardless of filters: a policy
 	// that cannot be evaluated must never look compliant.
@@ -146,10 +150,6 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 		}
 	}
 
-	jobs := opts.Jobs
-	if jobs <= 0 {
-		jobs = runtime.NumCPU()
-	}
 	checkResults := make([]Result, len(selected))
 	sem := make(chan struct{}, jobs)
 	var wg sync.WaitGroup
@@ -298,6 +298,17 @@ func runCheck(ctx context.Context, p *policy.Policy, c *policy.Check, platformKe
 		}
 	}()
 
+	if f := c.Fixed; f != nil {
+		res.Command = f.Command
+		switch f.Status {
+		case policy.FixedSkip:
+			return withStatus(res, StatusSkip, f.Message)
+		case policy.FixedNA:
+			return withStatus(res, StatusNA, f.Message)
+		}
+		return withStatus(res, StatusError, f.Message)
+	}
+
 	applies, cond, err := c.Applies()
 	if err != nil {
 		return withStatus(res, StatusError, err.Error())
@@ -367,9 +378,24 @@ func execute(ctx context.Context, p *policy.Policy, c *policy.Check, command str
 		Command: command,
 		Shell:   c.Shell,
 		Dir:     c.Source.Dir,
-		Env:     p.Env,
+		Env:     checkEnv(p, c),
 		Timeout: c.Timeout,
 	})
+}
+
+// checkEnv is the policy environment plus the variables of the check.
+func checkEnv(p *policy.Policy, c *policy.Check) map[string]string {
+	if len(c.Env) == 0 {
+		return p.Env
+	}
+	env := make(map[string]string, len(p.Env)+len(c.Env))
+	for k, v := range p.Env {
+		env[k] = v
+	}
+	for k, v := range c.Env {
+		env[k] = v
+	}
+	return env
 }
 
 func withStatus(res Result, status Status, msg string) Result {

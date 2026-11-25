@@ -1,6 +1,6 @@
 # Examples
 
-66 ready-to-use policies with 1193 checks. Every example is validated, syntax-checked for each
+66 ready-to-use policies with 1194 checks. Every example is validated, syntax-checked for each
 platform and executed on RHEL, Debian, Ubuntu, openSUSE and Alpine in the test suite, so you can copy them as a
 starting point.
 

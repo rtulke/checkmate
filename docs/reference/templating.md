@@ -20,7 +20,7 @@ checks:
 | any variable | Variables from `vars`, `vars_files` and `-e`, at top level |
 | `vars` | All variables as one mapping |
 | `facts` | Facts about the host, see [Platforms and facts](platforms.md) |
-| `item` | The current loop item |
+| `item` | The current loop item (with `loop_run` not in `run` and `only_if`) |
 | `arg`, `args` | Snippet arguments (inside snippets) |
 | `policy_dir` | Directory of the policy file that defines the check |
 
@@ -124,6 +124,49 @@ checks:
 ```
 
 Snippet arguments can have defaults: `{{ args.format | default("json") }}`.
+
+## Loops over command output
+
+`loop` needs the items when the policy is written. `loop_run` asks the host instead: it runs a command and creates one check per line of its output. Use it for things that differ from host to host, such as accounts, mounted file systems, network interfaces or virtual hosts.
+
+```yaml
+checks:
+  - id: "KEYS-{{ item }}"
+    name: "authorized_keys of {{ item }} is writable only by its owner"
+    loop_run: awk -F: '!/^#/ && NF >= 7 && $7 !~ /(nologin|false)$/ {print $1}' /etc/passwd
+    run: |
+      home=$(awk -F: -v user="$CHECKMATE_ITEM" '$1 == user {print $6}' /etc/passwd)
+      if [ -f "$home/.ssh/authorized_keys" ]; then
+        ls -ln "$home/.ssh/authorized_keys" | cut -c6,9
+      else
+        echo --
+      fi
+    expect: "--"
+```
+
+Every account gets its own result (`KEYS-root`, `KEYS-alice`, ...), with its own status, waiver and line in the report.
+
+**The item is data from the host.** A file or account name can contain `$(...)`, quotes or a semicolon, and checkmate often runs as root. `run` and `only_if` therefore cannot use `{{ item }}`; the policy is rejected if they do. They read the item from the environment variable `CHECKMATE_ITEM`:
+
+| Shell | Item |
+|---|---|
+| bash, sh, zsh | `"$CHECKMATE_ITEM"` (always in double quotes) |
+| pwsh, powershell | `$env:CHECKMATE_ITEM` |
+| cmd | not available, `%CHECKMATE_ITEM%` would be expanded as command text |
+
+Everywhere else (`id`, `name`, `tags`, `when`, `expect`, `remediation`, ...) `{{ item }}` works as in a `loop`, including filters and `item.split(':')[0]`.
+
+The rules:
+
+- `loop_run` takes the same forms as `run`: a command, platform variants or a snippet. It uses the `shell`, `timeout` and working directory of the check.
+- One item per line. Surrounding whitespace, empty lines and repeated lines are dropped. Whitespace inside an item becomes `_` in the id.
+- No line of output: one result `N/A`. There was nothing to check.
+- The command fails (non-zero exit code, timeout, more than 10,000 items): one result `ERROR`. A list that cannot be read must never look compliant.
+- A `when` condition that does not mention `item` is evaluated first. If it is false, the command does not run and there is one result `SKIP`.
+- `validate`, `list` and `diff` do not run commands. They show the check once, with `{item}` in place of the item, e.g. `KEYS-{item}`. The same id appears in the results of the three cases above.
+- `loop` and `loop_run` cannot be combined.
+
+Each check still collects its own data: the item only says *what* to check, the check's own `run` looks at it.
 
 ## Building command lines from lists
 

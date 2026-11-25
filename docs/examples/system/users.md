@@ -7,7 +7,7 @@ Account hygiene on Linux: privileged accounts, password hashes, duplicate IDs, l
 - :material-file-code: **Policy file**  
   [`examples/system/users.yml`](https://github.com/rtulke/checkmate/blob/main/examples/system/users.yml)
 - :material-format-list-checks: **Checks**  
-  13 from 10 definitions, 1 with loops
+  14 from 11 definitions, 1 with loops
 - :material-monitor: **Platforms**  
   linux
 
@@ -40,6 +40,7 @@ checkmate run examples/system/users.yml -e name=value
 | `USR-004` | System accounts cannot log in | <span class="sev sev-medium">medium</span> | system, users |
 | `USR-005` | The root group has no additional members | <span class="sev sev-medium">medium</span> | system, users |
 | `USR-006` | Home directories are not accessible by others | <span class="sev sev-medium">medium</span> | system, users, files |
+| `USR-KEYS-{item}` | authorized_keys of {item} is writable only by its owner | <span class="sev sev-high">high</span> | system, users, ssh |
 | `USR-007` | Passwords expire after at most 365 days | <span class="sev sev-medium">medium</span> | system, users, passwords |
 | `USR-008` | root's PATH contains no empty or relative entries | <span class="sev sev-medium">medium</span> | system, users |
 | `USR-009` | Default umask is 027 or stricter | <span class="sev sev-low">low</span> | system, users |
@@ -129,6 +130,25 @@ checks:
         done
     expect: empty
     remediation: chmod 750 <home>
+
+  - id: "USR-KEYS-{{ item }}"
+    name: "authorized_keys of {{ item }} is writable only by its owner"
+    tags: [system, users, ssh]
+    severity: high
+    when: facts.os == "linux" and facts.is_root
+    # One check per account with a login shell. The account name reaches the
+    # command in $CHECKMATE_ITEM, never as part of the command text.
+    loop_run: |
+      awk -F: '!/^#/ && NF >= 7 && $7 !~ /(nologin|false|sync|shutdown|halt)$/ {print $1}' /etc/passwd
+    run: |
+      home=$(awk -F: -v user="$CHECKMATE_ITEM" '$1 == user {print $6}' /etc/passwd)
+      if [ -f "$home/.ssh/authorized_keys" ]; then
+        ls -ln "$home/.ssh/authorized_keys" | cut -c6,9
+      else
+        echo --
+      fi
+    expect: "--"
+    remediation: chmod 600 ~<account>/.ssh/authorized_keys
 
   - id: USR-007
     name: "Passwords expire after at most {{ max_password_age_days }} days"
