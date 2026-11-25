@@ -6,6 +6,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"github.com/rtulke/checkmate/internal/facts"
@@ -108,5 +109,91 @@ func TestRegisterSelectsNeededChecks(t *testing.T) {
 	}
 	if got := runRegister(t, Options{Jobs: 2, Filter: Filter{Tags: ParseTagExpr("probe")}}); len(got) != 1 {
 		t.Errorf("results: %v", got)
+	}
+}
+
+const registerLoopPolicy = `
+name: register and loop_run
+checks:
+  - id: PRESENT
+    register: present
+    run: command -v sh
+    expect: true
+  - id: ABSENT
+    register: absent
+    severity: info
+    run: exit 3
+    expect: true
+  - id: TAKEN
+    run: echo x
+    expect: x
+  - id: "VHOST-{{ item }}"
+    tags: [vhost]
+    when: [present.passed, item != 'c']
+    loop_run: printf 'a\nb\nc\n'
+    run: printf %s "$CHECKMATE_ITEM"
+    expect: "{{ item }}"
+  - id: "NONE-{{ item }}"
+    when: absent.passed
+    loop_run: exit 7
+    run: echo x
+    expect: x
+  - id: "EMPTY-{{ item }}"
+    when: absent.failed
+    loop_run: "true"
+    run: echo x
+    expect: x
+  - id: "{{ item }}"
+    when: present.passed
+    loop_run: printf 'TAKEN\nFREE\n'
+    run: echo x
+    expect: x
+  - id: LAST
+    run: echo x
+    expect: x
+`
+
+func TestRegisterSteersLoopRun(t *testing.T) {
+	file := filepath.Join(t.TempDir(), "p.yml")
+	if err := os.WriteFile(file, []byte(registerLoopPolicy), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	p, err := policy.Load(file, policy.LoadOptions{AllowInsecure: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	run := func(opts Options) []string {
+		opts.Facts = facts.Gather()
+		var got []string
+		for _, res := range Run(context.Background(), p, opts).Results {
+			got = append(got, res.ID+" "+string(res.Status))
+		}
+		return got
+	}
+
+	all := []string{"PRESENT PASS", "ABSENT WARN", "TAKEN PASS", "VHOST-a PASS", "VHOST-b PASS", "VHOST-c SKIP",
+		"NONE-{item} SKIP", "EMPTY-{item} N/A", "TAKEN ERROR", "FREE PASS", "LAST PASS"}
+	// One job: neither the waiting check nor its items may block the run.
+	for _, jobs := range []int{1, 2, 16} {
+		if got := run(Options{Jobs: jobs}); !reflect.DeepEqual(got, all) {
+			t.Errorf("jobs %d:\n got %v\nwant %v", jobs, got, all)
+		}
+	}
+
+	filters := map[string]struct {
+		filter Filter
+		want   []string
+	}{
+		"one item":  {Filter{IDs: ParseIDs("VHOST-b")}, []string{"PRESENT PASS", "VHOST-b PASS"}},
+		"by tag":    {Filter{Tags: ParseTagExpr("vhost")}, []string{"PRESENT PASS", "VHOST-a PASS", "VHOST-b PASS", "VHOST-c SKIP"}},
+		"unrelated": {Filter{IDs: ParseIDs("LAST")}, []string{"PRESENT PASS", "LAST PASS"}},
+		// The check with the id "{{ item }}" could create any id, so it is
+		// expanded, and it needs PRESENT for that.
+		"other check": {Filter{IDs: ParseIDs("ABSENT")}, []string{"PRESENT PASS", "ABSENT WARN"}},
+	}
+	for name, c := range filters {
+		if got := run(Options{Jobs: 4, Filter: c.filter}); !reflect.DeepEqual(got, c.want) {
+			t.Errorf("%s:\n got %v\nwant %v", name, got, c.want)
+		}
 	}
 }

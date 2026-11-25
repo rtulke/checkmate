@@ -149,3 +149,46 @@ func TestLoopRunBrokenItemFailsTheCheck(t *testing.T) {
 		t.Errorf("error = %v", errs[1])
 	}
 }
+
+func TestLoopRunWaitsForRegisteredChecks(t *testing.T) {
+	checks, errs := expandRun(t, `
+  - id: PROBE
+    register: probe
+    run: echo x
+    expect: x
+  - id: NOW-{{ item }}
+    loop_run: echo a
+    run: echo x
+    expect: x
+  - id: LATER-{{ item }}
+    when: [probe.passed, item != 'b']
+    loop_run: test "{{ users }}" && printf 'a\nb\n'
+    run: echo x
+    expect: x`)
+	if len(errs) != 0 || len(checks) != 3 {
+		t.Fatalf("%d checks, errors %v", len(checks), errs)
+	}
+	later := checks[2]
+	if checks[1].ID != "NOW-a" || checks[1].Deferred() || later.ID != "LATER-{item}" || !later.Deferred() ||
+		!reflect.DeepEqual(later.Needs, []string{"probe"}) {
+		t.Fatalf("checks: %s deferred %v, %s deferred %v needs %v",
+			checks[1].ID, checks[1].Deferred(), later.ID, later.Deferred(), later.Needs)
+	}
+
+	// Expanded twice: the result must not depend on an earlier expansion.
+	for _, status := range []string{"pass", "pass"} {
+		items, err := later.ExpandDeferred(context.Background(), linuxFacts.PlatformKeys(), map[string]Outcome{"probe": {Status: status}})
+		if err != nil || len(items) != 2 || items[0].ID != "LATER-a" || items[1].ID != "LATER-b" {
+			t.Fatalf("items %v, error %v", items, err)
+		}
+		for n, want := range []bool{true, false} {
+			if ok, _, err := items[n].Applies(); err != nil || ok != want {
+				t.Errorf("%s applies = %v, %v; want %v", items[n].ID, ok, err, want)
+			}
+		}
+	}
+	items, err := later.ExpandDeferred(context.Background(), linuxFacts.PlatformKeys(), map[string]Outcome{"probe": {Status: "fail"}})
+	if err != nil || len(items) != 1 || items[0].Fixed == nil || items[0].Fixed.Status != FixedSkip {
+		t.Fatalf("items %v, error %v", items, err)
+	}
+}

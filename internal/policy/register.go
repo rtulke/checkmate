@@ -71,7 +71,7 @@ func linkRegistered(checks []*Check) ([]*Check, []*CheckError) {
 	names := sortedKeys(owner)
 	patterns := make([]*regexp.Regexp, len(names))
 	for n, name := range names {
-		patterns[n] = regexp.MustCompile(`(^|[^A-Za-z0-9_.])` + name + `\b`)
+		patterns[n] = referencePattern(name)
 	}
 	for i, c := range checks {
 		if bad[i] {
@@ -87,8 +87,6 @@ func linkRegistered(checks []*Check) ([]*Check, []*CheckError) {
 				err = fmt.Errorf("when: the check refers to %q, which it registers itself", name)
 			case at > i:
 				err = fmt.Errorf("when: %q is registered by %s, which is defined later; move that check up", name, checks[at].ID)
-			case !c.LoopRun.IsZero():
-				err = fmt.Errorf("when: a check with loop_run cannot refer to the registered %q", name)
 			}
 			if err != nil {
 				errs = append(errs, &CheckError{ID: c.ID, Source: c.Source, Err: err})
@@ -113,6 +111,20 @@ func linkRegistered(checks []*Check) ([]*Check, []*CheckError) {
 // stringLiteral matches quoted text in a condition; a name inside it is
 // not a reference.
 var stringLiteral = regexp.MustCompile(`"(\\.|[^"\\])*"|'(\\.|[^'\\])*'`)
+
+// referencePattern matches a registered name used as a variable.
+func referencePattern(name string) *regexp.Regexp {
+	return regexp.MustCompile(`(^|[^A-Za-z0-9_.])` + regexp.QuoteMeta(name) + `\b`)
+}
+
+func refersToAny(conds []string, patterns []*regexp.Regexp) bool {
+	for _, pattern := range patterns {
+		if refersTo(conds, pattern) {
+			return true
+		}
+	}
+	return false
+}
 
 func refersTo(conds []string, pattern *regexp.Regexp) bool {
 	for _, cond := range conds {

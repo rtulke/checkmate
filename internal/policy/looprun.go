@@ -2,6 +2,7 @@ package policy
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -56,7 +57,6 @@ type loopExec struct {
 	ctx          context.Context
 	platformKeys []string
 	jobs         int
-	sem          chan struct{}
 }
 
 var (
@@ -68,6 +68,7 @@ var (
 // expandLoopRun expands a check with loop_run. Without exec it returns the
 // check once, rendered with ItemPlaceholder.
 func expandLoopRun(p *Policy, src CheckSource, node, loopRunNode *yaml.Node, ctx map[string]any, exec *loopExec) ([]*Check, error) {
+	loopRunNode = cloneNode(loopRunNode) // rendered below, and expanded twice if deferred
 	if err := renderNode(loopRunNode, ctx); err != nil {
 		return nil, fmt.Errorf("loop_run: %w", err)
 	}
@@ -255,4 +256,27 @@ func firstLine(s string) string {
 		s = s[:i]
 	}
 	return strings.TrimSpace(s)
+}
+
+// Deferred reports whether the check is a loop_run check that still has to
+// be expanded, because its conditions refer to registered checks.
+func (c *Check) Deferred() bool { return c.deferred }
+
+// ExpandDeferred expands a deferred loop_run check once the outcomes of the
+// checks it refers to are known. Like ExpandRun it returns one check per
+// item, or the check itself with a fixed outcome.
+func (c *Check) ExpandDeferred(ctx context.Context, platformKeys []string, outcomes map[string]Outcome) ([]*Check, *CheckError) {
+	values := map[string]any{}
+	for name, o := range outcomes {
+		values[name] = o.Values()
+	}
+	checks, err := c.expandItems(&loopExec{ctx: ctx, platformKeys: platformKeys, jobs: 1}, values)
+	if err != nil {
+		var ce *CheckError
+		if errors.As(err, &ce) {
+			return nil, ce
+		}
+		return nil, &CheckError{ID: c.ID, Source: c.Source, Err: err}
+	}
+	return checks, nil
 }

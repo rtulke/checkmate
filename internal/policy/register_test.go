@@ -89,9 +89,6 @@ func TestRegisterErrors(t *testing.T) {
   - {id: B, register: x, run: echo, expect: true}`, "defined later"},
 		"loop_run registers": {`
   - {id: "A-{{ item }}", register: x, loop_run: echo a, run: echo, expect: true}`, "cannot be combined with loop_run"},
-		"loop_run refers": {`
-  - {id: A, register: x, run: echo, expect: true}
-  - {id: "B-{{ item }}", when: x.passed, loop_run: echo a, run: echo, expect: true}`, "loop_run cannot refer"},
 	}
 	for name, c := range cases {
 		p := load(t, writePolicy(t, map[string]string{"p.yml": "name: t\nvars:\n  port: 22\nchecks:" + c.checks + "\n"}, "p.yml"))
