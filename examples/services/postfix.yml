@@ -110,9 +110,9 @@ checks:
       for p in smtpd_tls_mandatory_protocols smtp_tls_mandatory_protocols; do
         v=$(postconf -xh "$p")
         toks=$(echo "$v" | tr ', :' '\n\n\n' | grep -v '^$' || true)
-        if echo "$toks" | grep -qxE '>=TLSv1\.[23]'; then continue; fi
-        if echo "$toks" | grep -qx '!TLSv1' && echo "$toks" | grep -qx '!TLSv1.1'; then continue; fi
-        if [ -n "$toks" ] && ! echo "$toks" | grep -qvE '^TLSv1\.[23]$'; then continue; fi
+        if echo "$toks" | grep -xE '>=TLSv1\.[23]' >/dev/null; then continue; fi
+        if echo "$toks" | grep -x '!TLSv1' >/dev/null && echo "$toks" | grep -x '!TLSv1.1' >/dev/null; then continue; fi
+        if [ -n "$toks" ] && ! echo "$toks" | grep -vE '^TLSv1\.[23]$' >/dev/null; then continue; fi
         echo "$p = $v"
       done
     expect: empty

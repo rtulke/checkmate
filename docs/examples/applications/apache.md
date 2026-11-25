@@ -196,7 +196,7 @@ checks:
     name: Only TLS 1.2 and newer are offered
     tags: [applications, apache, tls]
     severity: high
-    only_if: 'command -v apache2ctl || command -v httpd && {{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    only_if: 'command -v apache2ctl || command -v httpd && {{ httpd }} -M 2>/dev/null | grep ssl_module >/dev/null'
     run: { use: conf }
     allow_rc: [0, 1]
     expect:
@@ -208,7 +208,7 @@ checks:
     name: No weak cipher suites
     tags: [applications, apache, tls]
     severity: high
-    only_if: 'command -v apache2ctl || command -v httpd && {{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    only_if: 'command -v apache2ctl || command -v httpd && {{ httpd }} -M 2>/dev/null | grep ssl_module >/dev/null'
     run: { use: conf }
     allow_rc: [0, 1]
     expect: { none: "~ (?i)^[[:space:]]*SSLCipherSuite[[:space:]].*(^|[:+ ])(RC4|DES|3DES|MD5|EXPORT|NULL)([: ]|$)" }
@@ -217,7 +217,7 @@ checks:
     name: TLS compression and insecure renegotiation are off
     tags: [applications, apache, tls]
     severity: low
-    only_if: 'command -v apache2ctl || command -v httpd && {{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    only_if: 'command -v apache2ctl || command -v httpd && {{ httpd }} -M 2>/dev/null | grep ssl_module >/dev/null'
     run: { use: conf }
     allow_rc: [0, 1]
     expect: { none: "~ (?i)^[[:space:]]*(SSLCompression|SSLInsecureRenegotiation)[[:space:]]+on" }

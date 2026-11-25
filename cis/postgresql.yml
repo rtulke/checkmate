@@ -508,7 +508,7 @@ checks:
     description: CIS PostgreSQL benchmark recommendation 6.8. A relative path is resolved against the data directory.
     tags: [cis, cis-postgresql, cis-section-6, cis-level-1, cis-level-2, cis-postgresql-linux]
     severity: high
-    only_if: "{{ psql }} -c 'SHOW ssl' | grep -qx on"
+    only_if: "{{ psql }} -c 'SHOW ssl' | grep -x on >/dev/null"
     run: |
       k=$({{ psql }} -c 'SHOW ssl_key_file')
       case "$k" in /*) ;; *) k="$({{ psql }} -c 'SHOW data_directory')/$k" ;; esac

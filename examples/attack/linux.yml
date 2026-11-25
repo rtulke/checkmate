@@ -147,7 +147,7 @@ checks:
         done
       alpine: |
         { find /lib/security /lib64/security /usr/lib/security /usr/lib64/security /lib/*/security /usr/lib/*/security -maxdepth 1 -type f -name '*.so' 2>/dev/null || true; } | sort -u |
-          while read -r f; do apk info --who-owns "$f" 2>/dev/null | grep -q "is owned by" || echo "$f"; done
+          while read -r f; do apk info --who-owns "$f" 2>/dev/null | grep "is owned by" >/dev/null || echo "$f"; done
     expect: empty
 
   - id: ATT-LNX-PAM-EXEC
@@ -221,7 +221,7 @@ checks:
         done
       alpine: |
         find / -xdev -type f -perm /6000 2>/dev/null |
-          while read -r f; do apk info --who-owns "$f" 2>/dev/null | grep -q "is owned by" || echo "$f"; done
+          while read -r f; do apk info --who-owns "$f" 2>/dev/null | grep "is owned by" >/dev/null || echo "$f"; done
     expect: empty
 
   - id: ATT-LNX-SUDO-NOPASSWD
@@ -241,7 +241,7 @@ checks:
     run: |
       echo "$PATH" | tr ':' '\n' | while read -r d; do
         case "$d" in ''|.|./*|[!/]*) echo "relative entry '$d'"; continue ;; esac
-        if [ -d "$d" ] && find -H "$d" -maxdepth 0 -perm /022 | grep -q .; then echo "$d is writable by group or others"; fi
+        if [ -d "$d" ] && find -H "$d" -maxdepth 0 -perm /022 | grep . >/dev/null; then echo "$d is writable by group or others"; fi
       done
     expect: empty
 
@@ -356,7 +356,7 @@ checks:
     severity: medium
     run: |
       if command -v firewall-cmd >/dev/null && firewall-cmd --state >/dev/null 2>&1; then echo firewalld; exit 0; fi
-      if command -v ufw >/dev/null && ufw status 2>/dev/null | grep -q '^Status: active'; then echo ufw; exit 0; fi
+      if command -v ufw >/dev/null && ufw status 2>/dev/null | grep '^Status: active' >/dev/null; then echo ufw; exit 0; fi
       if command -v nft >/dev/null && [ "$(nft list ruleset 2>/dev/null | grep -cE '^[[:space:]]+(ip|tcp|udp|ct|iif|meta|drop|reject|accept)')" -gt 0 ]; then echo nftables; exit 0; fi
       if command -v iptables >/dev/null && [ "$(iptables -S 2>/dev/null | grep -cvE '^-P [A-Z]+ ACCEPT$')" -gt 0 ]; then echo iptables; exit 0; fi
       echo none

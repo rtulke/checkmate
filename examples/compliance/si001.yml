@@ -78,7 +78,7 @@ checks:
       - facts.is_root
     run: |
       if command -v firewall-cmd >/dev/null && firewall-cmd --state >/dev/null 2>&1; then echo firewalld; exit 0; fi
-      if command -v ufw >/dev/null && ufw status 2>/dev/null | grep -q '^Status: active'; then echo ufw; exit 0; fi
+      if command -v ufw >/dev/null && ufw status 2>/dev/null | grep '^Status: active' >/dev/null; then echo ufw; exit 0; fi
       if command -v nft >/dev/null && [ "$(nft list ruleset 2>/dev/null | grep -cE '^[[:space:]]+(ip|tcp|udp|ct|iif|meta|drop|reject|accept)')" -gt 0 ]; then echo nftables; exit 0; fi
       if command -v iptables >/dev/null && [ "$(iptables -S 2>/dev/null | grep -cvE '^-P [A-Z]+ ACCEPT$')" -gt 0 ]; then echo iptables; exit 0; fi
       echo none
@@ -220,7 +220,7 @@ checks:
     tags: [si001, si001-t7, passwords]
     severity: high
     when: facts.os == "linux"
-    only_if: "{ cat {{ si001_pam_password }} 2>/dev/null || true; } | grep -qE 'pam_(pwquality|cracklib)\\.so'"
+    only_if: "{ cat {{ si001_pam_password }} 2>/dev/null || true; } | grep -E 'pam_(pwquality|cracklib)\\.so' >/dev/null"
     run: { use: pwquality, args: { key: minlen, default: 8 } }
     expect: ">= {{ si001_password_min_length }}"
     remediation: "echo 'minlen = {{ si001_password_min_length }}' >> /etc/security/pwquality.conf"
@@ -235,7 +235,7 @@ checks:
     tags: [si001, si001-t7, passwords]
     severity: high
     when: facts.os == "linux"
-    only_if: "{ cat {{ si001_pam_password }} 2>/dev/null || true; } | grep -qE 'pam_(pwquality|cracklib)\\.so'"
+    only_if: "{ cat {{ si001_pam_password }} 2>/dev/null || true; } | grep -E 'pam_(pwquality|cracklib)\\.so' >/dev/null"
     run: |
       get() {
         c=$({ cat /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf 2>/dev/null || true; } |
@@ -260,7 +260,7 @@ checks:
     tags: [si001, si001-t7, passwords]
     severity: medium
     when: facts.os == "linux"
-    only_if: "{ cat {{ si001_pam_password }} 2>/dev/null || true; } | grep -qE 'pam_pwquality\\.so'"
+    only_if: "{ cat {{ si001_pam_password }} 2>/dev/null || true; } | grep -E 'pam_pwquality\\.so' >/dev/null"
     loop:
       usercheck: Passwords must not contain the user name
       dictcheck: Passwords must not be dictionary words
@@ -273,7 +273,7 @@ checks:
     tags: [si001, si001-t7, passwords]
     severity: medium
     when: facts.os == "linux"
-    only_if: "{ cat {{ si001_pam_password }} 2>/dev/null || true; } | grep -qE 'pam_pwquality\\.so'"
+    only_if: "{ cat {{ si001_pam_password }} 2>/dev/null || true; } | grep -E 'pam_pwquality\\.so' >/dev/null"
     run: |
       { cat /etc/security/pwquality.conf /etc/security/pwquality.conf.d/*.conf {{ si001_pam_password }} 2>/dev/null || true; } |
         grep -E '^[[:space:]]*(enforce_for_root|password.*pam_pwquality\.so.*enforce_for_root)' || true
@@ -288,7 +288,7 @@ checks:
     run: |
       v=$({ cat {{ si001_pam_password }} 2>/dev/null || true; } |
         awk '/^[[:space:]]*password.*pam_(pwhistory|unix)\.so/ {for (i = 1; i <= NF; i++) if ($i ~ /^remember=/) {split($i, a, "="); if (a[2] > v) v = a[2]}} END {print v + 0}')
-      if [ "$v" -eq 0 ] && { cat {{ si001_pam_password }} 2>/dev/null || true; } | grep -qE '^[[:space:]]*password.*pam_pwhistory\.so'; then
+      if [ "$v" -eq 0 ] && { cat {{ si001_pam_password }} 2>/dev/null || true; } | grep -E '^[[:space:]]*password.*pam_pwhistory\.so' >/dev/null; then
         v=$({ cat /etc/security/pwhistory.conf 2>/dev/null || true; } |
           awk -F= '{k = $1; gsub(/[[:space:]]/, "", k)} k == "remember" {v = $2; gsub(/[[:space:]]/, "", v)} END {print (v == "" ? 10 : v)}')
       fi
@@ -320,7 +320,7 @@ checks:
     tags: [si001, si001-t7, passwords, pam]
     severity: medium
     when: facts.os == "linux"
-    only_if: "{ cat {{ si001_pam_auth }} 2>/dev/null || true; } | grep -qE '^[[:space:]]*auth.*pam_faillock\\.so'"
+    only_if: "{ cat {{ si001_pam_auth }} 2>/dev/null || true; } | grep -E '^[[:space:]]*auth.*pam_faillock\\.so' >/dev/null"
     run: |
       p=$({ cat {{ si001_pam_auth }} 2>/dev/null || true; } | grep -E '^[[:space:]]*auth.*pam_faillock\.so' | grep -oE 'unlock_time=[0-9]+' | cut -d= -f2 | tail -n 1)
       c=$({ cat /etc/security/faillock.conf 2>/dev/null || true; } |
@@ -399,7 +399,7 @@ checks:
     only_if: command -v lsblk && command -v findmnt
     run: |
       src=$(findmnt -n -o SOURCE /)
-      if lsblk -s -n -o TYPE "$src" 2>/dev/null | grep -q crypt; then echo encrypted; else echo "$src is not on a dm-crypt device"; fi
+      if lsblk -s -n -o TYPE "$src" 2>/dev/null | grep crypt >/dev/null; then echo encrypted; else echo "$src is not on a dm-crypt device"; fi
     expect: "== encrypted"
 
   # ===== S2 Updates ============================================================
@@ -498,7 +498,7 @@ checks:
       command -v aide >/dev/null || { echo "aide is not installed"; exit 0; }
       ls /var/lib/aide/aide.db* >/dev/null 2>&1 || { echo "no AIDE database"; exit 0; }
       if grep -rqs aide /etc/crontab /etc/cron.d /etc/cron.daily /etc/cron.weekly /var/spool/cron 2>/dev/null; then echo scheduled; exit 0; fi
-      if command -v systemctl >/dev/null && systemctl list-timers --all --no-legend 2>/dev/null | grep -qi aide; then echo scheduled; exit 0; fi
+      if command -v systemctl >/dev/null && systemctl list-timers --all --no-legend 2>/dev/null | grep -i aide >/dev/null; then echo scheduled; exit 0; fi
       echo "AIDE is not scheduled"
     expect: "== scheduled"
 
@@ -533,7 +533,7 @@ checks:
       windows: (Get-BitLockerVolume -MountPoint $env:SystemDrive).ProtectionStatus
       linux: |
         src=$(findmnt -n -o SOURCE /)
-        if lsblk -s -n -o TYPE "$src" 2>/dev/null | grep -q crypt; then echo encrypted; else echo "$src is not on a dm-crypt device"; fi
+        if lsblk -s -n -o TYPE "$src" 2>/dev/null | grep crypt >/dev/null; then echo encrypted; else echo "$src is not on a dm-crypt device"; fi
     expect:
       if: { stdout: "~ (?i)filevault" }
       then: "~ FileVault is On"

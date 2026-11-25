@@ -224,7 +224,7 @@ vars:
 snippets:
   pkg_installed:
     rhel,suse: rpm -q --quiet {{ arg }}
-    debian: dpkg-query -W -f='${Status}' {{ arg }} 2>/dev/null | grep -q 'install ok installed'
+    debian: dpkg-query -W -f='${Status}' {{ arg }} 2>/dev/null | grep 'install ok installed' >/dev/null
     alpine: apk info -e {{ arg }} >/dev/null
 
   # Prints the last value of a key = value setting from config files.
@@ -807,7 +807,7 @@ checks:
     severity: high
     run: |
       for unit in rescue emergency; do
-        systemctl cat "$unit.service" 2>/dev/null | grep -qE '^ExecStart=.*(sulogin|systemd-sulogin-shell)' || echo "$unit"
+        systemctl cat "$unit.service" 2>/dev/null | grep -E '^ExecStart=.*(sulogin|systemd-sulogin-shell)' >/dev/null || echo "$unit"
       done
     expect: empty
 
@@ -818,7 +818,7 @@ checks:
     run: |
       command -v aide >/dev/null || { echo "aide is not installed"; exit 0; }
       if systemctl is-enabled --quiet aidecheck.timer 2>/dev/null || systemctl is-enabled --quiet dailyaidecheck.timer 2>/dev/null ||
-         cat /etc/crontab /etc/cron.d/* /etc/cron.daily/* /var/spool/cron/root 2>/dev/null | grep -q aide; then
+         cat /etc/crontab /etc/cron.d/* /etc/cron.daily/* /var/spool/cron/root 2>/dev/null | grep aide >/dev/null; then
         echo scheduled
       else
         echo "aide is not scheduled"
@@ -1242,7 +1242,7 @@ checks:
     tags: [hardening, packages]
     run: |
       for p in {{ required_packages | join(' ') }}; do
-        if rpm -q --quiet "$p" 2>/dev/null || dpkg-query -W -f='${Status}' "$p" 2>/dev/null | grep -q 'install ok installed' || apk info -e "$p" >/dev/null 2>&1; then echo "$p"; fi
+        if rpm -q --quiet "$p" 2>/dev/null || dpkg-query -W -f='${Status}' "$p" 2>/dev/null | grep 'install ok installed' >/dev/null || apk info -e "$p" >/dev/null 2>&1; then echo "$p"; fi
       done
     allow_rc: [0, 1]
     # audit (RPM) and auditd (Debian) are the same software.

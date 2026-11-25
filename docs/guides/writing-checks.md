@@ -99,12 +99,18 @@ installed=$(rpm -q --qf '%{INSTALLTIME}' "kernel-$(uname -r)" 2>/dev/null) ||
   { echo "no package for kernel $(uname -r)" >&2; exit 1; }
 ```
 
-### head closes pipes early
+### head and grep -q close pipes early
 
 `cmd | head -1` lets `head` exit after the first line. If `cmd` is still writing, it is killed by SIGPIPE and, with `pipefail`, the whole command fails with exit code 141, depending on timing. Use `sed -n 1p` (or `awk 'NR == 1'`), which reads all input:
 
 ```yaml
 run: getent ahosts example.com | sed -n 1p      # not: | head -1
+```
+
+`cmd | grep -q pattern` has the same problem, and it is harder to spot: `grep -q` exits at the first match, and the pipeline then fails *because* the pattern was found. In an `if` the wrong branch runs, in `only_if` the check is skipped. It only happens when `cmd` writes a lot (`nginx -T`, `nft list ruleset`, `iptables -S`), so it shows up on large hosts and not in a test. Let `grep` read all input:
+
+```yaml
+only_if: nginx -T 2>/dev/null | grep ssl_certificate >/dev/null      # not: | grep -q ssl_certificate
 ```
 
 ### find -perm and symbolic links

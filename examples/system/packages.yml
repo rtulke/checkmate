@@ -15,7 +15,7 @@ snippets:
   # Exit code 0 if the package {{ arg }} is installed.
   pkg_installed:
     rhel,suse: rpm -q --quiet {{ arg }}
-    debian: dpkg-query -W -f='${Status}' {{ arg }} 2>/dev/null | grep -q 'install ok installed'
+    debian: dpkg-query -W -f='${Status}' {{ arg }} 2>/dev/null | grep 'install ok installed' >/dev/null
     alpine: apk info -e {{ arg }} >/dev/null
     macos: brew list --formula {{ arg }} >/dev/null 2>&1
 
