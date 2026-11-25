@@ -41,7 +41,7 @@ checks:
   - id: REDIS-004
     name: Protected mode is on
     tags: [applications, redis]
-    only_if: command -v redis-cli && redis-cli -p {{ redis_port }} ping | grep -q PONG
+    only_if: command -v redis-cli && redis-cli -p {{ redis_port }} ping | grep PONG >/dev/null
     run: { use: redis_config, arg: protected-mode }
     expect: "== yes"
 

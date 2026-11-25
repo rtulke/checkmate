@@ -742,7 +742,7 @@ checks:
     description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.2. Each SSLCertificateFile is verified against the system trust store, with the file itself as chain.
     tags: [cis, cis-apache24, cis-section-7, cis-level-1, cis-level-2]
     severity: high
-    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module && command -v openssl'
+    only_if: '{{ httpd }} -M 2>/dev/null | grep ssl_module >/dev/null && command -v openssl'
     run: |
       {{ conf }} | awk 'tolower($1) == "sslcertificatefile" {gsub(/"/, "", $2); print $2}' | sort -u |
       while read -r c; do
@@ -766,7 +766,7 @@ checks:
     description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.3.
     tags: [cis, cis-apache24, cis-section-7, cis-level-1, cis-level-2]
     severity: high
-    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    only_if: '{{ httpd }} -M 2>/dev/null | grep ssl_module >/dev/null'
     run: |
       {{ conf }} | awk 'tolower($1) == "sslcertificatekeyfile" {gsub(/"/, "", $2); print $2}' | sort -u |
       while read -r k; do
@@ -789,7 +789,7 @@ checks:
     description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.4. Without SSLProtocol, httpd enables every protocol except SSLv3, unless a system crypto policy (RHEL 8 and later) other than LEGACY restricts OpenSSL to TLS 1.2 and newer.
     tags: [cis, cis-apache24, cis-section-7, cis-level-1, cis-level-2]
     severity: high
-    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    only_if: '{{ httpd }} -M 2>/dev/null | grep ssl_module >/dev/null'
     run: |
       policy=$(cat /etc/crypto-policies/config 2>/dev/null)
       {{ conf }} | awk -v policy="$policy" '
@@ -824,7 +824,7 @@ checks:
     description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.5. Checks the effective (last) SSLCipherSuite.
     tags: [cis, cis-apache24, cis-section-7, cis-level-1, cis-level-2]
     severity: high
-    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    only_if: '{{ httpd }} -M 2>/dev/null | grep ssl_module >/dev/null'
     run: "{{ conf }} | awk 'tolower($1) == \"sslciphersuite\" {v = $0} END {print v}'"
     expect:
       none: '~ (?i)([[:space:]:]|^)[+]?(null|enull|anull|exp|export|des|3des|rc4|md5|low)(:|[[:space:]]|$)'
@@ -843,7 +843,7 @@ checks:
     description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.6.
     tags: [cis, cis-apache24, cis-section-7, cis-level-1, cis-level-2]
     severity: medium
-    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    only_if: '{{ httpd }} -M 2>/dev/null | grep ssl_module >/dev/null'
     run: "{{ conf }} | awk 'tolower($1) == \"sslinsecurerenegotiation\" {v = tolower($2)} END {print v}'"
     expect: "!= on"
     rationale: |
@@ -860,7 +860,7 @@ checks:
     description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.7.
     tags: [cis, cis-apache24, cis-section-7, cis-level-1, cis-level-2]
     severity: medium
-    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    only_if: '{{ httpd }} -M 2>/dev/null | grep ssl_module >/dev/null'
     run: "{{ conf }} | awk 'tolower($1) == \"sslcompression\" {v = tolower($2)} END {print v}'"
     expect: "!= on"
     rationale: |
@@ -902,7 +902,7 @@ checks:
     description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.11.
     tags: [cis, cis-apache24, cis-section-7, cis-level-2]
     severity: low
-    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    only_if: '{{ httpd }} -M 2>/dev/null | grep ssl_module >/dev/null'
     run: "{{ conf }} | awk 'tolower($1) == \"sslusestapling\" {v = tolower($2)} END {print (v == \"\" ? \"off\" : v)}'"
     expect: "== on"
     rationale: |
@@ -920,7 +920,7 @@ checks:
     description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.12.
     tags: [cis, cis-apache24, cis-section-7, cis-level-2]
     severity: low
-    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    only_if: '{{ httpd }} -M 2>/dev/null | grep ssl_module >/dev/null'
     run: "{{ conf }}"
     expect: { some: '~ (?i)^[[:space:]]*header[[:space:]]+(always[[:space:]]+)?set[[:space:]]+strict-transport-security' }
     rationale: |
@@ -937,7 +937,7 @@ checks:
     description: CIS Apache HTTP Server 2.4 benchmark recommendation 7.13. Checks the effective (last) SSLCipherSuite.
     tags: [cis, cis-apache24, cis-section-7, cis-level-2]
     severity: low
-    only_if: '{{ httpd }} -M 2>/dev/null | grep -q ssl_module'
+    only_if: '{{ httpd }} -M 2>/dev/null | grep ssl_module >/dev/null'
     run: "{{ conf }} | awk 'tolower($1) == \"sslciphersuite\" {v = $0} END {print v}'"
     expect:
       - "!empty"

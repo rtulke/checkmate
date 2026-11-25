@@ -30,7 +30,7 @@ vars:
 snippets:
   # Audit rules: the loaded rules if auditd runs, else the rule files.
   audit_rules: |
-    if command -v auditctl >/dev/null && auditctl -s 2>/dev/null | grep -q 'enabled [12]'; then auditctl -l 2>/dev/null
+    if command -v auditctl >/dev/null && auditctl -s 2>/dev/null | grep 'enabled [12]' >/dev/null; then auditctl -l 2>/dev/null
     else cat /etc/audit/rules.d/*.rules /etc/audit/audit.rules 2>/dev/null || true; fi
 
 defaults:
@@ -179,11 +179,11 @@ checks:
       if command -v firewall-cmd >/dev/null && firewall-cmd --state >/dev/null 2>&1; then
         echo "firewalld LogDenied=$(firewall-cmd --get-log-denied 2>/dev/null)"; exit 0
       fi
-      if command -v ufw >/dev/null && ufw status verbose 2>/dev/null | grep -q '^Status: active'; then
+      if command -v ufw >/dev/null && ufw status verbose 2>/dev/null | grep '^Status: active' >/dev/null; then
         ufw status verbose | awk -F': ' '/^Logging/ {print "ufw " $2}'; exit 0
       fi
-      if command -v nft >/dev/null && nft list ruleset 2>/dev/null | grep -qw log; then echo "nftables log rule"; exit 0; fi
-      if command -v iptables >/dev/null && iptables -S 2>/dev/null | grep -q -- '-j LOG'; then echo "iptables LOG rule"; exit 0; fi
+      if command -v nft >/dev/null && nft list ruleset 2>/dev/null | grep -w log >/dev/null; then echo "nftables log rule"; exit 0; fi
+      if command -v iptables >/dev/null && iptables -S 2>/dev/null | grep -- '-j LOG' >/dev/null; then echo "iptables LOG rule"; exit 0; fi
       echo "no logging of blocked traffic"
     expect: { all: ["!~ ^no logging", "!~ LogDenied=(off|)$", "!~ ^ufw off"] }
 
@@ -198,11 +198,11 @@ checks:
         t=$(firewall-cmd --info-zone="$(firewall-cmd --get-default-zone)" 2>/dev/null | awk -F': ' '$1 ~ /target/ {print $2}')
         case "$t" in ACCEPT) echo "firewalld default zone accepts everything" ;; *) echo "firewalld target $t" ;; esac; exit 0
       fi
-      if command -v ufw >/dev/null && ufw status verbose 2>/dev/null | grep -q '^Status: active'; then
+      if command -v ufw >/dev/null && ufw status verbose 2>/dev/null | grep '^Status: active' >/dev/null; then
         ufw status verbose | awk -F': ' '/^Default/ {print "ufw " $2}'; exit 0
       fi
-      if command -v nft >/dev/null && nft list ruleset 2>/dev/null | grep -qE 'hook input.*policy drop'; then echo "nftables input policy drop"; exit 0; fi
-      if command -v iptables >/dev/null && iptables -S INPUT 2>/dev/null | grep -qE '^-P INPUT (DROP|REJECT)'; then echo "iptables input policy drop"; exit 0; fi
+      if command -v nft >/dev/null && nft list ruleset 2>/dev/null | grep -E 'hook input.*policy drop' >/dev/null; then echo "nftables input policy drop"; exit 0; fi
+      if command -v iptables >/dev/null && iptables -S INPUT 2>/dev/null | grep -E '^-P INPUT (DROP|REJECT)' >/dev/null; then echo "iptables input policy drop"; exit 0; fi
       echo "no packet filter with a default deny for incoming traffic"
     expect: { all: ["!~ ^no packet filter", "!~ accepts everything", "!~ ^ufw allow \\(incoming\\)"] }
 
@@ -232,7 +232,7 @@ checks:
       for t in aide tripwire samhain; do
         command -v "$t" >/dev/null 2>&1 || continue
         if grep -rqs "$t" /etc/crontab /etc/cron.d /etc/cron.daily /etc/cron.weekly /var/spool/cron 2>/dev/null ||
-           { command -v systemctl >/dev/null && systemctl list-timers --all --no-legend 2>/dev/null | grep -qi "$t"; }; then
+           { command -v systemctl >/dev/null && systemctl list-timers --all --no-legend 2>/dev/null | grep -i "$t" >/dev/null; }; then
           echo "$t scheduled"; exit 0
         fi
       done
@@ -276,7 +276,7 @@ checks:
     only_if: command -v lsblk && command -v findmnt
     run: |
       src=$(findmnt -n -o SOURCE /)
-      if lsblk -s -n -o TYPE "$src" 2>/dev/null | grep -q crypt; then echo encrypted; else echo "$src is not on a dm-crypt device"; fi
+      if lsblk -s -n -o TYPE "$src" 2>/dev/null | grep crypt >/dev/null; then echo encrypted; else echo "$src is not on a dm-crypt device"; fi
     expect: "== encrypted"
 
   - id: BSI-SYS.1.1.A36-SECURE-BOOT
@@ -299,7 +299,7 @@ checks:
     only_if: command -v findmnt
     run: |
       if [ -e /run/ostree-booted ]; then echo immutable; exit 0; fi
-      findmnt -n -o OPTIONS / | tr ',' '\n' | grep -qx ro && echo immutable || echo "root is mounted read-write"
+      findmnt -n -o OPTIONS / | tr ',' '\n' | grep -x ro >/dev/null && echo immutable || echo "root is mounted read-write"
     expect: "== immutable"
 
   # ===== SYS.1.3 Server unter Linux und Unix ===================================

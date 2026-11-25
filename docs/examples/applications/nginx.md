@@ -225,7 +225,7 @@ checks:
     name: Proxied responses hide backend headers
     tags: [applications, nginx]
     severity: low
-    only_if: command -v nginx && nginx -T 2>/dev/null | grep -q proxy_pass
+    only_if: command -v nginx && nginx -T 2>/dev/null | grep proxy_pass >/dev/null
     run: { use: ngx }
     allow_rc: [0, 1]
     expect: [{ some: "~ proxy_hide_header[[:space:]]+X-Powered-By" }, { some: "~ proxy_hide_header[[:space:]]+Server" }]
@@ -279,7 +279,7 @@ checks:
     name: TLS session tickets are disabled (forward secrecy)
     tags: [applications, nginx, tls]
     severity: low
-    only_if: command -v nginx && nginx -T 2>/dev/null | grep -q ssl_certificate
+    only_if: command -v nginx && nginx -T 2>/dev/null | grep ssl_certificate >/dev/null
     run: { use: ngx }
     allow_rc: [0, 1]
     expect: { some: "~ ^[[:space:]]*ssl_session_tickets[[:space:]]+off" }
@@ -288,7 +288,7 @@ checks:
     name: OCSP stapling is enabled
     tags: [applications, nginx, tls]
     severity: low
-    only_if: command -v nginx && nginx -T 2>/dev/null | grep -q ssl_certificate
+    only_if: command -v nginx && nginx -T 2>/dev/null | grep ssl_certificate >/dev/null
     run: { use: ngx }
     allow_rc: [0, 1]
     expect: { some: "~ ^[[:space:]]*ssl_stapling[[:space:]]+on" }
@@ -296,7 +296,7 @@ checks:
   - id: NGX-HTTPS-REDIRECT
     name: Plain HTTP redirects to HTTPS
     tags: [applications, nginx, tls]
-    only_if: command -v nginx && nginx -T 2>/dev/null | grep -q ssl_certificate
+    only_if: command -v nginx && nginx -T 2>/dev/null | grep ssl_certificate >/dev/null
     run: { use: ngx }
     allow_rc: [0, 1]
     expect: { some: "~ return[[:space:]]+30[178][[:space:]]+https://" }

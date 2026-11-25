@@ -27,7 +27,7 @@ checks:
     run: |
       for f in /Library/LaunchAgents/*.plist /Library/LaunchDaemons/*.plist /Users/*/Library/LaunchAgents/*.plist; do
         [ -f "$f" ] || continue
-        if plutil -p "$f" 2>/dev/null | grep -qE '{{ attack_mac_suspicious }}'; then echo "$f"; fi
+        if plutil -p "$f" 2>/dev/null | grep -E '{{ attack_mac_suspicious }}' >/dev/null; then echo "$f"; fi
       done
     expect: empty
 
@@ -53,7 +53,7 @@ checks:
     run: |
       for f in /Library/LaunchAgents/*.plist /Library/LaunchDaemons/*.plist /Users/*/Library/LaunchAgents/*.plist; do
         [ -f "$f" ] || continue
-        if plutil -p "$f" 2>/dev/null | grep -q DYLD_INSERT_LIBRARIES; then echo "$f"; fi
+        if plutil -p "$f" 2>/dev/null | grep DYLD_INSERT_LIBRARIES >/dev/null; then echo "$f"; fi
       done
     expect: empty
 
@@ -154,7 +154,7 @@ checks:
     run: |
       { find /private/tmp /private/var/tmp /Users/Shared -xdev -type f -name '.*' -perm +111 2>/dev/null || true; } |
         while read -r f; do
-          if file -b "$f" | grep -qE 'Mach-O|script|executable'; then echo "$f"; fi
+          if file -b "$f" | grep -E 'Mach-O|script|executable' >/dev/null; then echo "$f"; fi
         done
     expect: empty
 

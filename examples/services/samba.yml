@@ -68,6 +68,6 @@ checks:
     only_if: command -v testparm
     run: |
       testparm -s -d0 2>/dev/null | awk -F'= ' '/^[[:space:]]*path = / {print $2}' | while read -r p; do
-        if [ -d "$p" ] && find "$p" -maxdepth 0 -perm -0002 ! -perm -1000 | grep -q .; then echo "$p is world-writable without sticky bit"; fi
+        if [ -d "$p" ] && find "$p" -maxdepth 0 -perm -0002 ! -perm -1000 | grep . >/dev/null; then echo "$p is world-writable without sticky bit"; fi
       done
     expect: empty

@@ -16,7 +16,7 @@ checks:
     only_if: command -v smartctl
     run: |
       lsblk -dn -o NAME,TYPE | awk '$2 == "disk" {print $1}' | while read -r disk; do
-        smartctl -H "/dev/$disk" 2>/dev/null | grep -qE 'PASSED|OK$' || echo "$disk"
+        smartctl -H "/dev/$disk" 2>/dev/null | grep -E 'PASSED|OK$' >/dev/null || echo "$disk"
       done
     expect: empty
 

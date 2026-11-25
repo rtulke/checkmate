@@ -93,6 +93,36 @@ func TestNoUnquotedColonSpace(t *testing.T) {
 	}
 }
 
+// earlyClose finds pipelines whose last command stops reading before its
+// input ends. The writer is then killed by SIGPIPE and, with pipefail, the
+// pipeline fails although the pattern was found: an `if` takes the wrong
+// branch and an only_if skips the check.
+var earlyClose = regexp.MustCompile(`(^|[^|])\|\s*(grep -q|head\b)`)
+
+// The generated benchmarks are left out: their importers only pipe the
+// single status line of dpkg-query into grep -q, which cannot be cut short.
+func TestNoEarlyClosingPipelines(t *testing.T) {
+	for _, file := range policyFiles(t) {
+		base := filepath.Base(file)
+		generated := (strings.HasPrefix(file, "../cis/") || strings.HasPrefix(file, "../stig/")) &&
+			base != "apache.yml" && base != "postgresql.yml"
+		if generated {
+			continue
+		}
+		data, err := os.ReadFile(file)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for i, line := range strings.Split(string(data), "\n") {
+			if earlyClose.MatchString(line) {
+				t.Errorf("%s:%d: the pipeline ends in a command that stops reading early; "+
+					"use `grep ... >/dev/null` instead of `grep -q` and `sed -n 1p` instead of `head`: %s",
+					file, i+1, strings.TrimSpace(line))
+			}
+		}
+	}
+}
+
 func TestExamplesAreValid(t *testing.T) {
 	for _, file := range policyFiles(t) {
 		p, err := policy.Load(file, policy.LoadOptions{AllowInsecure: true})

@@ -489,7 +489,7 @@ checks:
     tags: [itslc, full]
     run: |
       for unit in rescue emergency; do
-        systemctl cat "$unit.service" 2>/dev/null | grep -qE '^ExecStart=.*(sulogin|systemd-sulogin-shell)' || echo "$unit"
+        systemctl cat "$unit.service" 2>/dev/null | grep -E '^ExecStart=.*(sulogin|systemd-sulogin-shell)' >/dev/null || echo "$unit"
       done
     expect: empty
 
