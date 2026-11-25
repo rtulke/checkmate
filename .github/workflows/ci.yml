@@ -65,7 +65,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-2022, windows-2025]
-        # powershell is Windows PowerShell 5.1, all a default server has.
+        # The shell of the checks. powershell is Windows PowerShell 5.1, all
+        # a default server has; for it pwsh is taken off PATH below. The
+        # steps themselves always run in pwsh.
         ps: [pwsh, powershell]
         include:
           - os: windows-2022
@@ -79,7 +81,7 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Run the CIS policy of the runner's Windows version
-        shell: ${{ matrix.ps }}
+        shell: pwsh
         run: |
           go build -o checkmate.exe ./cmd/checkmate
           if ('${{ matrix.ps }}' -eq 'powershell') { . ./test/windows/without-pwsh.ps1 }
@@ -87,7 +89,7 @@ jobs:
           ./checkmate.exe run ${{ matrix.policy }} -q --format json --export json -o report.json | Out-Null
           python test/windows/analyze.py report.json
       - name: Detect planted ATT&CK artifacts
-        shell: ${{ matrix.ps }}
+        shell: pwsh
         run: |
           if ('${{ matrix.ps }}' -eq 'powershell') { . ./test/windows/without-pwsh.ps1 }
           ./test/windows/attack-sim.ps1
