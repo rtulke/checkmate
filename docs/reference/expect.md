@@ -33,7 +33,19 @@ A value without an operator means equality: `expect: active` is the same as `exp
 
 ### Numbers, versions and strings
 
-With the default `as: auto`, both sides are compared as numbers if both are numbers (`1.0 == 1`, `10 > 9`), and as strings otherwise. Ordering operators (`>`, `<`, …) on non-numbers are an **error**, never a silent string comparison.
+With the default `as: auto`:
+
+- **Ordering** (`>`, `>=`, `<`, `<=`) compares numbers: `10 > 9`, `0.5 < 1`. On non-numbers it is an **error**, never a silent string comparison.
+- **Equality** (`==`, `!=`, `in`) compares whole numbers by value and everything else as text. `0644` equals `644`, but `8.1` does not equal `8.10`, and `1.0` does not equal `1`: a value with a decimal point is more often a version than a measurement.
+
+| Output | `expect` | `as: auto` | `as: number` | `as: version` | `as: string` |
+|---|---|---|---|---|---|
+| `0644` | `"== 644"` | holds | holds | holds | fails |
+| `1.0` | `"== 1"` | fails | holds | holds | fails |
+| `8.1` | `"== 8.10"` | fails | holds | fails | fails |
+| `8.9` | `">= 8.10"` | holds | holds | fails | holds |
+
+The last row is why versions need `as: version`: as numbers and as text, 8.9 is greater than 8.10.
 
 ```yaml
 - run: sw_vers -productVersion
@@ -58,7 +70,9 @@ expect: '~ ^v\d+\.\d+$'
 
 ### Lists
 
-`in` and `!in` accept a YAML flow list or a comma-separated list. Values can contain spaces, and lists can come from variables:
+`in` and `!in` accept a YAML flow list or a comma-separated list. Values can contain spaces, and lists can come from variables. Items are taken as written (`8.10` stays `8.10`) and compared like `==`.
+
+`in` is only an operator in front of a list, that is with `[` or a comma. `expect: in progress` compares with the text `in progress`; a list with one item is written `"in [progress]"`.
 
 ```yaml
 expect: "in [644 root root, 640 root shadow]"

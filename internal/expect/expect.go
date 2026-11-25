@@ -23,6 +23,7 @@ package expect
 
 import (
 	"fmt"
+	"math/big"
 	"regexp"
 	"strconv"
 	"strings"
@@ -42,7 +43,7 @@ type Output struct {
 type Mode string
 
 const (
-	ModeAuto    Mode = "auto"    // numeric if both sides are numbers, string otherwise
+	ModeAuto    Mode = "auto"    // ordering numeric; equality by value for whole numbers, else as text
 	ModeNumber  Mode = "number"  // both sides must be numbers
 	ModeVersion Mode = "version" // version-aware comparison, 8.10 > 8.9
 	ModeString  Mode = "string"  // plain (lexicographic) string comparison
@@ -290,6 +291,10 @@ func ParseCondition(target, s string) (Expectation, error) {
 	c.operand = s
 	for _, op := range operators {
 		if strings.HasPrefix(s, op) {
+			if (op == "in " || op == "!in ") && !looksLikeList(s[len(op):]) {
+				// "in progress" is a value, not a list.
+				break
+			}
 			c.op = strings.TrimSpace(op)
 			c.operand = strings.TrimSpace(s[len(op):])
 			break
@@ -444,20 +449,32 @@ func unquote(s string) string {
 	return s
 }
 
+// looksLikeList reports whether the operand of `in` is a list: a YAML flow
+// list or several comma-separated values.
+func looksLikeList(operand string) bool {
+	operand = strings.TrimSpace(operand)
+	return strings.HasPrefix(operand, "[") || strings.Contains(operand, ",")
+}
+
 func parseList(s string) ([]string, error) {
-	var raw []any
+	var list []string
 	if strings.HasPrefix(s, "[") {
-		if err := yaml.Unmarshal([]byte(s), &raw); err != nil {
+		// Decoded as nodes, so that every item stays as written: 8.10 is
+		// not the number 8.1 and 0644 not 420.
+		var items []yaml.Node
+		if err := yaml.Unmarshal([]byte(s), &items); err != nil {
 			return nil, fmt.Errorf("invalid list %q: %w", s, err)
+		}
+		for _, item := range items {
+			if item.Kind != yaml.ScalarNode {
+				return nil, fmt.Errorf("invalid list %q: items must be plain values", s)
+			}
+			list = append(list, item.Value)
 		}
 	} else {
 		for _, part := range strings.Split(s, ",") {
-			raw = append(raw, strings.TrimSpace(part))
+			list = append(list, strings.TrimSpace(part))
 		}
-	}
-	list := make([]string, 0, len(raw))
-	for _, item := range raw {
-		list = append(list, fmt.Sprint(item))
 	}
 	if len(list) == 0 {
 		return nil, fmt.Errorf("list %q is empty", s)
@@ -478,11 +495,18 @@ func equal(a, b string, mode Mode) (bool, error) {
 		}
 		return fa == fb, nil
 	}
-	if fa, fb, err := numbers(a, b); err == nil {
-		return fa == fb, nil
+	// Whole numbers are equal if their values are: 0644 is 644. Everything
+	// else is text, so that 8.1 is not 8.10 and 1e2 is not 100; `as: number`
+	// compares such values numerically.
+	if ia, ok := new(big.Int).SetString(a, 10); ok && wholeNumber.MatchString(a) {
+		if ib, ok := new(big.Int).SetString(b, 10); ok && wholeNumber.MatchString(b) {
+			return ia.Cmp(ib) == 0, nil
+		}
 	}
 	return a == b, nil
 }
+
+var wholeNumber = regexp.MustCompile(`^[+-]?[0-9]+$`)
 
 func compare(a, b string, mode Mode) (int, error) {
 	switch mode {
