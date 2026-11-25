@@ -197,7 +197,7 @@ checks:
     severity: high
     run: |
       systemctl show -p UnitFileState sshd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-06cb4914d7 |
       Encrypting information for transmission protects information from unauthorized disclosure and modification. Cryptographic mechanisms implemented to protect information integrity include, for example, cryptographic hash functions that have common application in digital signatures, checksums, and message authentication codes.
 
@@ -742,7 +742,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState systemd-journald | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-c30acd83c8 |
       Failure to a known state can address safety or security in accordance with the mission/business needs of the organization. Failure to a known secure state helps prevent a loss of confidentiality, integrity, or availability in the event of a failure of the information system or a component of the system.
 
@@ -1183,7 +1183,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-782d38eece |
       Without establishing what type of events occurred, it would be difficult to establish, correlate, and investigate the events leading up to an outage or attack.
 
@@ -1247,7 +1247,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-21f22a49a1 |
       Configuring Amazon Linux to implement organizationwide security implementation guides and security checklists ensures compliance with federal standards and establishes a common security baseline across the DoW that reflects the most restrictive security posture consistent with operational requirements.
 
@@ -1325,7 +1325,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState chronyd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-cca230321c
     remediation: &rem-283ff8b19f |
       Configure Amazon Linux 2023 to have the chronyd service set to active with the following command:
@@ -1532,7 +1532,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState firewalld | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-b24efa70b3 |
       To prevent unauthorized connection of devices, unauthorized transfer of information, or unauthorized tunneling (i.e., embedding of data types within data types), organizations must disable or restrict unused or unnecessary physical and logical ports/protocols on information systems.
 

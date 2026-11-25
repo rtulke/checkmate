@@ -1146,7 +1146,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState chronyd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-487a3e248c |
       chronyd keeps the system clock synchronized with reliable time sources. Correct time is needed for log correlation, Kerberos, certificate validation and one-time passwords. The service has to be enabled to start at boot and active now.
     remediation: &rem-f78265882f |
@@ -1217,13 +1217,13 @@ checks:
       cat '/etc/chrony/chrony.conf'
     allow_rc: any
     expect:
-      - { some: "~ ^server \u003cno value\u003e" }
+      - { some: "~ ^server" }
       - { some: "~ ^user _chrony" }
     rationale: *rat-c95470f85c
-    remediation: &rem-24d636b4eb |
+    remediation: &rem-1eed85ab0a |
       Edit /etc/chrony/chrony.conf so that its lines meet these conditions (regular expressions):
 
-      - a line matches ^server <no value>
+      - a line matches ^server
       - a line matches ^user _chrony
   - id: "CIS-UBUNTU18-2.1.2-xserver-xorg"
     name: "Package xserver-xorg is not installed"
@@ -2693,7 +2693,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState ufw | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-8061e449a6
     remediation: &rem-3bd9f4aa3b |
       Enable the service ufw:
@@ -2985,7 +2985,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState nftables | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-059df58fe1
     remediation: &rem-a7f4e9945f |
       Enable the service nftables:
@@ -3307,7 +3307,7 @@ checks:
     severity: low
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-f809f26f23
     remediation: &rem-5d15604058 |
       Enable the service auditd:
@@ -4246,7 +4246,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-ec4e2f2832
     remediation: &rem-092ce033e4 |
       Enable the service rsyslog:
@@ -4614,7 +4614,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState cron | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-23d53a9a2b
     remediation: &rem-9b28e31a59 |
       Enable the service cron:

@@ -2728,7 +2728,7 @@ checks:
     severity: low
     run: |
       systemctl show -p UnitFileState firewalld | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-9a34f07397 |
       A host-based firewall limits which network services are reachable even if a service is accidentally exposed or a perimeter firewall is misconfigured. firewalld must be installed, enabled at boot and running for its zone rules to be enforced, and on newer releases it should use the nftables backend rather than the deprecated iptables backend.
     remediation: &rem-446eda8ec3 |
@@ -2921,7 +2921,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState crond | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-f0cfc625ae |
       cron runs scheduled jobs, including maintenance tasks such as log rotation, updates and integrity checks. The crond service has to be enabled and running so that these jobs are executed.
     remediation: &rem-1303d7c1de |
@@ -3263,9 +3263,9 @@ checks:
     expect:
       - { rc: "in [0, 1]" }
       - { some: "~ (?i)AllowUsers: vagrant" }
-      - { some: "~ (?i)AllowGroups: \u003cno value\u003e" }
+      - { some: "~ (?i)AllowGroups:" }
       - { some: "~ (?i)DenyUsers: nobody" }
-      - { some: "~ (?i)DenyGroups: \u003cno value\u003e" }
+      - { some: "~ (?i)DenyGroups:" }
     rationale: &rat-8e5700f652 |
       Restricting SSH logins to explicitly allowed users or groups ensures that only accounts with a need for remote access can log in, even if other accounts have valid credentials or weak passwords. It limits the impact of compromised, forgotten or service accounts.
     remediation: &rem-eb1a516d02 |
@@ -4652,7 +4652,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-ec4e2f2832
     remediation: &rem-092ce033e4 |
       Enable the service rsyslog:
@@ -4904,7 +4904,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState systemd-journal-upload.service | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-b770b19f4c |
       Logs kept only on the host can be deleted or altered by an attacker who gains root. Running systemd-journal-upload continuously ships journal entries to a remote collector, preserving them off-host. It is only relevant where systemd-journal-remote is the chosen central logging method rather than rsyslog.
     remediation: &rem-c6c7c65dbe |
@@ -4978,7 +4978,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState systemd-journald | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-aa9c4cf1bc |
       systemd-journald collects kernel, service and user log messages and passes them to persistent storage or syslog. If it is not running, events from services and the kernel are lost, leaving gaps in the audit trail. It is a static unit that is always started by systemd.
     remediation: &rem-509c775265 |
@@ -5214,7 +5214,7 @@ checks:
     severity: low
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-f809f26f23 |
       auditd is the daemon that receives audit events from the kernel and writes them to disk. If it is not installed, enabled and running, audit rules have no effect on the persistent trail, and security events go unrecorded.
     remediation: &rem-5d15604058 |

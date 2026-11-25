@@ -20,6 +20,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -690,11 +691,16 @@ func commandCheck(c check, name string, attrs map[string]any) []check {
 			return []check{c}
 		}
 	}
-	c.Run = exec
+	c.Run = rewriteExec(exec)
 	c.Name = fmt.Sprintf("%s: %s", humanize(name), firstLine(exec, 90))
 	codes := exitCodes(attrs["exit-status"])
 	patterns := patternConditions(attrs["stdout"])
 	patterns = append(patterns, stderrConditions(attrs["stderr"])...)
+	if len(patterns) > 0 && missingGlobGrep.MatchString(exec) && !slices.Contains(codes, 2) {
+		// grep exits with 2 when the drop-in directory does not exist, even
+		// if it found the setting in the main file. The output decides.
+		codes = append(codes, 2)
+	}
 	if len(patterns) == 0 {
 		c.Expect = []string{rcCondition(codes)}
 		return []check{c}
@@ -866,6 +872,11 @@ func packageChecks(c check, b benchmark, name string, attrs map[string]any) []ch
 	return out
 }
 
+// unitEnabledStates are the unit file states of a unit that systemd starts
+// without further configuration. A static unit such as systemd-journald has
+// no [Install] section and cannot be enabled; CIS expects "static" there.
+const unitEnabledStates = `^(enabled|enabled-runtime|static|alias|generated)$`
+
 func serviceChecks(base check, name string, attrs map[string]any) []check {
 	if n := str(attrs["name"]); n != "" {
 		name = n // the resource key is only a label when name is set
@@ -877,7 +888,7 @@ func serviceChecks(base check, name string, attrs map[string]any) []check {
 		c.Run = fmt.Sprintf("systemctl show -p UnitFileState %s | cut -d= -f2", name)
 		if v {
 			c.Name = "Service " + name + " is enabled"
-			c.Expect = []string{yamlString("~ ^enabled")}
+			c.Expect = []string{yamlString("~ " + unitEnabledStates)}
 			c.Remediation = unitRemediation(name, "enabled")
 		} else {
 			c.Name = "Service " + name + " is not enabled"
@@ -1093,6 +1104,10 @@ func patternCondition(p string) string {
 	} else {
 		re = regexp.QuoteMeta(p)
 	}
+	// A variable upstream leaves unset renders as "<no value>"; the pattern
+	// then accepts any value in its place.
+	re = strings.ReplaceAll(re, " <no value>", "")
+	re = strings.ReplaceAll(re, "<no value>", "")
 	// A disabled module may point to /bin/true or /bin/false; both are fine.
 	re = strings.ReplaceAll(re, "install /bin/true", "install /(usr/)?bin/(true|false)")
 	if _, err := regexp.Compile(re); err != nil {
@@ -1369,6 +1384,26 @@ stat -Lc '%a %U %G' "$b"`,
 		remediation: "Give the banner file named by the Banner setting of sshd owner and group root, and remove execute permission for the owner and write and execute permission for group and others:\n\n" +
 			"chown root:root FILE\nchmod u-x,go-wx FILE",
 	},
+}
+
+// missingGlobGrep matches a grep over pwquality.conf and its drop-ins. The
+// drop-in directory is optional.
+var missingGlobGrep = regexp.MustCompile(`^grep\s.*\s/etc/security/pwquality\.conf\.d/\*\.conf\b`)
+
+// auditLogDirFind matches a find over the audit log directory read from
+// auditd.conf into an unquoted variable. Without auditd.conf the variable is
+// empty and find searches the current directory instead.
+var auditLogDirFind = regexp.MustCompile(`^d=\$\(dirname \$\(grep \^log_file /etc/audit/auditd\.conf \| awk '\{ print \$NF \}'\)\); find (-L )?\$d (.+)$`)
+
+// rewriteExec replaces upstream commands that give wrong results on some
+// systems by an equivalent that reports the problem.
+func rewriteExec(exec string) string {
+	if m := auditLogDirFind.FindStringSubmatch(exec); m != nil {
+		return `f=$(awk -F= '/^[[:space:]]*log_file[[:space:]]*=/ {gsub(/[[:space:]]/, "", $2); print $2}' /etc/audit/auditd.conf 2>/dev/null)
+if [ -z "$f" ]; then echo "log_file is not set in /etc/audit/auditd.conf"; exit 0; fi
+find ` + m[1] + `"$(dirname "$f")" ` + m[2]
+	}
+	return exec
 }
 
 func applyPatches(s string) string {

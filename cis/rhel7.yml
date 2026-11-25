@@ -1422,7 +1422,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState chronyd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-487a3e248c |
       chronyd keeps the system clock synchronized with reliable time sources. Correct time is needed for log correlation, Kerberos, certificate validation and one-time passwords. The service has to be enabled to start at boot and active now.
     remediation: &rem-f78265882f |
@@ -2080,7 +2080,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState firewalld | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-9a34f07397
     remediation: &rem-446eda8ec3 |
       Enable the service firewalld:
@@ -2204,7 +2204,7 @@ checks:
     severity: low
     run: |
       systemctl show -p UnitFileState auditd | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-f809f26f23 |
       auditd is the daemon that receives audit events from the kernel and writes them to disk. If it is not installed, enabled and running, audit rules have no effect on the persistent trail, and security events go unrecorded.
     remediation: &rem-5d15604058 |
@@ -3135,7 +3135,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState rsyslog | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: *rat-ec4e2f2832
     remediation: &rem-092ce033e4 |
       Enable the service rsyslog:
@@ -3359,7 +3359,7 @@ checks:
     severity: medium
     run: |
       systemctl show -p UnitFileState crond | cut -d= -f2
-    expect: "~ ^enabled"
+    expect: "~ ^(enabled|enabled-runtime|static|alias|generated)$"
     rationale: &rat-f0cfc625ae |
       cron runs scheduled jobs, including maintenance tasks such as log rotation, updates and integrity checks. The crond service has to be enabled and running so that these jobs are executed.
     remediation: &rem-1303d7c1de |
