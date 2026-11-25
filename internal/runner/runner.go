@@ -68,7 +68,7 @@ func Run(ctx context.Context, req Request) (Result, error) {
 
 	cmd := exec.CommandContext(ctx, argv[0], argv[1:]...)
 	cmd.Dir = req.Dir
-	cmd.Env = buildEnv(req.Env)
+	cmd.Env = buildEnv(shell, req.Env)
 	cmd.Stdin = nil
 	stdout := &limitedBuffer{limit: maxOutput}
 	stderr := &limitedBuffer{limit: maxOutput}
@@ -171,7 +171,7 @@ func shellArgv(shell, command string) ([]string, error) {
 
 // buildEnv inherits the environment, forces a stable locale on POSIX
 // systems and applies extra variables.
-func buildEnv(extra map[string]string) []string {
+func buildEnv(shell string, extra map[string]string) []string {
 	env := map[string]string{}
 	var order []string
 	set := func(k, v string) {
@@ -192,11 +192,39 @@ func buildEnv(extra map[string]string) []string {
 	for k, v := range extra {
 		set(k, v)
 	}
+	if shell == "powershell" {
+		for _, k := range order {
+			if strings.EqualFold(k, "PSModulePath") {
+				env[k] = windowsPowerShellModulePath(env[k])
+			}
+		}
+	}
 	out := make([]string, 0, len(order))
 	for _, k := range order {
 		out = append(out, k+"="+env[k])
 	}
 	return out
+}
+
+// windowsPowerShellModulePath removes the module directories of PowerShell
+// 7 from a PSModulePath. When checkmate is started from PowerShell 7, the
+// variable lists them first, and Windows PowerShell 5.1 then tries to load
+// modules it cannot use: built-in commands such as Get-Acl fail with "the
+// module could not be loaded".
+func windowsPowerShellModulePath(value string) string {
+	var kept []string
+	for _, dir := range strings.Split(value, ";") {
+		foreign := false
+		for _, part := range strings.FieldsFunc(dir, func(r rune) bool { return r == '\\' || r == '/' }) {
+			if strings.EqualFold(part, "PowerShell") {
+				foreign = true
+			}
+		}
+		if !foreign {
+			kept = append(kept, dir)
+		}
+	}
+	return strings.Join(kept, ";")
 }
 
 func normalizeNewlines(s string) string {

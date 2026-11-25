@@ -117,3 +117,21 @@ func TestChildProcessCommandWorks(t *testing.T) {
 		}
 	}
 }
+
+// Started from PowerShell 7, PSModulePath lists its module directories.
+// Windows PowerShell must still find its own built-in modules.
+func TestWindowsPowerShellLoadsItsOwnModules(t *testing.T) {
+	if _, err := exec.LookPath("powershell"); err != nil {
+		t.Skip("no Windows PowerShell")
+	}
+	pwsh7 := `C:\Program Files\PowerShell\7\Modules`
+	if _, err := os.Stat(pwsh7); err != nil {
+		t.Skip("no PowerShell 7 modules to get in the way")
+	}
+	t.Setenv("PSModulePath", pwsh7+";"+os.Getenv("PSModulePath"))
+	res, err := Run(context.Background(), Request{Shell: "powershell",
+		Command: "(Get-Acl -LiteralPath $env:SystemRoot).Owner.Length -gt 0"})
+	if err != nil || res.RC != 0 || strings.TrimSpace(res.Stdout) != "True" {
+		t.Errorf("rc %d, stdout %q, stderr %q, error %v", res.RC, res.Stdout, res.Stderr, err)
+	}
+}
