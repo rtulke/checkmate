@@ -22,6 +22,7 @@ checks:
 | `facts` | Facts about the host, see [Platforms and facts](platforms.md) |
 | `item` | The current loop item (with `loop_run` not in `run` and `only_if`) |
 | `arg`, `args` | Snippet arguments (inside snippets) |
+| a registered name | The outcome of an earlier check with `register` (only in `when`) |
 | `policy_dir` | Directory of the policy file that defines the check |
 
 Undefined variables are an **error**, so typos never render as an empty string.
@@ -167,6 +168,47 @@ The rules:
 - `loop` and `loop_run` cannot be combined.
 
 Each check still collects its own data: the item only says *what* to check, the check's own `run` looks at it.
+
+## Checks that depend on other checks
+
+`register` gives the outcome of a check a name. Checks further down can use it in `when`, so a group of checks only runs where it makes sense:
+
+```yaml
+checks:
+  - id: NGINX-INSTALLED
+    name: nginx is installed
+    severity: info
+    register: nginx
+    run: command -v nginx
+    expect: true
+
+  - id: NGINX-TLS
+    name: nginx offers TLS 1.2 or newer only
+    when: nginx.passed
+    run: nginx -T 2>/dev/null | awk '$1 == "ssl_protocols"'
+    expect: "!~ TLSv1(\\.1)?[ ;]"
+```
+
+Without nginx, `NGINX-TLS` is `SKIP` with the reason `when: nginx.passed is false`.
+
+| Value | Content |
+|---|---|
+| `name.passed` | The expectation held |
+| `name.failed` | The expectation did not hold |
+| `name.status` | `pass`, `fail`, `error`, `skip`, `na` or `waived` |
+| `name.ran` | The command ran (false for `skip`, `na` and waivers with `skip: true`) |
+| `name.rc` | Exit code of the command, `-1` if it did not run |
+
+Only the outcome is available, never the output. A registered check decides *whether* other checks run; every check still collects its own data with its own `run`. That keeps a check understandable and repeatable on its own.
+
+The rules:
+
+- A check can only refer to checks defined before it. This rules out cycles; `validate` reports a reference to a later check.
+- The status is what the check found: a failure of low severity that the report shows as `WARN` is still `failed`, and a failure accepted by a waiver is still `failed`.
+- The registered check is an ordinary check and appears in the report. If its failure is not a finding (nginx is simply not installed), give it `severity: info`.
+- Selecting a check with `--tags` or `--id` also selects the checks it refers to.
+- The name must not be a variable or one of `facts`, `vars`, `item`. In a `loop` it needs the item: `register: "svc_{{ item }}"`.
+- `register` and `loop_run` cannot be combined, and a `loop_run` check cannot refer to a registered name.
 
 ## Building command lines from lists
 

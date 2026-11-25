@@ -143,10 +143,11 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 		})
 	}
 
-	var selected []*policy.Check
-	for _, c := range checks {
-		if opts.Filter.Match(c.ID, c.Tags) {
-			selected = append(selected, c)
+	selected := selectChecks(checks, opts.Filter)
+	registered := map[string]*registeredOutcome{}
+	for _, c := range selected {
+		if c.Register != "" {
+			registered[c.Register] = &registeredOutcome{done: make(chan struct{})}
 		}
 	}
 
@@ -182,6 +183,26 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 		go func(i int, c *policy.Check) {
 			defer wg.Done()
 			defer func() { <-sem }()
+			// Publish the outcome whatever happens, so that no dependent
+			// check waits forever.
+			outcome := policy.Outcome{Status: "error"}
+			if reg := registered[c.Register]; c.Register != "" && reg != nil {
+				defer func() {
+					reg.outcome = outcome
+					close(reg.done)
+				}()
+			}
+			if len(c.Needs) > 0 {
+				// Needed checks are defined earlier, so they were started
+				// earlier and do not wait for a free slot behind this one.
+				outcomes := map[string]policy.Outcome{}
+				for _, name := range c.Needs {
+					reg := registered[name]
+					<-reg.done
+					outcomes[name] = reg.outcome
+				}
+				c = c.WithOutcomes(outcomes)
+			}
 			w, err := findWaiver(c, waivers, now, notice)
 			if err != nil {
 				checkResults[i] = withStatus(baseResult(c), StatusError, err.Error())
@@ -191,9 +212,11 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 				res := withStatus(baseResult(c), StatusWaived, "waived, not run: "+w.Reason)
 				res.Waiver = &WaiverInfo{Reason: w.Reason, Until: w.UntilString(), Source: w.Source}
 				checkResults[i] = res
+				outcome = policy.Outcome{Status: "waived"}
 				return
 			}
 			res := runCheck(ctx, p, c, platformKeys)
+			outcome = policy.Outcome{Status: outcomeStatus(res.Status), RC: res.RC}
 			// Failures below the threshold (always including "info") are
 			// warnings. Errors are never downgraded: a check that cannot be
 			// evaluated must not look harmless.
@@ -234,6 +257,60 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 	}
 	sort.Strings(report.Notices)
 	return report
+}
+
+// registeredOutcome is the outcome of a check with `register`, readable
+// once done is closed.
+type registeredOutcome struct {
+	done    chan struct{}
+	outcome policy.Outcome
+}
+
+// outcomeStatus is the status as `when` conditions see it: what the check
+// found, before severity thresholds and waivers change how it counts.
+func outcomeStatus(s Status) string {
+	switch s {
+	case StatusPass:
+		return "pass"
+	case StatusFail:
+		return "fail"
+	case StatusSkip:
+		return "skip"
+	case StatusNA:
+		return "na"
+	}
+	return "error"
+}
+
+// selectChecks applies the filter. Checks that selected checks refer to in
+// `when` are selected too: without their outcome the condition could not
+// be evaluated.
+func selectChecks(checks []*policy.Check, filter Filter) []*policy.Check {
+	keep := make([]bool, len(checks))
+	owner := map[string]int{}
+	for i, c := range checks {
+		keep[i] = filter.Match(c.ID, c.Tags)
+		if c.Register != "" {
+			owner[c.Register] = i
+		}
+	}
+	// Needed checks come first in the policy, so one pass from the end
+	// follows every chain.
+	for i := len(checks) - 1; i >= 0; i-- {
+		if !keep[i] {
+			continue
+		}
+		for _, name := range checks[i].Needs {
+			keep[owner[name]] = true
+		}
+	}
+	var selected []*policy.Check
+	for i, c := range checks {
+		if keep[i] {
+			selected = append(selected, c)
+		}
+	}
+	return selected
 }
 
 // findWaiver returns the first waiver that covers the check and whose
