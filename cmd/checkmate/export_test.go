@@ -129,3 +129,30 @@ func TestResolveBase(t *testing.T) {
 		t.Errorf("got %s", got)
 	}
 }
+
+// Exports into a directory that does not exist yet create it; a target that
+// cannot be written is reported before the checks run.
+func TestRunExportCreatesDirectoryAndChecksItFirst(t *testing.T) {
+	dir := t.TempDir()
+	policyPath := writeTestPolicy(t, dir)
+	var out, errOut bytes.Buffer
+	target := filepath.Join(dir, "new", "reports") + string(os.PathSeparator)
+	code := run([]string{"run", "--allow-insecure-policy", "-q", "--export", "json", "-o", target, policyPath}, &out, &errOut)
+	if code != exitNotCompliant {
+		t.Fatalf("exit %d: %s", code, errOut.String())
+	}
+	if files, _ := filepath.Glob(filepath.Join(dir, "new", "reports", "*.json")); len(files) != 1 {
+		t.Errorf("expected one report, got %v (stderr: %s)", files, errOut.String())
+	}
+
+	blocker := filepath.Join(dir, "file")
+	if err := os.WriteFile(blocker, nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	out.Reset()
+	errOut.Reset()
+	code = run([]string{"run", "--allow-insecure-policy", "--export", "json", "-o", filepath.Join(blocker, "x"), policyPath}, &out, &errOut)
+	if code != exitUsage || !strings.Contains(errOut.String(), "cannot write exports") || out.Len() != 0 {
+		t.Errorf("exit %d, stdout %q, stderr %q", code, out.String(), errOut.String())
+	}
+}

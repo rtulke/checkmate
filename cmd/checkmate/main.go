@@ -10,8 +10,10 @@ import (
 	"io"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 	"text/tabwriter"
 
 	"github.com/rtulke/checkmate/internal/engine"
@@ -200,6 +202,14 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "checkmate: -o needs --export, e.g. --export html,pdf")
 		return exitUsage
 	}
+	// A run can take minutes: find out now, not afterwards, that the export
+	// files cannot be written.
+	if len(plan.formats) > 0 {
+		if err := checkWritableDir(filepath.Dir(resolveBase(*output, "checkmate"))); err != nil {
+			fmt.Fprintln(stderr, "checkmate: cannot write exports:", err)
+			return exitUsage
+		}
+	}
 	vars, err := common.vars()
 	if err != nil {
 		fmt.Fprintln(stderr, "checkmate:", err)
@@ -222,7 +232,9 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 		waivers = append(w, waivers...)
 	}
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	// Checks run in their own process groups, so a signal that ends checkmate
+	// does not reach them: cancel the run instead, which kills them.
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
 	defer stop()
 	r := engine.Run(ctx, p, engine.Options{
 		Facts:         facts.Gather(),
@@ -240,6 +252,15 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 		Verbosity: minInt(verbosity, 3),
 		Quiet:     *quiet,
 	}
+	// The result goes to stdout first, so that a failing export (a full disk,
+	// an unreachable syslog server) does not cost the result of the run.
+	stdoutOpts := opts
+	stdoutOpts.Color = !*noColor && (*color == "always" || (*color == "auto" && useColor(stdout)))
+	stdoutOpts.Width = terminalWidth(stdout)
+	if err := stdoutFormat.Write(stdout, []*engine.Report{r}, stdoutOpts); err != nil {
+		fmt.Fprintln(stderr, "checkmate:", err)
+		return exitUsage
+	}
 	if err := export([]*engine.Report{r}, plan, resolveBase(*output, defaultBase(r)), opts, stderr); err != nil {
 		fmt.Fprintln(stderr, "checkmate:", err)
 		return exitUsage
@@ -253,13 +274,6 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 			fmt.Fprintln(stderr, "checkmate:", err)
 			return exitUsage
 		}
-	}
-
-	opts.Color = !*noColor && (*color == "always" || (*color == "auto" && useColor(stdout)))
-	opts.Width = terminalWidth(stdout)
-	if err := stdoutFormat.Write(stdout, []*engine.Report{r}, opts); err != nil {
-		fmt.Fprintln(stderr, "checkmate:", err)
-		return exitUsage
 	}
 	if r.Summary.Total == 0 {
 		fmt.Fprintln(stderr, "checkmate: no checks selected")

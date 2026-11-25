@@ -223,6 +223,9 @@ Flags:`)
 // such as the node_exporter never see a half-written file.
 func writeFile(path string, write func(io.Writer) error) error {
 	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
 	tmp, err := os.CreateTemp(dir, "."+filepath.Base(path)+".*.tmp")
 	if err != nil {
 		return err
@@ -240,6 +243,20 @@ func writeFile(path string, write func(io.Writer) error) error {
 		return err
 	}
 	return os.Rename(tmp.Name(), path)
+}
+
+// checkWritableDir creates dir if needed and reports whether files can be
+// created in it.
+func checkWritableDir(dir string) error {
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+	probe, err := os.CreateTemp(dir, ".checkmate-*.tmp")
+	if err != nil {
+		return err
+	}
+	probe.Close()
+	return os.Remove(probe.Name())
 }
 
 func isTerminal(w io.Writer) bool {

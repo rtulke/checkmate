@@ -6,7 +6,9 @@ package policy
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -221,6 +223,9 @@ func (l *loader) readDoc(path string) (*fileDoc, error) {
 	dec := yaml.NewDecoder(bytes.NewReader(data))
 	dec.KnownFields(true)
 	if err := dec.Decode(&doc); err != nil {
+		if errors.Is(err, io.EOF) {
+			return nil, fmt.Errorf("%s: the policy file is empty", path)
+		}
 		return nil, fmt.Errorf("%s: %w", path, err)
 	}
 	l.policy.Files = append(l.policy.Files, path)

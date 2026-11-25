@@ -87,6 +87,11 @@ func Run(ctx context.Context, req Request) (Result, error) {
 	if ctx.Err() == context.DeadlineExceeded {
 		return res, fmt.Errorf("%w after %s", ErrTimeout, req.Timeout)
 	}
+	// The command succeeded, but a process it left behind kept stdout or
+	// stderr open beyond WaitDelay. The command itself has completed.
+	if errors.Is(runErr, exec.ErrWaitDelay) {
+		return res, nil
+	}
 	if runErr != nil {
 		var exitErr *exec.ExitError
 		if errors.As(runErr, &exitErr) {

@@ -45,6 +45,9 @@ are the same. Without `-o` the files are named
 `checkmate-<host>-<YYYYMMDD-HHMMSS>` in the current directory. Files are
 written atomically (to a temporary file that replaces the target when it is
 complete) with mode `0640`, since reports describe weaknesses of the host.
+A directory that does not exist yet is created. Whether the files can be
+written is checked before the checks run, and the result is printed before
+the exports are written, so a failing export never costs the result of a run.
 
 ## checkmate export
 

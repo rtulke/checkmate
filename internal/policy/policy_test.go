@@ -259,3 +259,11 @@ checks:
 		}
 	}
 }
+
+func TestEmptyPolicyFileIsNamed(t *testing.T) {
+	path := writePolicy(t, map[string]string{"empty.yml": ""}, "empty.yml")
+	_, err := Load(path, LoadOptions{AllowInsecure: true})
+	if err == nil || !strings.Contains(err.Error(), "policy file is empty") {
+		t.Errorf("got %v", err)
+	}
+}
