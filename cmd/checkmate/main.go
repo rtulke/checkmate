@@ -125,13 +125,29 @@ func (c *commonFlags) vars() (map[string]any, error) {
 		if !ok || strings.TrimSpace(key) == "" {
 			return nil, fmt.Errorf("invalid --extra-var %q, expected key=value", kv)
 		}
-		var value any
-		if err := yaml.Unmarshal([]byte(raw), &value); err != nil || value == nil {
-			value = raw
-		}
-		vars[strings.TrimSpace(key)] = value
+		vars[strings.TrimSpace(key)] = extraVarValue(raw)
 	}
 	return vars, nil
+}
+
+// extraVarValue reads the value of an --extra-var as YAML, so that lists,
+// mappings, booleans and plain numbers arrive typed. A number is only kept
+// when it reads back exactly as typed: 1.10 is a version, 0644 a file mode
+// and 1e3 a string, not 1.1, 420 and 1000.
+func extraVarValue(raw string) any {
+	var value any
+	if err := yaml.Unmarshal([]byte(raw), &value); err != nil {
+		return raw
+	}
+	switch value.(type) {
+	case []any, map[string]any, bool:
+		return value
+	case int, int64, uint64, float64:
+		if fmt.Sprint(value) == strings.TrimSpace(raw) {
+			return value
+		}
+	}
+	return raw
 }
 
 func (c *commonFlags) load(path string) (*policy.Policy, error) {

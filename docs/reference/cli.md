@@ -19,7 +19,7 @@ Flags may come before or after the policy file.
 | `-t`, `--tags EXPR` | Select checks by tags. `,` means *or*, `+` means *and*: `compliance+full,quality` |
 | `--skip-tags EXPR` | Exclude checks by tags, same syntax. |
 | `--id PATTERNS` | Select checks by id, comma-separated glob patterns: `SSH-*,USR-001` |
-| `-e`, `--extra-var KEY=VALUE` | Set a variable (repeatable). Values are parsed as YAML: `-e ports='[22, 443]'` |
+| `-e`, `--extra-var KEY=VALUE` | Set a variable (repeatable). Lists, mappings, `true`/`false` and plain numbers are read as YAML: `-e ports='[22, 443]'`. Everything else stays text exactly as typed, so `-e version=1.10` and `-e mode=0644` are not turned into `1.1` and `420` |
 | `--fail-on SEVERITY` | Lowest severity whose failures make the run non-compliant. Default: `defaults.fail_on`, else `low`. |
 | `--waivers FILE` | File with accepted deviations (repeatable). See [Waivers](waivers.md). |
 | `--ignore-waivers` | Report every result as if no waiver existed. |

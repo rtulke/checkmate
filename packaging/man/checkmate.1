@@ -113,9 +113,14 @@ Select checks by ID, comma-separated glob patterns, e.g.
 .BI \-e ", " \-\-extra\-var " key=value"
 Set a variable; repeatable.
 Extra variables override the variables of the policy.
-Values are parsed as YAML, so
+Lists, mappings, true/false and plain numbers are read as YAML, so
 .B \-e ports='[22, 443]'
 passes a list.
+Every other value stays text exactly as typed:
+.B \-e version=1.10
+is not turned into 1.1 and
+.B \-e mode=0644
+not into 420.
 .TP
 .B \-\-allow\-insecure\-policy
 Load policy and waiver files as root even if another user could modify
