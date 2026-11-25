@@ -1,6 +1,6 @@
 # CIS Ubuntu 26.04 LTS
 
-Automated checks for 332 recommendations of the CIS Ubuntu 26.04 LTS benchmark (version 1.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
+Automated checks for 329 recommendations of the CIS Ubuntu 26.04 LTS benchmark (version 1.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
 
 **Policy:** [`cis/ubuntu26.yml`](https://github.com/rtulke/checkmate/blob/main/cis/ubuntu26.yml) · **Benchmark version:** 1.0.0
 
@@ -116,7 +116,6 @@ checkmate run cis/ubuntu26.yml --tags cis-level-2 -v
 | `CIS-UBUNTU26-1.1.2.7.4-var_log_audit_noexec_options` | /var/log/audit is a separate mount with noexec | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-1.1.2.7.4-var_log_audit_noexec_fstab_options-attrs` | /etc/fstab: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-1.1.2.7.4-var_log_audit_noexec_fstab_options-content` | /etc/fstab has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU26-1.2.1.1-apt_signed_by` | apt signed by: echo "MANUAL - Please check manually that sources use the Signed-By option" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-1.2.1.2-apt_weak_dependencies-attrs` | /etc/apt/apt.conf.d/60-no-weak-dependencies: exists | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-UBUNTU26-1.2.1.2-apt_weak_dependencies-content` | /etc/apt/apt.conf.d/60-no-weak-dependencies has the expected content (2 rules) | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-UBUNTU26-1.2.1.3-apt_gpg_key_perms` | apt gpg key perms: find /etc/apt/trusted.gpg.d /usr/share/keyrings -type f \\( -name "\*.gpg" -o -name "\*.asc"… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -208,7 +207,6 @@ checkmate run cis/ubuntu26.yml --tags cis-level-2 -v
 | `CIS-UBUNTU26-2.1.19-nginx_pkg` | Package nginx is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-2.1.20-xinetd_pkg` | Package xinetd is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-2.1.21-xwindow_pkg` | Package xserver-common is not installed | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-UBUNTU26-2.1.23-manual_listening_ports` | manual listening ports: echo "Manual!! - Please check only approved services are listening" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-2.2.1-nis_client` | Package nis is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-2.2.2-rsh-client` | Package rsh-client is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-2.2.3-talk` | Package talk is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -446,7 +444,6 @@ checkmate run cis/ubuntu26.yml --tags cis-level-2 -v
 | `CIS-UBUNTU26-6.1.1.1.2-systemd-journal-remote.socket-running` | Service systemd-journal-remote.socket is not running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-6.1.1.1.2-journald_service_masked` | journald service masked: systemctl is-enabled systemd-journal-remote.socket | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-6.1.1.1.3-forward_journald_conf` | forward journald conf: systemd-analyze cat-config systemd/journald.conf \| grep -Pi -- '^\\h\*ForwardToSyslog\\h\*=' … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU26-6.1.1.1.4-etc_tmpfiles.d_systemd.conf` | /etc/tmpfiles.d/systemd.conf: echo "Manual - Please check journald default permissions" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-6.1.1.1.5-log_rotate_journald_conf` | log rotate journald conf: systemd-analyze cat-config systemd/journald.conf \| grep -Pi -- '^\\h\*(SystemMaxUse\|SystemK… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-6.1.1.1.6-storage_journald_conf` | storage journald conf: systemd-analyze cat-config systemd/journald.conf \| grep -Pi -- '^\\h\*Storage\\h\*=' \| tail -… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-6.1.1.1.7-compress_journald_conf` | compress journald conf: systemd-analyze cat-config systemd/journald.conf \| grep -Pi -- '^\\h\*Compress\\h\*=' \| tail … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -543,7 +540,7 @@ checkmate run cis/ubuntu26.yml --tags cis-level-2 -v
 | `CIS-UBUNTU26-7.1.9-etc_shells_perms-attrs` | /etc/shells: exists, mode 0644 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-7.1.10-etc_security_opasswd_perms-attrs` | /etc/security/opasswd: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-7.1.11-world_writable` | world writable: df --local -P \| awk '{if (NR!=1) print $6}' \| xargs -I '{}' find '{}' -xdev -type f -perm… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU26-7.1.12-unowned_dirs` | unowned dirs: df --local -P \| awk {'if (NR!=1) print $6'} \| xargs -I '{}' find '{}' -xdev -nouser -o -n… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU26-7.1.12-unowned_dirs` | No file or directory is without an owner or a group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-7.1.13-audit_sgid` | audit sgid: df --local -P \| awk '{if (NR!=1) print $6}' \| xargs -I '{}' find '{}' -xdev -type f -perm… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-7.2.1-shadowed_passwds-attrs` | /etc/passwd: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-7.2.1-shadowed_passwds-content` | /etc/passwd has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

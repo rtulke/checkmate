@@ -1,6 +1,6 @@
 # CIS Ubuntu 24.04 LTS
 
-Automated checks for 311 recommendations of the CIS Ubuntu 24.04 LTS benchmark (version 2.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
+Automated checks for 316 recommendations of the CIS Ubuntu 24.04 LTS benchmark (version 2.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
 
 **Policy:** [`cis/ubuntu24.yml`](https://github.com/rtulke/checkmate/blob/main/cis/ubuntu24.yml) · **Benchmark version:** 2.0.0
 
@@ -51,7 +51,6 @@ checkmate run cis/ubuntu24.yml --tags cis-level-2 -v
 | `CIS-UBUNTU24-1.1.1.10-usb-storage_blacklist-content` | /etc/modprobe.d/blacklist.conf has the expected content (1 rule) | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-1.1.1.10-usb-storage_disabled-attrs` | /etc/modprobe.d/CIS.conf: exists | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-1.1.1.10-usb-storage_disabled-content` | /etc/modprobe.d/CIS.conf has the expected content (1 rule) | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU24-1.1.1.11-cve_fs` | cve fs: /var/fs_with_cves.sh | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-1.1.2.1.1-tmp_mount` | /tmp is a separate mount | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-1.1.2.1.2-tmp_nodev_options` | /tmp is a separate mount with nodev | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-1.1.2.1.2-tmp_nodev_fstab_options-attrs` | /etc/fstab: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -162,6 +161,8 @@ checkmate run cis/ubuntu24.yml --tags cis-level-2 -v
 | `CIS-UBUNTU24-1.5.12-coredump_storage-content` | /etc/systemd/coredump.conf.d/60-coredump.conf has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-1.6.1-etc_motd_content-attrs` | /etc/motd: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-1.6.1-etc_motd_content-content` | /etc/motd has the expected content (4 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.6.1-pam_motd_dynamic_disabled_gdm-attrs` | /etc/pam.d/gdm-password: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.6.1-pam_motd_dynamic_disabled_gdm-content` | /etc/pam.d/gdm-password has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-1.6.1-pam_motd_dynamic_disabled_login-attrs` | /etc/pam.d/login: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-1.6.1-pam_motd_dynamic_disabled_login-content` | /etc/pam.d/login has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-1.6.1-pam_motd_dynamic_disabled_sshd-attrs` | /etc/pam.d/sshd: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -180,11 +181,36 @@ checkmate run cis/ubuntu24.yml --tags cis-level-2 -v
 | `CIS-UBUNTU24-1.6.8-etc_issue_net_perms-attrs` | /etc/issue.net: exists, mode 0644 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-1.6.9-pam_motd_perms` | pam motd perms: grep -hPo 'motd=\\K\\S+' /etc/pam.d/\* 2>/dev/null \| tr -d "\\"'" \| sort -u \| while IFS= read… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-1.6.10-sshd_banner_perms-attrs` | /etc/issue.net: exists, mode 0644 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.1-gdm_banner_locks-attrs` | /etc/dconf/db/local.d/locks/00-banner-message: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.1-gdm_banner_locks-content` | /etc/dconf/db/local.d/locks/00-banner-message has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.1-gdm_profile_1_7_1-attrs` | /etc/dconf/profile/user: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.1-gdm_profile_1_7_1-content` | /etc/dconf/profile/user has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.1-gdm_banner` | gdm banner: cat /etc/dconf/db/local.d/\* 2>/dev/null \| grep -E '^\\s\*banner-message-(enable\|text)\\s\*=' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.2-gdm_disable_user_locks-attrs` | /etc/dconf/db/local.d/locks/00-login-screen: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.2-gdm_disable_user_locks-content` | /etc/dconf/db/local.d/locks/00-login-screen has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.2-gdm_profile_1_7_2-attrs` | /etc/dconf/profile/user: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.2-gdm_profile_1_7_2-content` | /etc/dconf/profile/user has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.2-gdm_disable_user` | gdm disable user: cat /etc/dconf/db/local.d/\* 2>/dev/null \| grep -E '^\\s\*disable-user-list\\s\*=' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.3-gdm_screensaver-attrs` | /etc/dconf/db/local.d/00-screensaver: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.3-gdm_screensaver-content` | /etc/dconf/db/local.d/00-screensaver has the expected content (4 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.3-gdm_screensaver_locks-attrs` | /etc/dconf/db/local.d/locks/00-screensaver: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.3-gdm_screensaver_locks-content` | /etc/dconf/db/local.d/locks/00-screensaver has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.4-gnome_automount_disable-attrs` | /etc/dconf/db/local.d/00-media-automount: exists | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.4-gnome_automount_disable-content` | /etc/dconf/db/local.d/00-media-automount has the expected content (3 rules) | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.4-gnome_automount_locks-attrs` | /etc/dconf/db/local.d/locks/00-automount_lock: exists | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.4-gnome_automount_locks-content` | /etc/dconf/db/local.d/locks/00-automount_lock has the expected content (2 rules) | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.5-gdm_autorun_locks-attrs` | /etc/dconf/db/local.d/locks/00-autorun_lock: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.5-gdm_autorun_locks-content` | /etc/dconf/db/local.d/locks/00-autorun_lock has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.5-gdm_autorun_never-attrs` | /etc/dconf/db/local.d/00-media-autorun: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.5-gdm_autorun_never-content` | /etc/dconf/db/local.d/00-media-autorun has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.6-gdm_xdcmp-attrs` | /etc/gdm3/custom.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.6-gdm_xdcmp-content` | /etc/gdm3/custom.conf has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-1.7.7-gdm_xwayland-attrs` | /etc/gdm3/custom.conf: exists | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-UBUNTU24-1.7.7-gdm_xwayland-content` | /etc/gdm3/custom.conf has the expected content (2 rules) | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-UBUNTU24-2.1.1-autofs_pkg` | Package autofs is not installed | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-2.1.2-mta_listening_ports` | mta listening ports: ss -plntu \| grep -P -- ':(25\|465\|587)\\b' \| grep -Pv -- '\\h+(127\\.0\\.0\\.1\|\\[?::1\\]?):(25\|4… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-2.1.2-mta_postfix_inet_interfaces` | mta postfix inet interfaces: if command -v postconf >/dev/null 2>&1; then | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-2.1.3-avahi_pkg` | Package avahi-daemon is not installed | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU24-2.1.4-manual_listening_ports` | manual listening ports: echo "Manual!! - Please check only approved services are listening" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-2.1.5-kea_ddns_pkg` | Package kea-dhcp-ddns-server is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-2.1.5-kea_dhcp4_pkg` | Package kea-dhcp4-server is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-2.1.5-kea_dhcp6_pkg` | Package kea-dhcp6-server is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -618,7 +644,7 @@ checkmate run cis/ubuntu24.yml --tags cis-level-2 -v
 | `CIS-UBUNTU24-7.1.10-etc_security_opasswd_old_perms-attrs` | /etc/security/opasswd.old: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-7.1.10-etc_security_opasswd_perms-attrs` | /etc/security/opasswd: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-7.1.11-world_writable` | world writable: df --local -P \| awk '{if (NR!=1) print $6}' \| xargs -I '{}' find '{}' -xdev -type f -perm… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU24-7.1.12-unowned_dirs` | unowned dirs: df --local -P \| awk {'if (NR!=1) print $6'} \| xargs -I '{}' find '{}' -xdev -nouser -o -n… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU24-7.1.12-unowned_dirs` | No file or directory is without an owner or a group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-7.1.13-audit_sgid` | audit sgid: findmnt -Dkerno fstype,target,options \| awk '($1 !~ /^[[:space:]]\*(nfs\|proc\|smb\|vfat\|iso9… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-7.2.1-shadowed_passwds-attrs` | /etc/passwd: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU24-7.2.1-shadowed_passwds-content` | /etc/passwd has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

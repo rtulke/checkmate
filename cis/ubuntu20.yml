@@ -3,7 +3,7 @@
 name: CIS Ubuntu 20.04 LTS
 version: "3.0.0"
 description: >
-  Automated checks for 293 recommendations of the CIS Ubuntu 20.04 LTS benchmark
+  Automated checks for 274 recommendations of the CIS Ubuntu 20.04 LTS benchmark
   (version 3.0.0), converted from the goss audit content of the
   ansible-lockdown project. Check names describe what is verified; the
   recommendation number is in the ID and the description. Select profiles
@@ -19,6 +19,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.1. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo cramfs \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -32,6 +33,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.1. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo cramfs \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -46,6 +48,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.1. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo cramfs \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/cramfs.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -59,6 +62,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.1. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo cramfs \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/cramfs.conf'
     allow_rc: any
@@ -73,6 +77,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.2. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo freevxfs \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -85,6 +90,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.2. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo freevxfs \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -99,6 +105,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.2. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo freevxfs \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/freevxfs.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -112,6 +119,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.2. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo freevxfs \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/freevxfs.conf'
     allow_rc: any
@@ -126,6 +134,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.3. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo hfs \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -138,6 +147,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.3. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo hfs \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -152,6 +162,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.3. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo hfs \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/hfs.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -165,6 +176,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.3. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo hfs \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/hfs.conf'
     allow_rc: any
@@ -179,6 +191,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.4. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo hfsplus \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -191,6 +204,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.4. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo hfsplus \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -205,6 +219,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.4. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo hfsplus \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/hfsplus.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -218,6 +233,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.4. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo hfsplus \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/hfsplus.conf'
     allow_rc: any
@@ -232,6 +248,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.5. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo jffs2 \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -244,6 +261,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.5. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo jffs2 \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -258,6 +276,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.5. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo jffs2 \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/jffs2.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -271,6 +290,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.5. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo jffs2 \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/jffs2.conf'
     allow_rc: any
@@ -285,6 +305,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.6. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
+    only_if: "modinfo overlayfs \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -297,6 +318,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.6. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
+    only_if: "modinfo overlayfs \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -311,6 +333,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.6. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
+    only_if: "modinfo overlayfs \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/overlayfs.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -324,6 +347,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.6. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
+    only_if: "modinfo overlayfs \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/overlayfs.conf'
     allow_rc: any
@@ -338,6 +362,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.7. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
+    only_if: "modinfo squashfs \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -350,6 +375,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.7. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
+    only_if: "modinfo squashfs \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -364,6 +390,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.7. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
+    only_if: "modinfo squashfs \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/squashfs.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -377,6 +404,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.7. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
+    only_if: "modinfo squashfs \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/squashfs.conf'
     allow_rc: any
@@ -391,6 +419,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.8. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
+    only_if: "modinfo udf \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -403,6 +432,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.8. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
+    only_if: "modinfo udf \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -417,6 +447,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.8. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
+    only_if: "modinfo udf \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/udf.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -430,6 +461,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.8. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
+    only_if: "modinfo udf \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/udf.conf'
     allow_rc: any
@@ -444,6 +476,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.9. NIST SP 800-53 Rev. 5: SI-3. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo usb-storage \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/blacklist.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -456,6 +489,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.9. NIST SP 800-53 Rev. 5: SI-3. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo usb-storage \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/blacklist.conf'
     allow_rc: any
@@ -470,6 +504,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.9. NIST SP 800-53 Rev. 5: SI-3. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo usb-storage \u003e/dev/null 2\u003e\u00261"
     run: |
       f='/etc/modprobe.d/usb_storage.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -483,6 +518,7 @@ checks:
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.9. NIST SP 800-53 Rev. 5: SI-3. CIS Controls v8: 4.8."
     tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: medium
+    only_if: "modinfo usb-storage \u003e/dev/null 2\u003e\u00261"
     run: |
       cat '/etc/modprobe.d/usb_storage.conf'
     allow_rc: any
@@ -492,27 +528,6 @@ checks:
       Edit /etc/modprobe.d/usb_storage.conf so that its lines meet these conditions (regular expressions):
 
       - a line matches ^install usb-storage /bin/(true|false)
-  - id: "CIS-UBUNTU20-1.1.1.10-cve_fs"
-    name: "cve fs: /var/fs_with_cves.sh"
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.1.10. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
-    tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      /var/fs_with_cves.sh
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ .*\u003c- CVE exists!" }
-    rationale: &rat-30c0153fca |
-      File system drivers parse complex on-disk structures and have repeatedly contained exploitable vulnerabilities. If such a module can be loaded, an attacker can trigger it, for example by mounting a crafted image or plugging in removable media, and gain kernel privileges. The helper script lists available file system modules with known CVEs so that unneeded ones can be disabled.
-    remediation: &rem-e16dad28c1 |
-      Run the helper script and review each file system module it marks with '<- CVE exists!'. Disable every flagged module the system does not need and unload it:
-
-      /var/fs_with_cves.sh
-      printf '%s\n' 'install MODULE /bin/false' 'blacklist MODULE' > /etc/modprobe.d/MODULE.conf
-      modprobe -r MODULE
-
-      /var/fs_with_cves.sh is installed by the Ansible Lockdown remediation role; if it is missing the check fails, so deploy it with the role or review the available file system modules manually.
   - id: "CIS-UBUNTU20-1.1.2.1.1-tmp_mount"
     name: "/tmp is a separate mount"
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.1.2.1.1. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
@@ -1462,47 +1477,6 @@ checks:
       Edit /etc/fstab so that its lines meet these conditions (regular expressions):
 
       - a line matches \s\/var\/log\/audit\s.*noexec.*
-  - id: "CIS-UBUNTU20-1.2.1.1-gpg_keys_list"
-    name: "gpg keys list: echo \"MANUAL - Please check manually for gpg keys\""
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.2.1.1. NIST SP 800-53 Rev. 5: SI-2. CIS Controls v8: 7.3, 7.4."
-    tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "MANUAL - Please check manually for gpg keys"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^MANUAL.*" }
-    rationale: &rat-8b9aa9e8ea |
-      APT verifies packages with the repository signing keys it trusts. An unknown or outdated key in the trust store would allow packages from an unauthorised source to be installed as genuine, so the list of trusted keys should be reviewed.
-    remediation: &rem-de4f6eaedf |
-      Review the trusted repository signing keys and remove keys that are not approved.
-
-      apt-key list
-      ls -l /etc/apt/trusted.gpg.d/ /etc/apt/keyrings/ /usr/share/keyrings/
-      grep -r signed-by /etc/apt/sources.list /etc/apt/sources.list.d/
-
-      This is a manual review.
-  - id: "CIS-UBUNTU20-1.2.1.2-gpg_configd"
-    name: "gpg configd: echo \"MANUAL - Please check manually that repositories are configured as expected\""
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.2.1.2. NIST SP 800-53 Rev. 5: SI-2. CIS Controls v8: 7.3."
-    tags: [cis, cis-ubuntu20, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "MANUAL - Please check manually that repositories are configured as expected"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^MANUAL.*" }
-    rationale: &rat-2f993b2a92 |
-      Packages are only as trustworthy as the repositories they come from. Reviewing the configured APT sources ensures updates come only from intended, authenticated repositories.
-    remediation: &rem-5fc99f4f48 |
-      Review the configured package sources and remove repositories that are not approved.
-
-      apt-cache policy
-      grep -rh '^deb\|^URIs' /etc/apt/sources.list /etc/apt/sources.list.d/
-
-      This is a manual review.
   - id: "CIS-UBUNTU20-1.2.2.1-check_updates"
     name: "check updates: apt update | tail -1"
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 1.2.2.1. NIST SP 800-53 Rev. 5: SI-2. CIS Controls v8: 7.3."
@@ -2367,26 +2341,6 @@ checks:
       Remove the package xserver-common, unless the system needs it:
 
       apt-get purge xserver-common
-  - id: "CIS-UBUNTU20-2.1.22-manual_listening_ports"
-    name: "manual listening ports: echo \"Manual!! - Please check only approved services are listening\""
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 2.1.22. NIST SP 800-53 Rev. 5: CM-7. CIS Controls v8: 4.8."
-    tags: [cis, cis-ubuntu20, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual!! - Please check only approved services are listening"
-    allow_rc: any
-    expect:
-      - { rc: "in [0, 1]" }
-      - { none: "~ ." }
-    rationale: &rat-71d1cf147e |
-      Every listening network service is a potential entry point. Reviewing listening ports and the processes behind them ensures that only approved services are reachable and reveals forgotten or unexpected ones. This is a manual review.
-    remediation: &rem-905c71ee6f |
-      This is a manual review. List all listening sockets with their processes, then stop and disable, or block with the firewall, every service that is not approved, and document the result.
-
-      ss -tulpn
-      systemctl disable --now SERVICE
-
-      The check itself only prints a reminder and reports a failure on most platforms regardless of the result.
   - id: "CIS-UBUNTU20-2.2.1-nis_client"
     name: "Package nis is not installed"
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 2.2.1. NIST SP 800-53 Rev. 5: CM-7, CM-11. CIS Controls v8: 4.8."
@@ -4075,47 +4029,6 @@ checks:
       ufw enable
 
       Allow SSH or other remote access before running ufw enable on a remote system.
-  - id: "CIS-UBUNTU20-4.2.6-ufw_outbound"
-    name: "ufw outbound: echo \"Manual - Please confirm firewall outbound Policies match site policies\""
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.2.6. NIST SP 800-53 Rev. 5: SC-7. CIS Controls v8: 4.4, 4.5."
-    tags: [cis, cis-ubuntu20, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm firewall outbound Policies match site policies"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-9eae47b76a |
-      Outbound rules decide which connections the host may initiate. Limiting them to what the system needs restricts data exfiltration and the ability of malware to reach command-and-control servers. Because the right rules depend on the system's role, this is a manual review item.
-    remediation: &rem-ed9bb3aa66 |
-      Review the outbound ufw rules against the site policy and allow only the outgoing traffic the system needs.
-
-      ufw status verbose
-      ufw allow out PORT/PROTOCOL
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU20-4.2.7-ufw_open_ports"
-    name: "ufw open ports: echo \"Manual - Please confirm firewall rules exist for open ports match site policies\""
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.2.7. NIST SP 800-53 Rev. 5: SC-7. CIS Controls v8: 4.4, 4.5."
-    tags: [cis, cis-ubuntu20, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm firewall rules exist for open ports match site policies"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-2b1e73def8 |
-      Every port the system listens on should be covered by a deliberate firewall rule. Comparing listening services with the firewall configuration finds services exposed by accident and rules left over from removed services. Because the required ports depend on the system's role, this is a manual review item.
-    remediation: &rem-7fe6e6d4a7 |
-      Compare the listening ports with the ufw rules. Add an allow rule for each port the system must offer, and stop or remove services that should not be listening.
-
-      ss -tulnH
-      ufw status verbose
-      ufw allow in PORT/PROTOCOL
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
   - id: "CIS-UBUNTU20-4.2.8-ufw_def_deny"
     name: "ufw def deny: ufw status verbose | grep Default:"
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.2.8. NIST SP 800-53 Rev. 5: SC-7. CIS Controls v8: 4.4, 4.5."
@@ -4209,110 +4122,6 @@ checks:
       iptables -Z
 
       If iptables-persistent is installed, remove it (apt-get purge iptables-persistent) or empty /etc/iptables/rules.v4, otherwise the rules are restored at boot.
-  - id: "CIS-UBUNTU20-4.3.4-nft_tables"
-    name: "nft tables: echo \"Manual - Please confirm nfttables table exists and matched site policy\""
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.3.4. NIST SP 800-53 Rev. 5: CA-9, SC-7. CIS Controls v8: 4.4, 4.5."
-    tags: [cis, cis-ubuntu20, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm nfttables table exists and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-d4612286c4 |
-      nftables only filters traffic once a table exists to hold its chains and rules. Confirming that a table exists and matches the site policy ensures the firewall is actually configured rather than just installed. This is a manual review item.
-    remediation: &rem-9e08a19679 |
-      List the nftables tables and create one if none exists.
-
-      nft list tables
-      nft create table inet filter
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU20-4.3.5-nft_chains"
-    name: "nft chains: echo \"Manual - Please confirm nfttables base chain exists and matched site policy\""
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.3.5. NIST SP 800-53 Rev. 5: NA. CIS Controls v8: 4.4, 4.5."
-    tags: [cis, cis-ubuntu20, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm nfttables base chain exists and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-03d23b9486 |
-      Base chains attach nftables rules to the kernel's packet processing hooks. Without input, forward and output base chains, the rules in a table never see any traffic. This is a manual review item.
-    remediation: &rem-ca04b9bc75 |
-      Create base chains for the input, forward and output hooks in the filter table.
-
-      nft create chain inet filter input '{ type filter hook input priority 0; }'
-      nft create chain inet filter forward '{ type filter hook forward priority 0; }'
-      nft create chain inet filter output '{ type filter hook output priority 0; }'
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU20-4.3.6-nft_loopback"
-    name: "nft loopback: echo \"Manual - Please confirm nfttables loopback traffic configured and matched site poli…"
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.3.6. NIST SP 800-53 Rev. 5: CA-9, SC-7. CIS Controls v8: 4.4, 4.5."
-    tags: [cis, cis-ubuntu20, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm nfttables loopback traffic configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-9e8cd593c2 |
-      Local services rely on loopback traffic, so it must be accepted, while packets from the network claiming a loopback source address are always spoofed and must be dropped. This protects services that only listen on localhost. This is a manual review item.
-    remediation: &rem-ac197a7b1e |
-      Accept loopback traffic and drop loopback source addresses arriving on other interfaces.
-
-      nft add rule inet filter input iif lo accept
-      nft add rule inet filter input ip saddr 127.0.0.0/8 counter drop
-      nft add rule inet filter input ip6 saddr ::1 counter drop
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU20-4.3.7-nft_conns"
-    name: "nft conns: echo \"Manual - Please confirm nfttables connections are configured and matched site polic…"
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.3.7. NIST SP 800-53 Rev. 5: CA-9, SC-7. CIS Controls v8: 4.4, 4.5."
-    tags: [cis, cis-ubuntu20, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm nfttables connections are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-f8a74f167a |
-      Rules for outbound and established connections decide which sessions the host may start and which replies it accepts. Accepting replies to established connections while restricting new ones keeps legitimate traffic working under a default deny policy. This is a manual review item.
-    remediation: &rem-64c8180d2d |
-      Allow return traffic for established connections and the outbound connections the system needs.
-
-      nft add rule inet filter input ct state established,related accept
-      nft add rule inet filter output ct state new,established,related accept
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU20-4.3.8-nft_def_deny"
-    name: "nft def deny: echo \"Manual - Please confirm nfttables default denies are configured and matched site po…"
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.3.8. NIST SP 800-53 Rev. 5: CA-9, SC-7. CIS Controls v8: 4.4, 4.5."
-    tags: [cis, cis-ubuntu20, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm nfttables default denies are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-1b662cefab |
-      With a default drop policy on the base chains, anything not explicitly allowed is blocked, so new services or mistakes are not exposed automatically. Required traffic must be permitted before the policy is changed. This is a manual review item.
-    remediation: &rem-86c73c8e3c |
-      Allow required traffic, including remote administration, then set the policy of the base chains to drop.
-
-      nft add rule inet filter input tcp dport 22 accept
-      nft chain inet filter input '{ policy drop; }'
-      nft chain inet filter forward '{ policy drop; }'
-      nft chain inet filter output '{ policy drop; }'
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
   - id: "CIS-UBUNTU20-4.3.9-nftables-enabled"
     name: "Service nftables is enabled"
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.3.9. NIST SP 800-53 Rev. 5: CA-9, SC-7. CIS Controls v8: 4.4, 4.5."
@@ -4352,28 +4161,6 @@ checks:
       nftables rules added at runtime are lost on reboot unless they are stored in the configuration file loaded at boot. If /etc/nftables.conf is missing, the system may start without any firewall.
     remediation: &rem-0111bdad91 |
       Create /etc/nftables.conf.
-  - id: "CIS-UBUNTU20-4.3.10-nft_rules"
-    name: "nft rules: echo \"Manual - Please review nfttables configuration and matches site policy\""
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.3.10. NIST SP 800-53 Rev. 5: CA-9, SC-7. CIS Controls v8: 4.4, 4.5."
-    tags: [cis, cis-ubuntu20, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please review nfttables configuration and matches site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ .*" }
-    rationale: &rat-b580f821a1 |
-      The nftables rule set must be saved in the boot configuration and loaded by the nftables service, otherwise the system starts unprotected after a reboot. Reviewing the stored configuration against the site policy ensures the persistent rules match what is intended. This is a manual review item.
-    remediation: &rem-8ec412dee0 |
-      Save the reviewed rule set to /etc/nftables.conf and enable the nftables service so it is loaded at boot.
-
-      nft list ruleset
-      printf '%s\n' '#!/usr/sbin/nft -f' 'flush ruleset' > /etc/nftables.conf
-      nft list ruleset >> /etc/nftables.conf
-      systemctl enable nftables
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
   - id: "CIS-UBUNTU20-4.4.1.1-iptables"
     name: "Package iptables is installed"
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.4.1.1. NIST SP 800-53 Rev. 5: CA-9, SC-7. CIS Controls v8: 4.4, 4.5."
@@ -4422,189 +4209,6 @@ checks:
     expect: false
     rationale: *rat-8061e449a6
     remediation: *rem-7f6d83d359
-  - id: "CIS-UBUNTU20-4.4.2.1-ipt_def_deny"
-    name: "ipt def deny: echo \"Manual - Please confirm iptables default denies are configured and matched site pol…"
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.4.2.1. NIST SP 800-53 Rev. 5: CA-9, SC-7. CIS Controls v8: 4.4, 4.5."
-    tags: [cis, cis-ubuntu20, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm iptables default denies are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-0eae3bbf05 |
-      With a default DROP policy on the INPUT, FORWARD and OUTPUT chains, any traffic not explicitly allowed is blocked, so new services or mistakes are not exposed automatically. Rules for required traffic must exist before the policy is changed, or the system becomes unreachable.
-    remediation: &rem-395a4cf9e0 |
-      Add accept rules for required traffic first, then set the default policy of the built-in chains to DROP and save the rules.
-
-      iptables -A INPUT -i lo -j ACCEPT
-      iptables -A OUTPUT -o lo -j ACCEPT
-      iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-      iptables -A OUTPUT -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
-      iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW -j ACCEPT
-      iptables -P INPUT DROP
-      iptables -P FORWARD DROP
-      iptables -P OUTPUT DROP
-      netfilter-persistent save
-
-      On Debian 11 and Ubuntu this is a manual review item that the check always reports; on Debian 12 the check reads the chain policies.
-  - id: "CIS-UBUNTU20-4.4.2.2-ipt_loopback"
-    name: "ipt loopback: echo \"Manual - Please confirm iptables loopback connections are configured and matched si…"
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.4.2.2. NIST SP 800-53 Rev. 5: CA-9, SC-7. CIS Controls v8: 4.4, 4.5."
-    tags: [cis, cis-ubuntu20, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm iptables loopback connections are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-b82eb32e30 |
-      Local services rely on loopback traffic, so it must be accepted, while packets from the network with a source address in 127.0.0.0/8 are always spoofed and should be dropped. This protects services that only listen on localhost. This is a manual review item.
-    remediation: &rem-393b25b7bb |
-      Accept loopback traffic, drop loopback source addresses on other interfaces and save the rules.
-
-      iptables -A INPUT -i lo -j ACCEPT
-      iptables -A OUTPUT -o lo -j ACCEPT
-      iptables -A INPUT -s 127.0.0.0/8 -j DROP
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU20-4.4.2.3-ipt_conns_config"
-    name: "ipt conns config: echo \"Manual - Please confirm iptables outbound and connections are configured and matche…"
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.4.2.3. NIST SP 800-53 Rev. 5: CA-9, SC-7. CIS Controls v8: 4.4, 4.5."
-    tags: [cis, cis-ubuntu20, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm iptables outbound and connections are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-1bcd349780 |
-      Rules for outbound and established connections decide which sessions the host may start and which replies it accepts. Accepting replies to established connections while limiting new outbound connections keeps legitimate traffic working under a default deny policy. This is a manual review item.
-    remediation: &rem-edd392aae3 |
-      Allow return traffic for established connections and the outbound connections the system needs, then save the rules.
-
-      iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-      iptables -A OUTPUT -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU20-4.4.2.4-ipt_open_ports"
-    name: "ipt open ports: echo \"Manual - Please confirm iptables rules for open ports configured and matched site p…"
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.4.2.4. NIST SP 800-53 Rev. 5: CA-9, SC-7. CIS Controls v8: 4.4, 4.5."
-    tags: [cis, cis-ubuntu20, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm iptables rules for open ports configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-627639aeaf |
-      Every port the system listens on should have a deliberate firewall rule. Comparing listening services with the iptables rules finds services exposed by accident and rules left from removed services. Because the required ports depend on the system's role, this is a manual review item.
-    remediation: &rem-d49de86ca0 |
-      Compare the listening ports with the iptables rules and add an accept rule for each port the system must offer; stop services that should not listen.
-
-      ss -tulnH
-      iptables -L INPUT -v -n
-      iptables -A INPUT -p PROTOCOL --dport PORT -m conntrack --ctstate NEW -j ACCEPT
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU20-4.4.3.1-ipt6_def_deny"
-    name: "ipt6 def deny: echo \"Manual - Please confirm ip6tables default denies are configured and matched site po…"
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.4.3.1. NIST SP 800-53 Rev. 5: CA-9, SC-7. CIS Controls v8: 4.4, 4.5."
-    tags: [cis, cis-ubuntu20, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm ip6tables default denies are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-f2b453bff8 |
-      With a default DROP policy on the ip6tables INPUT, FORWARD and OUTPUT chains, IPv6 traffic not explicitly allowed is blocked. Without it, IPv6 can become an unfiltered path around an IPv4-only firewall. Required traffic must be allowed first. This is a manual review item.
-    remediation: &rem-2d69897fbe |
-      Add accept rules for required IPv6 traffic first, then set the default policy of the built-in ip6tables chains to DROP and save the rules.
-
-      ip6tables -A INPUT -i lo -j ACCEPT
-      ip6tables -A OUTPUT -o lo -j ACCEPT
-      ip6tables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-      ip6tables -A OUTPUT -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
-      ip6tables -P INPUT DROP
-      ip6tables -P FORWARD DROP
-      ip6tables -P OUTPUT DROP
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU20-4.4.3.2-ipt6_loopback"
-    name: "ipt6 loopback: echo \"Manual - Please confirm ip6tables loopback connections are configured and matched s…"
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.4.3.2. NIST SP 800-53 Rev. 5: CA-9, SC-7. CIS Controls v8: 4.4, 4.5."
-    tags: [cis, cis-ubuntu20, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm ip6tables loopback connections are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-9ebd3a7683 |
-      Local services rely on IPv6 loopback traffic, so it must be accepted, while packets from the network with the source address ::1 are always spoofed and should be dropped. This protects services that only listen on localhost. This is a manual review item.
-    remediation: &rem-b11bd52f16 |
-      Accept IPv6 loopback traffic, drop ::1 as source address on other interfaces and save the rules.
-
-      ip6tables -A INPUT -i lo -j ACCEPT
-      ip6tables -A OUTPUT -o lo -j ACCEPT
-      ip6tables -A INPUT -s ::1 -j DROP
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU20-4.4.3.3-ipt6_conns_config"
-    name: "ipt6 conns config: echo \"Manual - Please confirm ip6tables outbound and connections are configured and match…"
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.4.3.3. NIST SP 800-53 Rev. 5: CA-9, SC-7. CIS Controls v8: 4.4, 4.5."
-    tags: [cis, cis-ubuntu20, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm ip6tables outbound and connections are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-a1c355e722 |
-      Rules for outbound and established IPv6 connections decide which sessions the host may start and which replies it accepts. Accepting replies to established connections while limiting new ones keeps legitimate IPv6 traffic working under a default deny policy. This is a manual review item.
-    remediation: &rem-d0f10fb243 |
-      Allow return traffic for established IPv6 connections and the outbound connections the system needs, then save the rules.
-
-      ip6tables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-      ip6tables -A OUTPUT -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-UBUNTU20-4.4.3.4-ipt6_open_ports"
-    name: "ipt6 open ports: echo \"Manual - Please confirm ip6tables rules for open ports configured and matched site …"
-    description: "CIS Ubuntu 20.04 LTS benchmark recommendation 4.4.3.4. NIST SP 800-53 Rev. 5: CA-9, SC-7. CIS Controls v8: 4.4, 4.5."
-    tags: [cis, cis-ubuntu20, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm ip6tables rules for open ports configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-9ecee60e4a |
-      Every port a host listens on over IPv6 is reachable by any IPv6 peer unless the firewall restricts it. With a default-drop policy, missing rules break needed services, while overly broad rules expose services that should stay internal. Comparing the ip6tables rules with the sockets actually listening keeps IPv6 exposure limited to what the site has approved.
-    remediation: &rem-757b9bba24 |
-      Compare the IPv6 sockets the host listens on with the ip6tables INPUT rules. Add an accept rule for each port the site policy allows (example for SSH below), remove rules for ports that are not needed, and save the rule set.
-
-      ss -6tuln
-      ip6tables -L INPUT -v -n
-      ip6tables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW -j ACCEPT
-      netfilter-persistent save
-
-      This is a manual review item: the check only prints a reminder and reports a failure until the review is accepted.
   - id: "CIS-UBUNTU20-5.1.1-sshd_config_perms-attrs"
     name: "/etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 5.1.1. NIST SP 800-53 Rev. 5: AC-3, MP-2. CIS Controls v8: 3.3."
@@ -9423,24 +9027,22 @@ checks:
 
       Shared directories such as /tmp and /var/tmp need mode 1777; clarify with the owning application before changing other files.
   - id: "CIS-UBUNTU20-7.1.12-unowned_dirs"
-    name: "unowned dirs: df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -o -n…"
+    name: "No file or directory is without an owner or a group"
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 7.1.12. NIST SP 800-53 Rev. 5: AC-3, MP-2. CIS Controls v8: 3.3."
     tags: [cis, cis-ubuntu20, cis-section-7, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     timeout: 120000ms
     run: |
-      df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -o -nogroup | grep -v journal-upload
-    allow_rc: any
-    expect:
-      - { rc: "in [0, 1]" }
-      - { none: "~ ." }
+      df --local -P | awk 'NR!=1 {print $6}' | while read -r m; do
+        find "$m" -xdev \( -nouser -o -nogroup \) 2>/dev/null || true
+      done | grep -v journal-upload || true
+    expect: empty
     rationale: &rat-ffe83ecc3b |
       Files whose owner (or group) ID does not correspond to any existing account are usually left over from deleted users or unpacked archives. If a new account later receives that ID, it automatically becomes the owner of these files. They should be assigned to a valid owner or removed.
-    remediation: &rem-42672275f0 |
-      Review each file listed by the check and assign it to an appropriate existing user and group, or remove it if it belonged to a deleted account and is no longer needed.
+    remediation: &rem-a0251b5d28 |
+      Give every listed file and directory an existing owner and group, or remove it if it is no longer needed:
 
-      ls -ln FILE
-      chown USER:GROUP FILE
+      chown USER:GROUP PATH
   - id: "CIS-UBUNTU20-7.1.13-audit_sgid"
     name: "audit sgid: df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm…"
     description: "CIS Ubuntu 20.04 LTS benchmark recommendation 7.1.13. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5, AC-3, MP-2. CIS Controls v8: 3.3."
@@ -9717,7 +9319,9 @@ checks:
     tags: [cis, cis-ubuntu20, cis-section-7, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      find /home/ -name "\.forward" -o -name "\.netrc" -o -name "\.rhosts"
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name "\.forward" -o -name "\.netrc" -o -name "\.rhosts" 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -9737,7 +9341,9 @@ checks:
     tags: [cis, cis-ubuntu20, cis-section-7, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      find /home/ -name "\.bash_history" -perm /go+rwx
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name "\.bash_history" -perm /go+rwx 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -9756,7 +9362,9 @@ checks:
     tags: [cis, cis-ubuntu20, cis-section-7, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      find /home/ -name "\.*" -perm /g+w,o+w | grep -v .bash_history
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name "\.*" -perm /g+w,o+w 2>/dev/null || true; fi
+      done | grep -v .bash_history
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }

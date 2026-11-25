@@ -1,6 +1,6 @@
 # CIS Amazon Linux 2023
 
-Automated checks for 239 recommendations of the CIS Amazon Linux 2023 benchmark (version 1.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
+Automated checks for 232 recommendations of the CIS Amazon Linux 2023 benchmark (version 1.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
 
 **Policy:** [`cis/amazon2023.yml`](https://github.com/rtulke/checkmate/blob/main/cis/amazon2023.yml) · **Benchmark version:** 1.0.0
 
@@ -176,10 +176,6 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-3.4.1.2-nftables-running` | Service nftables is not running | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-3.4.1.2-etc_systemd_system_nftables.service-attrs` | /etc/systemd/system/nftables.service: exists, is a symbolic link, links to /dev/null | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-3.4.2.1-default_zone` | default zone: firewall-cmd --get-default-zone | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-3.4.2.2-nftables_table_list_manual` | nftables table list manual: echo "Manual test" | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-3.4.2.3-nftables_base_chain_manual` | nftables base chain manual: echo "Manual test" | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-3.4.2.4-firewall_loopback_manual` | firewall loopback manual: echo "Manual test" | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-3.4.2.5-firewall_drop_unncessary_ports_manual` | firewall drop unncessary ports manual: echo "Manual test" | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-4.1.1-cronie` | Package cronie is installed | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.1.1-crond-enabled` | Service crond is enabled | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-4.1.1-crond-running` | Service crond is running | L1 server | <span class="sev sev-medium">medium</span> |
@@ -316,7 +312,6 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-5.1.2.4-storage_journald_conf` | storage journald conf: grep -i storage /etc/systemd/journald.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-5.1.2.5-forward_journald_conf` | forward journald conf: grep -i forward /etc/systemd/journald.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-5.1.2.6-log_rotate_journald_conf` | log rotate journald conf: grep -Ei "max\|keep" /etc/systemd/journald.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2023-5.1.2.7-etc_tmpfiles.d_systemd.conf` | /etc/tmpfiles.d/systemd.conf: echo "Manual - Please check journald default permissions" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-5.1.3-logfile_configured` | logfile configured: find /var/log/ -type f -perm /g+wx,o+rwx -exec ls -l "{}" + \| grep -Ev "[b,u,w]tmp.\*\|last… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-5.2.1.1-audit` | Package audit is installed | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.1.1-audit-libs` | Package audit-libs is installed | L2 server | <span class="sev sev-low">low</span> |
@@ -342,7 +337,6 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-5.2.3.4-auditd_time_live` | auditd time live: auditctl -l \| grep time-change | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.5-auditd_locale_cnf` | auditd locale cnf: grep system-locale /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.5-auditd_locale_live` | auditd locale live: auditctl -l \| grep system-locale | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.2.3.6-auditd_priv_cmds_cnf` | auditd priv cmds cnf: echo "Manual - Please investigate privilege commands are collected as per documentation" | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.7-auditd_access_cnf` | auditd access cnf: grep access /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.7-auditd_access_live` | auditd access live: auditctl -l \| grep access | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.3.8-auditd_identity_cnf` | auditd identity cnf: grep identity /etc/audit/rules.d/\*.rules | L2 server | <span class="sev sev-low">low</span> |
@@ -382,7 +376,6 @@ checkmate run cis/amazon2023.yml --tags cis-level-2 -v
 | `CIS-AMAZON2023-5.2.4.8-audit_tools_perms` | audit tools perms: stat -c "%n_%a" /sbin/auditctl /sbin/aureport /sbin/ausearch /sbin/autrace /sbin/auditd /… | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.4.9-audit_tools_owner` | audit tools owner: stat -c "%n_%U" /sbin/auditctl /sbin/aureport /sbin/ausearch /sbin/autrace /sbin/auditd /… | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2023-5.2.4.10-audit_tools_group` | audit tools group: stat -c "%n_%G" /sbin/auditctl /sbin/aureport /sbin/ausearch /sbin/autrace /sbin/auditd /… | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2023-5.3-logrotate_manual` | logrotate manual: echo "Manually Check logrotate files are configured with site policy" | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-6.1.1-passwd_perms` | passwd perms: stat -L -c "%a %U %G" /etc/passwd | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-6.1.2-passwd_perms_6_1_2` | passwd perms 6 1 2: stat -L -c "%a %U %G" /etc/passwd | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2023-6.1.3-passwd-_perms` | passwd perms: stat -L -c "%a %U %G" /etc/passwd- | L1 server | <span class="sev sev-medium">medium</span> |

@@ -66,12 +66,12 @@ checkmate run baseline.yml --tags ssh --fail-on high --export junit,html -o repo
 
 | Standard | Platforms | Policies | Rules | Checks | Coverage |
 |---|---|---:|---:|---:|---|
-| [CIS Benchmarks Linux](https://rtulke.github.io/checkmate/cis/) | RHEL 7–10, Debian 11–13, Ubuntu 18.04–26.04, SUSE 15/16, Amazon Linux 2/2023/2027 | 17 | 4,846 | 8,427 | every automated recommendation of the Ansible Lockdown audits, Level 1/2, server/workstation |
+| [CIS Benchmarks Linux](https://rtulke.github.io/checkmate/cis/) | RHEL 7–10, Debian 11–13, Ubuntu 18.04–26.04, SUSE 15/16, Amazon Linux 2/2023/2027 | 17 | 4,727 | 8,338 | every automated recommendation of the Ansible Lockdown audits, Level 1/2, server/workstation |
 | [CIS Benchmarks Windows](https://rtulke.github.io/checkmate/cis/) | Windows 11, Windows Server 2019/2022/2025 | 4 | 1,780 | 1,921 | every automated recommendation, member server, domain controller, standalone; not Server 2016 |
 | [CIS Benchmarks macOS](https://rtulke.github.io/checkmate/cis/) | macOS 14, 15, 26 | 3 | 275 | 341 | every CIS rule of the macOS Security Compliance Project with an automated check |
 | [CIS PostgreSQL](https://rtulke.github.io/checkmate/cis/postgresql/) | PostgreSQL 12 and later | 1 | 46 | 51 | automatable recommendations; privilege design and backups need a review |
 | [CIS Apache HTTP Server](https://rtulke.github.io/checkmate/cis/apache/) | Apache 2.4 (RHEL, Debian, SUSE) | 1 | 70 | 70 | automatable recommendations, Level 1/2 |
-| [DISA STIG](https://rtulke.github.io/checkmate/stig/) | RHEL 7–10, Ubuntu 22.04/24.04, Amazon Linux 2023 | 7 | 1,935 | 3,034 | every automated rule of the Ansible Lockdown audits, CAT I–III |
+| [DISA STIG](https://rtulke.github.io/checkmate/stig/) | RHEL 7–10, Ubuntu 22.04/24.04, Amazon Linux 2023 | 7 | 1,912 | 3,011 | every automated rule of the Ansible Lockdown audits, CAT I–III |
 | [BSI IT-Grundschutz](https://rtulke.github.io/checkmate/examples/compliance/bsi-grundschutz/) | Linux servers (SYS.1.1, SYS.1.3) | 1 | | 53 | host-verifiable requirements, Basis/Standard/Hoch |
 | [Si001 IT-Grundschutz Bund (CH)](https://rtulke.github.io/checkmate/examples/compliance/si001/) | Linux, macOS and Windows clients | 1 | | 35 | host-verifiable requirements, Grundschutz and increased protection (Schuban) |
 | [MITRE ATT&CK](https://rtulke.github.io/checkmate/examples/attack/) | Linux, Windows, macOS | 3 | 63 techniques | 75 | traces and mitigations of selected techniques, ATT&CK Navigator layers |

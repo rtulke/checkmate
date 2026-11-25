@@ -3,7 +3,7 @@
 name: CIS Red Hat Enterprise Linux 10
 version: "1.0.1"
 description: >
-  Automated checks for 318 recommendations of the CIS Red Hat Enterprise Linux 10 benchmark
+  Automated checks for 319 recommendations of the CIS Red Hat Enterprise Linux 10 benchmark
   (version 1.0.1), converted from the goss audit content of the
   ansible-lockdown project. Check names describe what is verified; the
   recommendation number is in the ID and the description. Select profiles
@@ -392,27 +392,6 @@ checks:
       modprobe -r usb-storage
 
       Use /bin/false rather than /usr/bin/false: the SUSE checks only accept that path. If the module is in use, unmount the file system first or reboot.
-  - id: "CIS-RHEL10-1.1.1.11-cve_fs"
-    name: "cve fs: /var/fs_with_cves.sh"
-    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.1.11. NIST SP 800-53 Rev. 5: NA."
-    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      /var/fs_with_cves.sh
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ .*\u003c- CVE exists!" }
-    rationale: &rat-30c0153fca |
-      File system drivers parse complex on-disk structures and have repeatedly contained exploitable vulnerabilities. If such a module can be loaded, an attacker can trigger it, for example by mounting a crafted image or plugging in removable media, and gain kernel privileges. The helper script lists available file system modules with known CVEs so that unneeded ones can be disabled.
-    remediation: &rem-e16dad28c1 |
-      Run the helper script and review each file system module it marks with '<- CVE exists!'. Disable every flagged module the system does not need and unload it:
-
-      /var/fs_with_cves.sh
-      printf '%s\n' 'install MODULE /bin/false' 'blacklist MODULE' > /etc/modprobe.d/MODULE.conf
-      modprobe -r MODULE
-
-      /var/fs_with_cves.sh is installed by the Ansible Lockdown remediation role; if it is missing the check fails, so deploy it with the role or review the available file system modules manually.
   - id: "CIS-RHEL10-1.1.2.1.1-tmp_mount"
     name: "/tmp is a separate mount"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.1.2.1.1. NIST SP 800-53 Rev. 5: CM-6."
@@ -2465,6 +2444,355 @@ checks:
     rationale: &rat-d0e27b2b19 |
       /etc/issue.net is shown to users of remote login services such as SSH when configured as banner. Restricting write access to root prevents others from altering the legal notice or using it to mislead users.
     remediation: *rem-eb0556c5ea
+  - id: "CIS-RHEL10-1.8.1-gdm_banner_lock"
+    name: "gdm banner lock: grep -R banner-message /etc/dconf/db/local.d/locks/"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.1. NIST SP 800-53 Rev. 5: AC-8."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      grep -R banner-message /etc/dconf/db/local.d/locks/
+    allow_rc: any
+    expect:
+      - { rc: "in [0, 1]" }
+      - { some: "~ ^/org/gnome/login-screen/banner-message-enable" }
+      - { some: "~ ^/org/gnome/login-screen/banner-message-text" }
+    rationale: &rat-c5feb6a63b |
+      A dconf setting only binds users if it is locked; otherwise every user can override it in their own session. Listing the keys in /etc/dconf/db/local.d/locks/ makes the login banner mandatory.
+    remediation: &rem-468283765f |
+      List the banner keys in a lock file and rebuild the dconf databases.
+
+      printf '%s\n' '/org/gnome/login-screen/banner-message-enable' '/org/gnome/login-screen/banner-message-text' > /etc/dconf/db/local.d/locks/00-banner-message
+      dconf update
+  - id: "CIS-RHEL10-1.8.1-gdm_banner_msg"
+    name: "gdm banner msg: grep -h banner-message /etc/dconf/db/local.d/*"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.1. NIST SP 800-53 Rev. 5: AC-8."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      grep -h banner-message /etc/dconf/db/local.d/*
+    allow_rc: any
+    expect:
+      - { rc: "in [0, 1]" }
+      - { some: "~ ^banner-message-enable=true" }
+      - { none: "~ ^banner-message-enable=false" }
+      - { some: "~ ^banner-message-text='.+'" }
+    rationale: &rat-d3d892c3fd |
+      A banner on the graphical login screen tells users that access is restricted and monitored before they authenticate. Such a notice can be a prerequisite for legal action against unauthorized use, and it should not reveal details about the system.
+    remediation: &rem-ec92c4ff0d |
+      Enable the banner in a file in /etc/dconf/db/local.d/ and rebuild the dconf databases. Use the warning text of your site.
+
+      printf '%s\n' '[org/gnome/login-screen]' 'banner-message-enable=true' "banner-message-text='Authorized users only. All activity may be monitored and reported.'" > /etc/dconf/db/local.d/00-banner-message
+      dconf update
+
+      Remove any banner-message-enable=false line from other files in that directory.
+  - id: "CIS-RHEL10-1.8.1-gdm_profile_banner"
+    name: "gdm profile banner: cat /etc/dconf/profile/user"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.1. NIST SP 800-53 Rev. 5: AC-8."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      cat /etc/dconf/profile/user
+    allow_rc: any
+    expect:
+      - { rc: "== 0" }
+      - { some: "~ ^user-db:user" }
+      - { some: "~ ^system-db:local" }
+    rationale: &rat-e9b936c29d |
+      GDM and the GNOME session read system-wide settings from the dconf databases listed in /etc/dconf/profile/user. Without the system-db entry, the settings in /etc/dconf/db/local.d/ are never applied, so the hardening of the login screen and the desktop has no effect.
+    remediation: &rem-798815ed69 |
+      Create /etc/dconf/profile/user with the user database and the system database, then rebuild the dconf databases.
+
+      printf '%s\n' 'user-db:user' 'system-db:local' > /etc/dconf/profile/user
+      dconf update
+  - id: "CIS-RHEL10-1.8.2-gdm_disable_user"
+    name: "gdm disable user: grep -h disable-user-list /etc/dconf/db/local.d/60-login-screen"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.2. NIST SP 800-53 Rev. 5: CM-6."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      grep -h disable-user-list /etc/dconf/db/local.d/60-login-screen
+    allow_rc: any
+    expect:
+      - { rc: "in [0, 1]" }
+      - { some: "~ ^disable-user-list=true" }
+      - { none: "~ ^disable-user-list=false" }
+    rationale: &rat-eb4c95bfe2 |
+      By default the GDM login screen lists the accounts of the system. Anyone who can see the screen learns valid user names, which is half of what a password guessing attack needs. With the list disabled, users type their name.
+    remediation: &rem-1f090eb3e4 |
+      Disable the user list in a file in /etc/dconf/db/local.d/ and rebuild the dconf databases.
+
+      printf '%s\n' '[org/gnome/login-screen]' 'disable-user-list=true' > /etc/dconf/db/local.d/FILE
+      dconf update
+
+      Use the file name the check reads, and remove any disable-user-list=false line.
+  - id: "CIS-RHEL10-1.8.2-gdm_disable_user_locks"
+    name: "gdm disable user locks: grep disable-user-list /etc/dconf/db/local.d/locks/60-login-screen | grep disable-user-li…"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.2. NIST SP 800-53 Rev. 5: CM-6."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      grep disable-user-list /etc/dconf/db/local.d/locks/60-login-screen | grep disable-user-list
+    allow_rc: any
+    expect:
+      - { rc: "in [0, 1]" }
+      - { some: "~ /org/gnome/login-screen/disable-user-list" }
+    rationale: &rat-db140263c8 |
+      A dconf setting only binds users if it is locked; otherwise every user can override it in their own session. Listing the keys in /etc/dconf/db/local.d/locks/ makes the disabled user list mandatory.
+    remediation: &rem-0d4dca6cec |
+      List the key in a lock file and rebuild the dconf databases.
+
+      echo '/org/gnome/login-screen/disable-user-list' > /etc/dconf/db/local.d/locks/60-login-screen
+      dconf update
+  - id: "CIS-RHEL10-1.8.2-gdm_last_login"
+    name: "gdm last login: cat /etc/dconf/profile/user"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.2. NIST SP 800-53 Rev. 5: CM-6."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      cat /etc/dconf/profile/user
+    allow_rc: any
+    expect:
+      - { rc: "== 0" }
+      - { some: "~ ^user-db:user" }
+      - { some: "~ ^system-db:local" }
+    rationale: *rat-e9b936c29d
+    remediation: *rem-798815ed69
+  - id: "CIS-RHEL10-1.8.3-60-screensaver-attrs"
+    name: "/etc/dconf/db/local.d/60-screensaver: exists"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.3. NIST SP 800-53 Rev. 5: AC-11."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      f='/etc/dconf/db/local.d/60-screensaver'
+      if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
+    expect: empty
+    rationale: &rat-4d8b4c91c8 |
+      An unattended, unlocked desktop session gives anyone who walks by the access of the logged-in user. Starting the screensaver after at most 15 minutes of inactivity and locking within 5 seconds limits that window.
+    remediation: &rem-b3da6c09ef |
+      Create /etc/dconf/db/local.d/60-screensaver.
+  - id: "CIS-RHEL10-1.8.3-60-screensaver-content"
+    name: "/etc/dconf/db/local.d/60-screensaver has the expected content (5 rules)"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.3. NIST SP 800-53 Rev. 5: AC-11."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      cat '/etc/dconf/db/local.d/60-screensaver'
+    allow_rc: any
+    expect:
+      - { some: "~ ^\\[org\\/gnome\\/desktop\\/session\\]" }
+      - { some: "~ ^idle-delay=uint32 (1|[1-9]|[1-8][0-9]{1,2}|900)$" }
+      - { none: "~ ^idle-delay=uint32 (90[1-9]|9[1-9][0-9]|1[0-9]{3,})$" }
+      - { some: "~ ^lock-delay=uint32 [0-5]$" }
+      - { none: "~ ^lock-delay=uint32 ([6-9]|[0-9]{2,})$" }
+    rationale: *rat-4d8b4c91c8
+    remediation: &rem-0b90cd14dc |
+      Edit /etc/dconf/db/local.d/60-screensaver so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\[org\/gnome\/desktop\/session\]
+      - a line matches ^idle-delay=uint32 (1|[1-9]|[1-8][0-9]{1,2}|900)$
+      - no line matches ^idle-delay=uint32 (90[1-9]|9[1-9][0-9]|1[0-9]{3,})$
+      - a line matches ^lock-delay=uint32 [0-5]$
+      - no line matches ^lock-delay=uint32 ([6-9]|[0-9]{2,})$
+  - id: "CIS-RHEL10-1.8.3-60-screensaver-lock-attrs"
+    name: "/etc/dconf/db/local.d/locks/60-screensaver: exists"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.3. NIST SP 800-53 Rev. 5: AC-11."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      f='/etc/dconf/db/local.d/locks/60-screensaver'
+      if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
+    expect: empty
+    rationale: &rat-c89ecaaa03 |
+      A dconf setting only binds users if it is locked; otherwise every user can override it in their own session. Listing the keys in /etc/dconf/db/local.d/locks/ makes the screen lock timing mandatory.
+    remediation: &rem-e70e40bad7 |
+      Create /etc/dconf/db/local.d/locks/60-screensaver.
+  - id: "CIS-RHEL10-1.8.3-60-screensaver-lock-content"
+    name: "/etc/dconf/db/local.d/locks/60-screensaver has the expected content (2 rules)"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.3. NIST SP 800-53 Rev. 5: AC-11."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      cat '/etc/dconf/db/local.d/locks/60-screensaver'
+    allow_rc: any
+    expect:
+      - { some: "~ /org/gnome/desktop/session/idle-delay" }
+      - { some: "~ /org/gnome/desktop/screensaver/lock-delay" }
+    rationale: *rat-c89ecaaa03
+    remediation: &rem-9e9ffc3718 |
+      Edit /etc/dconf/db/local.d/locks/60-screensaver so that its lines meet these conditions (regular expressions):
+
+      - a line matches /org/gnome/desktop/session/idle-delay
+      - a line matches /org/gnome/desktop/screensaver/lock-delay
+  - id: "CIS-RHEL10-1.8.4-60-automount-attrs"
+    name: "/etc/dconf/db/local.d/60-automount: exists"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.4. NIST SP 800-53 Rev. 5: IA-3."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      f='/etc/dconf/db/local.d/60-automount'
+      if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
+    expect: empty
+    rationale: &rat-4bf522e353 |
+      Automatically mounting removable media makes the kernel and the desktop parse whatever device is plugged in, which can be used to exploit file system drivers or to introduce malware. With automount disabled, a medium is only mounted when a user asks for it.
+    remediation: &rem-d5e0064ee9 |
+      Create /etc/dconf/db/local.d/60-automount.
+  - id: "CIS-RHEL10-1.8.4-60-automount-content"
+    name: "/etc/dconf/db/local.d/60-automount has the expected content (5 rules)"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.4. NIST SP 800-53 Rev. 5: IA-3."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      cat '/etc/dconf/db/local.d/60-automount'
+    allow_rc: any
+    expect:
+      - { some: "~ ^\\[org\\/gnome\\/desktop\\/media-handling\\]" }
+      - { some: "~ ^automount=false" }
+      - { some: "~ ^automount-open=false" }
+      - { none: "~ ^automount=true" }
+      - { none: "~ ^automount-open=true" }
+    rationale: *rat-4bf522e353
+    remediation: &rem-bfa3aa8104 |
+      Edit /etc/dconf/db/local.d/60-automount so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\[org\/gnome\/desktop\/media-handling\]
+      - a line matches ^automount=false
+      - a line matches ^automount-open=false
+      - no line matches ^automount=true
+      - no line matches ^automount-open=true
+  - id: "CIS-RHEL10-1.8.4-60-automount-locks-attrs"
+    name: "/etc/dconf/db/local.d/locks/60-automount: exists"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.4. NIST SP 800-53 Rev. 5: IA-3."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      f='/etc/dconf/db/local.d/locks/60-automount'
+      if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
+    expect: empty
+    rationale: &rat-f5333b4595 |
+      A dconf setting only binds users if it is locked; otherwise every user can override it in their own session. Listing the keys in /etc/dconf/db/local.d/locks/ makes the automount setting mandatory.
+    remediation: &rem-43948b854f |
+      Create /etc/dconf/db/local.d/locks/60-automount.
+  - id: "CIS-RHEL10-1.8.4-60-automount-locks-content"
+    name: "/etc/dconf/db/local.d/locks/60-automount has the expected content (2 rules)"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.4. NIST SP 800-53 Rev. 5: IA-3."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      cat '/etc/dconf/db/local.d/locks/60-automount'
+    allow_rc: any
+    expect:
+      - { some: "~ /org/gnome/desktop/media-handling/automount" }
+      - { some: "~ /org/gnome/desktop/media-handling/automount-open" }
+    rationale: *rat-f5333b4595
+    remediation: &rem-08cf56e24b |
+      Edit /etc/dconf/db/local.d/locks/60-automount so that its lines meet these conditions (regular expressions):
+
+      - a line matches /org/gnome/desktop/media-handling/automount
+      - a line matches /org/gnome/desktop/media-handling/automount-open
+  - id: "CIS-RHEL10-1.8.5-60-media-autorun-attrs"
+    name: "/etc/dconf/db/local.d/60-media-autorun: exists"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.5. NIST SP 800-53 Rev. 5: CM-7."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      f='/etc/dconf/db/local.d/60-media-autorun'
+      if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
+    expect: empty
+    rationale: &rat-f1534d902c |
+      Autorun starts programs from removable media as soon as they are inserted. A prepared USB stick or disc can then run code in the session of the logged-in user without any further action.
+    remediation: &rem-7bc06e18f6 |
+      Create /etc/dconf/db/local.d/60-media-autorun.
+  - id: "CIS-RHEL10-1.8.5-60-media-autorun-content"
+    name: "/etc/dconf/db/local.d/60-media-autorun has the expected content (2 rules)"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.5. NIST SP 800-53 Rev. 5: CM-7."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      cat '/etc/dconf/db/local.d/60-media-autorun'
+    allow_rc: any
+    expect:
+      - { some: "~ ^\\[org\\/gnome\\/desktop\\/media-handling\\]" }
+      - { some: "~ ^autorun-never=true" }
+    rationale: *rat-f1534d902c
+    remediation: &rem-d28b967a9e |
+      Edit /etc/dconf/db/local.d/60-media-autorun so that its lines meet these conditions (regular expressions):
+
+      - a line matches ^\[org\/gnome\/desktop\/media-handling\]
+      - a line matches ^autorun-never=true
+  - id: "CIS-RHEL10-1.8.5-60-media-autorun-locks-attrs"
+    name: "/etc/dconf/db/local.d/locks/60-media-autorun: exists"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.5. NIST SP 800-53 Rev. 5: CM-7."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      f='/etc/dconf/db/local.d/locks/60-media-autorun'
+      if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
+    expect: empty
+    rationale: &rat-777f245b4f |
+      A dconf setting only binds users if it is locked; otherwise every user can override it in their own session. Listing the keys in /etc/dconf/db/local.d/locks/ makes the autorun setting mandatory.
+    remediation: &rem-25d2d44e63 |
+      Create /etc/dconf/db/local.d/locks/60-media-autorun.
+  - id: "CIS-RHEL10-1.8.5-60-media-autorun-locks-content"
+    name: "/etc/dconf/db/local.d/locks/60-media-autorun has the expected content (1 rule)"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.5. NIST SP 800-53 Rev. 5: CM-7."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
+    severity: medium
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      cat '/etc/dconf/db/local.d/locks/60-media-autorun'
+    allow_rc: any
+    expect: { some: "~ org\\/gnome\\/desktop\\/media-handling\\/autorun-never" }
+    rationale: *rat-777f245b4f
+    remediation: &rem-c36124b303 |
+      Edit /etc/dconf/db/local.d/locks/60-media-autorun so that its lines meet these conditions (regular expressions):
+
+      - a line matches org\/gnome\/desktop\/media-handling\/autorun-never
+  - id: "CIS-RHEL10-1.8.6-etc_gdm_custom.conf-attrs"
+    name: "/etc/gdm/custom.conf: exists"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.6. NIST SP 800-53 Rev. 5: CM-7."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
+    severity: low
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      f='/etc/gdm/custom.conf'
+      if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
+    expect: empty
+    rationale: &rat-dd3499c4a0 |
+      /etc/gdm/custom.conf decides which display server GDM starts. The check follows the setting the benchmark gives for this option: no line may set WaylandEnable=true. Review the effect on the desktops in use before changing it.
+    remediation: &rem-49e61e5508 |
+      Create /etc/gdm/custom.conf.
+  - id: "CIS-RHEL10-1.8.6-etc_gdm_custom.conf-content"
+    name: "/etc/gdm/custom.conf has the expected content (1 rule)"
+    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 1.8.6. NIST SP 800-53 Rev. 5: CM-7."
+    tags: [cis, cis-rhel10, cis-section-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
+    severity: low
+    only_if: "rpm -q --quiet gdm"
+    run: |
+      cat '/etc/gdm/custom.conf'
+    allow_rc: any
+    expect: { none: "~ ^WaylandEnable\\s*=\\s*true" }
+    rationale: *rat-dd3499c4a0
+    remediation: &rem-c8ec01d089 |
+      Edit /etc/gdm/custom.conf so that its lines meet these conditions (regular expressions):
+
+      - no line matches ^WaylandEnable\s*=\s*true
   - id: "CIS-RHEL10-2.1.1-autofs_pkg"
     name: "Package autofs is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.1. NIST SP 800-53 Rev. 5: SI-3, MP-7."
@@ -2731,20 +3059,6 @@ checks:
       Remove the package nginx-plus, unless the system needs it:
 
       dnf remove nginx-plus
-  - id: "CIS-RHEL10-2.1.19-gdm_pkg"
-    name: "Package gdm is not installed"
-    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.19. NIST SP 800-53 Rev. 5: CM-7."
-    tags: [cis, cis-rhel10, cis-section-2, cis-level-2, cis-server, cis-level2-server]
-    severity: low
-    run: |
-      rpm -q --quiet gdm
-    expect: false
-    rationale: &rat-a68c65c551 |
-      gdm is the GNOME display manager that provides a graphical login. Servers rarely need a graphical environment, which pulls in a large amount of software with its own vulnerabilities. Removing it reduces the attack surface; workstations that need a desktop are the exception.
-    remediation: &rem-32e28b14ab |
-      Remove the package gdm, unless the system needs it:
-
-      dnf remove gdm
   - id: "CIS-RHEL10-2.1.20-xwindow_pkg"
     name: "Package xorg-x11-server-common is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.20. NIST SP 800-53 Rev. 5: CM-11."
@@ -2799,26 +3113,6 @@ checks:
       postconf -e 'inet_interfaces = loopback-only'
       systemctl restart postfix
       postconf -h inet_interfaces
-  - id: "CIS-RHEL10-2.1.22-manual_listening_ports"
-    name: "manual listening ports: echo \"Manual!! - Please check only approved services are listening\""
-    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.1.22. NIST SP 800-53 Rev. 5: CM-7."
-    tags: [cis, cis-rhel10, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual!! - Please check only approved services are listening"
-    allow_rc: any
-    expect:
-      - { rc: "in [0, 1]" }
-      - { none: "~ ." }
-    rationale: &rat-71d1cf147e |
-      Every listening network service is a potential entry point. Reviewing listening ports and the processes behind them ensures that only approved services are reachable and reveals forgotten or unexpected ones. This is a manual review.
-    remediation: &rem-905c71ee6f |
-      This is a manual review. List all listening sockets with their processes, then stop and disable, or block with the firewall, every service that is not approved, and document the result.
-
-      ss -tulpn
-      systemctl disable --now SERVICE
-
-      The check itself only prints a reminder and reports a failure on most platforms regardless of the result.
   - id: "CIS-RHEL10-2.2.1-ftp"
     name: "Package ftp is not installed"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 2.2.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -4684,29 +4978,6 @@ checks:
       firewall-cmd --permanent --zone=trusted --add-rich-rule='rule family=ipv4 source address="127.0.0.1" destination not address="127.0.0.1" drop'
       firewall-cmd --permanent --zone=trusted --add-rich-rule='rule family=ipv6 source address="::1" destination not address="::1" drop'
       firewall-cmd --reload
-  - id: "CIS-RHEL10-4.1.7-firewall_drop_unncessary_ports_manual"
-    name: "firewall drop unncessary ports manual: echo \"Manual test\""
-    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 4.1.7. NIST SP 800-53 Rev. 5: NA."
-    tags: [cis, cis-rhel10, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual test"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual test" }
-    rationale: &rat-90809a00fd |
-      Every port the firewall allows is a path into the system. Services that were opened for testing or are no longer used remain reachable until removed from the firewall configuration. Regularly reviewing the allowed services and ports ensures that only those required by the system's role are open.
-    remediation: &rem-629ba92304 |
-      Review the services and ports allowed in each active firewalld zone and remove those the system does not need.
-
-      firewall-cmd --get-active-zones
-      firewall-cmd --list-all --zone=ZONE
-      firewall-cmd --permanent --zone=ZONE --remove-service=SERVICE
-      firewall-cmd --permanent --zone=ZONE --remove-port=PORT/PROTOCOL
-      firewall-cmd --reload
-
-      This is a manual check that always reports a failure for review.
   - id: "CIS-RHEL10-5.1.1-sshd_config_perms-attrs"
     name: "/etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 5.1.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -8743,27 +9014,6 @@ checks:
       auditctl -l
 
       If the loaded audit configuration is immutable (-e 2), the new rules only become active after a reboot.
-  - id: "CIS-RHEL10-6.3.3.10-auditd_priv_cmds_cnf"
-    name: "auditd priv cmds cnf: echo \"Manual - Please investigate privilege commands are collected as per documentation\""
-    description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.3.3.10. NIST SP 800-53 Rev. 5: AU-3."
-    tags: [cis, cis-rhel10, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
-    severity: low
-    run: |
-      echo "Manual - Please investigate privilege commands are collected as per documentation"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual" }
-    rationale: &rat-8e8800ac94 |
-      Programs with the setuid or setgid bit run with the privileges of their owner or group and are a common route for privilege escalation. Auditing every execution of these programs by regular users shows who used elevated privileges and helps detect misuse of vulnerable binaries.
-    remediation: &rem-c3e83b859d |
-      Generate an audit rule for every setuid and setgid program on the local file systems, write the rules to a file in /etc/audit/rules.d/ and load them. Repeat this whenever software that installs such programs is added.
-
-      UID_MIN=$(awk '/^\s*UID_MIN/ {print $2}' /etc/login.defs)
-      df --local -P | awk 'NR > 1 {print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm /6000 2>/dev/null | sort -u | awk -v m="${UID_MIN:-1000}" '{print "-a always,exit -F path=" $0 " -F perm=x -F auid>=" m " -F auid!=unset -k privileged"}' > /etc/audit/rules.d/50-privileged.rules
-      augenrules --load
-
-      On Amazon Linux 2/2023, RHEL 8 to 10 and Debian 11 this is a manual check that always asks for a review. On RHEL 7, SUSE 15 and Ubuntu 18.04/20.04 the check only looks for an audit rule containing the word delete, which the file deletion rules provide. If the audit configuration is immutable (-e 2), reboot to activate the rules.
   - id: "CIS-RHEL10-6.3.3.11-auditd_access_cnf"
     name: "auditd access cnf: grep access /etc/audit/rules.d/*.rules"
     description: "CIS Red Hat Enterprise Linux 10 benchmark recommendation 6.3.3.11. NIST SP 800-53 Rev. 5: AU-3."

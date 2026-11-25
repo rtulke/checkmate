@@ -5104,7 +5104,9 @@ checks:
     severity: medium
     timeout: 30000ms
     run: |
-      find /home/ -name "\.*" -perm /g+w,o+w
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name "\.*" -perm /g+w,o+w 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -5123,7 +5125,9 @@ checks:
     severity: medium
     timeout: 30000ms
     run: |
-      find /home/ -name .forward
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name .forward 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -5144,7 +5148,9 @@ checks:
     severity: medium
     timeout: 30000ms
     run: |
-      find /home/ -name .netrc
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name .netrc 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -5165,7 +5171,9 @@ checks:
     severity: medium
     timeout: 30000ms
     run: |
-      find /home/ -name .rhosts
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name .rhosts 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }

@@ -1,6 +1,6 @@
 # DISA STIG Red Hat Enterprise Linux 7
 
-Automated checks for 214 rules of the DISA Security Technical Implementation Guide for Red Hat Enterprise Linux 7 (version 3.14), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Rationale and fix texts are taken from the DISA STIG V3R15 (24 Jul 2024). Select categories with tags, e.g. `--tags stig-cat-1`.
+Automated checks for 212 rules of the DISA Security Technical Implementation Guide for Red Hat Enterprise Linux 7 (version 3.14), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Rationale and fix texts are taken from the DISA STIG V3R15 (24 Jul 2024). Select categories with tags, e.g. `--tags stig-cat-1`.
 
 **Policy:** [`stig/rhel7.yml`](https://github.com/rtulke/checkmate/blob/main/stig/rhel7.yml) · **STIG version:** 3.14
 
@@ -237,7 +237,6 @@ RHEL-07-021120 (Must be configured so that the cron.allow file, if it exists, is
 | `STIG-RHEL-07-030874-opassswd_audit_rules` | Must generate audit records for all account creations, modifications, disabling, and termination events that affect /etc/security/opasswd. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-07-030910-audit_unlink_running` | Must audit all uses of the unlink syscall. (running) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-07-030910-unlink_auditd.rules` | Must audit all uses of the unlink syscall. (config) | II | <span class="sev sev-medium">medium</span> |
-| `STIG-RHEL-07-040100-firewall_services` | Must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the Ports, Protocols, and Services Management Component Local Service Assessment (PPSM CLSA) and vulnerability assessments. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-07-040110-ciphers_sshd_config_dod` | must implement DoD-approved encryption to protect the confidentiality of SSH connections. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-07-040160-session_timeout` | Must be configured so that all network connections associated with a communication session are terminated at the end of the session or after 15 minutes of inactivity from the user at a command prompt, except to fulfill documented and validated mission requirements. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-07-040170-banner_shd_config` | Must display the Standard Mandatory DoD Notice and Consent Banner immediately prior to, or as part of, remote access logon prompts. | II | <span class="sev sev-medium">medium</span> |
@@ -295,7 +294,6 @@ RHEL-07-021120 (Must be configured so that the cron.allow file, if it exists, is
 | `STIG-RHEL-07-040730-xorgs-x11-server` | Must not have a graphical display manager installed unless approved. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-07-040740-net.ipv4.ip_forward` | Must not be performing packet forwarding unless the system is a router. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-07-040750-nfs_using_auth` | Must be configured so that the Network File System (NFS) is configured to use RPCSEC_GSS. | II | <span class="sev sev-medium">medium</span> |
-| `STIG-RHEL-07-040810-firewall_default_zone` | The Red Hat Enterprise Linux operating system access control program must be configured to grant or deny system access to specific hosts and services. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-07-040820-libreswan` | The Red Hat Enterprise Linux operating system must not have unauthorized IP tunnels configured. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-07-040830-net.ipv6.conf.all.accept_source_route` | Must not forward IPv6 source-routed packets. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-07-041001-pam_pkcs11` | The Red Hat Enterprise Linux operating system must have the required packages for multifactor authentication installed. | II | <span class="sev sev-medium">medium</span> |

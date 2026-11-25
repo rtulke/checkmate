@@ -1,6 +1,6 @@
 # DISA STIG Red Hat Enterprise Linux 9
 
-Automated checks for 426 rules of the DISA Security Technical Implementation Guide for Red Hat Enterprise Linux 9 (version 2.10.0), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Rationale and fix texts are taken from the DISA STIG V2R10 (30 Sep 2026). Select categories with tags, e.g. `--tags stig-cat-1`.
+Automated checks for 422 rules of the DISA Security Technical Implementation Guide for Red Hat Enterprise Linux 9 (version 2.10.0), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Rationale and fix texts are taken from the DISA STIG V2R10 (30 Sep 2026). Select categories with tags, e.g. `--tags stig-cat-1`.
 
 **Policy:** [`stig/rhel9.yml`](https://github.com/rtulke/checkmate/blob/main/stig/rhel9.yml) · **STIG version:** 2.10.0
 
@@ -239,7 +239,6 @@ sudo checkmate run stig/rhel9.yml -v
 | `STIG-RHEL-09-251020-firewalld_zone_service` | The RHEL 9 firewall must employ a deny-all, allow-by-exception policy for allowing connections to other systems. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-251030-firewalld_backend-attrs` | RHEL 9 must protect against or limit the effects of denial-of-service (DoS) attacks by ensuring rate-limiting measures on impacted network interfaces are implemented. (/etc/firewalld/firewalld.conf: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-251030-firewalld_backend-content` | RHEL 9 must protect against or limit the effects of denial-of-service (DoS) attacks by ensuring rate-limiting measures on impacted network interfaces are implemented. (/etc/firewalld/firewalld.conf has the expected content (1 rule)) | II | <span class="sev sev-medium">medium</span> |
-| `STIG-RHEL-09-251035-firewalld_prohibit_manual` | RHEL 9 must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the Ports, Protocols, and Services Management (PPSM) Category Assignments List (CAL) and vulnerability assessments. (Manual) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-251040-network_promicuous` | RHEL 9 network interfaces must not be in promiscuous mode. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-251045-berkley_pkt_filter_live` | RHEL 9 must enable hardening for the Berkeley Packet Filter just-in-time compiler. (live) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-251045-berkley_pkt_filter_conf` | RHEL 9 must enable hardening for the Berkeley Packet Filter just-in-time compiler. (conf) | II | <span class="sev sev-medium">medium</span> |
@@ -443,7 +442,6 @@ sudo checkmate run stig/rhel9.yml -v
 | `STIG-RHEL-09-611145-pam_sudo-attrs` | RHEL 9 must not be configured to bypass password requirements for privilege escalation. (/etc/pam.d/sudo: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-611145-pam_sudo-content` | RHEL 9 must not be configured to bypass password requirements for privilege escalation. (/etc/pam.d/sudo has the expected content (1 rule)) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-611155-noblank_passwords` | RHEL 9 must not have accounts configured with blank or null passwords. | II | <span class="sev sev-medium">medium</span> |
-| `STIG-RHEL-09-611190-private_keys_password` | RHEL 9, for PKI-based authentication, must enforce authorized access to the corresponding private key. (Manual) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-611195-authenticate_emergency_mode` | RHEL 9 must require authentication to access emergency mode. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-611200-authenticate_rescue_mode` | RHEL 9 must require authentication to access single-user mode. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-651010-aide_installed` | RHEL 9 must have the AIDE package installed. | II | <span class="sev sev-medium">medium</span> |
@@ -476,13 +474,11 @@ sudo checkmate run stig/rhel9.yml -v
 | `STIG-RHEL-09-411025-home_umask_077` | RHEL 9 must set the umask value to 077 for all local interactive user accounts. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-411030-duplicate_UIDs` | RHEL 9 duplicate User IDs (UIDs) must not exist for interactive users. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-411035-system_acct_no_shell` | RHEL 9 system accounts must not have an interactive login shell. | II | <span class="sev sev-medium">medium</span> |
-| `STIG-RHEL-09-411040-temp_accts_manual` | RHEL 9 must automatically expire temporary accounts within 72 hours. (Manual) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-411045-primary_group_exists` | All RHEL 9 interactive users must have a primary group that exists. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-411050-useradd_inactive-attrs` | RHEL 9 must disable account identifiers (individuals, groups, roles, and devices) after 35 days of inactivity. (/etc/default/useradd: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-411050-useradd_inactive-content` | RHEL 9 must disable account identifiers (individuals, groups, roles, and devices) after 35 days of inactivity. (/etc/default/useradd has the expected content (2 rules)) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-411055-user_initiate_PATH` | Executable search paths within the initialization files of all local interactive RHEL 9 users must only contain paths that resolve to the system default or the users home directory. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-411065-home_dirs_exists` | All RHEL 9 local interactive user home directories defined in the /etc/passwd file must exist. | II | <span class="sev sev-medium">medium</span> |
-| `STIG-RHEL-09-411070-primary_group_set_manual` | All RHEL 9 local interactive user home directories must be group-owned by the home directory owner's primary group. (Manual) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-411075-faillock_deny-attrs` | RHEL 9 must automatically lock an account when three unsuccessful logon attempts occur. (/etc/security/faillock.conf: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-411075-faillock_deny-content` | RHEL 9 must automatically lock an account when three unsuccessful logon attempts occur. (/etc/security/faillock.conf has the expected content (2 rules)) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-09-411080-faillock_even_root_deny-attrs` | RHEL 9 must automatically lock the root account until the root account is released by an administrator when three unsuccessful logon attempts occur during a 15-minute time period. (/etc/security/faillock.conf: exists) | II | <span class="sev sev-medium">medium</span> |

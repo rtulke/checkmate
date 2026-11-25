@@ -1,6 +1,6 @@
 # CIS Ubuntu 22.04 LTS
 
-Automated checks for 280 recommendations of the CIS Ubuntu 22.04 LTS benchmark (version 3.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
+Automated checks for 274 recommendations of the CIS Ubuntu 22.04 LTS benchmark (version 3.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
 
 **Policy:** [`cis/ubuntu22.yml`](https://github.com/rtulke/checkmate/blob/main/cis/ubuntu22.yml) · **Benchmark version:** 3.0.0
 
@@ -43,7 +43,6 @@ checkmate run cis/ubuntu22.yml --tags cis-level-2 -v
 | `CIS-UBUNTU22-1.1.1.9-usb-storage_blacklist-content` | /etc/modprobe.d/blacklist.conf has the expected content (1 rule) | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-1.1.1.9-usb-storage_disabled-attrs` | /etc/modprobe.d/CIS.conf: exists | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-1.1.1.9-usb-storage_disabled-content` | /etc/modprobe.d/CIS.conf has the expected content (1 rule) | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU22-1.1.1.10-cve_fs` | cve fs: /var/fs_with_cves.sh | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-1.1.1.11-firewire-core_blacklist-attrs` | /etc/modprobe.d/blacklist.conf: exists | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-1.1.1.11-firewire-core_blacklist-content` | /etc/modprobe.d/blacklist.conf has the expected content (1 rule) | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-1.1.1.11-firewire-core_disabled-attrs` | /etc/modprobe.d/CIS.conf: exists | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
@@ -112,8 +111,6 @@ checkmate run cis/ubuntu22.yml --tags cis-level-2 -v
 | `CIS-UBUNTU22-1.1.2.7.4-var_log_audit_noexec_options` | /var/log/audit is a separate mount with noexec | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-1.1.2.7.4-var_log_audit_noexec_fstab_options-attrs` | /etc/fstab: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-1.1.2.7.4-var_log_audit_noexec_fstab_options-content` | /etc/fstab has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU22-1.2.1.1-gpg_keys_list` | gpg keys list: echo "MANUAL - Please check manually for gpg keys" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU22-1.2.1.2-gpg_configd` | gpg configd: echo "MANUAL - Please check manually that repositories are configured as expected" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-1.2.2.1-check_updates` | check updates: apt update 2>&1 \| grep -q 'All packages are up to date.' && echo OK \|\| apt --simulate upg… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-1.3.1.1-apparmor` | Package apparmor is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-1.3.1.2-apparmor_boot_grub-attrs` | /boot/grub/grub.cfg: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -163,7 +160,6 @@ checkmate run cis/ubuntu22.yml --tags cis-level-2 -v
 | `CIS-UBUNTU22-2.1.18-nginx_pkg` | Package nginx is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-2.1.19-xinetd_pkg` | Package xinetd is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-2.1.20-xwindow_pkg` | Package xserver-common is not installed | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-UBUNTU22-2.1.22-manual_listening_ports` | manual listening ports: echo "Manual!! - Please check only approved services are listening" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-2.2.1-nis_client` | Package nis is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-2.2.2-rsh-client` | Package rsh-client is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-2.2.3-talk` | Package talk is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -383,7 +379,6 @@ checkmate run cis/ubuntu22.yml --tags cis-level-2 -v
 | `CIS-UBUNTU22-5.4.3.3-umask_profile_scripts` | umask profile scripts: grep -i "^\\s\*umask" /etc/profile /etc/profile.d/\*.sh /etc/login.defs \| cut -d ":" -f 2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-6.1.1.1.1-systemd-journald-enabled` | Service systemd-journald is enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-6.1.1.1.1-systemd-journald-running` | Service systemd-journald is running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU22-6.1.1.1.2-etc_tmpfiles.d_systemd.conf` | /etc/tmpfiles.d/systemd.conf: echo "Manual - Please check journald default permissions" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-6.1.1.1.3-log_rotate_journald_conf` | log rotate journald conf: systemd-analyze cat-config systemd/journald.conf \| grep -Pi -- '^\\h\*(SystemMaxUse\|SystemK… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-6.1.1.1.4-forward_journald_disabled` | forward journald disabled: systemd-analyze cat-config systemd/journald.conf \| grep -Pi -- '^\\h\*ForwardToSyslog\\h\*=' … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-6.1.1.1.5-storage_journald_conf` | storage journald conf: systemd-analyze cat-config systemd/journald.conf \| grep -Pi -- '^\\h\*Storage\\h\*=' \| tail -… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -408,7 +403,6 @@ checkmate run cis/ubuntu22.yml --tags cis-level-2 -v
 | `CIS-UBUNTU22-6.1.2.6-remote_syslog` | remote syslog: grep -E "action.\*omfwd.\*target" /etc/rsyslog.conf /etc/rsyslog.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-6.1.2.7-local_syslog_input` | local syslog input: grep -E "imtcp\\" port\|InputTCPServerRun" /etc/rsyslog.conf /etc/rsyslog.d/\*.conf \| grep -… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-6.1.2.7-local_syslog_module` | local syslog module: grep "imtcp" /etc/rsyslog.conf /etc/rsyslog.d/\*.conf \| grep -Ev ":#\|port=" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU22-6.1.2.8-rsyslog_logrotate` | rsyslog logrotate: echo "Manual" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-6.1.3.1-logfile_configured` | logfile configured: find /var/log/ -type f \\( -name 'lastlog' -o -name 'wtmp' -o -name 'btmp' \\) -perm /g+x,o… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-6.2.1.1-audispd-plugins` | Package audispd-plugins is installed | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-UBUNTU22-6.2.1.1-audit_packages` | Package auditd is installed | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
@@ -491,7 +485,7 @@ checkmate run cis/ubuntu22.yml --tags cis-level-2 -v
 | `CIS-UBUNTU22-7.1.9-etc_shells_perms-attrs` | /etc/shells: exists, mode 0644 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-7.1.10-etc_security_opasswd_perms-attrs` | /etc/security/opasswd: mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-7.1.11-world_writable` | world writable: df --local -P \| awk '{if (NR!=1) print $6}' \| xargs -I '{}' find '{}' -xdev -type f -perm… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU22-7.1.12-unowned_dirs` | unowned dirs: df --local -P \| awk {'if (NR!=1) print $6'} \| xargs -I '{}' find '{}' -xdev -nouser -o -n… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU22-7.1.12-unowned_dirs` | No file or directory is without an owner or a group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-7.1.13-audit_sgid` | audit sgid: findmnt -Dkerno fstype,target,options \| awk '($1 !~ /^[[:space:]]\*(nfs\|proc\|smb\|vfat\|iso9… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-7.2.1-shadowed_passwds-attrs` | /etc/passwd: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU22-7.2.1-shadowed_passwds-content` | /etc/passwd has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

@@ -1,6 +1,6 @@
 # CIS Red Hat Enterprise Linux 9
 
-Automated checks for 274 recommendations of the CIS Red Hat Enterprise Linux 9 benchmark (version 2.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
+Automated checks for 267 recommendations of the CIS Red Hat Enterprise Linux 9 benchmark (version 2.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
 
 **Policy:** [`cis/rhel9.yml`](https://github.com/rtulke/checkmate/blob/main/cis/rhel9.yml) · **Benchmark version:** 2.0.0
 
@@ -153,7 +153,6 @@ checkmate run cis/rhel9.yml --tags cis-level-2 -v
 | `CIS-RHEL9-2.1.18-nginx_pkg` | Package nginx is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-2.1.19-xinetd_pkg` | Package xinetd is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-2.1.20-xwindow_pkg` | Package xorg-x11-server-common is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL9-2.1.22-manual_listening_ports` | manual listening ports: echo "Manual!! - Please check only approved services are listening" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-2.2.1-ftp` | Package ftp is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-2.2.2-openldap-clients` | Package openldap-clients is not installed | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL9-2.2.3-nis_client` | Package ypbind is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -240,12 +239,7 @@ checkmate run cis/rhel9.yml --tags cis-level-2 -v
 | `CIS-RHEL9-4.1.2-nftables-enabled` | Service nftables is not enabled | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-4.1.2-nftables-running` | Service nftables is not running | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-4.1.2-nftables_masked-attrs` | /etc/systemd/system/nftables.service: exists, is a symbolic link, links to /dev/null | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL9-4.2.1-firewall_drop_unncessary_ports_manual` | firewall drop unncessary ports manual: echo "Manual test" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL9-4.2.2-firewalld_loopback_manual` | firewalld loopback manual: echo "Manual test" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL9-4.3.1-nftables_base_chain_manual` | nftables base chain manual: echo "Manual test" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL9-4.3.2-firewall_established_conns_manual` | firewall established conns manual: echo "Manual test" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-4.3.3-nftables_default_deny_input` | nftables default deny input: systemctl --quiet is-enabled nftables.service && nft list ruleset \| grep -E 'hook (input\|… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL9-4.3.4-firewall_loopback_manual` | firewall loopback manual: echo "Manual test" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-5.1.1-sshd_config_perms-attrs` | /etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-5.1.2-etc_ssh_ssh_host_prv_key_group` | /etc/ssh/ssh host prv key group: groupkeys=$(sudo find /etc/ssh/ -name \*_key -type f ! \\( -group root -o -group ssh_keys \\… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL9-5.1.2-etc_ssh_ssh_host_prv_key_perms` | /etc/ssh/ssh host prv key perms: keyperms=$(sudo find /etc/ssh/ -name \*_key -type f -perm /137 ); echo $keyperms | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -456,7 +450,6 @@ checkmate run cis/rhel9.yml --tags cis-level-2 -v
 | `CIS-RHEL9-6.3.3.4-auditd_time_live` | auditd time live: auditctl -l \| grep time-change | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL9-6.3.3.5-auditd_locale_cnf` | auditd locale cnf: grep system-locale /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL9-6.3.3.5-auditd_locale_live` | auditd locale live: auditctl -l \| grep system-locale | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL9-6.3.3.6-auditd_priv_cmds_cnf` | auditd priv cmds cnf: echo "Manual - Please investigate privilege commands are collected as per documentation" | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL9-6.3.3.7-auditd_access_cnf` | auditd access cnf: grep access /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL9-6.3.3.7-auditd_access_live` | auditd access live: auditctl -l \| grep access | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL9-6.3.3.8-auditd_identity_cnf` | auditd identity cnf: grep identity /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |

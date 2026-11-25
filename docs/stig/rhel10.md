@@ -1,6 +1,6 @@
 # DISA STIG Red Hat Enterprise Linux 10
 
-Automated checks for 395 rules of the DISA Security Technical Implementation Guide for Red Hat Enterprise Linux 10 (version 1.3.0), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Rationale and fix texts are taken from the DISA STIG V1R3 (30 Sep 2026). Select categories with tags, e.g. `--tags stig-cat-1`.
+Automated checks for 391 rules of the DISA Security Technical Implementation Guide for Red Hat Enterprise Linux 10 (version 1.3.0), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Rationale and fix texts are taken from the DISA STIG V1R3 (30 Sep 2026). Select categories with tags, e.g. `--tags stig-cat-1`.
 
 **Policy:** [`stig/rhel10.yml`](https://github.com/rtulke/checkmate/blob/main/stig/rhel10.yml) · **STIG version:** 1.3.0
 
@@ -159,7 +159,6 @@ sudo checkmate run stig/rhel10.yml -v
 | `STIG-RHEL-10-400145-device_files_labelled` | RHEL 10 must be configured so that all system device files are correctly labeled to prevent unauthorized modification. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-400150-sshd_conf_group` | RHEL 10 must be configured so that the Secure Shell (SSH) server configuration file is group-owned by root. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-400155-ssh_config_owner` | RHEL 10 must be configured so that the Secure Shell (SSH) server configuration file is owned by root. | II | <span class="sev sev-medium">medium</span> |
-| `STIG-RHEL-10-400160-primary_group_set_manual` | RHEL 10 must ensure that all local interactive user home directories are group-owned by the home directory owner's primary group. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-400165-audit_log_group-attrs` | RHEL 10 must enforce group ownership of audit logs by root or by a restricted logging group to prevent unauthorized read access. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-400170-audit_log_dir_owner-attrs` | RHEL 10 must enforce root ownership of the audit log directory to prevent unauthorized read access. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-400175-audit_log_owner-attrs` | RHEL 10 must enforce root ownership of audit logs to prevent unauthorized access. | II | <span class="sev sev-medium">medium</span> |
@@ -375,7 +374,6 @@ sudo checkmate run stig/rhel10.yml -v
 | `STIG-RHEL-10-600120-create_home_login-attrs` | RHEL 10 must assign a home directory for local interactive user accounts upon creation. (/etc/login.defs: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-600120-create_home_login-content` | RHEL 10 must assign a home directory for local interactive user accounts upon creation. (/etc/login.defs has the expected content (2 rules)) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-600130-duplicate_UIDs` | RHEL 10 must not allow duplicate user IDs (UIDs) to exist for interactive users. | II | <span class="sev sev-medium">medium</span> |
-| `STIG-RHEL-10-600140-temp_accts_manual` | RHEL 10 must automatically expire temporary accounts within 72 hours. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-600150-primary_group_exists` | RHEL 10 must assign a primary group to all interactive users. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-600160-useradd_inactive-attrs` | RHEL 10 must disable account identifiers (individuals, groups, roles, and devices) after 35 days of inactivity. (/etc/default/useradd: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-600160-useradd_inactive-content` | RHEL 10 must disable account identifiers (individuals, groups, roles, and devices) after 35 days of inactivity. (/etc/default/useradd has the expected content (2 rules)) | II | <span class="sev sev-medium">medium</span> |
@@ -552,13 +550,11 @@ sudo checkmate run stig/rhel10.yml -v
 | `STIG-RHEL-10-701210-autofs_notrunning-enabled` | RHEL 10 must disable file system automount function. (Service autofs.service is not enabled) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-701210-autofs_notrunning-running` | RHEL 10 must disable file system automount function. (Service autofs.service is not running) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-701210-autofs_masked-attrs` | RHEL 10 must disable file system automount function. | II | <span class="sev sev-medium">medium</span> |
-| `STIG-RHEL-10-701240-private_keys_password` | RHEL 10 must, for PKI-based authentication, enforce authorized access to the corresponding private key. (Manual) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-701250-authenticate_emergency_mode-attrs` | RHEL 10 must require authentication to access emergency mode. (/etc/systemd/system/emergency.service.d/emergency.service.conf: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-701250-authenticate_emergency_mode-content` | RHEL 10 must require authentication to access emergency mode. (/etc/systemd/system/emergency.service.d/emergency.service.conf has th…) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-701260-authenticate_rescue_mode-attrs` | RHEL 10 must require authentication to access single-user mode. (/etc/systemd/system/rescue.service.d/rescue.service.conf: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-701260-authenticate_rescue_mode-content` | RHEL 10 must require authentication to access single-user mode. (/etc/systemd/system/rescue.service.d/rescue.service.conf has the expe…) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-800000-etc_audit_user_perm` | RHEL 10 must control remote access methods. (Manual) | II | <span class="sev sev-medium">medium</span> |
-| `STIG-RHEL-10-800010-firewalld_prohibit_manual` | RHEL 10 must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the Ports, Protocols, and Services Management (PPSM) Category Assignments List (CAL) and vulnerability assessments. (Manual) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-800020-network_promicuous` | RHEL 10 must enforce that network interfaces not be in promiscuous mode. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-800030-priv_bpf_live` | RHEL 10 must disable access to the network bpf system call from nonprivileged processes. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-RHEL-10-800030-priv_bpf_conf` | RHEL 10 must disable access to the network bpf system call from nonprivileged processes. (conf) | II | <span class="sev sev-medium">medium</span> |

@@ -167,6 +167,20 @@ Deviations from the Ansible Lockdown content, each applied deliberately:
   Ubuntu boot loader password is looked up in `/boot/grub/grub.cfg`, for any
   superuser. Where upstream tests the value of its role next to the values
   the benchmark allows (`space_left_action`), only the latter is tested.
+- Reminders to review something by hand (`echo "Manual ..."`) and commands
+  that only run a script of the Ansible role are left out: they are not
+  tests. This also applies to the STIG policies.
+- A check that a kernel module is disabled in the modprobe configuration only
+  applies if the running kernel ships the module (`modinfo`); otherwise it is
+  skipped.
+- Searches over all of `/home` look at the home directories of the local
+  interactive users in `/etc/passwd` instead, as the benchmark does.
+- The search for files without an owner or group ignores errors of `find`
+  (files that vanish, file systems root cannot read); the output decides.
+- Ubuntu 24.04 and RHEL 10: the GNOME rules are generated for every host and
+  apply only if `gdm3` / `gdm` is installed (`hostVars` in the converter).
+  Upstream leaves them out unless a variable declares the host a desktop.
+  The text of the login banner is not compared with the upstream default.
 - Windows: a registry value given as a regular expression (`match-regexp`,
   the logon message text) is matched as one; the hardened UNC path values
   (`HardenedPaths::\\*\NETLOGON`) are read under their own key; a registry

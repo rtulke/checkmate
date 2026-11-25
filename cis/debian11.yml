@@ -3,7 +3,7 @@
 name: CIS Debian 11
 version: "2.0.0"
 description: >
-  Automated checks for 284 recommendations of the CIS Debian 11 benchmark
+  Automated checks for 264 recommendations of the CIS Debian 11 benchmark
   (version 2.0.0), converted from the goss audit content of the
   ansible-lockdown project. Check names describe what is verified; the
   recommendation number is in the ID and the description. Select profiles
@@ -1275,43 +1275,6 @@ checks:
       Edit /etc/fstab so that its lines meet these conditions (regular expressions):
 
       - a line matches ^\S+\s+\/var\/log\/audit\s.*noexec.*
-  - id: "CIS-DEBIAN11-1.2.1.1-gpg_keys"
-    name: "gpg keys: echo \"MANUAL - Ensure gpg keys match site policy\""
-    description: "CIS Debian 11 benchmark recommendation 1.2.1.1. NIST SP 800-53 Rev. 5: SI-2."
-    tags: [cis, cis-debian11, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "MANUAL - Ensure gpg keys match site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ MANUAL" }
-    rationale: &rat-4781e33879 |
-      Package signatures are only meaningful if the keys used to verify them are the right ones. An unexpected or attacker-supplied key in the package manager's keyring lets packages signed with it install without warning. Reviewing the imported keys ensures that only vendor and approved repository keys are trusted.
-    remediation: &rem-4b03cbbf04 |
-      This is a manual check that always reports a failure. Review the keys APT trusts, remove keys that do not belong to an approved repository and document the review.
-
-      ls -l /etc/apt/trusted.gpg.d/ /etc/apt/keyrings/ /usr/share/keyrings/
-      grep -rh signed-by /etc/apt/sources.list /etc/apt/sources.list.d/
-      gpg --show-keys FILE
-  - id: "CIS-DEBIAN11-1.2.1.2-repos_configured"
-    name: "repos configured: echo \"MANUAL - Ensure repos match site policy\""
-    description: "CIS Debian 11 benchmark recommendation 1.2.1.2. NIST SP 800-53 Rev. 5: SI-2."
-    tags: [cis, cis-debian11, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "MANUAL - Ensure repos match site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ MANUAL" }
-    rationale: &rat-70d1c99f9e |
-      Systems should get packages and security fixes only from known, approved repositories. A missing or broken repository configuration prevents patching, while unknown repositories can introduce untrusted software. Depending on the platform the check verifies that the repository list can be read, that expected repositories are present, or asks for a manual review.
-    remediation: &rem-252053c9be |
-      This is a manual check that always reports a failure. Review the configured APT sources, remove anything that is not approved and document the review.
-
-      grep -rhE '^(deb|URIs|Suites)' /etc/apt/sources.list /etc/apt/sources.list.d/
-      apt-cache policy
   - id: "CIS-DEBIAN11-1.2.2.1-security-updates"
     name: "security updates: apt update"
     description: "CIS Debian 11 benchmark recommendation 1.2.2.1. NIST SP 800-53 Rev. 5: SI-2."
@@ -2096,26 +2059,6 @@ checks:
       Remove the package xserver-common, unless the system needs it:
 
       apt-get purge xserver-common
-  - id: "CIS-DEBIAN11-2.1.22-manual_listening_ports"
-    name: "manual listening ports: echo \"Manual!! - Please check only approved services are listening\""
-    description: "CIS Debian 11 benchmark recommendation 2.1.22. NIST SP 800-53 Rev. 5: CM-7."
-    tags: [cis, cis-debian11, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual!! - Please check only approved services are listening"
-    allow_rc: any
-    expect:
-      - { rc: "in [0, 1]" }
-      - { none: "~ Manual" }
-    rationale: &rat-71d1cf147e |
-      Every listening network service is a potential entry point. Reviewing listening ports and the processes behind them ensures that only approved services are reachable and reveals forgotten or unexpected ones. This is a manual review.
-    remediation: &rem-905c71ee6f |
-      This is a manual review. List all listening sockets with their processes, then stop and disable, or block with the firewall, every service that is not approved, and document the result.
-
-      ss -tulpn
-      systemctl disable --now SERVICE
-
-      The check itself only prints a reminder and reports a failure on most platforms regardless of the result.
   - id: "CIS-DEBIAN11-2.2.1-nis_client"
     name: "Package nis is not installed"
     description: "CIS Debian 11 benchmark recommendation 2.2.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -3781,47 +3724,6 @@ checks:
       ufw enable
 
       Allow SSH or other remote access before running ufw enable on a remote system.
-  - id: "CIS-DEBIAN11-4.1.5-ufw_outbound"
-    name: "ufw outbound: echo \"Manual - Please confirm firewall outbound Policies match site policies\""
-    description: "CIS Debian 11 benchmark recommendation 4.1.5. NIST SP 800-53 Rev. 5: SC-7."
-    tags: [cis, cis-debian11, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm firewall outbound Policies match site policies"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-9eae47b76a |
-      Outbound rules decide which connections the host may initiate. Limiting them to what the system needs restricts data exfiltration and the ability of malware to reach command-and-control servers. Because the right rules depend on the system's role, this is a manual review item.
-    remediation: &rem-ed9bb3aa66 |
-      Review the outbound ufw rules against the site policy and allow only the outgoing traffic the system needs.
-
-      ufw status verbose
-      ufw allow out PORT/PROTOCOL
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-DEBIAN11-4.1.6-ufw_open_ports"
-    name: "ufw open ports: echo \"Manual - Please confirm firewall rules exist for open ports match site policies\""
-    description: "CIS Debian 11 benchmark recommendation 4.1.6. NIST SP 800-53 Rev. 5: SC-7."
-    tags: [cis, cis-debian11, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm firewall rules exist for open ports match site policies"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-2b1e73def8 |
-      Every port the system listens on should be covered by a deliberate firewall rule. Comparing listening services with the firewall configuration finds services exposed by accident and rules left over from removed services. Because the required ports depend on the system's role, this is a manual review item.
-    remediation: &rem-7fe6e6d4a7 |
-      Compare the listening ports with the ufw rules. Add an allow rule for each port the system must offer, and stop or remove services that should not be listening.
-
-      ss -tulnH
-      ufw status verbose
-      ufw allow in PORT/PROTOCOL
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
   - id: "CIS-DEBIAN11-4.1.7-ufw_def_deny"
     name: "ufw def deny: ufw status verbose | grep Default:"
     description: "CIS Debian 11 benchmark recommendation 4.1.7. NIST SP 800-53 Rev. 5: SC-7."
@@ -3915,110 +3817,6 @@ checks:
       iptables -Z
 
       If iptables-persistent is installed, remove it (apt-get purge iptables-persistent) or empty /etc/iptables/rules.v4, otherwise the rules are restored at boot.
-  - id: "CIS-DEBIAN11-4.2.4-nft_tables"
-    name: "nft tables: echo \"Manual - Please confirm nfttables table exists and matched site policy\""
-    description: "CIS Debian 11 benchmark recommendation 4.2.4. NIST SP 800-53 Rev. 5: CA-9, SC-7."
-    tags: [cis, cis-debian11, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm nfttables table exists and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-d4612286c4 |
-      nftables only filters traffic once a table exists to hold its chains and rules. Confirming that a table exists and matches the site policy ensures the firewall is actually configured rather than just installed. This is a manual review item.
-    remediation: &rem-9e08a19679 |
-      List the nftables tables and create one if none exists.
-
-      nft list tables
-      nft create table inet filter
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-DEBIAN11-4.2.5-nft_chains"
-    name: "nft chains: echo \"Manual - Please confirm nfttables base chain exists and matched site policy\""
-    description: "CIS Debian 11 benchmark recommendation 4.2.5. NIST SP 800-53 Rev. 5: NA."
-    tags: [cis, cis-debian11, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm nfttables base chain exists and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-03d23b9486 |
-      Base chains attach nftables rules to the kernel's packet processing hooks. Without input, forward and output base chains, the rules in a table never see any traffic. This is a manual review item.
-    remediation: &rem-ca04b9bc75 |
-      Create base chains for the input, forward and output hooks in the filter table.
-
-      nft create chain inet filter input '{ type filter hook input priority 0; }'
-      nft create chain inet filter forward '{ type filter hook forward priority 0; }'
-      nft create chain inet filter output '{ type filter hook output priority 0; }'
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-DEBIAN11-4.2.6-nft_loopback"
-    name: "nft loopback: echo \"Manual - Please confirm nfttables loopback traffic configured and matched site poli…"
-    description: "CIS Debian 11 benchmark recommendation 4.2.6. NIST SP 800-53 Rev. 5: CA-9, SC-7."
-    tags: [cis, cis-debian11, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm nfttables loopback traffic configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-9e8cd593c2 |
-      Local services rely on loopback traffic, so it must be accepted, while packets from the network claiming a loopback source address are always spoofed and must be dropped. This protects services that only listen on localhost. This is a manual review item.
-    remediation: &rem-ac197a7b1e |
-      Accept loopback traffic and drop loopback source addresses arriving on other interfaces.
-
-      nft add rule inet filter input iif lo accept
-      nft add rule inet filter input ip saddr 127.0.0.0/8 counter drop
-      nft add rule inet filter input ip6 saddr ::1 counter drop
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-DEBIAN11-4.2.7-nft_conns"
-    name: "nft conns: echo \"Manual - Please confirm nfttables connections are configured and matched site polic…"
-    description: "CIS Debian 11 benchmark recommendation 4.2.7. NIST SP 800-53 Rev. 5: CA-9, SC-7."
-    tags: [cis, cis-debian11, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm nfttables connections are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-f8a74f167a |
-      Rules for outbound and established connections decide which sessions the host may start and which replies it accepts. Accepting replies to established connections while restricting new ones keeps legitimate traffic working under a default deny policy. This is a manual review item.
-    remediation: &rem-64c8180d2d |
-      Allow return traffic for established connections and the outbound connections the system needs.
-
-      nft add rule inet filter input ct state established,related accept
-      nft add rule inet filter output ct state new,established,related accept
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-DEBIAN11-4.2.8-nft_def_deny"
-    name: "nft def deny: echo \"Manual - Please confirm nfttables default denies are configured and matched site po…"
-    description: "CIS Debian 11 benchmark recommendation 4.2.8. NIST SP 800-53 Rev. 5: CA-9, SC-7."
-    tags: [cis, cis-debian11, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm nfttables default denies are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-1b662cefab |
-      With a default drop policy on the base chains, anything not explicitly allowed is blocked, so new services or mistakes are not exposed automatically. Required traffic must be permitted before the policy is changed. This is a manual review item.
-    remediation: &rem-86c73c8e3c |
-      Allow required traffic, including remote administration, then set the policy of the base chains to drop.
-
-      nft add rule inet filter input tcp dport 22 accept
-      nft chain inet filter input '{ policy drop; }'
-      nft chain inet filter forward '{ policy drop; }'
-      nft chain inet filter output '{ policy drop; }'
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
   - id: "CIS-DEBIAN11-4.2.9-nftables-enabled"
     name: "Service nftables is enabled"
     description: "CIS Debian 11 benchmark recommendation 4.2.9. NIST SP 800-53 Rev. 5: CA-9, SC-7."
@@ -4058,28 +3856,6 @@ checks:
       nftables rules added at runtime are lost on reboot unless they are stored in the configuration file loaded at boot. If /etc/nftables.conf is missing, the system may start without any firewall.
     remediation: &rem-0111bdad91 |
       Create /etc/nftables.conf.
-  - id: "CIS-DEBIAN11-4.2.10-nft_rules"
-    name: "nft rules: echo \"Manual - Please review nfttables configuration and matches site policy\""
-    description: "CIS Debian 11 benchmark recommendation 4.2.10. NIST SP 800-53 Rev. 5: CA-9, SC-7."
-    tags: [cis, cis-debian11, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please review nfttables configuration and matches site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ .*" }
-    rationale: &rat-b580f821a1 |
-      The nftables rule set must be saved in the boot configuration and loaded by the nftables service, otherwise the system starts unprotected after a reboot. Reviewing the stored configuration against the site policy ensures the persistent rules match what is intended. This is a manual review item.
-    remediation: &rem-8ec412dee0 |
-      Save the reviewed rule set to /etc/nftables.conf and enable the nftables service so it is loaded at boot.
-
-      nft list ruleset
-      printf '%s\n' '#!/usr/sbin/nft -f' 'flush ruleset' > /etc/nftables.conf
-      nft list ruleset >> /etc/nftables.conf
-      systemctl enable nftables
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
   - id: "CIS-DEBIAN11-4.3.1.1-iptables"
     name: "Package iptables is installed"
     description: "CIS Debian 11 benchmark recommendation 4.3.1.1. NIST SP 800-53 Rev. 5: CA-9, SC-7."
@@ -4130,189 +3906,6 @@ checks:
     expect: false
     rationale: *rat-8061e449a6
     remediation: *rem-7f6d83d359
-  - id: "CIS-DEBIAN11-4.3.2.1-ipt_def_deny"
-    name: "ipt def deny: echo \"Manual - Please confirm iptables default denies are configured and matched site pol…"
-    description: "CIS Debian 11 benchmark recommendation 4.3.2.1. NIST SP 800-53 Rev. 5: CA-9, SC-7."
-    tags: [cis, cis-debian11, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm iptables default denies are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-0eae3bbf05 |
-      With a default DROP policy on the INPUT, FORWARD and OUTPUT chains, any traffic not explicitly allowed is blocked, so new services or mistakes are not exposed automatically. Rules for required traffic must exist before the policy is changed, or the system becomes unreachable.
-    remediation: &rem-395a4cf9e0 |
-      Add accept rules for required traffic first, then set the default policy of the built-in chains to DROP and save the rules.
-
-      iptables -A INPUT -i lo -j ACCEPT
-      iptables -A OUTPUT -o lo -j ACCEPT
-      iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-      iptables -A OUTPUT -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
-      iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW -j ACCEPT
-      iptables -P INPUT DROP
-      iptables -P FORWARD DROP
-      iptables -P OUTPUT DROP
-      netfilter-persistent save
-
-      On Debian 11 and Ubuntu this is a manual review item that the check always reports; on Debian 12 the check reads the chain policies.
-  - id: "CIS-DEBIAN11-4.3.2.2-ipt_loopback"
-    name: "ipt loopback: echo \"Manual - Please confirm iptables loopback connections are configured and matched si…"
-    description: "CIS Debian 11 benchmark recommendation 4.3.2.2. NIST SP 800-53 Rev. 5: CA-9, SC-7."
-    tags: [cis, cis-debian11, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm iptables loopback connections are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-b82eb32e30 |
-      Local services rely on loopback traffic, so it must be accepted, while packets from the network with a source address in 127.0.0.0/8 are always spoofed and should be dropped. This protects services that only listen on localhost. This is a manual review item.
-    remediation: &rem-393b25b7bb |
-      Accept loopback traffic, drop loopback source addresses on other interfaces and save the rules.
-
-      iptables -A INPUT -i lo -j ACCEPT
-      iptables -A OUTPUT -o lo -j ACCEPT
-      iptables -A INPUT -s 127.0.0.0/8 -j DROP
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-DEBIAN11-4.3.2.3-ipt_conns_config"
-    name: "ipt conns config: echo \"Manual - Please confirm iptables outbound and connections are configured and matche…"
-    description: "CIS Debian 11 benchmark recommendation 4.3.2.3. NIST SP 800-53 Rev. 5: CA-9, SC-7."
-    tags: [cis, cis-debian11, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm iptables outbound and connections are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-1bcd349780 |
-      Rules for outbound and established connections decide which sessions the host may start and which replies it accepts. Accepting replies to established connections while limiting new outbound connections keeps legitimate traffic working under a default deny policy. This is a manual review item.
-    remediation: &rem-edd392aae3 |
-      Allow return traffic for established connections and the outbound connections the system needs, then save the rules.
-
-      iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-      iptables -A OUTPUT -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-DEBIAN11-4.3.2.4-ipt_open_ports"
-    name: "ipt open ports: echo \"Manual - Please confirm iptables rules for open ports configured and matched site p…"
-    description: "CIS Debian 11 benchmark recommendation 4.3.2.4. NIST SP 800-53 Rev. 5: CA-9, SC-7."
-    tags: [cis, cis-debian11, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm iptables rules for open ports configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-627639aeaf |
-      Every port the system listens on should have a deliberate firewall rule. Comparing listening services with the iptables rules finds services exposed by accident and rules left from removed services. Because the required ports depend on the system's role, this is a manual review item.
-    remediation: &rem-d49de86ca0 |
-      Compare the listening ports with the iptables rules and add an accept rule for each port the system must offer; stop services that should not listen.
-
-      ss -tulnH
-      iptables -L INPUT -v -n
-      iptables -A INPUT -p PROTOCOL --dport PORT -m conntrack --ctstate NEW -j ACCEPT
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-DEBIAN11-4.3.3.1-ipt6_def_deny"
-    name: "ipt6 def deny: echo \"Manual - Please confirm ip6tables default denies are configured and matched site po…"
-    description: "CIS Debian 11 benchmark recommendation 4.3.3.1. NIST SP 800-53 Rev. 5: CA-9, SC-7."
-    tags: [cis, cis-debian11, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm ip6tables default denies are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-f2b453bff8 |
-      With a default DROP policy on the ip6tables INPUT, FORWARD and OUTPUT chains, IPv6 traffic not explicitly allowed is blocked. Without it, IPv6 can become an unfiltered path around an IPv4-only firewall. Required traffic must be allowed first. This is a manual review item.
-    remediation: &rem-2d69897fbe |
-      Add accept rules for required IPv6 traffic first, then set the default policy of the built-in ip6tables chains to DROP and save the rules.
-
-      ip6tables -A INPUT -i lo -j ACCEPT
-      ip6tables -A OUTPUT -o lo -j ACCEPT
-      ip6tables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-      ip6tables -A OUTPUT -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
-      ip6tables -P INPUT DROP
-      ip6tables -P FORWARD DROP
-      ip6tables -P OUTPUT DROP
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-DEBIAN11-4.3.3.2-ipt6_loopback"
-    name: "ipt6 loopback: echo \"Manual - Please confirm ip6tables loopback connections are configured and matched s…"
-    description: "CIS Debian 11 benchmark recommendation 4.3.3.2. NIST SP 800-53 Rev. 5: CA-9, SC-7."
-    tags: [cis, cis-debian11, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm ip6tables loopback connections are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-9ebd3a7683 |
-      Local services rely on IPv6 loopback traffic, so it must be accepted, while packets from the network with the source address ::1 are always spoofed and should be dropped. This protects services that only listen on localhost. This is a manual review item.
-    remediation: &rem-b11bd52f16 |
-      Accept IPv6 loopback traffic, drop ::1 as source address on other interfaces and save the rules.
-
-      ip6tables -A INPUT -i lo -j ACCEPT
-      ip6tables -A OUTPUT -o lo -j ACCEPT
-      ip6tables -A INPUT -s ::1 -j DROP
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-DEBIAN11-4.3.3.3-ipt6_conns_config"
-    name: "ipt6 conns config: echo \"Manual - Please confirm ip6tables outbound and connections are configured and match…"
-    description: "CIS Debian 11 benchmark recommendation 4.3.3.3. NIST SP 800-53 Rev. 5: CA-9, SC-7."
-    tags: [cis, cis-debian11, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm ip6tables outbound and connections are configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-a1c355e722 |
-      Rules for outbound and established IPv6 connections decide which sessions the host may start and which replies it accepts. Accepting replies to established connections while limiting new ones keeps legitimate IPv6 traffic working under a default deny policy. This is a manual review item.
-    remediation: &rem-d0f10fb243 |
-      Allow return traffic for established IPv6 connections and the outbound connections the system needs, then save the rules.
-
-      ip6tables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-      ip6tables -A OUTPUT -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
-      netfilter-persistent save
-
-      This is a manual review item: the automated check always reports it so that the result is reviewed and documented.
-  - id: "CIS-DEBIAN11-4.3.3.4-ipt6_open_ports"
-    name: "ipt6 open ports: echo \"Manual - Please confirm ip6tables rules for open ports configured and matched site …"
-    description: "CIS Debian 11 benchmark recommendation 4.3.3.4. NIST SP 800-53 Rev. 5: CA-9, SC-7."
-    tags: [cis, cis-debian11, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please confirm ip6tables rules for open ports configured and matched site policy"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-9ecee60e4a |
-      Every port a host listens on over IPv6 is reachable by any IPv6 peer unless the firewall restricts it. With a default-drop policy, missing rules break needed services, while overly broad rules expose services that should stay internal. Comparing the ip6tables rules with the sockets actually listening keeps IPv6 exposure limited to what the site has approved.
-    remediation: &rem-757b9bba24 |
-      Compare the IPv6 sockets the host listens on with the ip6tables INPUT rules. Add an accept rule for each port the site policy allows (example for SSH below), remove rules for ports that are not needed, and save the rule set.
-
-      ss -6tuln
-      ip6tables -L INPUT -v -n
-      ip6tables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW -j ACCEPT
-      netfilter-persistent save
-
-      This is a manual review item: the check only prints a reminder and reports a failure until the review is accepted.
   - id: "CIS-DEBIAN11-5.1.1-sshd_config_perms-attrs"
     name: "/etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Debian 11 benchmark recommendation 5.1.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -6595,27 +6188,6 @@ checks:
       Start the service systemd-journald:
 
       systemctl start systemd-journald
-  - id: "CIS-DEBIAN11-6.2.1.1.2-etc_tmpfiles.d_systemd.conf"
-    name: "/etc/tmpfiles.d/systemd.conf: echo \"Manual - Please check journald default permissions\""
-    description: "CIS Debian 11 benchmark recommendation 6.2.1.1.2. NIST SP 800-53 Rev. 5: AC-3, AU-2, AU-12, MP-2, SI-5."
-    tags: [cis, cis-debian11, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual - Please check journald default permissions"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^Manual" }
-    rationale: &rat-653475c412 |
-      systemd-tmpfiles sets the ownership and permissions of journal directories and files at boot. Overly permissive defaults would let unprivileged users read journal data containing sensitive information. Reviewing the tmpfiles entries ensures journal files are created with restrictive modes (0640 or stricter).
-    remediation: &rem-a12b519b39 |
-      Review the permissions systemd-tmpfiles applies to journal files and directories. To change them, copy the vendor file to /etc/tmpfiles.d/ (which overrides it) and tighten the modes.
-
-      grep -E '^[fdzZ]' /usr/lib/tmpfiles.d/systemd.conf
-      cp /usr/lib/tmpfiles.d/systemd.conf /etc/tmpfiles.d/systemd.conf
-      systemd-tmpfiles --create /etc/tmpfiles.d/systemd.conf
-
-      This is a manual check that always reports a failure for review.
   - id: "CIS-DEBIAN11-6.2.1.1.3-log_rotate_journald_conf"
     name: "log rotate journald conf: systemd-analyze cat-config systemd/journald.conf | grep -Pi -- '^\\h*(SystemMaxUse|SystemK…"
     description: "CIS Debian 11 benchmark recommendation 6.2.1.1.3. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
@@ -7332,27 +6904,6 @@ checks:
     rationale: &rat-f14e01285d |
       Changes to the host name, domain name, login banners or network configuration can redirect traffic, disguise a system or prepare further attacks. Auditing them makes such modifications traceable. This check verifies that the rules are loaded in the running kernel.
     remediation: *rem-86bf11bb6f
-  - id: "CIS-DEBIAN11-6.4.3.6-auditd_priv_cmds_cnf"
-    name: "auditd priv cmds cnf: echo \"Manual - Please investigate privilege commands are collected as per documentation\""
-    description: "CIS Debian 11 benchmark recommendation 6.4.3.6. NIST SP 800-53 Rev. 5: AU-3."
-    tags: [cis, cis-debian11, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
-    severity: low
-    run: |
-      echo "Manual - Please investigate privilege commands are collected as per documentation"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual" }
-    rationale: &rat-8e8800ac94 |
-      Programs with the setuid or setgid bit run with the privileges of their owner or group and are a common route for privilege escalation. Auditing every execution of these programs by regular users shows who used elevated privileges and helps detect misuse of vulnerable binaries.
-    remediation: &rem-c3e83b859d |
-      Generate an audit rule for every setuid and setgid program on the local file systems, write the rules to a file in /etc/audit/rules.d/ and load them. Repeat this whenever software that installs such programs is added.
-
-      UID_MIN=$(awk '/^\s*UID_MIN/ {print $2}' /etc/login.defs)
-      df --local -P | awk 'NR > 1 {print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm /6000 2>/dev/null | sort -u | awk -v m="${UID_MIN:-1000}" '{print "-a always,exit -F path=" $0 " -F perm=x -F auid>=" m " -F auid!=unset -k privileged"}' > /etc/audit/rules.d/50-privileged.rules
-      augenrules --load
-
-      On Amazon Linux 2/2023, RHEL 8 to 10 and Debian 11 this is a manual check that always asks for a review. On RHEL 7, SUSE 15 and Ubuntu 18.04/20.04 the check only looks for an audit rule containing the word delete, which the file deletion rules provide. If the audit configuration is immutable (-e 2), reboot to activate the rules.
   - id: "CIS-DEBIAN11-6.4.3.7-auditd_access_cnf"
     name: "auditd access cnf: grep access /etc/audit/rules.d/*.rules"
     description: "CIS Debian 11 benchmark recommendation 6.4.3.7. NIST SP 800-53 Rev. 5: AU-3."
@@ -8808,7 +8359,9 @@ checks:
     severity: medium
     timeout: 120000ms
     run: |
-      find /home/ \( -name .netrc -o -name .rhosts -o -name .forward \)
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev \( -name .netrc -o -name .rhosts -o -name .forward \) 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }

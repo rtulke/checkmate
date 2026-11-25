@@ -3,7 +3,7 @@
 name: DISA STIG Red Hat Enterprise Linux 10
 version: "1.3.0"
 description: >
-  Automated checks for 395 rules of the DISA Security Technical
+  Automated checks for 391 rules of the DISA Security Technical
   Implementation Guide for Red Hat Enterprise Linux 10 (version 1.3.0), converted from the goss
   audit content of the ansible-lockdown project. Severity follows the STIG
   category: CAT I high, CAT II medium, CAT III low. Rationale and fix
@@ -2722,27 +2722,6 @@ checks:
       Configure RHEL 10 so that the "/etc/ssh/sshd_config" file and the contents of "/etc/ssh/sshd_config.d" are owned by "root" with the following command:
 
       $ sudo chown -R root /etc/ssh/sshd_config /etc/ssh/sshd_config.d
-  - id: "STIG-RHEL-10-400160-primary_group_set_manual"
-    name: "RHEL 10 must ensure that all local interactive user home directories are group-owned by the home directory owner's primary group."
-    description: "DISA STIG for Red Hat Enterprise Linux 10, RHEL-10-400160, V-281049, SV-281049r1268226_rule, CAT II. CCI-000213, CCI-002385. NIST SP 800-53 Rev. 4: AC-3, SC-5."
-    tags: [stig, stig-rhel10, stig-cat-2]
-    severity: medium
-    run: |
-      echo "MANUAL - Validate users primary groups are set as expected"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ .*" }
-    rationale: &rat-d16aab0eed |
-      If the group identifier (GID) of a local interactive user's home directory is not the same as the primary GID of the user, this would allow unauthorized access to the user's files. Users who share the same group may not be able to access files that they legitimately should be able to access.
-    remediation: &rem-55d9ab587e |
-      Configure RHEL 10 interactive users' home directories to be group-owned by the user's primary GID.
-
-      Change the group owner of a local interactive user's home directory to the group found in "/etc/passwd". To change the group owner of a local interactive user's home directory, use the following command:
-
-      Note: The example will be for the user "disauser", who has a home directory of "/home/disauser" and has a primary group of users.
-
-      $ sudo chgrp users /home/disauser
   - id: "STIG-RHEL-10-400165-audit_log_group-attrs"
     name: "RHEL 10 must enforce group ownership of audit logs by root or by a restricted logging group to prevent unauthorized read access."
     description: "DISA STIG for Red Hat Enterprise Linux 10, RHEL-10-400165, V-281050, SV-281050r1184685_rule, CAT II. CCI-000162, CCI-000163, CCI-000164, CCI-001314. NIST SP 800-53 Rev. 4: AU-9, SI-11."
@@ -3046,7 +3025,9 @@ checks:
     tags: [stig, stig-rhel10, stig-cat-2]
     severity: medium
     run: |
-      find /home/ -name "\.*" -type f -perm /g+wx,o+wx
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name "\.*" -type f -perm /g+wx,o+wx 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -3577,7 +3558,9 @@ checks:
     tags: [stig, stig-rhel10, stig-cat-2]
     severity: medium
     run: |
-      find /home/ -name "\.*" -perm /g+wx,o+wx
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name "\.*" -perm /g+wx,o+wx 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -6436,27 +6419,6 @@ checks:
       Configure RHEL 10 to not allow duplicate UIDs to exist for interactive users.
 
       Edit the file "/etc/passwd", and provide each interactive user account that has a duplicate UID with a unique UID.
-  - id: "STIG-RHEL-10-600140-temp_accts_manual"
-    name: "RHEL 10 must automatically expire temporary accounts within 72 hours."
-    description: "DISA STIG for Red Hat Enterprise Linux 10, RHEL-10-600140, V-281173, SV-281173r1166471_rule, CAT II. CCI-001682, CCI-000016. NIST SP 800-53 Rev. 4: AC-2."
-    tags: [stig, stig-rhel10, stig-cat-2]
-    severity: medium
-    run: |
-      echo "MANUAL - check for temporary accounts ensure 72hr expiry"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^MANUAL" }
-    rationale: &rat-538a59f2b7 |
-      Temporary accounts are privileged or nonprivileged accounts that are established during pressing circumstances, such as new software or hardware configuration or an incident response, where the need for prompt account activation requires bypassing normal account authorization procedures. If any inactive temporary accounts are left enabled on the system and are not manually removed or automatically expired within 72 hours, the security posture of the system will be degraded and exposed to exploitation by unauthorized users or insider threat actors.
-
-      Temporary accounts are different from emergency accounts. Emergency accounts, also known as "last resort" or "break glass" accounts, are local login accounts enabled on the system for emergency use by authorized system administrators to manage a system when standard login methods are failing or not available. Emergency accounts are not subject to manual removal or scheduled expiration requirements.
-
-      The automatic expiration of temporary accounts may be extended as needed by the circumstances, but it must not be extended indefinitely. A documented permanent account should be established for privileged users who need long-term maintenance accounts.
-    remediation: &rem-e4b6ccd8a5 |
-      Configure RHEL 10 to expire temporary accounts after 72 hours with the following command:
-
-      $ sudo chage -E $(date -d +3days +%Y-%m-%d) <temporary_account_name>
   - id: "STIG-RHEL-10-600150-primary_group_exists"
     name: "RHEL 10 must assign a primary group to all interactive users."
     description: "DISA STIG for Red Hat Enterprise Linux 10, RHEL-10-600150, V-281174, SV-281174r1166474_rule, CAT II. CCI-000764. NIST SP 800-53 Rev. 4: AC-2."
@@ -9835,31 +9797,6 @@ checks:
     expect: empty
     rationale: *rat-a830f9a511
     remediation: *rem-e191d2cdeb
-  - id: "STIG-RHEL-10-701240-private_keys_password"
-    name: "RHEL 10 must, for PKI-based authentication, enforce authorized access to the corresponding private key. (Manual)"
-    description: "DISA STIG for Red Hat Enterprise Linux 10, RHEL-10-701240, V-281326, SV-281326r1184637_rule, CAT II. CCI-000186. NIST SP 800-53 Rev. 4: IA-2."
-    tags: [stig, stig-rhel10, stig-cat-2]
-    severity: medium
-    run: |
-      echo "MANUAL - Please validate all private keys have a password set"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ .*" }
-    rationale: &rat-1804dd3ce2 |
-      If the private key is discovered, an attacker can use the key to authenticate as an authorized user and gain access to the network infrastructure.
-
-      The cornerstone of the PKI is the private key used to encrypt or digitally sign information.
-
-      If the private key is stolen, this will lead to the compromise of the authentication and nonrepudiation gained through PKI because the attacker can use the private key to digitally sign documents and pretend to be the authorized user.
-
-      Both the holders of a digital certificate and the issuing authority must protect the computers, storage devices, or whatever they use to keep the private keys.
-    remediation: &rem-4800237176 |
-      Configure RHEL 10, for PKI-based authentication, enforces authorized access to the corresponding private key.
-
-      Create a new private and public key pair that uses a passcode with the following command:
-
-      $ sudo ssh-keygen -N [passphrase]
   - id: "STIG-RHEL-10-701250-authenticate_emergency_mode-attrs"
     name: "RHEL 10 must require authentication to access emergency mode. (/etc/systemd/system/emergency.service.d/emergency.service.conf: exists)"
     description: "DISA STIG for Red Hat Enterprise Linux 10, RHEL-10-701250, V-281327, SV-281327r1273610_rule, CAT II. CCI-000213. NIST SP 800-53 Rev. 4: AC-3."
@@ -9980,27 +9917,6 @@ checks:
       $ sudo firewall-cmd --permanent --add-port=port_number/tcp
       or
       $ sudo firewall-cmd --permanent --add-service=service_name
-  - id: "STIG-RHEL-10-800010-firewalld_prohibit_manual"
-    name: "RHEL 10 must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the Ports, Protocols, and Services Management (PPSM) Category Assignments List (CAL) and vulnerability assessments. (Manual)"
-    description: "DISA STIG for Red Hat Enterprise Linux 10, RHEL-10-800010, V-281333, SV-281333r1167149_rule, CAT II. CCI-000382. NIST SP 800-53 Rev. 4: CM-7."
-    tags: [stig, stig-rhel10, stig-cat-2]
-    severity: medium
-    run: |
-      echo "MANUAL!! - Investigation required - Firewalld RHEL-10-800010"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ MANUAL!!" }
-    rationale: &rat-ce55bef2a9 |
-      To prevent unauthorized connection of devices, unauthorized transfer of information, or unauthorized tunneling (i.e., embedding of data types within data types), organizations must disable or restrict unused or unnecessary ports, protocols, and services on information systems.
-    remediation: &rem-fa8704e148 |
-      Configure RHEL 10 to prohibit or restrict the use of functions, ports, protocols, and/or services as defined in the PPSM CAL and vulnerability assessments.
-
-      Update the host's firewall settings and/or running services to comply with the PPSM CLSA for the site or program and the PPSM CAL.
-
-      Run the following command to load the newly created rule(s):
-
-      $ sudo firewall-cmd --reload
   - id: "STIG-RHEL-10-800020-network_promicuous"
     name: "RHEL 10 must enforce that network interfaces not be in promiscuous mode."
     description: "DISA STIG for Red Hat Enterprise Linux 10, RHEL-10-800020, V-281334, SV-281334r1167152_rule, CAT II. CCI-002418. NIST SP 800-53 Rev. 4: CM-5."

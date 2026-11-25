@@ -3,7 +3,7 @@
 name: DISA STIG Red Hat Enterprise Linux 7
 version: "3.14"
 description: >
-  Automated checks for 214 rules of the DISA Security Technical
+  Automated checks for 212 rules of the DISA Security Technical
   Implementation Guide for Red Hat Enterprise Linux 7 (version 3.14), converted from the goss
   audit content of the ansible-lockdown project. Severity follows the STIG
   category: CAT I high, CAT II medium, CAT III low. Rationale and fix
@@ -4295,25 +4295,6 @@ checks:
       - { some: "~ ^-a always,exit -F arch=b64 -S (unlink|unlinkat|rename|renameat|rmdir),(unlink|unlinkat|rename|renameat|rmdir),(unlink|unlinkat|rename|renameat|rmdir),(unlink|unlinkat|rename|renameat|rmdir),(unlink|unlinkat|rename|renameat|rmdir) -F auid\u003e=1000 -F auid!=(4294967295|unset) -k delete" }
     rationale: *rat-8c6e7e1358
     remediation: *rem-afaefde1d4
-  - id: "STIG-RHEL-07-040100-firewall_services"
-    name: "Must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the Ports, Protocols, and Services Management Component Local Service Assessment (PPSM CLSA) and vulnerability assessments."
-    description: "DISA STIG for Red Hat Enterprise Linux 7, RHEL-07-040100, V-204577, SV-204577r603261_rule, CAT II. CCI-000382, CCI-002314."
-    tags: [stig, stig-rhel7, stig-cat-2]
-    severity: medium
-    run: |
-      echo "Manual Check Required"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual Check Required" }
-    rationale: &rat-013fd232c7 |
-      In order to prevent unauthorized connection of devices, unauthorized transfer of information, or unauthorized tunneling (i.e., embedding of data types within data types), organizations must disable or restrict unused or unnecessary physical and logical ports/protocols on information systems.
-
-      Operating systems are capable of providing a wide variety of functions and services. Some of the functions and services provided by default may not be necessary to support essential organizational operations. Additionally, it is sometimes convenient to provide multiple services from a single component (e.g., VPN and IPS); however, doing so increases risk over limiting the services provided by any one component.
-
-      To support the requirements and principles of least functionality, the operating system must support the organizational requirements, providing only essential capabilities and limiting the use of ports, protocols, and/or services to only those required, authorized, and approved to conduct official business or to address authorized quality of life issues.
-    remediation: &rem-c6d92c317f |
-      Update the host's firewall settings and/or running services to comply with the PPSM CLSA for the site or program and the PPSM CAL.
   - id: "STIG-RHEL-07-040110-ciphers_sshd_config_dod"
     name: "must implement DoD-approved encryption to protect the confidentiality of SSH connections."
     description: "DISA STIG for Red Hat Enterprise Linux 7, RHEL-07-040110, V-204578, SV-204578r744116_rule, CAT II. CCI-000366, CCI-000803, CCI-000068."
@@ -5406,23 +5387,6 @@ checks:
       Update the "/etc/fstab" file so the option "sec" is defined for each NFS mounted file system and the "sec" option does not have the "sys" setting.
 
       Ensure the "sec" option is defined as "krb5:krb5i:krb5p".
-  - id: "STIG-RHEL-07-040810-firewall_default_zone"
-    name: "The Red Hat Enterprise Linux operating system access control program must be configured to grant or deny system access to specific hosts and services."
-    description: "DISA STIG for Red Hat Enterprise Linux 7, RHEL-07-040810, V-204628, SV-204628r603261_rule, CAT II. CCI-000366."
-    tags: [stig, stig-rhel7, stig-cat-2]
-    severity: medium
-    run: |
-      echo "Manual Check Required"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual Check Required" }
-    rationale: &rat-46cae083af |
-      If the systems access control program is not configured with appropriate rules for allowing and denying access to system network resources, services may be accessible to unauthorized hosts.
-    remediation: &rem-21bb12f986 |
-      If "firewalld" is installed and active on the system, configure rules for allowing specific services and hosts.
-
-      If "firewalld" is not "active", enable "tcpwrappers" by configuring "/etc/hosts.allow" and "/etc/hosts.deny" to allow or deny access to specific hosts.
   - id: "STIG-RHEL-07-040820-libreswan"
     name: "The Red Hat Enterprise Linux operating system must not have unauthorized IP tunnels configured."
     description: "DISA STIG for Red Hat Enterprise Linux 7, RHEL-07-040820, V-204629, SV-204629r603261_rule, CAT II. CCI-000366."

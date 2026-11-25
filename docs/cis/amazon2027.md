@@ -1,6 +1,6 @@
 # CIS Amazon Linux 2027
 
-Automated checks for 309 recommendations of the CIS Amazon Linux 2027 benchmark (version 0.0.1), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
+Automated checks for 307 recommendations of the CIS Amazon Linux 2027 benchmark (version 0.0.1), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
 
 **Policy:** [`cis/amazon2027.yml`](https://github.com/rtulke/checkmate/blob/main/cis/amazon2027.yml) · **Benchmark version:** 0.0.1
 
@@ -166,7 +166,6 @@ checkmate run cis/amazon2027.yml --tags cis-level-2 -v
 | `CIS-AMAZON2027-2.1.19-cis_2_1_19_tigervnc-server-minimal_pkg` | Package tigervnc-server-minimal is not installed | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2027-2.1.19-cis_2_1_19_xorg-x11-server-common_pkg` | Package xorg-x11-server-common is not installed | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2027-2.1.20-cis_2_1_20_xwayland_pkg` | Package xorg-x11-server-Xwayland is not installed | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2027-2.1.21-manual_listening_ports` | manual listening ports: echo "Manual!! - Please check only approved services are listening" | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-2.2.1-cis_2_2_1_ftp_pkg` | Package ftp is not installed | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-2.2.1-cis_2_2_1_lftp_pkg` | Package lftp is not installed | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-2.2.2-cis_2_2_2_openldap_clients_pkg` | Package openldap-clients is not installed | L2 server | <span class="sev sev-low">low</span> |
@@ -260,7 +259,6 @@ checkmate run cis/amazon2027.yml --tags cis-level-2 -v
 | `CIS-AMAZON2027-4.1.3-firewalld-running` | Service firewalld is running | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2027-4.1.5-cis_4_1_5_loopback_zone_target` | cis 4 1 5 loopback zone target: l_zone="$(firewall-cmd --get-zone-of-interface=lo 2>&1 \| xargs)" | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2027-4.1.6-cis_4_1_6_loopback_rich_rules` | cis 4 1 6 loopback rich rules: l_zone="$(firewall-cmd --get-zone-of-interface=lo 2>/dev/null \| xargs)" | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-AMAZON2027-4.1.7-firewall_drop_unncessary_ports_manual` | firewall drop unncessary ports manual: echo "Manual test" | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2027-4.1.8-cis_4_1_8_default_zone_drop` | cis 4 1 8 default zone drop: firewall-cmd --get-default-zone | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2027-4.1.9-iptables-services` | Package iptables-services is not installed | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-AMAZON2027-4.1.9-ufw` | Package ufw is not installed | L2 server | <span class="sev sev-low">low</span> |

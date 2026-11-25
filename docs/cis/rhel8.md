@@ -1,6 +1,6 @@
 # CIS Red Hat Enterprise Linux 8
 
-Automated checks for 302 recommendations of the CIS Red Hat Enterprise Linux 8 benchmark (version 4.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
+Automated checks for 297 recommendations of the CIS Red Hat Enterprise Linux 8 benchmark (version 4.0.0), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
 
 **Policy:** [`cis/rhel8.yml`](https://github.com/rtulke/checkmate/blob/main/cis/rhel8.yml) · **Benchmark version:** 4.0.0
 
@@ -51,7 +51,6 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-1.1.1.10-usb-storage_blacklist-content` | /etc/modprobe.d/blacklist.conf has the expected content (1 rule) | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.1.1.10-usb-storage_disabled-attrs` | /etc/modprobe.d/CIS.conf: exists | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.1.1.10-usb-storage_disabled-content` | /etc/modprobe.d/CIS.conf has the expected content (1 rule) | L1 server, L2 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-1.1.1.11-cve_fs` | cve fs: /var/fs_with_cves.sh | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.1.2.1.1-tmp_mount` | /tmp is a separate mount | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.1.2.1.2-tmp_nodev_options` | /tmp is a separate mount with nodev | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-1.1.2.1.2-tmp_nodev_fstab_options-attrs` | /etc/fstab: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -213,7 +212,6 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-2.1.20-xinetd_pkg` | Package xinetd is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-2.1.21-gdm_pkg` | Package gdm is not installed | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-2.1.22-xwindow_pkg` | Package xorg-x11-server-common is not installed | L2 server | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-2.1.24-manual_listening_ports` | manual listening ports: echo "Manual!! - Please check only approved services are listening" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-2.2.1-ftp` | Package ftp is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-2.2.2-openldap-clients` | Package openldap-clients is not installed | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-2.2.3-nis-clients` | Package ypbind is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -312,7 +310,6 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-4.1.4-active_firewalld` | active firewalld: for fw in `firewall-cmd --get-active-zones \| grep -P -B 4  'interfaces: (?!lo\|virbr)' \| h… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-4.1.5-loopback_traffic_firewalld` | loopback traffic firewalld: firewall-cmd --list-all --zone="$(firewall-cmd --get-zone-of-interface=lo \| xargs)" \| gre… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-4.1.6-loopback_firewalld` | loopback firewalld: for zone in $(firewall-cmd --get-zone-of-interface=lo); do | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-4.1.7-firewall_drop_unncessary_ports_manual` | firewall drop unncessary ports manual: echo "Manual test" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.1.1-sshd_crypto_policy-attrs` | /etc/sysconfig/sshd: exists, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.1.1-sshd_crypto_policy-content` | /etc/sysconfig/sshd has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-5.1.2-sshd_config_perms-attrs` | /etc/ssh/sshd_config: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -485,7 +482,6 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-6.2.2.5-etc_rsyslog.conf-content` | /etc/rsyslog.conf has the expected content (13 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-6.2.2.7-local_syslog_input` | local syslog input: grep -E "imtcp\\" port\|InputTCPServerRun" /etc/rsyslog.conf /etc/rsyslog.d/\*.conf \| grep -… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-6.2.2.7-local_syslog_module` | local syslog module: grep "imtcp" /etc/rsyslog.conf /etc/rsyslog.d/\*.conf \| grep -Ev ":#\|port=" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL8-6.2.2.8-rsyslog_logrotate` | rsyslog logrotate: echo "Manual" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-6.2.3.1-logfile_configured_login_files` | logfile configured login files: find /var/log/ -type f -perm /g+x,o+wx -exec ls -l "{}" + \| grep -E "[b,u,w]tmp.\*\|lastllo… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-6.2.3.1-logfile_configured_sssd` | logfile configured sssd: find /var/log/ -type f -perm /g+x,o+rwx -exec ls -l "{}" + \| grep -Ei "ssd\|gdm" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL8-6.2.3.1-logfile_configured_syslog_logs` | logfile configured syslog logs: find /var/log/ -type f -perm /g+wx,o+wx -exec ls -l "{}" + \| grep -E "auth\|secure\|syslog\|… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -510,7 +506,6 @@ checkmate run cis/rhel8.yml --tags cis-level-2 -v
 | `CIS-RHEL8-6.3.3.4-auditd_time_live` | auditd time live: auditctl -l \| grep time-change | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.5-auditd_locale_cnf` | auditd locale cnf: grep system-locale /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.5-auditd_locale_live` | auditd locale live: auditctl -l \| grep system-locale | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL8-6.3.3.6-auditd_priv_cmds_cnf` | auditd priv cmds cnf: echo "Manual - Please investigate privilege commands are collected as per documentation" | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.7-auditd_access_cnf` | auditd access cnf: grep access /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.7-auditd_access_live` | auditd access live: auditctl -l \| grep access | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL8-6.3.3.8-auditd_identity_cnf` | auditd identity cnf: grep identity /etc/audit/rules.d/\*.rules | L2 server, L2 workstation | <span class="sev sev-low">low</span> |

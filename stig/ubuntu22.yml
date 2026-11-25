@@ -3,7 +3,7 @@
 name: DISA STIG Ubuntu 22.04 LTS
 version: "2.10.0"
 description: >
-  Automated checks for 190 rules of the DISA Security Technical
+  Automated checks for 186 rules of the DISA Security Technical
   Implementation Guide for Ubuntu 22.04 LTS (version 2.10.0), converted from the goss
   audit content of the ansible-lockdown project. Severity follows the STIG
   category: CAT I high, CAT II medium, CAT III low. Rationale and fix
@@ -1377,58 +1377,6 @@ checks:
           $ sudo ufw enable
 
       Note: Enabling the firewall will potentially disrupt ssh sessions.
-  - id: "STIG-UBTU-22-251025-ufw_int_limited"
-    name: "Ubuntu 22.04 LTS must configure the Uncomplicated Firewall (ufw) to rate-limit impacted network interfaces. (Manual)"
-    description: "DISA STIG for Ubuntu 22.04 LTS, UBTU-22-251025, V-260517, SV-260517r958902_rule, CAT II. CCI-002385. NIST SP 800-53 Rev. 4: SC-5."
-    tags: [stig, stig-ubuntu22, stig-cat-2]
-    severity: medium
-    run: |
-      echo "Manual - Please ensure service or interfaces are rate limits on UFW"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual" }
-    rationale: &rat-66ffadcd42 |
-      Denial of service (DoS) is a condition when a resource is not available for legitimate users. When this occurs, the organization either cannot accomplish its mission or must operate at degraded capacity.
-
-      This requirement addresses the configuration of the operating system to mitigate the impact of DoS attacks that have occurred or are ongoing on system availability. For each system, known and potential DoS attacks must be identified and solutions for each type implemented. A variety of technologies exist to limit or, in some cases, eliminate the effects of DoS attacks (e.g., limiting processes or establishing memory partitions). Employing increased capacity and bandwidth, combined with service redundancy, may reduce the susceptibility to some DoS attacks.
-    remediation: &rem-d857ff7b58 |
-      Configure the application firewall to protect against or limit the effects of DoS attacks by ensuring Ubuntu 22.04 LTS is implementing rate-limiting measures on impacted network interfaces.
-
-      For each service with a port listening to connections, run the following command, replacing "<service_name>" with the service that needs to be rate limited.
-
-           $ sudo ufw limit <service_name>
-
-      Rate-limiting can also be done on an interface. An example of adding a rate limit on the "ens160" interface follows:
-
-           $ sudo ufw limit in on ens160
-  - id: "STIG-UBTU-22-251030-ufw_proto_svcs"
-    name: "Ubuntu 22.04 LTS must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the PPSM CAL and vulnerability assessments. (Manual)"
-    description: "DISA STIG for Ubuntu 22.04 LTS, UBTU-22-251030, V-260518, SV-260518r958480_rule, CAT II. CCI-000382. NIST SP 800-53 Rev. 4: CM-7."
-    tags: [stig, stig-ubuntu22, stig-cat-2]
-    severity: medium
-    run: |
-      echo "Manual - Please ensure ports, protocols and services are conifgured on UFW"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual" }
-    rationale: &rat-14c1e8c0ec |
-      To prevent unauthorized connection of devices, unauthorized transfer of information, or unauthorized tunneling (i.e., embedding of data types within data types), organizations must disable or restrict unused or unnecessary physical and logical ports/protocols on information systems.
-
-      Operating systems are capable of providing a wide variety of functions and services. Some of the functions and services provided by default may not be necessary to support essential organizational operations. Additionally, it is sometimes convenient to provide multiple services from a single component (e.g., VPN and IPS); however, doing so increases risk over limiting the services provided by any one component.
-
-      To support the requirements and principles of least functionality, the operating system must support the organizational requirements, providing only essential capabilities and limiting the use of ports, protocols, and/or services to only those required, authorized, and approved to conduct official business or to address authorized quality of life issues.
-    remediation: &rem-19107db16d |
-      Add all ports, protocols, or services allowed by the PPSM CLSA by using the following command:
-
-           $ sudo ufw allow <direction> <port/protocol/service>
-
-      Where the direction is "in" or "out" and the port is the one corresponding to the protocol or service allowed.
-
-      To deny access to ports, protocols, or services, use:
-
-           $ sudo ufw deny <direction> <port/protocol/service>
   - id: "STIG-UBTU-22-253010-net.ipv4.tcp_syncookies"
     name: "Ubuntu 22.04 LTS must be configured to use TCP syncookies."
     description: "DISA STIG for Ubuntu 22.04 LTS, UBTU-22-253010, V-260522, SV-260522r1069097_rule, CAT II. CCI-001095. NIST SP 800-53 Rev. 4: SC-5."
@@ -2337,27 +2285,6 @@ checks:
       - { none: "~ ^\\s*INACTIVE\\s*=\\s*-1" }
     rationale: *rat-27643871b5
     remediation: *rem-19a3c00d13
-  - id: "STIG-UBTU-22-411040-Temp_accts"
-    name: "Ubuntu 22.04 LTS must automatically expire temporary accounts within 72 hours."
-    description: "DISA STIG for Ubuntu 22.04 LTS, UBTU-22-411040, V-260548, SV-260548r1268212_rule, CAT II. CCI-000016, CCI-001682. NIST SP 800-53 Rev. 4: AC-2."
-    tags: [stig, stig-ubuntu22, stig-cat-2]
-    severity: medium
-    run: |
-      echo "Manual! Test - Please check temporary accounts"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual" }
-    rationale: &rat-788f0342a9 |
-      Temporary accounts are privileged or nonprivileged accounts established during pressing circumstances, such as new software or hardware configuration or an incident response, where the need for prompt account activation requires bypassing normal account authorization procedures. If any inactive temporary accounts are left enabled on the system and are not either manually removed or automatically expired within 72 hours, the security posture of the system will be degraded and exposed to exploitation by unauthorized users or insider threat actors.
-
-      Temporary accounts are different from emergency accounts. Emergency accounts, also known as "last resort" or "break glass" accounts, are local logon accounts enabled on the system for emergency use by authorized system administrators to manage a system when standard logon methods are failing or not available. Emergency accounts are not subject to manual removal or scheduled expiration requirements.
-
-      The automatic expiration of temporary accounts may be extended as needed by the circumstances, but it must not be extended indefinitely. A documented permanent account should be established for privileged users who need long-term maintenance accounts.
-    remediation: &rem-67392115c8 |
-      Configure Ubuntu 22.04 LTS to expire temporary accounts after 72 hours by using the following command:
-
-           $ sudo chage -E $(date -d +3days +%Y-%m-%d) <temporary_account_name>
   - id: "STIG-UBTU-22-412025-vlock"
     name: "Ubuntu 22.04 LTS must allow users to directly initiate a session lock for all connection types."
     description: "DISA STIG for Ubuntu 22.04 LTS, UBTU-22-412025, V-260553, SV-260553r1015010_rule, CAT II. CCI-000057, CCI-000058, CCI-000060. NIST SP 800-53 Rev. 4: AC-11."
@@ -3052,54 +2979,6 @@ checks:
       Install the "aide" package:
 
            $ sudo apt install aide
-  - id: "STIG-UBTU-22-651015-aide_check_manual"
-    name: "Ubuntu 22.04 LTS must configure Advanced Intrusion Detection Environment (AIDE) to perform file integrity checking on the file system. (Manual)"
-    description: "DISA STIG for Ubuntu 22.04 LTS, UBTU-22-651015, V-260583, SV-260583r1155208_rule, CAT II. CCI-002696. NIST SP 800-53 Rev. 4: SI-6."
-    tags: [stig, stig-ubuntu22, stig-cat-2]
-    severity: medium
-    run: |
-      echo "Manual - AIDE check to be run manually due to system impact"
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ Manual" }
-    rationale: *rat-9adf3f0002
-    remediation: &rem-6faa5ed8ea |
-      Initialize AIDE (this will take a few minutes):
-
-      $ sudo aideinit
-           Running aide --init...
-
-      Example output:
-
-      Start timestamp: 2024-04-01 04:20:00 +1300 (AIDE 0.17.4)
-      AIDE initialized database at /var/lib/aide/aide.db.new
-      Ignored e2fs attributes: EIh
-
-      Number of entries:      146185
-
-      ---------------------------------------------------
-      The attributes of the (uncompressed) database(s):
-      ---------------------------------------------------
-
-      /var/lib/aide/aide.db.new
-       SHA256    : UrYbC/KBOJcs8zKcSlKoifnnoPK66DEC
-                   Aw6odu/BpgY=
-       SHA512    : ezENbbuh937SPWvtsdjRzy3i47XjLg7j
-                   L3UGmr0EcgY6u8rczxgbn2RuwJfrIpef
-                   0c1qMNobzrLXyDnnqEqAqw==
-       RMD160    : yBq2xio+g5ne4kvZzzMZ2v+EO9w=
-       TIGER     : GkJ/xkzJGu/aSQqk9A5LN271IOAQC3d0
-       CRC32     : g/beXA==
-       HAVAL     : zZm220YZiGna2edJ6Gi0rPv16AlpqeHB
-                   y/XLB3hIPEY=
-       WHIRLPOOL : k6veoXavJ/BH9L125pCYAfTB8w5ZJkdC
-                   DvVmYS0+cgmg7M0y/S2v42FNCEJ993mc
-                   3kZMXJR/VVmwKg/7ntGixQ==
-       GOST      : psjiyix6mJlNsE984D0NwbfgBmB0ETGl
-                   /R4PNvm/wKg=
-
-      End timestamp: 2024-04-01 04:29:16 +1300 (run time: 9m 16s)
   - id: "STIG-UBTU-22-651020-aide_silentreports-attrs"
     name: "Ubuntu 22.04 LTS must notify designated personnel if baseline configurations are changed in an unauthorized manner. The file integrity tool must notify the system administrator when changes to the baseline configuration or anomalies in the operation of any security functions are discovered. (/etc/default/aide: exists)"
     description: "DISA STIG for Ubuntu 22.04 LTS, UBTU-22-651020, V-260584, SV-260584r958794_rule, CAT II. CCI-001744, CCI-002702. NIST SP 800-53 Rev. 4: CM-3, SI-6."

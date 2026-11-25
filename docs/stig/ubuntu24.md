@@ -1,6 +1,6 @@
 # DISA STIG Ubuntu 24.04 LTS
 
-Automated checks for 179 rules of the DISA Security Technical Implementation Guide for Ubuntu 24.04 LTS (version 1.7.0), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Rationale and fix texts are taken from the DISA STIG V1R7 (30 Sep 2026). Select categories with tags, e.g. `--tags stig-cat-1`.
+Automated checks for 176 rules of the DISA Security Technical Implementation Guide for Ubuntu 24.04 LTS (version 1.7.0), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Rationale and fix texts are taken from the DISA STIG V1R7 (30 Sep 2026). Select categories with tags, e.g. `--tags stig-cat-1`.
 
 **Policy:** [`stig/ubuntu24.yml`](https://github.com/rtulke/checkmate/blob/main/stig/ubuntu24.yml) · **STIG version:** 1.7.0
 
@@ -72,7 +72,6 @@ sudo checkmate run stig/ubuntu24.yml -v
 | `STIG-UBTU-24-102010-grub_audit_enabled-content` | Ubuntu 24.04 LTS must initiate session audits at system startup. (/boot/grub/grub.cfg has the expected content (2 rules)) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-24-200060-TMOUT_setting` | Ubuntu 24.04 LTS must automatically terminate a user session after inactivity timeouts have expired. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-24-200090-rsyslog_remote_access_logged` | Ubuntu 24.04 LTS must monitor remote access methods. | II | <span class="sev sev-medium">medium</span> |
-| `STIG-UBTU-24-200250-Temp_accts` | Ubuntu 24.04 LTS must automatically remove or disable emergency accounts after 72 hours. (Manual) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-24-200260-user_inactive-attrs` | Ubuntu 24.04 LTS must disable account identifiers (individuals, groups, roles, and devices) after 35 days of inactivity. (/etc/default/useradd: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-24-200260-user_inactive-content` | Ubuntu 24.04 LTS must disable account identifiers (individuals, groups, roles, and devices) after 35 days of inactivity. (/etc/default/useradd has the expected content (2 rules)) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-24-200270-auditctl_cron_jobs_conf-attrs` | Ubuntu 24.04 LTS must audit any script or executable called by cron as root or by any privileged user. (/etc/audit/rules.d/stig.rules: exists) | II | <span class="sev sev-medium">medium</span> |
@@ -118,7 +117,6 @@ sudo checkmate run stig/ubuntu24.yml -v
 | `STIG-UBTU-24-300030-umask_login_defs-attrs` | Ubuntu 24.04 LTS default filesystem permissions must be defined in such a way that all authenticated users can read and modify only their own files. (/etc/login.defs: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-24-300030-umask_login_defs-content` | Ubuntu 24.04 LTS default filesystem permissions must be defined in such a way that all authenticated users can read and modify only their own files. (/etc/login.defs has the expected content (2 rules)) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-24-300039-usb-storage_blacklist` | Ubuntu 24.04 LTS must disable automatic mounting of Universal Serial Bus (USB) mass storage driver. | II | <span class="sev sev-medium">medium</span> |
-| `STIG-UBTU-24-300041-ufw_proto_svcs` | Ubuntu 24.04 LTS must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the Ports, Protocols, and Services Management Category Assurance List (PPSM CAL) and vulnerability assessments. (Manual) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-24-400000-unique_userID` | Ubuntu 24.04 LTS must uniquely identify interactive users. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-24-400030-ssh_pubkeyauth-attrs` | Ubuntu 24.04 LTS must implement smart card logins for multifactor authentication for local and network access to privileged and nonprivileged accounts over SSH. (/etc/ssh/sshd_config: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-24-400030-ssh_pubkeyauth-content` | Ubuntu 24.04 LTS must implement smart card logins for multifactor authentication for local and network access to privileged and nonprivileged accounts over SSH. (/etc/ssh/sshd_config has the expected content (1 rule)) | II | <span class="sev sev-medium">medium</span> |
@@ -161,7 +159,6 @@ sudo checkmate run stig/ubuntu24.yml -v
 | `STIG-UBTU-24-600150-sticky_bit_WW_dirs` | Ubuntu 24.04 LTS must set a sticky bit on all public directories to prevent unauthorized and unintended information transferred via shared system resources. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-24-600190-net.ipv4.tcp_syncookies` | Ubuntu 24.04 LTS must be configured to use TCP syncookies. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-24-600190-syncookies_enabled_1` | Ubuntu 24.04 LTS must be configured to use TCP syncookies. (conf) | II | <span class="sev sev-medium">medium</span> |
-| `STIG-UBTU-24-600200-ufw_int_limited` | Ubuntu 24.04 LTS must configure the uncomplicated firewall to rate-limit impacted network interfaces. (Manual) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-24-600230-wireless_disabled` | Ubuntu 24.04 LTS must disable all wireless network adapters. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-24-700010-var_log_file_perms` | Ubuntu 24.04 LTS must generate error messages that provide information necessary for corrective actions without revealing information that could be exploited by adversaries. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-24-700020-journal_file_perms` | Ubuntu 24.04 LTS must generate system journal entries without revealing information that could be exploited by adversaries. | II | <span class="sev sev-medium">medium</span> |

@@ -16909,3 +16909,122 @@ dot_files_access:
     chown USER:GROUP FILE
     chmod u-x,go-wx FILE
     chmod go-rwx HOME/.netrc HOME/.bash_history
+pam_motd_dynamic_disabled_gdm:
+  rationale: |-
+    On Ubuntu, pam_motd can run the update-motd scripts as root on each login to build a dynamic message of the day. These scripts disclose system details, may contact external services, and running them as root at every login adds attack surface. Removing the dynamic pam_motd entries from /etc/pam.d/gdm-password leaves only static, reviewed content.
+gdm_banner:
+  rationale: |-
+    A banner on the graphical login screen tells users that access is restricted and monitored before they authenticate. Such a notice can be a prerequisite for legal action against unauthorized use, and it should not reveal details about the system.
+  remediation: |-
+    Enable the banner in a file in /etc/dconf/db/local.d/ and rebuild the dconf databases. Use the warning text of your site.
+
+    printf '%s\n' '[org/gnome/login-screen]' 'banner-message-enable=true' "banner-message-text='Authorized users only. All activity may be monitored and reported.'" > /etc/dconf/db/local.d/00-banner-message
+    dconf update
+
+    Remove any banner-message-enable=false line from other files in that directory.
+gdm_banner_msg:
+  rationale: |-
+    A banner on the graphical login screen tells users that access is restricted and monitored before they authenticate. Such a notice can be a prerequisite for legal action against unauthorized use, and it should not reveal details about the system.
+  remediation: |-
+    Enable the banner in a file in /etc/dconf/db/local.d/ and rebuild the dconf databases. Use the warning text of your site.
+
+    printf '%s\n' '[org/gnome/login-screen]' 'banner-message-enable=true' "banner-message-text='Authorized users only. All activity may be monitored and reported.'" > /etc/dconf/db/local.d/00-banner-message
+    dconf update
+
+    Remove any banner-message-enable=false line from other files in that directory.
+gdm_banner_locks:
+  rationale: |-
+    A dconf setting only binds users if it is locked; otherwise every user can override it in their own session. Listing the keys in /etc/dconf/db/local.d/locks/ makes the login banner mandatory.
+gdm_banner_lock:
+  rationale: |-
+    A dconf setting only binds users if it is locked; otherwise every user can override it in their own session. Listing the keys in /etc/dconf/db/local.d/locks/ makes the login banner mandatory.
+  remediation: |-
+    List the banner keys in a lock file and rebuild the dconf databases.
+
+    printf '%s\n' '/org/gnome/login-screen/banner-message-enable' '/org/gnome/login-screen/banner-message-text' > /etc/dconf/db/local.d/locks/00-banner-message
+    dconf update
+gdm_profile_1_7_1:
+  rationale: |-
+    GDM and the GNOME session read system-wide settings from the dconf databases listed in /etc/dconf/profile/user. Without the system-db entry, the settings in /etc/dconf/db/local.d/ are never applied, so the hardening of the login screen and the desktop has no effect.
+gdm_profile_1_7_2:
+  rationale: |-
+    GDM and the GNOME session read system-wide settings from the dconf databases listed in /etc/dconf/profile/user. Without the system-db entry, the settings in /etc/dconf/db/local.d/ are never applied, so the hardening of the login screen and the desktop has no effect.
+gdm_profile_banner:
+  rationale: |-
+    GDM and the GNOME session read system-wide settings from the dconf databases listed in /etc/dconf/profile/user. Without the system-db entry, the settings in /etc/dconf/db/local.d/ are never applied, so the hardening of the login screen and the desktop has no effect.
+  remediation: |-
+    Create /etc/dconf/profile/user with the user database and the system database, then rebuild the dconf databases.
+
+    printf '%s\n' 'user-db:user' 'system-db:local' > /etc/dconf/profile/user
+    dconf update
+gdm_last_login:
+  rationale: |-
+    GDM and the GNOME session read system-wide settings from the dconf databases listed in /etc/dconf/profile/user. Without the system-db entry, the settings in /etc/dconf/db/local.d/ are never applied, so the hardening of the login screen and the desktop has no effect.
+  remediation: |-
+    Create /etc/dconf/profile/user with the user database and the system database, then rebuild the dconf databases.
+
+    printf '%s\n' 'user-db:user' 'system-db:local' > /etc/dconf/profile/user
+    dconf update
+gdm_disable_user:
+  rationale: |-
+    By default the GDM login screen lists the accounts of the system. Anyone who can see the screen learns valid user names, which is half of what a password guessing attack needs. With the list disabled, users type their name.
+  remediation: |-
+    Disable the user list in a file in /etc/dconf/db/local.d/ and rebuild the dconf databases.
+
+    printf '%s\n' '[org/gnome/login-screen]' 'disable-user-list=true' > /etc/dconf/db/local.d/FILE
+    dconf update
+
+    Use the file name the check reads, and remove any disable-user-list=false line.
+gdm_disable_user_locks:
+  rationale: |-
+    A dconf setting only binds users if it is locked; otherwise every user can override it in their own session. Listing the keys in /etc/dconf/db/local.d/locks/ makes the disabled user list mandatory.
+  remediation: |-
+    List the key in a lock file and rebuild the dconf databases.
+
+    echo '/org/gnome/login-screen/disable-user-list' > /etc/dconf/db/local.d/locks/60-login-screen
+    dconf update
+gdm_screensaver:
+  rationale: |-
+    An unattended, unlocked desktop session gives anyone who walks by the access of the logged-in user. Starting the screensaver after at most 15 minutes of inactivity and locking within 5 seconds limits that window.
+60-screensaver:
+  rationale: |-
+    An unattended, unlocked desktop session gives anyone who walks by the access of the logged-in user. Starting the screensaver after at most 15 minutes of inactivity and locking within 5 seconds limits that window.
+gdm_screensaver_locks:
+  rationale: |-
+    A dconf setting only binds users if it is locked; otherwise every user can override it in their own session. Listing the keys in /etc/dconf/db/local.d/locks/ makes the screen lock timing mandatory.
+60-screensaver-lock:
+  rationale: |-
+    A dconf setting only binds users if it is locked; otherwise every user can override it in their own session. Listing the keys in /etc/dconf/db/local.d/locks/ makes the screen lock timing mandatory.
+gnome_automount_disable:
+  rationale: |-
+    Automatically mounting removable media makes the kernel and the desktop parse whatever device is plugged in, which can be used to exploit file system drivers or to introduce malware. With automount disabled, a medium is only mounted when a user asks for it.
+60-automount:
+  rationale: |-
+    Automatically mounting removable media makes the kernel and the desktop parse whatever device is plugged in, which can be used to exploit file system drivers or to introduce malware. With automount disabled, a medium is only mounted when a user asks for it.
+gnome_automount_locks:
+  rationale: |-
+    A dconf setting only binds users if it is locked; otherwise every user can override it in their own session. Listing the keys in /etc/dconf/db/local.d/locks/ makes the automount setting mandatory.
+60-automount-locks:
+  rationale: |-
+    A dconf setting only binds users if it is locked; otherwise every user can override it in their own session. Listing the keys in /etc/dconf/db/local.d/locks/ makes the automount setting mandatory.
+gdm_autorun_never:
+  rationale: |-
+    Autorun starts programs from removable media as soon as they are inserted. A prepared USB stick or disc can then run code in the session of the logged-in user without any further action.
+60-media-autorun:
+  rationale: |-
+    Autorun starts programs from removable media as soon as they are inserted. A prepared USB stick or disc can then run code in the session of the logged-in user without any further action.
+gdm_autorun_locks:
+  rationale: |-
+    A dconf setting only binds users if it is locked; otherwise every user can override it in their own session. Listing the keys in /etc/dconf/db/local.d/locks/ makes the autorun setting mandatory.
+60-media-autorun-locks:
+  rationale: |-
+    A dconf setting only binds users if it is locked; otherwise every user can override it in their own session. Listing the keys in /etc/dconf/db/local.d/locks/ makes the autorun setting mandatory.
+gdm_xdcmp:
+  rationale: |-
+    XDMCP offers the graphical login over the network without encryption: credentials and the whole session can be read or altered in transit. It is disabled by default and should stay disabled.
+gdm_xwayland:
+  rationale: |-
+    /etc/gdm3/custom.conf decides which display server GDM starts. The check follows the setting the benchmark gives for this option: WaylandEnable=false, and no line that sets it to true, so the choice is explicit and does not change with a package default. This selects the Xorg session; review the effect on the desktops in use before applying it.
+etc_gdm_custom.conf:
+  rationale: |-
+    /etc/gdm/custom.conf decides which display server GDM starts. The check follows the setting the benchmark gives for this option: no line may set WaylandEnable=true. Review the effect on the desktops in use before changing it.

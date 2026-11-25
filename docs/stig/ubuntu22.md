@@ -1,6 +1,6 @@
 # DISA STIG Ubuntu 22.04 LTS
 
-Automated checks for 190 rules of the DISA Security Technical Implementation Guide for Ubuntu 22.04 LTS (version 2.10.0), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Rationale and fix texts are taken from the DISA STIG V2R10 (30 Sep 2026). Select categories with tags, e.g. `--tags stig-cat-1`.
+Automated checks for 186 rules of the DISA Security Technical Implementation Guide for Ubuntu 22.04 LTS (version 2.10.0), converted from the goss audit content of the ansible-lockdown project. Severity follows the STIG category: CAT I high, CAT II medium, CAT III low. Rationale and fix texts are taken from the DISA STIG V2R10 (30 Sep 2026). Select categories with tags, e.g. `--tags stig-cat-1`.
 
 **Policy:** [`stig/ubuntu22.yml`](https://github.com/rtulke/checkmate/blob/main/stig/ubuntu22.yml) · **STIG version:** 2.10.0
 
@@ -87,8 +87,6 @@ sudo checkmate run stig/ubuntu22.yml -v
 | `STIG-UBTU-22-251010-ufw_pkg` | Ubuntu 22.04 LTS must have an application firewall installed in order to control remote access methods. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-22-251015-ufw_service-running` | Ubuntu 22.04 LTS must enable and run the Uncomplicated Firewall (ufw). | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-22-251020-ufw_enabled-enabled` | Ubuntu 22.04 LTS must have an application firewall enabled. | II | <span class="sev sev-medium">medium</span> |
-| `STIG-UBTU-22-251025-ufw_int_limited` | Ubuntu 22.04 LTS must configure the Uncomplicated Firewall (ufw) to rate-limit impacted network interfaces. (Manual) | II | <span class="sev sev-medium">medium</span> |
-| `STIG-UBTU-22-251030-ufw_proto_svcs` | Ubuntu 22.04 LTS must be configured to prohibit or restrict the use of functions, ports, protocols, and/or services, as defined in the PPSM CAL and vulnerability assessments. (Manual) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-22-253010-net.ipv4.tcp_syncookies` | Ubuntu 22.04 LTS must be configured to use TCP syncookies. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-22-253010-syncookies_enabled_1` | Ubuntu 22.04 LTS must be configured to use TCP syncookies. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-22-254010-sssd_pkg` | Ubuntu 22.04 LTS must have the "SSSD" package installed. | II | <span class="sev sev-medium">medium</span> |
@@ -136,7 +134,6 @@ sudo checkmate run stig/ubuntu22.yml -v
 | `STIG-UBTU-22-411030-PASS_MAX_DAYS-content` | Ubuntu 22.04 LTS must be able to enforce a 180-day maximum password lifetime restriction. (/etc/login.defs has the expected content (1 rule)) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-22-411035-user_inactive-attrs` | Ubuntu 22.04 LTS must disable account identifiers (individuals, groups, roles, and devices) after 35 days of inactivity. (/etc/default/useradd: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-22-411035-user_inactive-content` | Ubuntu 22.04 LTS must disable account identifiers (individuals, groups, roles, and devices) after 35 days of inactivity. (/etc/default/useradd has the expected content (2 rules)) | II | <span class="sev sev-medium">medium</span> |
-| `STIG-UBTU-22-411040-Temp_accts` | Ubuntu 22.04 LTS must automatically expire temporary accounts within 72 hours. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-22-412025-vlock` | Ubuntu 22.04 LTS must allow users to directly initiate a session lock for all connection types. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-22-412030-TMOUT_setting` | Ubuntu 22.04 LTS must automatically exit interactive command shell user sessions after 15 minutes of inactivity. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-22-412035-umask_login_defs-attrs` | Ubuntu 22.04 LTS default filesystem permissions must be defined in such a way that all authenticated users can read and modify only their own files. (/etc/login.defs: exists) | II | <span class="sev sev-medium">medium</span> |
@@ -181,7 +178,6 @@ sudo checkmate run stig/ubuntu22.yml -v
 | `STIG-UBTU-22-612035-crl_pki_required` | Ubuntu 22.04 LTS for PKI-based authentication, must implement a local cache of revocation data in case of the inability to access revocation information via the network. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-22-631010-dod_certs` | Ubuntu 22.04 LTS must use DoW PKI-established certificate authorities for verification of the establishment of protected sessions. | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-22-651010-aide_installed` | Ubuntu 22.04 LTS must use a file integrity tool to verify correct operation of all security functions. | II | <span class="sev sev-medium">medium</span> |
-| `STIG-UBTU-22-651015-aide_check_manual` | Ubuntu 22.04 LTS must configure Advanced Intrusion Detection Environment (AIDE) to perform file integrity checking on the file system. (Manual) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-22-651020-aide_silentreports-attrs` | Ubuntu 22.04 LTS must notify designated personnel if baseline configurations are changed in an unauthorized manner. The file integrity tool must notify the system administrator when changes to the baseline configuration or anomalies in the operation of any security functions are discovered. (/etc/default/aide: exists) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-22-651020-aide_silentreports-content` | Ubuntu 22.04 LTS must notify designated personnel if baseline configurations are changed in an unauthorized manner. The file integrity tool must notify the system administrator when changes to the baseline configuration or anomalies in the operation of any security functions are discovered. (/etc/default/aide has the expected content (1 rule)) | II | <span class="sev sev-medium">medium</span> |
 | `STIG-UBTU-22-651025-aide_cron_sha` | Ubuntu 22.04 LTS must be configured so that the script that runs each 30 days or less to check file integrity is the default. | II | <span class="sev sev-medium">medium</span> |

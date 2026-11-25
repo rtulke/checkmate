@@ -3,7 +3,7 @@
 name: CIS SUSE Linux Enterprise 16
 version: "1.0.0"
 description: >
-  Automated checks for 324 recommendations of the CIS SUSE Linux Enterprise 16 benchmark
+  Automated checks for 315 recommendations of the CIS SUSE Linux Enterprise 16 benchmark
   (version 1.0.0), converted from the goss audit content of the
   ansible-lockdown project. Check names describe what is verified; the
   recommendation number is in the ID and the description. Select profiles
@@ -352,17 +352,14 @@ checks:
       modprobe -r udf
 
       Use /bin/false rather than /usr/bin/false: the SUSE checks only accept that path. If the module is in use, unmount the file system first or reboot.
-  - id: "CIS-SUSE16-1.1.1.10-manual_review"
-    name: "manual review: echo 'Manual review required: verify unused fs kernel modules are blacklisted and not loa…"
+  - id: "CIS-SUSE16-1.1.1.10-mounted_fstypes"
+    name: "mounted fstypes: findmnt -klo FSTYPE | sort -u"
     description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 1.1.1.10. NIST SP 800-53 Rev. 5: CM-7."
     tags: [cis, cis-suse16, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      echo 'Manual review required: verify unused fs kernel modules are blacklisted and not loadable'
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { some: "~ Manual review required" }
+      findmnt -klo FSTYPE | sort -u
+    expect: { rc: "== 0" }
     rationale: &rat-daaf64fd5b |
       Each file system driver the kernel can load adds code that parses untrusted data, for example from removable media or disk images. Disabling file system modules that are not in use reduces the kernel attack surface; reviewing which file system types are actually mounted shows which ones are needed.
     remediation: &rem-380924e93c |
@@ -372,16 +369,6 @@ checks:
       modprobe -r MODULE
 
       Do not disable modules for file systems in use (including those needed only in the initramfs, e.g. the root file system type).
-  - id: "CIS-SUSE16-1.1.1.10-mounted_fstypes"
-    name: "mounted fstypes: findmnt -klo FSTYPE | sort -u"
-    description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 1.1.1.10. NIST SP 800-53 Rev. 5: CM-7."
-    tags: [cis, cis-suse16, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      findmnt -klo FSTYPE | sort -u
-    expect: { rc: "== 0" }
-    rationale: *rat-daaf64fd5b
-    remediation: *rem-380924e93c
   - id: "CIS-SUSE16-1.1.2.1.1-tmp_mount"
     name: "/tmp is a separate mount"
     description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 1.1.2.1.1. NIST SP 800-53 Rev. 5: CM-7."
@@ -2741,24 +2728,6 @@ checks:
       systemctl restart postfix
 
       Do not apply this on systems that receive mail from the network; the check also passes if Postfix is not installed.
-  - id: "CIS-SUSE16-2.1.22-approved_listening_services_manual"
-    name: "approved listening services manual: echo \"Manual check - review the output of 'ss -plntu' and confirm every listening service…"
-    description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 2.1.22. NIST SP 800-53 Rev. 5: CM-7."
-    tags: [cis, cis-suse16, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual check - review the output of 'ss -plntu' and confirm every listening service is approved for this host"
-    expect: { rc: "== 0" }
-    rationale: &rat-1a507a2c51 |
-      Every network service listening on a host is a potential entry point. Services that are not required for the system's role should not be listening, so that the network attack surface matches what was approved for the host.
-    remediation: &rem-6f6df2bad4 |
-      Review all listening sockets and confirm each service is required. Stop, disable or mask services that are not needed, or remove their packages.
-
-      ss -plntu
-      systemctl disable --now SERVICE
-      zypper remove PACKAGE
-
-      Where a service is needed but should not be reachable from the network, configure it to listen on localhost only.
   - id: "CIS-SUSE16-2.2.1-ftp_client"
     name: "Package ftp is not installed"
     description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 2.2.1. NIST SP 800-53 Rev. 5: CM-7, CM-11."
@@ -4302,23 +4271,6 @@ checks:
       Add a rich rule to the trusted zone that drops IPv4 packets with source 127.0.0.1 and a non-loopback destination, then reload firewalld.
 
       firewall-cmd --permanent --zone=trusted --add-rich-rule='rule family="ipv4" source address="127.0.0.1" destination not address="127.0.0.1" drop'
-      firewall-cmd --reload
-  - id: "CIS-SUSE16-4.1.7-cis_4_1_7"
-    name: "cis 4 1 7: echo \"Manual check - review 'firewall-cmd --list-all' and confirm only approved services …"
-    description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 4.1.7. NIST SP 800-53 Rev. 5: NA."
-    tags: [cis, cis-suse16, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual check - review 'firewall-cmd --list-all' and confirm only approved services and ports are open"
-    expect: { rc: "== 0" }
-    rationale: &rat-833d0d7a9b |
-      Every open service or port in the firewall is a possible way into the system. Only services approved for the host's role should be allowed, so that the exposed attack surface is intentional and documented.
-    remediation: &rem-d0b79e5f36 |
-      Review the active zones and remove services and ports that are not approved for this host, then reload firewalld.
-
-      firewall-cmd --list-all-zones
-      firewall-cmd --permanent --zone=ZONE --remove-service=SERVICE
-      firewall-cmd --permanent --zone=ZONE --remove-port=PORT/PROTOCOL
       firewall-cmd --reload
   - id: "CIS-SUSE16-4.1.8-cis_4_1_8"
     name: "cis 4 1 8: firewall-cmd --get-default-zone"
@@ -6181,41 +6133,6 @@ checks:
       mkdir -p /etc/systemd/journald.conf.d
       printf '[Journal]\nStorage=persistent\n' > /etc/systemd/journald.conf.d/60-storage.conf
       systemctl restart systemd-journald
-  - id: "CIS-SUSE16-6.1.1.6-journald_log_rotation_manual"
-    name: "journald log rotation manual: echo \"Manual check - review journald log rotation settings in /etc/systemd/journald.conf …"
-    description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 6.1.1.6. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
-    tags: [cis, cis-suse16, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual check - review journald log rotation settings in /etc/systemd/journald.conf and drop-in files"
-    expect: { rc: "== 0" }
-    rationale: &rat-bffd8a37b7 |
-      Without limits on journal size and retention, logs can fill the file system or be kept far shorter or longer than policy requires. Configuring rotation and retention for journald keeps the logs needed for investigations while bounding disk usage.
-    remediation: &rem-4def0fd54b |
-      Review the journald rotation settings and set values that match site policy in a drop-in file, then restart journald.
-
-      mkdir -p /etc/systemd/journald.conf.d
-      printf '%s\n' '[Journal]' 'SystemMaxUse=1G' 'SystemKeepFree=500M' 'RuntimeMaxUse=200M' 'RuntimeKeepFree=50M' 'MaxFileSec=1month' > /etc/systemd/journald.conf.d/60-rotation.conf
-      systemctl restart systemd-journald
-
-      The values shown are examples; choose them according to available disk space and retention requirements.
-  - id: "CIS-SUSE16-6.1.1.7-journald_log_access_manual"
-    name: "journald log access manual: echo \"Manual check - review journald log file permissions to ensure access is restricted …"
-    description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 6.1.1.7. NIST SP 800-53 Rev. 5: AC-3, AU-2, AU-12, MP-2, SI-5."
-    tags: [cis, cis-suse16, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual check - review journald log file permissions to ensure access is restricted per site policy"
-    expect: { rc: "== 0" }
-    rationale: &rat-71cd986d4b |
-      Journal files contain authentication events and other sensitive information. If they are readable by ordinary users, that information leaks; if writable, logs can be tampered with. Access should be limited to root and the groups intended to read logs.
-    remediation: &rem-caf1c3d1da |
-      Review the ownership and permissions of the journal files and directories. Journal files should be mode 0640 or stricter, owned by root with group systemd-journal.
-
-      find /var/log/journal /run/log/journal -type f -name '*.journal*' -perm /0137 -ls
-      systemd-tmpfiles --create --prefix /var/log/journal
-
-      If different permissions are required, copy /usr/lib/tmpfiles.d/systemd.conf to /etc/tmpfiles.d/ and adjust it there instead of changing files directly.
   - id: "CIS-SUSE16-6.1.2.1-rsyslog"
     name: "Package rsyslog is installed"
     description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 6.1.2.1. NIST SP 800-53 Rev. 5: AU-2, AU-3, AU-12."
@@ -6276,43 +6193,6 @@ checks:
       systemctl restart rsyslog
 
       The directive only applies to file actions defined after it, so it must be read before the log file rules (rsyslog.d files are usually included before them in /etc/rsyslog.conf).
-  - id: "CIS-SUSE16-6.1.2.5-rsyslog_logging_manual"
-    name: "rsyslog logging manual: echo \"Manual check - review rsyslog.conf for appropriate logging rules per site policy\""
-    description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 6.1.2.5. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12."
-    tags: [cis, cis-suse16, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual check - review rsyslog.conf for appropriate logging rules per site policy"
-    expect: { rc: "== 0" }
-    rationale: &rat-9fe4a428cb |
-      Log rules decide which messages are recorded and where. Without appropriate rules, authentication, privilege and system events may not be captured, leaving gaps when an incident has to be reconstructed.
-    remediation: &rem-61fdbfd1e9 |
-      Review the rules in /etc/rsyslog.conf and /etc/rsyslog.d/*.conf and make sure security-relevant facilities are logged to suitable files. Add missing rules in a file under /etc/rsyslog.d/ and restart rsyslog, for example:
-
-      cat > /etc/rsyslog.d/50-security.conf <<'EOF'
-      auth,authpriv.*        /var/log/secure
-      *.emerg                :omusrmsg:*
-      EOF
-      systemctl restart rsyslog
-
-      The rules are examples; add only what is missing from the existing configuration to avoid logging messages twice.
-  - id: "CIS-SUSE16-6.1.2.6-rsyslog_remote_logging_manual"
-    name: "rsyslog remote logging manual: echo \"Manual check - verify rsyslog is configured to forward logs to a remote log server …"
-    description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 6.1.2.6. NIST SP 800-53 Rev. 5: AU-6."
-    tags: [cis, cis-suse16, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual check - verify rsyslog is configured to forward logs to a remote log server per site policy"
-    expect: { rc: "== 0" }
-    rationale: &rat-b100deff59 |
-      Logs kept only on the local system can be altered or deleted by an attacker who gains root, and are lost if the system fails. Forwarding logs to a central log server preserves an independent copy and enables correlation across systems.
-    remediation: &rem-3d0088d5de |
-      Configure rsyslog to forward logs to the central log server and restart it.
-
-      printf '%s\n' '*.* action(type="omfwd" target="LOGHOST" port="514" protocol="tcp" action.resumeRetryCount="100" queue.type="LinkedList" queue.size="1000")' > /etc/rsyslog.d/60-remote.conf
-      systemctl restart rsyslog
-
-      Replace LOGHOST with your log server. Use TLS (gtls stream driver) where logs cross untrusted networks.
   - id: "CIS-SUSE16-6.1.2.7-rsyslog_no_imtcp"
     name: "rsyslog no imtcp: grep -P '^\\s*\\$ModLoad\\s+imtcp|^\\s*\\$InputTCPServerRun' /etc/rsyslog.conf /etc/rsyslog.d/…"
     description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 6.1.2.7. NIST SP 800-53 Rev. 5: AU-2, AU-7, AU-12, CM-6."
@@ -6331,31 +6211,6 @@ checks:
       systemctl restart rsyslog
 
       Also comment out RainerScript forms (module(load="imtcp"), input(type="imtcp" ...)) found by the grep. Keep the module only on designated log servers.
-  - id: "CIS-SUSE16-6.1.2.8-rsyslog_logrotate_manual"
-    name: "rsyslog logrotate manual: echo \"Manual check - review /etc/logrotate.conf and /etc/logrotate.d/ for appropriate log…"
-    description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 6.1.2.8. NIST SP 800-53 Rev. 5: AU-8."
-    tags: [cis, cis-suse16, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      echo "Manual check - review /etc/logrotate.conf and /etc/logrotate.d/ for appropriate log rotation per site policy"
-    expect: { rc: "== 0" }
-    rationale: &rat-6e0eddfed0 |
-      rsyslog writes to plain files that grow indefinitely without rotation, which can fill the file system and stop logging. logrotate rotates, compresses and expires these files according to retention policy.
-    remediation: &rem-1ec6a32ef1 |
-      Review /etc/logrotate.conf and /etc/logrotate.d/ and make sure every file rsyslog writes is rotated with retention matching site policy, for example in /etc/logrotate.d/rsyslog:
-
-      /var/log/messages /var/log/secure {
-          weekly
-          rotate 4
-          compress
-          missingok
-          notifempty
-          postrotate
-              systemctl kill -s HUP rsyslog.service
-          endscript
-      }
-
-      logrotate -d /etc/logrotate.conf shows what would be done without changing anything.
   - id: "CIS-SUSE16-6.1.2.9-rsyslog-module-gtls"
     name: "Package rsyslog-module-gtls is installed"
     description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 6.1.2.9."
@@ -6398,28 +6253,6 @@ checks:
       systemctl restart rsyslog
 
       Requires the rsyslog-module-gtls package. Replace LOGHOST and the certificate paths with your own.
-  - id: "CIS-SUSE16-6.1.2.11-rsyslog_tls_cert_manual"
-    name: "rsyslog tls cert manual: echo \"Manual check - verify CA certificate, client certificate, and key files are configu…"
-    description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 6.1.2.11."
-    tags: [cis, cis-suse16, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
-    severity: low
-    run: |
-      echo "Manual check - verify CA certificate, client certificate, and key files are configured in rsyslog.conf per site policy"
-    expect: { rc: "== 0" }
-    rationale: &rat-5410524869 |
-      TLS only protects remote logging if certificates are configured and verified. Without a CA certificate and a client certificate and key, the connection cannot authenticate the log server, and logs could be sent to an impostor.
-    remediation: &rem-eab9a99b54 |
-      Install the CA certificate, client certificate and private key, reference them in the rsyslog TLS settings and restart rsyslog.
-
-      cat > /etc/rsyslog.d/59-tls-certs.conf <<'EOF'
-      $DefaultNetstreamDriverCAFile /etc/rsyslog.d/tls/ca.pem
-      $DefaultNetstreamDriverCertFile /etc/rsyslog.d/tls/cert.pem
-      $DefaultNetstreamDriverKeyFile /etc/rsyslog.d/tls/key.pem
-      EOF
-      chmod 600 /etc/rsyslog.d/tls/key.pem
-      systemctl restart rsyslog
-
-      Use $ActionSendStreamDriverAuthMode x509/name with $ActionSendStreamDriverPermittedPeer so the server certificate is actually verified.
   - id: "CIS-SUSE16-6.1.3.1-logfile_permissions_cloud_init"
     name: "logfile permissions cloud init: find /var/log -type f -regextype posix-extended -regex '/var/log/(cloud-init\\.log.*|local…"
     description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 6.1.3.1. NIST SP 800-53 Rev. 5: AC-3, MP-2."
@@ -7997,27 +7830,6 @@ checks:
       augenrules --load
 
       Afterwards every change to the audit rules requires a reboot to take effect. If the rules are already immutable, reboot to activate the file.
-  - id: "CIS-SUSE16-6.2.3.35-cis_6_2_3_35"
-    name: "cis 6 2 3 35: echo 'Manual review required: compare auditctl -l output with /etc/audit/rules.d/*.rules'"
-    description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 6.2.3.35. NIST SP 800-53 Rev. 5: AU-12."
-    tags: [cis, cis-suse16, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
-    severity: low
-    run: |
-      echo 'Manual review required: compare auditctl -l output with /etc/audit/rules.d/*.rules'
-    allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { some: "~ Manual review required" }
-    rationale: &rat-e1ff9f78d6 |
-      Audit rules in /etc/audit/rules.d only matter once they are loaded. If the running rule set differs from the files on disk, either recent changes are not active or the active rules will be lost at the next reboot. Comparing both ensures the intended audit coverage is really in effect.
-    remediation: &rem-8f0d0d8e78 |
-      Compare the persistent rules with the loaded rules and load the merged rule set if they differ.
-
-      augenrules --check
-      auditctl -l
-      augenrules --load
-
-      This is a manual check that always passes. If the rules are immutable (-e 2), reboot instead of running augenrules --load.
   - id: "CIS-SUSE16-6.2.4.1-auditd_log_directory_mode"
     name: "auditd log directory mode: d=\"$(dirname \"$(awk -F= '/^\\s*log_file\\s*/{print $2}' /etc/audit/auditd.conf 2\u003e/dev/null …"
     description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 6.2.4.1. NIST SP 800-53 Rev. 5: AU-8."
@@ -8674,24 +8486,22 @@ checks:
 
       Shared directories such as /tmp and /var/tmp need mode 1777; clarify with the owning application before changing other files.
   - id: "CIS-SUSE16-7.1.12-unowned_dirs"
-    name: "unowned dirs: df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -o -n…"
+    name: "No file or directory is without an owner or a group"
     description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 7.1.12. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-suse16, cis-section-7, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     timeout: 120000ms
     run: |
-      df --local -P | awk {'if (NR!=1) print $6'} | xargs -I '{}' find '{}' -xdev -nouser -o -nogroup | grep -v journal-upload
-    allow_rc: any
-    expect:
-      - { rc: "in [0, 1]" }
-      - { none: "~ ." }
+      df --local -P | awk 'NR!=1 {print $6}' | while read -r m; do
+        find "$m" -xdev \( -nouser -o -nogroup \) 2>/dev/null || true
+      done | grep -v journal-upload || true
+    expect: empty
     rationale: &rat-ffe83ecc3b |
       Files whose owner (or group) ID does not correspond to any existing account are usually left over from deleted users or unpacked archives. If a new account later receives that ID, it automatically becomes the owner of these files. They should be assigned to a valid owner or removed.
-    remediation: &rem-42672275f0 |
-      Review each file listed by the check and assign it to an appropriate existing user and group, or remove it if it belonged to a deleted account and is no longer needed.
+    remediation: &rem-a0251b5d28 |
+      Give every listed file and directory an existing owner and group, or remove it if it is no longer needed:
 
-      ls -ln FILE
-      chown USER:GROUP FILE
+      chown USER:GROUP PATH
   - id: "CIS-SUSE16-7.1.13-audit_sgid"
     name: "audit sgid: df --local -P | awk '{if (NR!=1) print $6}' | xargs -I '{}' find '{}' -xdev -type f -perm…"
     description: "CIS SUSE Linux Enterprise 16 benchmark recommendation 7.1.13. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5, AC-3, MP-2."
@@ -8935,7 +8745,9 @@ checks:
     severity: medium
     timeout: 120000ms
     run: |
-      find /home/ -name "\.forward" -o -name "\.netrc" -o -name "\.rhosts"
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name "\.forward" -o -name "\.netrc" -o -name "\.rhosts" 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -8955,7 +8767,9 @@ checks:
     tags: [cis, cis-suse16, cis-section-7, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      find /home/ -name "\.bash_history" -perm /go+rwx
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name "\.bash_history" -perm /go+rwx 2>/dev/null || true; fi
+      done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -8974,7 +8788,9 @@ checks:
     tags: [cis, cis-suse16, cis-section-7, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      find /home/ -name "\.*" -perm /g+w,o+w | grep -v .bash_history
+      awk -F: '($3>=1000)&&($7 !~ /(nologin|false)$/){print $6}' /etc/passwd | while read -r d; do
+        if [ -d "$d" ]; then find "$d" -xdev -name "\.*" -perm /g+w,o+w 2>/dev/null || true; fi
+      done | grep -v .bash_history
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
