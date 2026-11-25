@@ -21,19 +21,19 @@ The recommendation number is part of the ID. The policies contain no benchmark t
 | [CIS Red Hat Enterprise Linux 7](rhel7.md) | 193 | 162 | 31 | 272 |
 | [CIS Red Hat Enterprise Linux 8](rhel8.md) | 302 | 241 | 61 | 564 |
 | [CIS Red Hat Enterprise Linux 9](rhel9.md) | 274 | 218 | 56 | 510 |
-| [CIS Red Hat Enterprise Linux 10](rhel10.md) | 316 | 240 | 76 | 563 |
+| [CIS Red Hat Enterprise Linux 10](rhel10.md) | 318 | 242 | 76 | 571 |
 | [CIS SUSE Linux Enterprise 15](suse15.md) | 267 | 207 | 60 | 447 |
 | [CIS SUSE Linux Enterprise 16](suse16.md) | 324 | 246 | 78 | 514 |
 | [CIS Ubuntu 18.04 LTS](ubuntu18.md) | 229 | 200 | 29 | 379 |
 | [CIS Ubuntu 20.04 LTS](ubuntu20.md) | 293 | 238 | 55 | 554 |
 | [CIS Ubuntu 22.04 LTS](ubuntu22.md) | 280 | 225 | 55 | 500 |
-| [CIS Ubuntu 24.04 LTS](ubuntu24.md) | 308 | 242 | 66 | 562 |
+| [CIS Ubuntu 24.04 LTS](ubuntu24.md) | 311 | 245 | 66 | 630 |
 | [CIS Ubuntu 26.04 LTS](ubuntu26.md) | 332 | 257 | 75 | 555 |
 | [CIS Microsoft Windows 11 Enterprise](win11.md) | 471 | 374 | 97 | 510 |
 | [CIS Microsoft Windows Server 2019](win2019.md) | 424 | 352 | 72 | 458 |
 | [CIS Microsoft Windows Server 2022](win2022.md) | 433 | 357 | 76 | 467 |
 | [CIS Microsoft Windows Server 2025](win2025.md) | 452 | 374 | 78 | 486 |
-| **Total** | **7012** | | | **10743** |
+| **Total** | **7017** | | | **10819** |
 
 ## Selecting profiles
 

@@ -66,7 +66,7 @@ checkmate run baseline.yml --tags ssh --fail-on high --export junit,html -o repo
 
 | Standard | Platforms | Policies | Rules | Checks | Coverage |
 |---|---|---:|---:|---:|---|
-| [CIS Benchmarks Linux](https://rtulke.github.io/checkmate/cis/) | RHEL 7–10, Debian 11–13, Ubuntu 18.04–26.04, SUSE 15/16, Amazon Linux 2/2023/2027 | 17 | 4,841 | 8,360 | every automated recommendation of the Ansible Lockdown audits, Level 1/2, server/workstation |
+| [CIS Benchmarks Linux](https://rtulke.github.io/checkmate/cis/) | RHEL 7–10, Debian 11–13, Ubuntu 18.04–26.04, SUSE 15/16, Amazon Linux 2/2023/2027 | 17 | 4,846 | 8,436 | every automated recommendation of the Ansible Lockdown audits, Level 1/2, server/workstation |
 | [CIS Benchmarks Windows](https://rtulke.github.io/checkmate/cis/) | Windows 11, Windows Server 2019/2022/2025 | 4 | 1,780 | 1,921 | every automated recommendation, member server, domain controller, standalone; not Server 2016 |
 | [CIS Benchmarks macOS](https://rtulke.github.io/checkmate/cis/) | macOS 14, 15, 26 | 3 | 275 | 341 | every CIS rule of the macOS Security Compliance Project with an automated check |
 | [CIS PostgreSQL](https://rtulke.github.io/checkmate/cis/postgresql/) | PostgreSQL 12 and later | 1 | 46 | 51 | automatable recommendations; privilege design and backups need a review |

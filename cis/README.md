@@ -67,9 +67,21 @@ selects single recommendations or whole sections.
 | `command` | the same command; exit code and stdout patterns become `rc` and `some`/`none` expectations |
 | `file` | existence, type, link target, owner and group, and mode "as strict or stricter" via `find -perm`; content patterns via `some`/`none` |
 | `package` | `rpm -q` or `dpkg-query` |
-| `service` | `systemctl show` (resolves aliases, works on RHEL 7) |
+| `service` | `systemctl show` (resolves aliases, works on RHEL 7): enabled, running, masked |
 | `mount` | `findmnt` with the required options |
 | `kernel-param` | `sysctl -n` |
+| `matching` | only "no path matches a glob", as `ls -d` with an empty result |
+
+A test upstream skips on hosts where it does not apply becomes a check with
+`only_if`: the facts of the `discovery` block (a mount point is a separate
+file system, a package is installed, a file exists) and `depends-on` a
+package. Such a check is reported as skipped, not as failed. Tests upstream
+skips because of a variable (no desktop, IPv6 required) are left out and
+listed by the converter.
+
+Where upstream reads the audited host while it renders a rule (the audit log
+directory from `auditd.conf`, the number of wireless interfaces), the check
+reads the same value when it runs.
 
 Checks converted from a package, service, kernel parameter, mount, file or
 account resource carry a remediation generated from that resource: the
@@ -130,6 +142,23 @@ Deviations from the Ansible Lockdown content, each applied deliberately:
 - The SSH banner file check reports "no banner configured" instead of failing
   in `stat` when no banner is set.
 - Commands that are not valid shell code upstream are left out and listed by the converter.
+- An "enabled" service may also be `static`, `alias` or `generated`: units such
+  as `systemd-journald` cannot be enabled.
+- A "masked" service may also be absent: a unit that is not installed cannot
+  run, and the benchmark asks for the mask only where the package has to stay.
+- A variable upstream leaves unset is dropped from the expected pattern instead
+  of being matched as the text `<no value>`.
+- `grep` over `/etc/security/pwquality.conf.d/*.conf` may exit with 2 (no such
+  directory); the output decides.
+- The checks of the audit log directory report a missing `log_file` setting
+  instead of searching the current directory.
+- Files of a fixed list (audit configuration files, audit tools) are only
+  checked if they exist, as in the benchmark; upstream requires every file.
+- Ubuntu 24.04 and RHEL 10: variables that only say whether the Ansible role
+  changes a setting (`*_disruption_high`, `*_force_user_maxdays`, ...) or that
+  declare NFS, NIS and rpcbind as required do not remove rules from the
+  policy (`auditVars` in the converter). Use a waiver for a host that needs
+  such a service.
 - Windows: a registry value given as a regular expression (`match-regexp`,
   the logon message text) is matched as one; the hardened UNC path values
   (`HardenedPaths::\\*\NETLOGON`) are read under their own key; a registry

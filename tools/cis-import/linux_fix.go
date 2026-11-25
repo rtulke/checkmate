@@ -53,6 +53,10 @@ func unitRemediation(name, state string) string {
 	case "not enabled":
 		return fmt.Sprintf("Disable the service %s, unless the system needs it:\n\nsystemctl disable %s\n\n"+
 			"To keep other units from starting it, mask it instead: systemctl mask %s", name, name, name)
+	case "masked":
+		return fmt.Sprintf("Stop and mask the service %s, unless the system needs it:\n\nsystemctl stop %s\nsystemctl mask %s", name, name, name)
+	case "not masked":
+		return fmt.Sprintf("Unmask the service %s:\n\nsystemctl unmask %s", name, name)
 	case "running":
 		return fmt.Sprintf("Start the service %s:\n\nsystemctl start %s", name, name)
 	}
@@ -165,7 +169,8 @@ func fileAttrRemediation(path, filetype, target string, owners, groups []string,
 }
 
 // modeFromPattern reads a mode pattern of the form ^0[..][..][..]$, one
-// character class or digit per permission digit, as "mode or stricter". It
+// character class or digit per permission digit, as "mode or stricter". A
+// leading [0-7] allows any setuid, setgid and sticky bit (07000). It
 // fails unless every class contains all digits below its highest one in
 // the bit sense (e.g. [0246] for rw, [04] for r), since only then the
 // pattern means exactly "these permissions or fewer".
@@ -175,7 +180,10 @@ func modeFromPattern(re string) (int64, bool) {
 		return 0, false
 	}
 	var mode int64
-	for _, class := range m[1:] {
+	if m[1] != "" {
+		mode = 7
+	}
+	for _, class := range m[2:] {
 		digits := map[int64]bool{}
 		body := strings.Trim(class, "[]")
 		for i := 0; i < len(body); i++ {
@@ -205,7 +213,7 @@ func modeFromPattern(re string) (int64, bool) {
 	return mode, true
 }
 
-var modeDigits = regexp.MustCompile(`^\^0?([0-7]|\[[0-7-]+\])([0-7]|\[[0-7-]+\])([0-7]|\[[0-7-]+\])\$$`)
+var modeDigits = regexp.MustCompile(`^\^(?:0|(\[0-7\]))?([0-7]|\[[0-7-]+\])([0-7]|\[[0-7-]+\])([0-7]|\[[0-7-]+\])\$$`)
 
 // sysctlPatternRemediation is the remediation of a kernel parameter whose
 // value must match a pattern such as ^(1|2)$.

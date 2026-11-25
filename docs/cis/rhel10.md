@@ -1,6 +1,6 @@
 # CIS Red Hat Enterprise Linux 10
 
-Automated checks for 316 recommendations of the CIS Red Hat Enterprise Linux 10 benchmark (version 1.0.1), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
+Automated checks for 318 recommendations of the CIS Red Hat Enterprise Linux 10 benchmark (version 1.0.1), converted from the goss audit content of the ansible-lockdown project. Check names describe what is verified; the recommendation number is in the ID and the description. Select profiles with tags, e.g. `--tags cis-level-1+cis-server`.
 
 **Policy:** [`cis/rhel10.yml`](https://github.com/rtulke/checkmate/blob/main/cis/rhel10.yml) · **Benchmark version:** 1.0.1
 
@@ -34,14 +34,11 @@ checkmate run cis/rhel10.yml --tags cis-level-2 -v
 | `CIS-RHEL10-1.1.1.11-cve_fs` | cve fs: /var/fs_with_cves.sh | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.1.2.1.1-tmp_mount` | /tmp is a separate mount | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.1.2.1.2-tmp_nodev_options` | /tmp is a separate mount with nodev | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-1.1.2.1.2-tmp_nodev_fstab_options-attrs` | /etc/fstab: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-1.1.2.1.2-tmp_nodev_fstab_options-content` | /etc/fstab has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.1.2.1.2-tmp_nodev_persistent_options` | tmp nodev persistent options: if [ "$(systemctl show tmp.mount -p SourcePath --value)" = "/etc/fstab" ]; then | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.1.2.1.3-tmp_nosuid_options` | /tmp is a separate mount with nosuid | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-1.1.2.1.3-tmp_nosuid_fstab_options-attrs` | /etc/fstab: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-1.1.2.1.3-tmp_nosuid_fstab_options-content` | /etc/fstab has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.1.2.1.3-tmp_nosuid_persistent_options` | tmp nosuid persistent options: if [ "$(systemctl show tmp.mount -p SourcePath --value)" = "/etc/fstab" ]; then | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.1.2.1.4-tmp_noexec_options` | /tmp is a separate mount with noexec | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-1.1.2.1.4-tmp_noexec_fstab_options-attrs` | /etc/fstab: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-1.1.2.1.4-tmp_noexec_fstab_options-content` | /etc/fstab has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.1.2.1.4-tmp_noexec_persistent_options` | tmp noexec persistent options: if [ "$(systemctl show tmp.mount -p SourcePath --value)" = "/etc/fstab" ]; then | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.1.2.2.1-dev_shm_mount` | /dev/shm is a separate mount | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.1.2.2.2-dev_shm_nodev_options` | /dev/shm is a separate mount with nodev | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.1.2.2.2-dev_shm_nodev_fstab_options-attrs` | /etc/fstab: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -100,7 +97,7 @@ checkmate run cis/rhel10.yml --tags cis-level-2 -v
 | `CIS-RHEL10-1.2.1.2-gpg_check_global` | gpg check global: if [ `grep -c -E '^\\s\*gpgcheck.\*0' /etc/dnf/dnf.conf` -ge 1 ]; then echo FAIL; elif [ `gr… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.2.1.2-gpg_check_repo` | gpg check repo: if [ `grep -c -E '^\\s\*gpgcheck.\*0' /etc/yum.repos.d/\*.repo` -ge 1 ]; then echo FAIL; elif… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.2.1.3-repo_gpgcheck_global` | repo gpgcheck global: grep -E "^repo_gpgcheck" /etc/dnf/dnf.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL10-1.2.1.3-repo_gpgcheck_repo` | repo gpgcheck repo: if [ `find /etc/yum.repos.d -type f \| xargs grep 'repo_gpgcheck\*' \* \| grep -v '=1' \| wc -… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL10-1.2.1.3-repo_gpgcheck_repo` | repo gpgcheck repo: echo "repo_gpgcheck_disabled_repos=$(grep -Pis -- '^\\h\*repo_gpgcheck\\h\*=\\h\*(0\|false\|no)\\b… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL10-1.2.1.4-repos_configured` | repos configured: yum repolist | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.2.1.5-dnf_weak_dependencies` | dnf weak dependencies: grep -E "^install_weak_deps" /etc/dnf/dnf.conf | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL10-1.2.2.1-security-updates` | security updates: dnf check-update | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -116,8 +113,8 @@ checkmate run cis/rhel10.yml --tags cis-level-2 -v
 | `CIS-RHEL10-1.3.1.7-mctrans` | Package mctrans is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.3.1.8-setroubleshoot` | Package setroubleshoot is not installed | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.4.2-grub_bootloaders_perms-attrs` | /boot/grub2/grub.cfg: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-1.4.2-grub_user_perms-attrs` | /boot/grub2/user.cfg: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.4.2-grubenv_perms-attrs` | /boot/grub2/grubenv: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-1.4.2-grub_all_files_perms` | grub all files perms: find -L /boot/grub2/ -mindepth 1 -maxdepth 1 -type f \\( -perm /0177 -o ! -user root -o ! … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.5.1-core_size` | core size: grep -Psi -- '^\\s\*\\S+\\s+hard\\s+core\\b' /etc/security/limits.conf /etc/security/limits.d/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.5.2-sysctl_hardlinks_conf` | sysctl hardlinks conf: grep -R fs.protected_hardlinks /etc/sysctl.conf /etc/sysctl.d/ | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-1.5.2-sysctl_hardlinks_live` | sysctl hardlinks live: sysctl fs.protected_hardlinks | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -169,8 +166,11 @@ checkmate run cis/rhel10.yml --tags cis-level-2 -v
 | `CIS-RHEL10-2.1.17-squid_pkg` | Package squid is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-2.1.18-httpd_pkg` | Package httpd is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-2.1.18-nginx_pkg` | Package nginx is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-2.1.18-nginx_plus_pkg` | Package nginx-plus is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-2.1.19-gdm_pkg` | Package gdm is not installed | L2 server | <span class="sev sev-low">low</span> |
 | `CIS-RHEL10-2.1.20-xwindow_pkg` | Package xorg-x11-server-common is not installed | L2 server | <span class="sev sev-low">low</span> |
+| `CIS-RHEL10-2.1.21-mta_listening_port25` | mta listening port25: ss -lntu \| grep -E ":25\\s" \| grep -E -v "\\s(127.0.0.1\|\\[?::1\\]?):25\\s" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-2.1.21-mta_postfix_loopback_only` | mta postfix loopback only: if command -v postconf >/dev/null 2>&1; then postconf -h inet_interfaces; else echo "post… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-2.1.22-manual_listening_ports` | manual listening ports: echo "Manual!! - Please check only approved services are listening" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-2.2.1-ftp` | Package ftp is not installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-2.2.2-openldap-clients` | Package openldap-clients is not installed | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
@@ -278,58 +278,59 @@ checkmate run cis/rhel10.yml --tags cis-level-2 -v
 | `CIS-RHEL10-5.1.4-sshd_access_limited` | sshd access limited: grep -Ei "^(Allow\|Deny)(Users\|Groups)" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.5-sshd_banner-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.5-sshd_banner-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.1.5-ssh_configd_banner` | ssh configd banner: grep -Eis '^\\s\*Banner\\s+"?none\\b'/etc/ssh/sshd_config.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.1.5-ssh_configd_banner` | ssh configd banner: grep -Eis '^\\s\*Banner\\s+"?none\\b' /etc/ssh/sshd_config.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.6-no_weak_ssh_ciphers` | no weak ssh ciphers: sshd -T \| grep -Pi -- '^ciphers\\h+\\"?([^#\\n\\r]+,)?((3des\|aes(128\|192\|256))-cbc)\\b' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.7-sshd_clientalive-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.7-sshd_clientalive-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.1.7-sshd_clientalive_live` | sshd clientalive live: sshd -T \| grep clientalive | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.1.7-sshd_clientalive_live` | sshd clientalive live: sshd -T \| grep -i clientalive | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.8-sshd_disable_forward-attrs` | /etc/ssh/sshd_config: exists | L2 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.8-sshd_disable_forward-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L2 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.1.8-ssh_disable_forward_live` | ssh disable forward live: sshd -T \| grep disableforwarding | L2 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.1.8-ssh_disable_forward_live` | ssh disable forward live: sshd -T \| grep -i disableforwarding | L2 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.9-sshd_gssapi-attrs` | /etc/ssh/sshd_config: exists | L2 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.9-sshd_gssapi-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L2 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.9-ssh_gssapi_live` | ssh gssapi live: sshd -T \| grep -i gssapiauthentication | L2 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.10-ssh_hostbased_auth-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.10-ssh_hostbased_auth-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.1.10-ssh_hostbased_auth_live` | ssh hostbased auth live: sshd -T \| grep hostbasedauthentication | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.1.10-ssh_hostbased_auth_live` | ssh hostbased auth live: sshd -T \| grep -i hostbasedauthentication | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.11-ssh_rhosts-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.11-ssh_rhosts-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.1.11-ssh_rhosts_live` | ssh rhosts live: sshd -T \| grep ignorerhosts | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.1.11-ssh_rhosts_live` | ssh rhosts live: sshd -T \| grep -i ignorerhosts | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.12-no_weak_ssh_kex` | no weak ssh kex: sshd -T \| grep -Pi -- 'kexalgorithms\\h+([^#\\n\\r]+,)?(diffie-hellman-group1-sha1\|diffie-he… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.13-sshd_logingrace-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.13-sshd_logingrace-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.1.13-ssh_logingrace_live` | ssh logingrace live: sshd -T \| grep logingracetime | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.1.13-ssh_logingrace_live` | ssh logingrace live: sshd -T \| grep -i logingracetime | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.14-sshd_loglevel-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.14-sshd_loglevel-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.1.14-ssh_loglevel_live` | ssh loglevel live: sshd -T \| grep loglevel | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.1.14-ssh_loglevel_live` | ssh loglevel live: sshd -T \| grep -i loglevel | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.15-no_weak_ssh_macs` | no weak ssh macs: sshd -T \| grep -Pi -- 'macs\\h+([^#\\n\\r]+,)?(hmac-md5\|hmac-md5-96\|hmac-ripemd160\|hmac-sha1… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.16-sshd_authtries-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.16-sshd_authtries-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.1.16-sshd_authtries_live` | sshd authtries live: sshd -T \| grep maxauthtries | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.1.16-sshd_authtries_live` | sshd authtries live: sshd -T \| grep -i maxauthtries | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.17-sshd_maxstartups-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.17-sshd_maxstartups-content` | /etc/ssh/sshd_config has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.1.17-ssh_maxstartups_live` | ssh maxstartups live: sshd -T \| grep maxstartups | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.1.17-ssh_maxstartups_live` | ssh maxstartups live: sshd -T \| grep -i maxstartups | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.18-sshd_maxsessions-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.18-sshd_maxsessions-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.1.18-ssh_maxsessions_live` | ssh maxsessions live: sshd -T \| grep maxsessions | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.1.18-ssh_maxsessions_live` | ssh maxsessions live: sshd -T \| grep -i maxsessions | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.19-sshs_permitempty_passwd-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.19-sshs_permitempty_passwd-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.1.19-ssh_empty_passwd_live` | ssh empty passwd live: sshd -T \| grep permitemptypasswords | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.1.19-ssh_empty_passwd_live` | ssh empty passwd live: sshd -T \| grep -i permitemptypasswords | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.20-sshd_permit_root-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.20-sshd_permit_root-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.1.20-ssh_permit_root_live` | ssh permit root live: sshd -T \| grep permitrootlogin | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.1.20-ssh_permit_root_live` | ssh permit root live: sshd -T \| grep -i permitrootlogin | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.21-sshd_userenv-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.21-sshd_userenv-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.1.21-ssh_userenv_live` | ssh userenv live: sshd -T \| grep permituserenvironment | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.1.21-ssh_userenv_live` | ssh userenv live: sshd -T \| grep -i permituserenvironment | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.22-sshd_usepam-attrs` | /etc/ssh/sshd_config: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.1.22-sshd_usepam-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.1.22-ssh_usepam_live` | ssh usepam live: sshd -T \| grep usepam | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.1.22-ssh_usepam_live` | ssh usepam live: sshd -T \| grep -i usepam | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.2.1-sudo` | Package sudo is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.2.2-pty_sudoers_d` | pty sudoers d: export PTY=`grep -q -Ei '^\\s\*Defaults\\s+(\\[^#]+,\\s\*)?use_pty' /etc/sudoers /etc/sudoers.d… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.2.2-pty_sudoers_d` | pty sudoers d: grep -rPi -- '^\\h\*Defaults\\h+([^#\\n\\r]+,\\h\*)?use_pty\\b' /etc/sudoers /etc/sudoers.d/ | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.2.2-pty_sudoers_d_not_disabled` | pty sudoers d not disabled: grep -rPi -- '^\\h\*Defaults\\h+([^#\\n\\r]+,\\h\*)?!use_pty\\b' /etc/sudoers /etc/sudoers.d/ | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.2.3-log_sudoers_d` | log sudoers d: export LOG=`grep -q -Esi '^\\s\*Defaults\\s+([^#]+,\\s\*)?logfile=' /etc/sudoers /etc/sudoers.… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.2.4-nopasswd_sudoers_d` | nopasswd sudoers d: grep -R NOPASSWD /etc/sudoers /etc/sudoers.d/\* \| grep -v '.\*\\:#' | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL10-5.2.5-authenticate_sudoers` | authenticate sudoers: grep -r "^[^#].\*\\!authenticate" /etc/sudoers\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.2.6-sudo_timeout` | sudo timeout: grep -rP "timestamp_timeout=\\K[0-9]\*" /etc/sudoers\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.2.4-nopasswd_sudoers_d` | nopasswd sudoers d: grep -rhs -- '^[^#]\*NOPASSWD' /etc/sudoers /etc/sudoers.d \| awk '$1 !~ /^(#\|ec2-user\|vagr… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL10-5.2.5-authenticate_sudoers` | authenticate sudoers: grep -rs -- '^[^#].\*!authenticate' /etc/sudoers\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.2.6-sudo_timeout` | sudo timeout: grep -rhoPi -- '^[^#\\n\\r]\*timestamp_timeout\\h\*=\\h\*\\K-?[0-9.]+' /etc/sudoers /etc/sudoers.… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.2.7-restrict_su-attrs` | /etc/pam.d/su: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.2.7-restrict_su-content` | /etc/pam.d/su has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.2.7-sugroup_etc_group` | sugroup etc group: grep sugroup /etc/group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -400,29 +401,34 @@ checkmate run cis/rhel10.yml --tags cis-level-2 -v
 | `CIS-RHEL10-5.3.2.4.4-pam_unix_use_authtok_password-auth-content` | /etc/pam.d/password-auth has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.3.2.4.4-pam_unix_use_authtok_system-auth-attrs` | /etc/pam.d/system-auth: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.3.2.4.4-pam_unix_use_authtok_system-auth-content` | /etc/pam.d/system-auth has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.4.1.1-check_user_expiry` | check user expiry: awk -F: '($2~/^\\$.+\\$/) {if($5 > 365 \|\| $5 < 1) print "FAIL: " $1 " PASS_MAX_DAYS: " $5}'… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.4.1.1-login_defs_max_days` | login defs max days: grep PASS_MAX_DAYS /etc/login.defs | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.4.1.2-login_defs_min_days-attrs` | /etc/login.defs: exists | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL10-5.4.1.2-login_defs_min_days-content` | /etc/login.defs has the expected content (2 rules) | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
+| `CIS-RHEL10-5.4.1.2-check_users_MIN_DAYS` | check users MIN DAYS: awk -F: '($2~/^\\$.+\\$/) {if($4 < 1) print "FAIL: " $1 " PASS_MIN_DAYS: " $4}' /etc/shadow | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL10-5.4.1.3-login_defs_warn_age-attrs` | /etc/login.defs: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.4.1.3-login_defs_warn_age-content` | /etc/login.defs has the expected content (3 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.4.1.3-check_users_MAX_DAYS` | check users MAX DAYS: awk -F: '($2~/^\\$.+\\$/) {if($6 < 7) print "FAIL: " $1 " PASS_WARN_AGE: " $6}' /etc/shadow | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.4.1.4-login_defs_hashing-attrs` | /etc/login.defs: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.4.1.4-login_defs_hashing-content` | /etc/login.defs has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.4.1.5-inactive_passwd` | inactive passwd: useradd -D \| grep INACTIVE | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.4.1.5-inactive_users` | inactive users: awk -F':' '($2~/^\\\\$.+\\\\$/) {if($7 > 30 \|\| $7 < 0)print $1}' /etc/shadow | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.4.1.5-inactive_users` | inactive users: awk -F: 'NR==FNR { if ($1 !~ /^(root\|halt\|sync\|shutdown)$/ && $7 !~ /(nologin\|false)$/ &&… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.4.1.6-passwd_chg_past` | No user has a last password change date in the future | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.4.2.1-uid_0_check` | uid 0 check: awk -F: '($3 == 0) { print $1 }' /etc/passwd | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.4.2.2-gid_0_check` | gid 0 check: awk -F: '($1 !~ /^(sync\|shutdown\|halt\|operator)/ && $4=='0') {print $1":"$4}' /etc/passwd | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.4.2.3-group_root_only_0` | group root only 0: awk -F: '$3=='0'{print $1":"$3}' /etc/group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.4.2.1-uid_0_check` | uid 0 check: awk -F: '($3 == 0 && $1 == "root") {print "root_ok"} ($3 == 0 && $1 != "root") {print "FA… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.4.2.2-gid_0_check` | gid 0 check: awk -F: '($4 == 0 && $1 == "root") {print "root_ok"} ($4 == 0 && $1 != "root" && $1 !~ /^… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.4.2.3-group_root_only_0` | group root only 0: awk -F: '($3 == 0 && $1 == "root") {print "root_ok"} ($3 == 0 && $1 != "root") {print "FA… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.4.2.4-root_passwd_set` | root passwd set: passwd -S root \| awk '$2 ~ /^(P\|L)/ {print "OK Password"}' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.4.2.5-root_path_check` | root path check: /bin/bash --login -c 'env \| grep ^PATH=' \| sed -e 's/PATH=//' -e 's/::/:/' -e 's/:$//' -e… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.4.2.6-root_umask_bash_profile` | root umask bash profile: grep -hi umask /root/.bash_profile /root/.bashrc 2>/dev/null | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.4.2.7-secure_system_accts` | secure system accts: awk -F: '$3<1000' /etc/passwd \| grep -Ev 'root\|sync\|halt\|shutdown\|nfsnobody\|/sbin/nologin… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.4.2.5-root_path_check` | root path check: l_root_path="$(su - root -c 'printf "%s" "$PATH"')" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.4.2.6-root_umask_effective` | root umask effective: su - root -c 'umask' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.4.2.6-root_umask_files` | root umask files: grep -Psi -- '^\\h\*umask\\h+((\\d{1,2}(\\d[^7]\|[^2-7]\\d)\\b)\|(u=[rwx]{1,3},)?(((g=[rx]?[rx]?w[… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.4.2.7-secure_system_accts` | secure system accts: l_valid_shells="^($(awk -F/ '($NF != "nologin" && $NF != "false") {print}' /etc/shells \| … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.4.2.8-user_accts_valid_shell` | user accts valid shell: l_valid_shells="^($(awk -F\\/ '$NF != "nologin" {print}' /etc/shells \| sed -rn '/^\\//{s,/,… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-5.4.3.1-nologin_not_in_shells-attrs` | /etc/shells: exists | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-RHEL10-5.4.3.1-nologin_not_in_shells-content` | /etc/shells has the expected content (1 rule) | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
-| `CIS-RHEL10-5.4.3.2-check_timeout` | check timeout: grep TMOUT /etc/profile.d/\*.sh /etc/profile /etc/profile.d/\*.sh\| cut -d ":" -f2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-5.4.3.3-umask_profile_scripts` | umask profile scripts: grep -i "^\\s\*umask" /etc/profile /etc/profile.d/\*.sh /etc/login.defs \| cut -d ":" -f 2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.4.3.2-check_timeout` | check timeout: l_set=0 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.4.3.3-login_defs_umask-attrs` | /etc/login.defs: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.4.3.3-login_defs_umask-content` | /etc/login.defs has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-5.4.3.3-umask_profile_scripts` | umask profile scripts: l_floor=23 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-6.1.1-aide_installed` | Package aide is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-6.1.2-aide_cron` | aide cron: grep -rs aide /etc/cron.\* /etc/crontab /var/spool/cron/\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-6.1.3-audit_bins_crypto_aide` | audit bins crypto aide: grep /sbin/au /etc/aide.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -452,6 +458,8 @@ checkmate run cis/rhel10.yml --tags cis-level-2 -v
 | `CIS-RHEL10-6.2.3.4-perms_rsyslog_d` | perms rsyslog d: grep -s ^\\$FileCreateMode /etc/rsyslog.conf /etc/rsyslog.d/\*.conf \| cut -f2 -d: | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-6.2.3.5-etc_rsyslog.conf-attrs` | /etc/rsyslog.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-6.2.3.5-etc_rsyslog.conf-content` | /etc/rsyslog.conf has the expected content (13 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-6.2.3.7-local_syslog_input` | local syslog input: grep -E "imtcp\\" port\|InputTCPServerRun" /etc/rsyslog.conf /etc/rsyslog.d/\*.conf \| grep -… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-6.2.3.7-local_syslog_module` | local syslog module: grep "imtcp" /etc/rsyslog.conf /etc/rsyslog.d/\*.conf \| grep -Ev ":#\|port=" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-6.2.3.8-etc_logrotate.conf-attrs` | /etc/logrotate.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-6.2.3.8-etc_logrotate.conf-content` | /etc/logrotate.conf has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-6.2.4.1-logfile_configured_login_files` | logfile configured login files: find /var/log/ -type f -perm /g+x,o+wx -exec ls -l "{}" + \| grep -E "[b,u,w]tmp.\*\|lastlog" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -560,9 +568,9 @@ checkmate run cis/rhel10.yml --tags cis-level-2 -v
 | `CIS-RHEL10-7.1.9-etc_shells_perms-attrs` | /etc/shells: exists, mode 0644 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-7.1.10-etc_security_opasswd__old_perms-attrs` | /etc/security/opasswd.old: mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-7.1.10-etc_security_opasswd_perms-attrs` | /etc/security/opasswd: mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-7.1.11-sticky_bit` | sticky bit: df --local -P \| awk '{if (NR!=1) print $7}' \| xargs -I '{}' find '{}' -xdev -type d \\( -p… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-7.1.12-unowned_ungrouped_dirs` | unowned ungrouped dirs: df --local -P \| awk {'if (NR!=1) print $7'} \| xargs -I '{}' find '{}' -xdev \\( ! -path "/… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-7.1.13-audit_sgid_suid` | audit sgid suid: df --local -P \| awk '{if (NR!=1) print $7}' \| xargs -I '{}' find '{}' -xdev -type f \\( -p… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-7.1.11-world_writable_secured` | world writable secured: findmnt -Dkerno fstype,target \| awk '($1 !~ /^[[:space:]]\*(nfs\|proc\|cifs\|smb\|vfat\|iso9660… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-7.1.12-unowned_ungrouped_dirs` | unowned ungrouped dirs: findmnt -Dkerno fstype,target \| awk '($1 !~ /^[[:space:]]\*(nfs\|proc\|cifs\|smb\|vfat\|iso9660… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-7.1.13-audit_sgid_suid` | audit sgid suid: findmnt -Dkerno fstype,target,options \| awk '($1 !~ /^[[:space:]]\*(nfs\|proc\|smb\|vfat\|iso9… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-7.2.1-accts_use_shadowed` | accts use shadowed: awk -F: '($2 != "x" ) { print $1 " is not set to shadowed passwords "}' /etc/passwd | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-7.2.2-nopasswd_shadow` | nopasswd shadow: cat /etc/shadow \| cut -d ':' -f2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-7.2.3-passwd_group_exist` | passwd group exist: comm -23 <(awk -F: '{print $4}' /etc/passwd \| sort -u) <(awk -F: '{print $3}' /etc/group … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -570,7 +578,7 @@ checkmate run cis/rhel10.yml --tags cis-level-2 -v
 | `CIS-RHEL10-7.2.5-no_dup_gid` | no dup gid: cat /etc/group \| cut -d: -f3 \| sort \| uniq -d | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-7.2.6-no_dup_username` | no dup username: cat /etc/passwd \| cut -d: -f1 \| sort \| uniq -d | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-RHEL10-7.2.7-no_dup_groupname` | no dup groupname: cat /etc/group \| cut -d: -f1 \| sort \| uniq -d | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-7.2.8-home_dirs_exist` | home dirs exist: pwck -r \| grep -v journal \| grep "does not exist" | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-7.2.8-home_dirs_owned` | home dirs owned: getent passwd {1000..60000} \|  awk -F: '{ print $1  " "  $6 }' \| while read user dir; do … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-7.2.8-home_dirs_restrict` | home dirs restrict: for i in `getent passwd {1000..60000} \|  awk '{split($0,a,":");print a[6]}'`; do stat -c … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-RHEL10-7.2.9-dot_netrc_perms` | dot netrc perms: find /home/  \\( -name .netrc -o -name .rhost -o -name .forward \\) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-7.2.8-home_dirs_exist` | home dirs exist: awk -F: 'NR == FNR { if ($0 ~ /^\\// && $0 !~ /\\/nologin$/) l_shells[$0] = 1; next } ($7 i… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-7.2.8-home_dirs_owned` | home dirs owned: awk -F: 'NR == FNR { if ($0 ~ /^\\// && $0 !~ /\\/nologin$/) l_shells[$0] = 1; next } ($7 i… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-7.2.8-home_dirs_restrict` | home dirs restrict: awk -F: 'NR == FNR { if ($0 ~ /^\\// && $0 !~ /\\/nologin$/) l_shells[$0] = 1; next } ($7 i… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-RHEL10-7.2.9-dot_files_access` | dot files access: l_valid_shells="^($(awk -F/ '$NF != "nologin" {print}' /etc/shells \| sed -rn '/^\\//p' \| p… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

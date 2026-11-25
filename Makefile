@@ -79,20 +79,20 @@ cis-import:
 	@for b in $(CIS_BENCHMARKS); do \
 		repo=$$(echo $$b | tr a-z A-Z)-CIS-Audit; \
 		branch=$$(gh api repos/ansible-lockdown/$$repo -q .default_branch); \
-		mkdir -p $(CIS_CACHE)/$$b; \
+		rm -rf $(CIS_CACHE)/$$b; mkdir -p $(CIS_CACHE)/$$b; \
 		gh api repos/ansible-lockdown/$$repo/tarball/$$branch | tar xzf - -C $(CIS_CACHE)/$$b --strip-components=1; \
 		go run ./tools/cis-import -src $(CIS_CACHE)/$$b -bench $$b -texts tools/cis-import/texts/linux.yml -out cis/$$b.yml || exit 1; \
 	done
 	@for w in $(CIS_WINDOWS); do \
 		b=$${w%%:*}; repo=$${w#*:}-CIS-Audit; \
 		branch=$$(gh api repos/ansible-lockdown/$$repo -q .default_branch); \
-		mkdir -p $(CIS_CACHE)/$$b; \
+		rm -rf $(CIS_CACHE)/$$b; mkdir -p $(CIS_CACHE)/$$b; \
 		gh api repos/ansible-lockdown/$$repo/tarball/$$branch | tar xzf - -C $(CIS_CACHE)/$$b --strip-components=1; \
 		go run ./tools/cis-import -src $(CIS_CACHE)/$$b -bench $$b -texts tools/cis-import/texts/windows.yml -out cis/$$b.yml || exit 1; \
 	done
 	@for v in sonoma:14 sequoia:15 tahoe:26; do \
 		branch=$${v%%:*}; major=$${v#*:}; \
-		mkdir -p $(CIS_CACHE)/mscp-$$branch; \
+		rm -rf $(CIS_CACHE)/mscp-$$branch; mkdir -p $(CIS_CACHE)/mscp-$$branch; \
 		gh api repos/usnistgov/macos_security/tarball/$$branch | tar xzf - -C $(CIS_CACHE)/mscp-$$branch --strip-components=1; \
 		go run ./tools/mscp-import -src $(CIS_CACHE)/mscp-$$branch -macos $$major -out cis/macos$$major.yml || exit 1; \
 	done
@@ -103,7 +103,7 @@ stig-import:
 	@for b in $(STIG_BENCHMARKS); do \
 		repo=$$(echo $$b | tr a-z A-Z)-STIG-Audit; \
 		branch=$$(gh api repos/ansible-lockdown/$$repo -q .default_branch); \
-		mkdir -p $(CIS_CACHE)/$$b-stig; \
+		rm -rf $(CIS_CACHE)/$$b-stig; mkdir -p $(CIS_CACHE)/$$b-stig; \
 		gh api repos/ansible-lockdown/$$repo/tarball/$$branch | tar xzf - -C $(CIS_CACHE)/$$b-stig --strip-components=1; \
 		zip=$$(printf '%s\n' $(STIG_DISA) | sed -n "s/^$$b://p"); \
 		[ -n "$$zip" ] || { echo "no DISA package for $$b in STIG_DISA"; exit 1; }; \
