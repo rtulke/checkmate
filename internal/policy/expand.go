@@ -41,6 +41,12 @@ type Check struct {
 	Reference   string
 	Source      CheckSource
 
+	// Register is the name under which later checks see the outcome of
+	// this check in their `when` conditions; Needs lists the registered
+	// names this check refers to. See register.go.
+	Register string
+	Needs    []string
+
 	// LoopRun is the item command of a check written with loop_run.
 	LoopRun CommandSpec
 	// Env holds extra environment variables for the commands of the check
@@ -86,12 +92,13 @@ type rawCheck struct {
 	Rationale   string      `yaml:"rationale"`
 	Remediation string      `yaml:"remediation"`
 	Reference   string      `yaml:"reference"`
+	Register    string      `yaml:"register"`
 }
 
 // checkKeys are the keys allowed in a check ("loop" and "loop_run" are
 // removed before).
 var checkKeys = []string{"id", "name", "description", "tags", "severity", "when", "only_if",
-	"run", "expect", "as", "shell", "timeout", "allow_rc", "rationale", "remediation", "reference"}
+	"run", "expect", "as", "shell", "timeout", "allow_rc", "rationale", "remediation", "reference", "register"}
 
 func checkKnownKeys(n *yaml.Node, allowed []string) error {
 	for i := 0; i+1 < len(n.Content); i += 2 {
@@ -258,7 +265,8 @@ func expand(p *Policy, f facts.Facts, extraVars map[string]any, exec *loopExec) 
 			checks = append(checks, c)
 		}
 	}
-	return checks, errs
+	checks, regErrs := linkRegistered(checks)
+	return checks, append(errs, regErrs...)
 }
 
 func expandSource(p *Policy, src CheckSource, base map[string]any, exec *loopExec) ([]*Check, *CheckError) {
@@ -356,6 +364,7 @@ func build(p *Policy, src CheckSource, raw rawCheck, ctx map[string]any) (*Check
 		Rationale:   strings.TrimSpace(raw.Rationale),
 		Remediation: strings.TrimSpace(raw.Remediation),
 		Reference:   raw.Reference,
+		Register:    strings.TrimSpace(raw.Register),
 		Source:      src,
 		context:     ctx,
 		snippets:    p.Snippets,
@@ -368,6 +377,9 @@ func build(p *Policy, src CheckSource, raw rawCheck, ctx map[string]any) (*Check
 	}
 	if c.Name == "" {
 		c.Name = c.ID
+	}
+	if err := validRegisterName(c.Register, ctx); err != nil {
+		return nil, err
 	}
 	if c.Severity == "" {
 		c.Severity = p.Defaults.Severity

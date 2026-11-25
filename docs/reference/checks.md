@@ -10,6 +10,7 @@
   only_if: command -v sshd                         # command; skip if it fails
   loop: [a, b, c]                                  # expand into one check per item
   loop_run: ls /etc/ssh/sshd_config.d              # or: one check per line of output
+  register: sshd_ciphers                           # later checks may ask: sshd_ciphers.passed
   run: sshd -T | awk '$1 == "ciphers" {print $2}'  # required
   expect: "!~ (cbc|arcfour)"                       # required
   as: auto                                         # auto, number, version, string
@@ -32,6 +33,7 @@
 | `only_if` | | A command (same forms as `run`). The check is skipped if it exits non-zero. |
 | `loop` | | List, mapping or `"{{ variable }}"`. See [Loops](templating.md#loops). |
 | `loop_run` | | A command (same forms as `run`); one check per line it prints. See [Loops over command output](templating.md#loops-over-command-output). |
+| `register` | | A name under which later checks see the outcome of this check in `when`. See [Checks that depend on other checks](templating.md#checks-that-depend-on-other-checks). |
 | `run` | yes | A command string, platform variants or a snippet reference. See [Platforms](platforms.md). |
 | `expect` | yes | The condition. See [expect operators](expect.md). |
 | `as` | | How values are compared: `auto` (default), `number`, `version`, `string`. |
