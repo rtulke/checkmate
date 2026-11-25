@@ -276,7 +276,7 @@ checkmate run cis/amazon2027.yml --tags cis-level-2 -v
 | `CIS-AMAZON2027-5.1.5-no_weak_ssh_ciphers` | no weak ssh ciphers: l_offered="$(sshd -T 2>/dev/null \| awk 'tolower($1)=="ciphers"{print $2}')" | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-5.1.6-no_weak_ssh_kex` | no weak ssh kex: l_offered="$(sshd -T 2>/dev/null \| awk 'tolower($1)=="kexalgorithms"{print $2}')" | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-5.1.7-no_weak_ssh_macs` | no weak ssh macs: l_offered="$(sshd -T 2>/dev/null \| awk 'tolower($1)=="macs"{print $2}')" | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-5.1.8-sshd_access_limited` | sshd access limited: sshd -T 2>/dev/null \| grep -Pi -- '^\\h\*(allow\|deny)(users\|groups)\\h+\\H+' | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-5.1.8-sshd_access_limited` | SSH access is limited with AllowUsers, AllowGroups, DenyUsers or DenyGroups | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-5.1.9-sshd_banner_content` | sshd banner content: l_banner="$(sshd -T 2>/dev/null \| awk 'tolower($1) == "banner" {print $2}')" | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-5.1.9-sshd_banner_live` | sshd banner live: sshd -T 2>/dev/null \| grep -Pi -- '^banner\\h+\\/\\H+' | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-5.1.10-sshd_clientalive_live` | sshd clientalive live: sshd -T 2>/dev/null \| grep -Pi -- '^(clientaliveinterval\|clientalivecountmax)\\h' | L1 server | <span class="sev sev-medium">medium</span> |
@@ -307,8 +307,7 @@ checkmate run cis/amazon2027.yml --tags cis-level-2 -v
 | `CIS-AMAZON2027-5.2.11-sudo_timestamp_type` | sudo timestamp type: grep -rPi -- 'timestamp_type\\h\*=\\h\*global' /etc/sudoers /etc/sudoers.d/ | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-5.2.12-restrict_su-attrs` | /etc/pam.d/su: exists | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-5.2.12-restrict_su-content` | /etc/pam.d/su has the expected content (1 rule) | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-5.2.12-sugroup_etc_group-attrs` | /etc/group: exists | L1 server | <span class="sev sev-medium">medium</span> |
-| `CIS-AMAZON2027-5.2.12-sugroup_etc_group-content` | /etc/group has the expected content (1 rule) | L1 server | <span class="sev sev-medium">medium</span> |
+| `CIS-AMAZON2027-5.2.12-sugroup_etc_group` | The group that pam_wheel allows to use su has no members | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-5.3.1.1-pam_version` | pam version: l_inst="$(rpm -q --qf '%{VERSION}-%{RELEASE}' pam)" && [ "$(printf '%s\\n%s\\n' '1.5.1-8' "… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-5.3.1.3-libpwquality_version` | libpwquality version: l_inst="$(rpm -q --qf '%{VERSION}-%{RELEASE}' libpwquality)" && [ "$(printf '%s\\n%s\\n' '1… | L1 server | <span class="sev sev-medium">medium</span> |
 | `CIS-AMAZON2027-5.3.2.5-pam_unix_enabled_password_auth-attrs` | /etc/pam.d/password-auth: exists | L1 server | <span class="sev sev-medium">medium</span> |

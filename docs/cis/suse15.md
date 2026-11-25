@@ -291,7 +291,7 @@ checkmate run cis/suse15.yml --tags cis-level-2 -v
 | `CIS-SUSE15-5.2.6-sudo_timeout` | sudo timeout: grep -rP "timestamp_timeout=\\K[0-9]\*" /etc/sudoers\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.2.7-restrict_su-attrs` | /etc/pam.d/su: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.2.7-restrict_su-content` | /etc/pam.d/su has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE15-5.2.7-sugroup_etc_group` | sugroup etc group: grep nosugroup /etc/group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE15-5.2.7-sugroup_etc_group` | The group that pam_wheel allows to use su has no members | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.3.1.1-pam_version` | Package pam is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.3.1.1-pam_version-version` | Package pam version >= 1.3.0-150000.6.71.2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE15-5.3.2.1.1-faillock_attempts_deny-attrs` | /etc/security/faillock.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

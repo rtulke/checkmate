@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -152,5 +154,50 @@ func TestAuditVars(t *testing.T) {
 	}
 	if _, ok := vars["rhel10cis_rhel_default_repo"]; ok {
 		t.Error("a variable upstream does not define must not appear")
+	}
+}
+
+func TestResourceFixes(t *testing.T) {
+	b := benchmarks["ubuntu24"]
+	m := ruleMeta{CISID: "5.2.7"}
+	got := convertResource(b, "file", "sugroup_etc_group", map[string]any{
+		"path": "/etc/group", "exists": true, "contents": []any{`/^nosugroup:[^:]*:[0-9]+:$/`},
+	}, m)
+	if len(got) != 1 || got[0].ID != "CIS-UBUNTU24-5.2.7-sugroup_etc_group" || strings.Contains(got[0].Run, "nosugroup") {
+		t.Errorf("sugroup_etc_group: %+v", got)
+	}
+	got = convertResource(b, "file", "su_conf", map[string]any{
+		"path": "/etc/pam.d/su", "contents": []any{`/^auth\s+required\s+pam_wheel.so use_uid group=nosugroup/`},
+	}, m)
+	if len(got) != 1 || strings.Contains(got[0].Expect[0], "nosugroup") {
+		t.Fatalf("su_conf: %+v", got)
+	}
+	re := regexp.MustCompile(strings.Trim(suPamWheel, "/"))
+	for line, want := range map[string]bool{
+		"auth required pam_wheel.so use_uid group=sugroup":        true,
+		"auth\trequisite\tpam_wheel.so group=wheel debug use_uid": true,
+		"auth required pam_wheel.so use_uid":                      false,
+		"#auth required pam_wheel.so use_uid group=sugroup":       false,
+		"auth sufficient pam_wheel.so trust use_uid group=wheel":  false,
+	} {
+		if re.MatchString(line) != want {
+			t.Errorf("%q: got %v, want %v", line, !want, want)
+		}
+	}
+}
+
+func TestDropSiteChoices(t *testing.T) {
+	got := dropSiteChoices([]any{
+		`/^\s*space_left_action\s*=\s*email\b/`,
+		`/(?i)^\s*space_left_action\s*=\s*(email|exec|single|halt)\b/`,
+		`/^\s*admin_space_left_action\s*=\s*halt\b/`,
+		`/(?i)^\s*admin_space_left_action\s*=\s*(single|halt)\b/`,
+		`/^\s*max_log_file_action\s*=\s*keep_logs\s*$/`,
+	}).([]any)
+	if len(got) != 3 || strings.Contains(fmt.Sprint(got[0]), "email\\b") {
+		t.Errorf("got %v", got)
+	}
+	if covers(`/^a=(x|y)$/`, `/(?i)^a=x$/`) || covers(`/^a=(x|y)$/`, `/^a=z$/`) {
+		t.Error("covers accepts a pattern that is not included")
 	}
 }

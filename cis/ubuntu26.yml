@@ -2001,36 +2001,37 @@ checks:
       sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=1
 
       The check only reads /etc/sysctl.conf and /etc/sysctl.d/; remove or correct any other setting of kernel.apparmor_restrict_unprivileged_unconfined in these locations.
-  - id: "CIS-UBUNTU26-1.4.1-bootloader_password_set-attrs"
-    name: "/etc/grub.d/00_user: exists"
+  - id: "CIS-UBUNTU26-1.4.1-bootloader_password_set"
+    name: "The boot loader has a superuser and a PBKDF2 password"
     description: "CIS Ubuntu 26.04 LTS benchmark recommendation 1.4.1. NIST SP 800-53 Rev. 5: AC-3."
     tags: [cis, cis-ubuntu26, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      f='/etc/grub.d/00_user'
-      if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
+      f=/boot/grub/grub.cfg
+      if [ ! -e "$f" ]; then echo "$f does not exist"; exit 0; fi
+      grep -Eq '^[[:space:]]*set superusers=' "$f" || echo "no superuser is set in $f"
+      grep -Eq '^[[:space:]]*password_pbkdf2[[:space:]]+[^[:space:]]+[[:space:]]+grub\.pbkdf2\.sha512\.' "$f" || echo "no PBKDF2 password is set in $f"
+    allow_rc: any
     expect: empty
     rationale: &rat-d4c535ae9c |
       Without a boot loader password, anyone with console access can edit boot entries, for example to add init=/bin/bash and get a root shell without authentication. A GRUB superuser with a PBKDF2 password hash protects the boot menu from such changes.
-    remediation: &rem-a83d94f0fb |
-      Create /etc/grub.d/00_user.
-  - id: "CIS-UBUNTU26-1.4.1-bootloader_password_set-content"
-    name: "/etc/grub.d/00_user has the expected content (2 rules)"
-    description: "CIS Ubuntu 26.04 LTS benchmark recommendation 1.4.1. NIST SP 800-53 Rev. 5: AC-3."
-    tags: [cis, cis-ubuntu26, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      cat '/etc/grub.d/00_user'
-    allow_rc: any
-    expect:
-      - { some: "~ set superusers=\"root\"" }
-      - { some: "~ password_pbkdf2 root grub.pbkdf2.sha512.changethispassword" }
-    rationale: *rat-d4c535ae9c
-    remediation: &rem-6b2ee1d567 |
-      Edit /etc/grub.d/00_user so that its lines meet these conditions (regular expressions):
+    remediation: &rem-889f235bb0 |
+      Create a password hash, add a superuser with this hash in a file in /etc/grub.d/ and regenerate grub.cfg.
 
-      - a line matches set superusers="root"
-      - a line matches password_pbkdf2 root grub.pbkdf2.sha512.changethispassword
+      grub-mkpasswd-pbkdf2
+
+      Put these lines, with the hash the command printed, into /etc/grub.d/01_users, make the file executable and run update-grub:
+
+      #!/bin/sh
+      cat <<EOF
+      set superusers="USER"
+      password_pbkdf2 USER HASH
+      EOF
+
+      chmod 0700 /etc/grub.d/01_users
+      update-grub
+
+      With a superuser set, every boot entry asks for the password unless it has --unrestricted; add that option to CLASS in /etc/grub.d/10_linux if the system has to boot unattended.
   - id: "CIS-UBUNTU26-1.4.2-default_grub_perms-attrs"
     name: "/boot/grub/grub.cfg: exists, mode 0600 or stricter, owner root, group root"
     description: "CIS Ubuntu 26.04 LTS benchmark recommendation 1.4.2. NIST SP 800-53 Rev. 5: AC-3."
@@ -5174,40 +5175,24 @@ checks:
       Make root the owner of each public host key reported by the check.
 
       chown root FILE
-  - id: "CIS-UBUNTU26-5.1.5-sshd_access_limited-attrs"
-    name: "/etc/ssh/sshd_config.d/00-cis-sshd.conf: exists"
+  - id: "CIS-UBUNTU26-5.1.5-sshd_access_limited"
+    name: "SSH access is limited with AllowUsers, AllowGroups, DenyUsers or DenyGroups"
     description: "CIS Ubuntu 26.04 LTS benchmark recommendation 5.1.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-ubuntu26, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      f='/etc/ssh/sshd_config.d/00-cis-sshd.conf'
-      if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
-    expect: empty
+      sshd -T 2>/dev/null | grep -Ei '^(allow|deny)(users|groups) +[^ ]'
+    allow_rc: any
+    expect: { some: "~ ." }
     rationale: &rat-8e5700f652 |
       Restricting SSH logins to explicitly allowed users or groups ensures that only accounts with a need for remote access can log in, even if other accounts have valid credentials or weak passwords. It limits the impact of compromised, forgotten or service accounts.
-    remediation: &rem-c175c98320 |
-      Create /etc/ssh/sshd_config.d/00-cis-sshd.conf.
-  - id: "CIS-UBUNTU26-5.1.5-sshd_access_limited-content"
-    name: "/etc/ssh/sshd_config.d/00-cis-sshd.conf has the expected content (4 rules)"
-    description: "CIS Ubuntu 26.04 LTS benchmark recommendation 5.1.5. NIST SP 800-53 Rev. 5: AC-3, MP-2."
-    tags: [cis, cis-ubuntu26, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
-    severity: medium
-    run: |
-      cat '/etc/ssh/sshd_config.d/00-cis-sshd.conf'
-    allow_rc: any
-    expect:
-      - { some: "~ AllowUsers" }
-      - { some: "~ AllowGroups" }
-      - { some: "~ DenyUsers" }
-      - { some: "~ DenyGroups" }
-    rationale: *rat-8e5700f652
-    remediation: &rem-fd69c9a618 |
-      Edit /etc/ssh/sshd_config.d/00-cis-sshd.conf so that its lines meet these conditions (regular expressions):
+    remediation: &rem-804a07286e |
+      Restrict SSH logins to the users or groups that need them with AllowUsers, AllowGroups, DenyUsers or DenyGroups, according to site policy. Set the directive in the global section of the sshd configuration (in /etc/ssh/sshd_config before any Match block, or in a file in /etc/ssh/sshd_config.d/ where the distribution includes that directory), then validate and reload the SSH service.
 
-      - a line matches AllowUsers
-      - a line matches AllowGroups
-      - a line matches DenyUsers
-      - a line matches DenyGroups
+      echo 'AllowGroups GROUP' > /etc/ssh/sshd_config.d/10-access.conf
+      sshd -t
+
+      When both AllowUsers and AllowGroups are set, a user must match both lists. Make sure your own administrative account is allowed before reloading.
   - id: "CIS-UBUNTU26-5.1.6-ssh_banner"
     name: "ssh banner: sshd -T 2\u003e/dev/null | grep -Ei '^(banner) '"
     description: "CIS Ubuntu 26.04 LTS benchmark recommendation 5.1.6. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
@@ -5817,33 +5802,35 @@ checks:
     run: |
       cat '/etc/pam.d/su'
     allow_rc: any
-    expect: { some: "~ ^auth\\s+required\\s+pam_wheel.so use_uid group=nosugroup" }
+    expect: { some: "~ ^\\s*auth\\s+(required|requisite)\\s+pam_wheel\\.so\\s+(\\S+\\s+)*(use_uid\\s+(\\S+\\s+)*group=\\S+|group=\\S+\\s+(\\S+\\s+)*use_uid)(\\s|$)" }
     rationale: *rat-de1d2faee1
-    remediation: &rem-6b1ad56dae |
+    remediation: &rem-ee23a5a1dd |
       Edit /etc/pam.d/su so that its lines meet these conditions (regular expressions):
 
-      - a line matches ^auth\s+required\s+pam_wheel.so use_uid group=nosugroup
+      - a line matches ^\s*auth\s+(required|requisite)\s+pam_wheel\.so\s+(\S+\s+)*(use_uid\s+(\S+\s+)*group=\S+|group=\S+\s+(\S+\s+)*use_uid)(\s|$)
   - id: "CIS-UBUNTU26-5.2.7-sugroup_etc_group"
-    name: "sugroup etc group: awk -F':' -v g=\"nosugroup\" '$1 == g {print $NF}' /etc/group"
+    name: "The group that pam_wheel allows to use su has no members"
     description: "CIS Ubuntu 26.04 LTS benchmark recommendation 5.2.7. NIST SP 800-53 Rev. 5: AC-6."
     tags: [cis, cis-ubuntu26, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      awk -F':' -v g="nosugroup" '$1 == g {print $NF}' /etc/group
+      g=$(sed -nE 's/^[[:space:]]*auth[[:space:]]+(required|requisite)[[:space:]]+pam_wheel\.so[[:space:]](.*[[:space:]])?group=([^[:space:]]+).*/\3/p' /etc/pam.d/su 2>/dev/null | head -n 1)
+      if [ -z "$g" ]; then echo "pam_wheel in /etc/pam.d/su names no group"; exit 0; fi
+      e=$(getent group "$g")
+      if [ -z "$e" ]; then echo "group $g does not exist"; exit 0; fi
+      echo "$e" | awk -F: '$4 != "" {print "group " $1 " has members: " $4}'
     allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { none: "~ ^[a-zA-Z]" }
+    expect: empty
     rationale: &rat-575a3911d0 |
       Restricting su with pam_wheel to members of a dedicated group prevents ordinary users from switching to root or other accounts by guessing or knowing their passwords. Using an empty group makes su usable only by root, so administrators must use sudo, which is logged per user. The group must exist and have no members.
-    remediation: &rem-10afbeb0f2 |
-      Create an empty group named nosugroup and restrict su to its members with pam_wheel.
+    remediation: &rem-80fba87223 |
+      Create a group without members and restrict su to it with pam_wheel in /etc/pam.d/su. The group can have any name; sugroup is an example.
 
-      groupadd nosugroup
-      gpasswd -M '' nosugroup
-      grep -q 'pam_wheel.so.*group=nosugroup' /etc/pam.d/su || sed -i '/^auth\s\+sufficient\s\+pam_rootok.so/a auth required pam_wheel.so use_uid group=nosugroup' /etc/pam.d/su
+      groupadd sugroup
+      gpasswd -M '' sugroup
+      grep -Eq '^\s*auth\s+(required|requisite)\s+pam_wheel\.so\s.*group=' /etc/pam.d/su || sed -i '/^auth\s\+sufficient\s\+pam_rootok.so/a auth required pam_wheel.so use_uid group=sugroup' /etc/pam.d/su
 
-      The group must not have any members.
+      If pam_wheel already names a group, remove its members instead: gpasswd -M '' GROUP.
   - id: "CIS-UBUNTU26-5.3.1.1-libpam-runtime"
     name: "Package libpam-runtime is installed"
     description: "CIS Ubuntu 26.04 LTS benchmark recommendation 5.3.1.1. NIST SP 800-53 Rev. 5: NA."

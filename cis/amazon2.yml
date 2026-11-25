@@ -3915,30 +3915,23 @@ checks:
       find /etc/ssh -xdev -type f -name '*_key.pub' ! -user root
       chown root FILE
   - id: "CIS-AMAZON2-4.2.4-sshd_access_limited"
-    name: "sshd access limited: grep -Ei \"^(Allow|Deny)(Users|Groups)\" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf"
+    name: "SSH access is limited with AllowUsers, AllowGroups, DenyUsers or DenyGroups"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.4. NIST SP 800-53 Rev. 5: AC-3, MP-2."
     tags: [cis, cis-amazon2, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      grep -Ei "^(Allow|Deny)(Users|Groups)" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/*.conf
+      sshd -T 2>/dev/null | grep -Ei '^(allow|deny)(users|groups) +[^ ]'
     allow_rc: any
-    expect:
-      - { rc: "in [0, 1]" }
-      - { some: "~ (?i)AllowUsers: vagrant" }
-      - { some: "~ (?i)AllowGroups:" }
-      - { some: "~ (?i)DenyUsers: nobody" }
-      - { some: "~ (?i)DenyGroups:" }
+    expect: { some: "~ ." }
     rationale: &rat-8e5700f652 |
       Restricting SSH logins to explicitly allowed users or groups ensures that only accounts with a need for remote access can log in, even if other accounts have valid credentials or weak passwords. It limits the impact of compromised, forgotten or service accounts.
-    remediation: &rem-eb1a516d02 |
-      Restrict SSH logins to the users or groups that need them with AllowUsers, AllowGroups, DenyUsers or DenyGroups, according to site policy. Insert the directives at the top of /etc/ssh/sshd_config so they are in the global section and are read on every version, then validate and reload. The RHEL 10 check only recognises the exact entries AllowUsers vagrant or DenyUsers nobody, so the harmless DenyUsers nobody line is included for it.
+    remediation: &rem-804a07286e |
+      Restrict SSH logins to the users or groups that need them with AllowUsers, AllowGroups, DenyUsers or DenyGroups, according to site policy. Set the directive in the global section of the sshd configuration (in /etc/ssh/sshd_config before any Match block, or in a file in /etc/ssh/sshd_config.d/ where the distribution includes that directory), then validate and reload the SSH service.
 
-      sed -i '1i DenyUsers nobody' /etc/ssh/sshd_config
-      sed -i '1i AllowGroups GROUP' /etc/ssh/sshd_config
+      echo 'AllowGroups GROUP' > /etc/ssh/sshd_config.d/10-access.conf
       sshd -t
-      systemctl reload sshd
 
-      Make sure your own administrative account is allowed before reloading.
+      When both AllowUsers and AllowGroups are set, a user must match both lists. Make sure your own administrative account is allowed before reloading.
   - id: "CIS-AMAZON2-4.2.5-ssh_banner-attrs"
     name: "/etc/ssh/sshd_config: exists"
     description: "CIS Amazon Linux 2 benchmark recommendation 4.2.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."

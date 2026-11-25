@@ -145,8 +145,7 @@ checkmate run cis/ubuntu26.yml --tags cis-level-2 -v
 | `CIS-UBUNTU26-1.3.1.3-apparmor_profiles_enforcing` | apparmor profiles enforcing: LOADED=`apparmor_status \| grep 'profiles are loaded' \| awk '{print $1}'` && ENFORCE=`appa… | L2 server, L2 workstation | <span class="sev sev-low">low</span> |
 | `CIS-UBUNTU26-1.3.1.4-kernel.apparmor_restrict_unprivileged_un` | Kernel parameter kernel.apparmor_restrict_unprivileged_unconfined is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-1.3.1.4-apparmor_restrict_unconfined_conf` | apparmor restrict unconfined conf: grep -r "kernel\\.apparmor_restrict_unprivileged_unconfined" $([ -f /etc/sysctl.conf ] && … | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU26-1.4.1-bootloader_password_set-attrs` | /etc/grub.d/00_user: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU26-1.4.1-bootloader_password_set-content` | /etc/grub.d/00_user has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU26-1.4.1-bootloader_password_set` | The boot loader has a superuser and a PBKDF2 password | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-1.4.2-default_grub_perms-attrs` | /boot/grub/grub.cfg: exists, mode 0600 or stricter, owner root, group root | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-1.5.1-fs.protected_hardlinks` | Kernel parameter fs.protected_hardlinks is 1 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-1.5.1-protected_hardlinks_configured` | protected hardlinks configured: grep "^fs\\.protected_hardlinks" $([ -f /etc/sysctl.conf ] && echo /etc/sysctl.conf) /etc/… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -324,8 +323,7 @@ checkmate run cis/ubuntu26.yml --tags cis-level-2 -v
 | `CIS-UBUNTU26-5.1.4-etc_ssh_ssh_host_pub_key_group` | /etc/ssh/ssh host pub key group: groupkeys=$(sudo find /etc/ssh/ -name '\*_key.pub' -type f ! -group root ); echo $groupkeys | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-5.1.4-etc_ssh_ssh_host_pub_key_perms` | /etc/ssh/ssh host pub key perms: keyperms=$(sudo find /etc/ssh/ -name '\*_key.pub' -type f -perm /133 ); echo $keyperms | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-5.1.4-etc_ssh_ssh_host_pub_key_user` | /etc/ssh/ssh host pub key user: userkeys=$(sudo find /etc/ssh/ -name '\*_key.pub' -type f ! -user root ); echo $userkeys | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU26-5.1.5-sshd_access_limited-attrs` | /etc/ssh/sshd_config.d/00-cis-sshd.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU26-5.1.5-sshd_access_limited-content` | /etc/ssh/sshd_config.d/00-cis-sshd.conf has the expected content (4 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU26-5.1.5-sshd_access_limited` | SSH access is limited with AllowUsers, AllowGroups, DenyUsers or DenyGroups | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-5.1.6-ssh_banner` | ssh banner: sshd -T 2>/dev/null \| grep -Ei '^(banner) ' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-5.1.6-ssh_configd_banner` | ssh configd banner: grep -Eis '^\\s\*Banner\\s+"?none\\b' /etc/ssh/sshd_config.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-5.1.7-sshd_ciphers` | sshd ciphers: sshd -T \| grep -Pi -- '^ciphers\\h+\\"?([^#\\n\\r]+,)?((3des\|blowfish\|cast128\|aes(128\|192\|256… | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -356,7 +354,7 @@ checkmate run cis/ubuntu26.yml --tags cis-level-2 -v
 | `CIS-UBUNTU26-5.2.6-sudo_timeout` | sudo timeout: grep -rP "timestamp_timeout=\\K[0-9]\*" /etc/sudoers\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-5.2.7-su_conf-attrs` | /etc/pam.d/su: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-5.2.7-su_conf-content` | /etc/pam.d/su has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-UBUNTU26-5.2.7-sugroup_etc_group` | sugroup etc group: awk -F':' -v g="nosugroup" '$1 == g {print $NF}' /etc/group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-UBUNTU26-5.2.7-sugroup_etc_group` | The group that pam_wheel allows to use su has no members | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-5.3.1.1-libpam-runtime` | Package libpam-runtime is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-5.3.1.2-libpam-modules` | Package libpam-modules is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-UBUNTU26-5.3.1.3-libpam-pwquality` | Package libpam-pwquality is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

@@ -279,7 +279,7 @@ checkmate run cis/suse16.yml --tags cis-level-2 -v
 | `CIS-SUSE16-5.1.3-etc_ssh_ssh_host_pub_key_group` | /etc/ssh/ssh host pub key group: groupkeys=$(sudo find /etc/ssh/ -name \*_key.pub -type f ! -group root ); echo $groupkeys | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-5.1.3-etc_ssh_ssh_host_pub_key_perms` | /etc/ssh/ssh host pub key perms: find /etc/ssh/ -name '\*_key.pub' -type f -perm /133 \|\| true | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-5.1.3-etc_ssh_ssh_host_pub_key_user` | /etc/ssh/ssh host pub key user: userkeys=$(sudo find /etc/ssh/ -name \*_key.pub -type f ! -user root ); echo $userkeys | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE16-5.1.4-sshd_access_limited` | sshd access limited: grep -Ei "^(Allow\|Deny)(Users\|Groups)" /etc/ssh/sshd_config /etc/ssh/sshd_config.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE16-5.1.4-sshd_access_limited` | SSH access is limited with AllowUsers, AllowGroups, DenyUsers or DenyGroups | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-5.1.5-sshd_banner-content` | /etc/ssh/sshd_config has the expected content (2 rules) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-5.1.5-ssh_configd_banner` | ssh configd banner: grep -Eis '^\\s\*Banner\\s+"?none\\b'/etc/ssh/sshd_config.d/\*.conf | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-5.1.6-no_weak_ssh_ciphers` | no weak ssh ciphers: sshd -T \| grep -Pi -- '^ciphers\\h+\\"?([^#\\n\\r]+,)?((3des\|aes(128\|192\|256))-cbc)\\b' | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
@@ -309,7 +309,7 @@ checkmate run cis/suse16.yml --tags cis-level-2 -v
 | `CIS-SUSE16-5.2.6-sudo_timeout` | sudo timeout: grep -rP "timestamp_timeout=\\K[0-9]\*" /etc/sudoers\* | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-5.2.7-restrict_su-attrs` | /etc/pam.d/su: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-5.2.7-restrict_su-content` | /etc/pam.d/su has the expected content (1 rule) | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
-| `CIS-SUSE16-5.2.7-sugroup_etc_group` | sugroup etc group: grep nosugroup /etc/group | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
+| `CIS-SUSE16-5.2.7-sugroup_etc_group` | The group that pam_wheel allows to use su has no members | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-5.3.1.1-pam_version` | Package pam is installed | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-5.3.1.1-pam_version-version` | Package pam version >= 1.3.0-150000.6.71.2 | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |
 | `CIS-SUSE16-5.3.2.1.1-faillock_attempts_deny-attrs` | /etc/security/faillock.conf: exists | L1 server, L1 workstation | <span class="sev sev-medium">medium</span> |

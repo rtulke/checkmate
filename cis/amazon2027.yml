@@ -5105,27 +5105,23 @@ checks:
 
       --set replaces the whole policy: keep the modules already in use (update-crypto-policies --show) and list all of them together, e.g. DEFAULT:NO-SHA1:NO-SSHWEAKCIPHERS:NO-SSHWEAKMACS.
   - id: "CIS-AMAZON2027-5.1.8-sshd_access_limited"
-    name: "sshd access limited: sshd -T 2\u003e/dev/null | grep -Pi -- '^\\h*(allow|deny)(users|groups)\\h+\\H+'"
+    name: "SSH access is limited with AllowUsers, AllowGroups, DenyUsers or DenyGroups"
     description: "CIS Amazon Linux 2027 benchmark recommendation 5.1.8. NIST SP 800-53 Rev. 5: AC-3, MP-2. CIS Controls v8: 3.3."
     tags: [cis, cis-amazon2027, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
     run: |
-      sshd -T 2>/dev/null | grep -Pi -- '^\h*(allow|deny)(users|groups)\h+\H+'
+      sshd -T 2>/dev/null | grep -Ei '^(allow|deny)(users|groups) +[^ ]'
     allow_rc: any
-    expect:
-      - { rc: "== 0" }
-      - { some: "~ (?i)^(allow|deny)(users|groups)\\s+\\S+" }
+    expect: { some: "~ ." }
     rationale: &rat-8e5700f652 |
       Restricting SSH logins to explicitly allowed users or groups ensures that only accounts with a need for remote access can log in, even if other accounts have valid credentials or weak passwords. It limits the impact of compromised, forgotten or service accounts.
-    remediation: &rem-eb1a516d02 |
-      Restrict SSH logins to the users or groups that need them with AllowUsers, AllowGroups, DenyUsers or DenyGroups, according to site policy. Insert the directives at the top of /etc/ssh/sshd_config so they are in the global section and are read on every version, then validate and reload. The RHEL 10 check only recognises the exact entries AllowUsers vagrant or DenyUsers nobody, so the harmless DenyUsers nobody line is included for it.
+    remediation: &rem-804a07286e |
+      Restrict SSH logins to the users or groups that need them with AllowUsers, AllowGroups, DenyUsers or DenyGroups, according to site policy. Set the directive in the global section of the sshd configuration (in /etc/ssh/sshd_config before any Match block, or in a file in /etc/ssh/sshd_config.d/ where the distribution includes that directory), then validate and reload the SSH service.
 
-      sed -i '1i DenyUsers nobody' /etc/ssh/sshd_config
-      sed -i '1i AllowGroups GROUP' /etc/ssh/sshd_config
+      echo 'AllowGroups GROUP' > /etc/ssh/sshd_config.d/10-access.conf
       sshd -t
-      systemctl reload sshd
 
-      Make sure your own administrative account is allowed before reloading.
+      When both AllowUsers and AllowGroups are set, a user must match both lists. Make sure your own administrative account is allowed before reloading.
   - id: "CIS-AMAZON2027-5.1.9-sshd_banner_content"
     name: "sshd banner content: l_banner=\"$(sshd -T 2\u003e/dev/null | awk 'tolower($1) == \"banner\" {print $2}')\""
     description: "CIS Amazon Linux 2027 benchmark recommendation 5.1.9. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5. CIS Controls v8: 4.1."
@@ -5709,39 +5705,35 @@ checks:
     run: |
       cat '/etc/pam.d/su'
     allow_rc: any
-    expect: { some: "~ ^\\s*auth\\s+(required|requisite)\\s+pam_wheel\\.so\\s+(\\S+\\s+)*(use_uid\\s+(\\S+\\s+)*group=sugroup|group=sugroup\\s+(\\S+\\s+)*use_uid)\\b" }
+    expect: { some: "~ ^\\s*auth\\s+(required|requisite)\\s+pam_wheel\\.so\\s+(\\S+\\s+)*(use_uid\\s+(\\S+\\s+)*group=\\S+|group=\\S+\\s+(\\S+\\s+)*use_uid)(\\s|$)" }
     rationale: *rat-43a7e69d11
-    remediation: &rem-9be662cfc4 |
+    remediation: &rem-ee23a5a1dd |
       Edit /etc/pam.d/su so that its lines meet these conditions (regular expressions):
 
-      - a line matches ^\s*auth\s+(required|requisite)\s+pam_wheel\.so\s+(\S+\s+)*(use_uid\s+(\S+\s+)*group=sugroup|group=sugroup\s+(\S+\s+)*use_uid)\b
-  - id: "CIS-AMAZON2027-5.2.12-sugroup_etc_group-attrs"
-    name: "/etc/group: exists"
+      - a line matches ^\s*auth\s+(required|requisite)\s+pam_wheel\.so\s+(\S+\s+)*(use_uid\s+(\S+\s+)*group=\S+|group=\S+\s+(\S+\s+)*use_uid)(\s|$)
+  - id: "CIS-AMAZON2027-5.2.12-sugroup_etc_group"
+    name: "The group that pam_wheel allows to use su has no members"
     description: "CIS Amazon Linux 2027 benchmark recommendation 5.2.12. NIST SP 800-53 Rev. 5: AC-3, MP-2. CIS Controls v8: 3.3."
     tags: [cis, cis-amazon2027, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
     run: |
-      f='/etc/group'
-      if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
+      g=$(sed -nE 's/^[[:space:]]*auth[[:space:]]+(required|requisite)[[:space:]]+pam_wheel\.so[[:space:]](.*[[:space:]])?group=([^[:space:]]+).*/\3/p' /etc/pam.d/su 2>/dev/null | head -n 1)
+      if [ -z "$g" ]; then echo "pam_wheel in /etc/pam.d/su names no group"; exit 0; fi
+      e=$(getent group "$g")
+      if [ -z "$e" ]; then echo "group $g does not exist"; exit 0; fi
+      echo "$e" | awk -F: '$4 != "" {print "group " $1 " has members: " $4}'
+    allow_rc: any
     expect: empty
     rationale: &rat-575a3911d0 |
       Restricting su with pam_wheel to members of a dedicated group prevents ordinary users from switching to root or other accounts by guessing or knowing their passwords. Using an empty group makes su usable only by root, so administrators must use sudo, which is logged per user. The group must exist and have no members.
-    remediation: &rem-c6eedafd62 |
-      Create /etc/group.
-  - id: "CIS-AMAZON2027-5.2.12-sugroup_etc_group-content"
-    name: "/etc/group has the expected content (1 rule)"
-    description: "CIS Amazon Linux 2027 benchmark recommendation 5.2.12. NIST SP 800-53 Rev. 5: AC-3, MP-2. CIS Controls v8: 3.3."
-    tags: [cis, cis-amazon2027, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
-    severity: medium
-    run: |
-      cat '/etc/group'
-    allow_rc: any
-    expect: { some: "~ ^sugroup:[^:]*:[0-9]+:$" }
-    rationale: *rat-575a3911d0
-    remediation: &rem-b2e1b9de97 |
-      Edit /etc/group so that its lines meet these conditions (regular expressions):
+    remediation: &rem-80fba87223 |
+      Create a group without members and restrict su to it with pam_wheel in /etc/pam.d/su. The group can have any name; sugroup is an example.
 
-      - a line matches ^sugroup:[^:]*:[0-9]+:$
+      groupadd sugroup
+      gpasswd -M '' sugroup
+      grep -Eq '^\s*auth\s+(required|requisite)\s+pam_wheel\.so\s.*group=' /etc/pam.d/su || sed -i '/^auth\s\+sufficient\s\+pam_rootok.so/a auth required pam_wheel.so use_uid group=sugroup' /etc/pam.d/su
+
+      If pam_wheel already names a group, remove its members instead: gpasswd -M '' GROUP.
   - id: "CIS-AMAZON2027-5.3.1.1-pam_version"
     name: "pam version: l_inst=\"$(rpm -q --qf '%{VERSION}-%{RELEASE}' pam)\" \u0026\u0026 [ \"$(printf '%s\\n%s\\n' '1.5.1-8' \"…"
     description: "CIS Amazon Linux 2027 benchmark recommendation 5.3.1.1. NIST SP 800-53 Rev. 5: SI-2."
