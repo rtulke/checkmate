@@ -16,6 +16,8 @@ import (
 	"time"
 
 	"gopkg.in/yaml.v3"
+
+	"github.com/rtulke/checkmate/internal/provenance"
 )
 
 // Policy is a loaded policy including everything it includes.
@@ -31,6 +33,9 @@ type Policy struct {
 	Checks      []CheckSource
 	Waivers     []Waiver // accepted deviations from all files
 	Files       []string // all files read, for diagnostics
+	// Sources says for every file read where it comes from: shipped with
+	// checkmate, a changed copy of a shipped file, or a file of your own.
+	Sources []provenance.Source
 }
 
 // Defaults apply to every check that does not override them.
@@ -254,6 +259,9 @@ func (l *loader) readFile(path string) ([]byte, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
+	}
+	if l.policy != nil { // nil while loading a waiver file on its own
+		l.policy.Sources = append(l.policy.Sources, provenance.Lookup(path, data))
 	}
 	return data, nil
 }

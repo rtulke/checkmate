@@ -37,6 +37,7 @@ type htmlView struct {
 	BySev     []htmlSev
 	Hosts     []htmlHost
 	Groups    []htmlGroup
+	Files     []policyFileRow
 	Unchecked int
 	Labels    []string
 	Rows      []htmlRow
@@ -154,6 +155,7 @@ func htmlData(all []*engine.Report, o Options) htmlView {
 	if len(rs) == 0 {
 		v.Verdict, v.VerdictCl = "NOT CHECKED", "warn"
 	}
+	v.Files = policyFileRows(all)
 	for _, g := range groupRows(all) {
 		v.Groups = append(v.Groups, htmlGroup{g.Name, g.Hosts, g.Compliant, g.NotCompliant, g.Unchecked,
 			scoreText(g.Summary.Score), scoreClass(g.Summary.Score)})

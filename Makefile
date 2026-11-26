@@ -5,7 +5,7 @@ NFPM := go run github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.48.0
 LDFLAGS := -s -w -X main.version=$(VERSION)
 PLATFORMS := linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64
 
-.PHONY: build test lint docs docs-serve dist man packages test-linux test-cis cis-import stig-import clean
+.PHONY: build test lint manifest docs docs-serve dist man packages test-linux test-cis cis-import stig-import clean
 
 CIS_BENCHMARKS := rhel7 rhel8 rhel9 rhel10 debian11 debian12 debian13 ubuntu18 ubuntu20 ubuntu22 ubuntu24 ubuntu26 suse15 suse16 amazon2 amazon2023 amazon2027
 CIS_WINDOWS := win11:Windows-11 win2019:Windows-2019 win2022:Windows-2022 win2025:Windows-2025
@@ -28,6 +28,10 @@ lint:
 	go vet ./...
 
 # Regenerates the example pages and builds the site (needs mkdocs-material).
+# Rewrites the list of shipped policy hashes that is built into the binary.
+manifest:
+	go run ./tools/manifest
+
 docs:
 	go run ./tools/gendocs
 	mkdocs build --strict

@@ -19,6 +19,7 @@ import (
 	"github.com/rtulke/checkmate/internal/engine"
 	"github.com/rtulke/checkmate/internal/facts"
 	"github.com/rtulke/checkmate/internal/policy"
+	"github.com/rtulke/checkmate/internal/provenance"
 	"github.com/rtulke/checkmate/internal/report"
 	"github.com/rtulke/checkmate/internal/runner"
 
@@ -441,6 +442,16 @@ func cmdValidate(args []string, stdout, stderr io.Writer) int {
 	}
 	fmt.Fprintf(stdout, "%s: OK (%d checks from %d file(s), %d snippets)\n",
 		path, len(checks), len(p.Files), len(p.Snippets))
+	for _, s := range p.Sources {
+		origin := "not shipped with checkmate"
+		switch s.Origin {
+		case provenance.Shipped:
+			origin = "shipped with checkmate, unchanged"
+		case provenance.Modified:
+			origin = "differs from the shipped " + s.Shipped
+		}
+		fmt.Fprintf(stdout, "  %s  %s  %s\n", s.SHA256, s.Path, origin)
+	}
 	return exitCompliant
 }
 

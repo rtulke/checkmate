@@ -218,6 +218,24 @@ func writePDF(w io.Writer, reports []*engine.Report, o Options) error {
 		l.table([]pdfCol{{"Group", 0.34}, {"Hosts", 0.12}, {"Compliant", 0.14}, {"Not compliant", 0.14}, {"Not checked", 0.14}, {"Score", 0.12}}, groupCells)
 	}
 
+	if files := policyFileRows(reports); len(files) > 0 {
+		l.need(80) // keep the heading with its table
+		l.heading("Policy files")
+		var cells [][]pdfCell
+		for _, f := range files {
+			name := f.Path
+			if f.Host != "" {
+				name = f.Host + "\n" + name
+			}
+			cells = append(cells, []pdfCell{
+				{Text: name, Size: 7},
+				{Text: f.Origin, Color: pdfStatusC[f.Class]},
+				{Text: f.SHA256, Font: pdf.Courier, Size: 6},
+			})
+		}
+		l.table([]pdfCol{{"File", 0.36}, {"Origin", 0.24}, {"SHA-256", 0.40}}, cells)
+	}
+
 	var notices []string
 	for i, r := range rs {
 		for _, n := range r.Notices {

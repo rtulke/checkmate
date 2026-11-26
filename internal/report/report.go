@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/rtulke/checkmate/internal/engine"
+	"github.com/rtulke/checkmate/internal/provenance"
 )
 
 // TextOptions control the text output.
@@ -55,7 +56,9 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 	if r.PolicyVersion != "" {
 		title += " v" + r.PolicyVersion
 	}
-	fmt.Fprintf(w, "%s %s · %s · %s\n\n", paint(colorBold, "checkmate"), opts.Version, title, host)
+	fmt.Fprintf(w, "%s %s · %s · %s\n", paint(colorBold, "checkmate"), opts.Version, title, host)
+	writePolicyOrigin(w, r, paint)
+	fmt.Fprintln(w)
 
 	if opts.Verbosity >= 3 {
 		writeDebugHeader(w, r, paint)
@@ -494,6 +497,30 @@ func junitSuiteFor(r *engine.Report, seconds func(int64) string) junitSuite {
 	return suite
 }
 
+// writePolicyOrigin says in one line where the policy files come from. A
+// policy is code that runs as root: files that this checkmate does not
+// vouch for are named.
+func writePolicyOrigin(w io.Writer, r *engine.Report, paint func(string, string) string) {
+	if len(r.PolicySources) == 0 {
+		return
+	}
+	color := colorDim
+	for _, s := range r.PolicySources {
+		if !s.Trusted() {
+			color = colorYellow
+		}
+	}
+	fmt.Fprintf(w, "%s\n", paint(color, "Policy: "+provenance.Summary(r.PolicySources)))
+	for _, s := range r.PolicySources {
+		switch {
+		case s.Signature == "invalid":
+			fmt.Fprintf(w, "%s\n", paint(colorRed, "        "+s.Path+": the signature does not match the file"))
+		case s.Origin == provenance.Modified && s.Signer == "":
+			fmt.Fprintf(w, "%s\n", paint(colorYellow, "        "+s.Path+": differs from the shipped "+s.Shipped))
+		}
+	}
+}
+
 // TextOverview writes a summary of several reports: one line per host and
 // the checks that have problems anywhere.
 func TextOverview(w io.Writer, rs []*engine.Report, opts TextOptions) error {
@@ -503,7 +530,11 @@ func TextOverview(w io.Writer, rs []*engine.Report, opts TextOptions) error {
 		}
 		return color + s + colorReset
 	}
-	fmt.Fprintf(w, "%s %s · %s · %d reports\n\n", paint(colorBold, "checkmate"), opts.Version, documentTitle(rs), len(rs))
+	fmt.Fprintf(w, "%s %s · %s · %d reports\n", paint(colorBold, "checkmate"), opts.Version, documentTitle(rs), len(rs))
+	if sameSources(rs) {
+		writePolicyOrigin(w, rs[0], paint)
+	}
+	fmt.Fprintln(w)
 	labels := hostLabels(rs)
 	hostWidth := 4
 	for _, l := range labels {
