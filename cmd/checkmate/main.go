@@ -19,7 +19,6 @@ import (
 	"github.com/rtulke/checkmate/internal/engine"
 	"github.com/rtulke/checkmate/internal/facts"
 	"github.com/rtulke/checkmate/internal/policy"
-	"github.com/rtulke/checkmate/internal/provenance"
 	"github.com/rtulke/checkmate/internal/report"
 	"github.com/rtulke/checkmate/internal/runner"
 
@@ -46,6 +45,8 @@ Usage:
   checkmate list     [flags] <policy.yml>   list checks and the commands they would run
   checkmate export   [flags] <report.json>...  convert or merge JSON reports (html, pdf, csv, ...)
   checkmate diff     [flags] <old> <new>    compare two reports (.json) or two policies (.yml)
+  checkmate verify   [flags] <policy.yml>   say where the files of a policy come from and who signed them
+  checkmate sign --key <key> <file>...      sign policy files (see also: checkmate keygen <name>)
   checkmate facts                           print the facts gathered for this host
   checkmate version                         print the version
 
@@ -82,6 +83,12 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return cmdExport(rest, os.Stdin, stdout, stderr)
 	case "diff":
 		return cmdDiff(rest, stdout, stderr)
+	case "keygen":
+		return cmdKeygen(rest, stdout, stderr)
+	case "sign":
+		return cmdSign(rest, stdout, stderr)
+	case "verify":
+		return cmdVerify(rest, stdout, stderr)
 	case "facts":
 		return cmdFacts(stdout)
 	case "version", "--version":
@@ -102,6 +109,8 @@ type commonFlags struct {
 	ids           string
 	extraVars     multiFlag
 	allowInsecure bool
+	trustedKeys   multiFlag
+	requireSigned bool
 }
 
 func (c *commonFlags) register(fs *flag.FlagSet, withFilter bool) {
@@ -115,6 +124,9 @@ func (c *commonFlags) register(fs *flag.FlagSet, withFilter bool) {
 	fs.Var(&c.extraVars, "e", "shorthand for --extra-var")
 	fs.BoolVar(&c.allowInsecure, "allow-insecure-policy", false,
 		"load policy files even if they are writable by non-root users while running as root")
+	fs.Var(&c.trustedKeys, "trusted-keys", "file with public keys that may sign policies (repeatable; default: "+defaultTrustFile()+")")
+	fs.BoolVar(&c.requireSigned, "require-signed", false,
+		"refuse policy files that are neither shipped with checkmate nor signed by a trusted key (also: CHECKMATE_REQUIRE_SIGNED=1)")
 }
 
 // splitHostPort separates a trailing port from an ssh destination. A bare
@@ -177,7 +189,24 @@ func extraVarValue(raw string) any {
 }
 
 func (c *commonFlags) load(path string) (*policy.Policy, error) {
-	return policy.Load(path, policy.LoadOptions{AllowInsecure: c.allowInsecure})
+	opts, err := c.loadOptions()
+	if err != nil {
+		return nil, err
+	}
+	return policy.Load(path, opts)
+}
+
+// loadOptions reads the trusted keys and decides whether signatures are
+// required.
+func (c *commonFlags) loadOptions() (policy.LoadOptions, error) {
+	opts := policy.LoadOptions{AllowInsecure: c.allowInsecure,
+		RequireSigned: c.requireSigned || os.Getenv("CHECKMATE_REQUIRE_SIGNED") == "1"}
+	keys, err := trustedKeys(c.trustedKeys, c.allowInsecure)
+	if err != nil {
+		return opts, err
+	}
+	opts.TrustedKeys = keys
+	return opts, nil
 }
 
 func cmdRun(args []string, stdout, stderr io.Writer) int {
@@ -272,7 +301,12 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 
 	var waivers []policy.Waiver
 	for _, f := range waiverFiles {
-		w, err := policy.LoadWaivers(f, policy.LoadOptions{AllowInsecure: common.allowInsecure})
+		loadOpts, err := common.loadOptions()
+		if err != nil {
+			fmt.Fprintln(stderr, "checkmate:", err)
+			return exitUsage
+		}
+		w, err := policy.LoadWaivers(f, loadOpts)
 		if err != nil {
 			fmt.Fprintln(stderr, "checkmate:", err)
 			return exitUsage
@@ -443,14 +477,7 @@ func cmdValidate(args []string, stdout, stderr io.Writer) int {
 	fmt.Fprintf(stdout, "%s: OK (%d checks from %d file(s), %d snippets)\n",
 		path, len(checks), len(p.Files), len(p.Snippets))
 	for _, s := range p.Sources {
-		origin := "not shipped with checkmate"
-		switch s.Origin {
-		case provenance.Shipped:
-			origin = "shipped with checkmate, unchanged"
-		case provenance.Modified:
-			origin = "differs from the shipped " + s.Shipped
-		}
-		fmt.Fprintf(stdout, "  %s  %s  %s\n", s.SHA256, s.Path, origin)
+		fmt.Fprintf(stdout, "  %s  %s  %s\n", s.SHA256, s.Path, describeSource(s))
 	}
 	return exitCompliant
 }
