@@ -62,6 +62,8 @@ checks:
     # Facts can be used inside commands, too.
     run: echo "{{ facts.version_major }}"
     expect: ">= {{ min_debian }}"
+    rationale: "A release older than Debian {{ min_debian }} is below the minimum of this policy and may no longer receive security updates."
+    remediation: "Upgrade the system to Debian {{ min_debian }} or newer."
 
   - id: DEB-002
     name: "Ubuntu {{ min_ubuntu }}.04 or newer"
@@ -70,6 +72,8 @@ checks:
     when: facts.distro == "ubuntu"
     run: echo "{{ facts.version_major }}"
     expect: ">= {{ min_ubuntu }}"
+    rationale: "A release older than Ubuntu {{ min_ubuntu }}.04 is below the minimum of this policy and may no longer receive security updates."
+    remediation: "Upgrade the system to Ubuntu {{ min_ubuntu }}.04 or newer."
 
   - id: DEB-003
     name: unattended-upgrades is installed
@@ -79,6 +83,8 @@ checks:
       dpkg-query -W -f='${Status}' unattended-upgrades 2>/dev/null
     allow_rc: [0, 1]
     expect: "== install ok installed"
+    rationale: Without unattended-upgrades security updates wait until someone installs them by hand.
+    remediation: apt-get install unattended-upgrades
 
   - id: DEB-004
     name: Automatic security upgrades are enabled
@@ -88,6 +94,8 @@ checks:
       apt-config dump APT::Periodic::Unattended-Upgrade | awk '{print $2}' | tr -d '";'
     # A number of days, a duration (e.g. 1d) or "always" (Debian 13) enables it.
     expect: "~ ^(always|[1-9][0-9]*[smhd]?)$"
+    rationale: With the periodic run switched off the installed unattended-upgrades package never installs anything.
+    remediation: Run `dpkg-reconfigure -plow unattended-upgrades` and answer yes.
 
   - id: DEB-005
     name: No security updates pending
@@ -99,6 +107,7 @@ checks:
       apt-get -s -o Debug::NoLocking=1 dist-upgrade | grep -c '^Inst .*[Ss]ecurity'
     allow_rc: [0, 1]
     expect: "== 0"
+    rationale: Every pending security update is a published vulnerability that is still open on this system.
     remediation: apt-get update && apt-get upgrade
 
   - id: DEB-006
@@ -110,6 +119,8 @@ checks:
       grep -rIl -e 'trusted=yes' -e '^Trusted:[[:space:]]*yes' /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null
     allow_rc: [0, 1, 2]
     expect: empty
+    rationale: With trusted=yes APT installs packages from that source without checking a signature.
+    remediation: Remove the trusted option from the listed files and configure the signing key of the repository with signed-by.
 
   - id: DEB-007
     name: APT does not allow unauthenticated packages
@@ -120,6 +131,8 @@ checks:
       apt-config dump | grep -iE 'AllowUnauthenticated|AllowInsecureRepositories' | grep -i '"true"'
     allow_rc: [0, 1]
     expect: empty
+    rationale: With these options APT installs packages and uses repositories whose signatures cannot be verified, so a manipulated mirror can deliver modified packages.
+    remediation: Remove the AllowUnauthenticated and AllowInsecureRepositories settings from /etc/apt/apt.conf and /etc/apt/apt.conf.d.
 
   - id: DEB-008
     name: AppArmor is enabled
@@ -127,6 +140,8 @@ checks:
     when: facts.distro == "debian" or "debian" in facts.distro_like
     run: aa-enabled --quiet
     expect: true
+    rationale: Without AppArmor a compromised service can use every right of its user account.
+    remediation: Install the apparmor package and run `systemctl enable --now apparmor`. Reboot if the kernel was started without AppArmor.
 
   - id: DEB-009
     name: No reboot required after updates
@@ -134,5 +149,6 @@ checks:
     when: facts.distro == "debian" or "debian" in facts.distro_like
     run: test ! -f /var/run/reboot-required
     expect: true
+    rationale: Until the reboot the system runs the old kernel and libraries with the vulnerabilities the updates fix.
     remediation: Reboot the system. Affected packages are listed in /var/run/reboot-required.pkgs.
 ```

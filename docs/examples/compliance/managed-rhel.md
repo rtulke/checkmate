@@ -235,6 +235,8 @@ checks:
     severity: critical
     run: rpm -E %rhel
     expect: ">= {{ min_rhel_major }}"
+    rationale: "Releases older than RHEL {{ min_rhel_major }} are outside the supported baseline and may no longer receive security updates."
+    remediation: "Upgrade or reinstall the host with RHEL {{ min_rhel_major }} or newer."
     reference: "{{ doc_base_url }}#check_rhel_version"
 
   - id: MRH-REPOS
@@ -244,6 +246,8 @@ checks:
     # dnf check-update: 0 = no updates, 100 = updates available, 1 = error.
     run: dnf -q check-update >/dev/null 2>&1
     expect: { rc: "in [0, 100]" }
+    rationale: A host that cannot reach its repositories gets no updates.
+    remediation: Run `dnf check-update` to see the error, then check the registration, the repository files and the network path to the content server.
     reference: "{{ doc_base_url }}#check_repos"
 
   - id: MRH-REBOOT
@@ -251,6 +255,7 @@ checks:
     tags: [quality, full, limited]
     run: needs-restarting -r >/dev/null
     expect: true
+    rationale: Until the reboot the old kernel, libraries and services keep running with the vulnerabilities the updates fix.
     remediation: Reboot the system.
     reference: "{{ doc_base_url }}#check_reboot"
 
@@ -264,6 +269,7 @@ checks:
         { echo "no package provides the running kernel $(uname -r)" >&2; exit 1; }
       echo $(( ($(date +%s) - installed) / 86400 ))
     expect: "< {{ max_kernel_age_days }}"
+    rationale: "A running kernel that was installed more than {{ max_kernel_age_days }} days ago shows that the host has missed its patch cycle."
     remediation: dnf -y upgrade && reboot
     reference: "{{ doc_base_url }}#check_update_age"
 
@@ -275,6 +281,8 @@ checks:
       cat /etc/rhsm/rhsm.conf 2>/dev/null | awk -F= '/^hostname[[:space:]]*=/ {gsub(/[[:space:]]/, "", $2); print $2; exit}'
     allow_rc: [0, 1]
     expect: "in {{ satellite_hosts }}"
+    rationale: A host registered elsewhere gets its packages from a source the organization does not control and misses the managed content.
+    remediation: Register the host to an approved Satellite or capsule with subscription-manager.
     reference: "{{ doc_base_url }}#check_satellite"
 
   - id: MRH-PKG-SIGNATURES
@@ -288,6 +296,8 @@ checks:
         grep -viE 'Key ID ({{ trusted_gpg_key_ids | join("|") }})' | awk '{print $1}'
     allow_rc: [0, 1]
     expect: empty
+    rationale: A package without a signature from a trusted key comes from an unknown source and may contain anything.
+    remediation: Find out where each listed package came from, then replace it with a signed build from an approved repository or remove it.
     reference: "{{ doc_base_url }}#check_rpm"
 
   - id: MRH-PKG-INTEGRITY
@@ -299,6 +309,8 @@ checks:
       rpm -Va --noconfig --nomtime 2>/dev/null | awk 'substr($1, 3, 1) == "5" {print $NF}'
     allow_rc: [0, 1]
     expect: empty
+    rationale: A package file whose digest differs from the RPM database was changed after installation, which is a sign of tampering or of an uncontrolled manual change.
+    remediation: Investigate each listed file, then restore it with `dnf reinstall <package>`.
     reference: "{{ doc_base_url }}#check_rpm"
 
   - id: MRH-DNF-EXCLUDES
@@ -311,6 +323,8 @@ checks:
         grep -iE '^(\*|{{ critical_packages | join("|") }})'
     allow_rc: [0, 1]
     expect: empty
+    rationale: An exclude for a critical package keeps its security updates away without anyone noticing.
+    remediation: Remove the listed entries from the exclude lines in /etc/dnf/dnf.conf and the repository files.
     reference: "{{ doc_base_url }}#check_yum_conf"
 
   - id: MRH-GPGCHECK
@@ -321,6 +335,8 @@ checks:
       grep -HEi '^[[:space:]]*gpgcheck[[:space:]]*=[[:space:]]*(0|false|no)' /etc/dnf/dnf.conf /etc/yum.repos.d/*.repo
     allow_rc: [0, 1, 2]
     expect: empty
+    rationale: With signature checks switched off a manipulated repository or mirror can deliver modified packages that are installed as root.
+    remediation: Set gpgcheck=1 in the listed files.
 
   - id: "MRH-FORBIDDEN-AV-{{ item }}"
     name: "Third-party antivirus {{ item }} is not installed"
@@ -328,6 +344,8 @@ checks:
     loop: "{{ forbidden_av_packages }}"
     run: { use: pkg_installed, arg: "{{ item }}" }
     expect: false
+    rationale: "The antivirus product {{ item }} is not part of the managed platform, and a second scanner interferes with the approved endpoint protection agent."
+    remediation: "dnf remove {{ item }}"
     reference: "{{ doc_base_url }}#check_malware"
 
   - id: MRH-AUTOFS
@@ -335,6 +353,7 @@ checks:
     tags: [compliance, itslc, full]
     run: { use: pkg_installed, arg: autofs }
     expect: false
+    rationale: The automounter mounts network shares and media on access, which brings unmanaged file systems onto the host.
     remediation: dnf remove autofs
     reference: "{{ doc_base_url }}#check_autofs"
 
@@ -346,6 +365,8 @@ checks:
     run: |
       rpm -q --quiet {{ item.package }} && systemctl is-active --quiet {{ item.service }}
     expect: true
+    rationale: "Without a running {{ item.label }} the host drops out of the central protection, monitoring or log collection."
+    remediation: "Install {{ item.package }} and run `systemctl enable --now {{ item.service }}`."
 
   - id: MRH-PUPPET-SERVER
     name: Puppet points to an approved server
@@ -353,6 +374,8 @@ checks:
     only_if: test -x /opt/puppetlabs/bin/puppet
     run: /opt/puppetlabs/bin/puppet config print server --section agent
     expect: "in {{ puppet_servers }}"
+    rationale: A Puppet agent that points to another server takes its whole configuration, applied as root, from a system the organization does not control.
+    remediation: /opt/puppetlabs/bin/puppet config set server <approved server> --section agent
     reference: "{{ doc_base_url }}#check_scs_puppet"
 
   - id: MRH-PUPPET-ENABLED
@@ -361,6 +384,7 @@ checks:
     only_if: test -x /opt/puppetlabs/bin/puppet
     run: test ! -f /opt/puppetlabs/puppet/cache/state/agent_disabled.lock
     expect: true
+    rationale: A disabled agent no longer applies or corrects the managed configuration, so the host drifts.
     remediation: puppet agent --enable
 
   - id: MRH-PUPPET-LASTRUN
@@ -375,6 +399,8 @@ checks:
       age=$(( $(date +%s) - last ))
       if [ "$age" -lt 7200 ] && [ "${failed:-0}" -eq 0 ]; then echo ok; else echo "age=${age}s failures=${failed}"; fi
     expect: "== ok"
+    rationale: A stale or failed run means that the managed configuration is no longer enforced on this host.
+    remediation: Run `puppet agent --test` and fix the reported errors.
 
   # --- Filesystems and storage --------------------------------------------------
   - id: MRH-VGS
@@ -385,6 +411,8 @@ checks:
       vgs --noheadings -o vg_name 2>/dev/null | tr -d ' ' | grep -vxE '{{ allowed_vg_pattern }}'
     allow_rc: [0, 1]
     expect: empty
+    rationale: A volume group outside the naming scheme is not covered by the storage layout that the operating procedures of the platform assume.
+    remediation: Rename the listed volume group to an approved name with `vgrename`, or remove it.
     reference: "{{ doc_base_url }}#check_fslayout"
 
   - id: MRH-OS-LVS
@@ -396,6 +424,8 @@ checks:
         grep -vxF {% for lv in allowed_os_lvs %}-e {{ lv }} {% endfor %}
     allow_rc: [0, 1]
     expect: empty
+    rationale: "Additional volumes on {{ os_vg }} take space the operating system needs for updates and logs and mix application data with the OS."
+    remediation: "Move the data of the listed logical volumes to a data volume group and remove them from {{ os_vg }}."
     reference: "{{ doc_base_url }}#check_fslayout"
 
   - id: MRH-LVM-MISSING
@@ -406,6 +436,7 @@ checks:
     run: |
       pvs --noheadings -o pv_name,pv_attr 2>/dev/null | awk 'substr($2, 3, 1) == "m" {print $1}'
     expect: empty
+    rationale: A missing physical volume means that part of a volume group is gone, and the data on it is inaccessible or at risk.
     remediation: vgreduce --removemissing <vg>
     reference: "{{ doc_base_url }}#check_lvm"
 
@@ -419,6 +450,8 @@ checks:
         done
     allow_rc: [0, 1]
     expect: empty
+    rationale: While a file system is not mounted, data lands in the directory underneath, fills the parent file system and is hidden once the mount returns.
+    remediation: Run `mount <target>` for each listed mount point and fix the cause, or remove a stale entry from /etc/fstab.
     reference: "{{ doc_base_url }}#check_fstab"
 
   - id: MRH-FSTYPES
@@ -428,6 +461,8 @@ checks:
       findmnt -rn -o FSTYPE | sort -u | grep -vxF {% for t in allowed_fstypes %}-e {{ t }} {% endfor %}
     allow_rc: [0, 1]
     expect: empty
+    rationale: A file system type outside the approved list is not covered by the support and operating procedures of the platform.
+    remediation: Migrate the data to an approved file system type, or have the type approved and added to allowed_fstypes.
     reference: "{{ doc_base_url }}#check_fstypes"
 
   - id: "MRH-FS-CONTENT-{{ item.key | replace('/', '_') }}"
@@ -445,6 +480,7 @@ checks:
         findmnt -n "$entry" >/dev/null || echo "$entry"
       done
     expect: empty
+    rationale: "Data stored directly in {{ item.key }} fills an operating system volume and is in the way when the OS is reinstalled or upgraded."
     remediation: Move customer data to a partition on a data volume group.
     reference: "{{ doc_base_url }}#check_fs_content"
 
@@ -456,6 +492,8 @@ checks:
     run: |
       df -Pm {{ item.key }} | awk 'NR == 2 {print $4}'
     expect: ">= {{ item.value }}"
+    rationale: "When {{ item.key }} runs full, updates, logging or services on the host fail."
+    remediation: "Free space in {{ item.key }} or extend its logical volume with `lvextend -r`."
     reference: "{{ doc_base_url }}#check_space"
 
   # --- Accounts and privileges ----------------------------------------------------
@@ -466,6 +504,8 @@ checks:
     run: |
       awk -F: '$3 == 0 {print $1}' /etc/passwd
     expect: "== root"
+    rationale: Every account with UID 0 is root under another name, which hides who acted with full privileges.
+    remediation: Find out who created the additional accounts, then delete them or give them an unprivileged UID.
     reference: "{{ doc_base_url }}#check_local_users"
 
   - id: MRH-GID0
@@ -476,6 +516,8 @@ checks:
       awk -F: '$4 == 0 {print $1}' /etc/passwd | grep -vxF -e root {% for a in accounts_with_gid_zero %}-e {{ a }} {% endfor %}
     allow_rc: [0, 1]
     expect: empty
+    rationale: An account with primary GID 0 gets group access to every file that belongs to the root group.
+    remediation: Assign each listed account another primary group with `usermod -g`.
 
   - id: MRH-RESERVED-IDS
     name: Reserved and AD-managed IDs are not used locally
@@ -486,6 +528,8 @@ checks:
       awk -F: -v r={{ reserved_gid }} -v max={{ max_local_id }} '$3 == r || $3 > max {print "group " $1}' /etc/group
       awk -F: -v p='{{ ad_group_prefix }}' 'index(tolower($1), p) == 1 {print "group " $1}' /etc/group
     expect: empty
+    rationale: Local users or groups in the reserved or directory-managed ranges collide with central identities, so files and rights go to the wrong account.
+    remediation: Renumber or rename the listed local users and groups with usermod or groupmod and adjust the ownership of their files.
 
   - id: MRH-DUPLICATES
     name: No duplicate user or group names and IDs
@@ -497,6 +541,8 @@ checks:
         cut -d: -f1 /etc/group | sort | uniq -d
         cut -d: -f3 /etc/group | sort | uniq -d; }
     expect: empty
+    rationale: Duplicate names or IDs make it impossible to tell from file ownership and logs which account or group is meant.
+    remediation: Rename or renumber the listed duplicates with usermod or groupmod.
 
   - id: MRH-ROOT-GROUP
     name: The root group has no members
@@ -504,6 +550,8 @@ checks:
     run: |
       awk -F: '$1 == "root" {print $4}' /etc/group
     expect: empty
+    rationale: Members of the root group get group access to every file that belongs to it.
+    remediation: Remove each member with `gpasswd -d <user> root`.
 
   - id: MRH-SUDOERS
     name: Only approved sudoers files (exact checksum)
@@ -514,6 +562,7 @@ checks:
       sha256sum /etc/sudoers /etc/sudoers.d/* 2>/dev/null | grep -vxFf vars/trusted-sudoers.sha256
     allow_rc: [0, 1]
     expect: empty
+    rationale: A sudoers file that differs from the approved versions can grant root rights nobody has reviewed.
     remediation: Request approval for the listed sudoers files.
     reference: "{{ doc_base_url }}#check_sudoers"
 
@@ -523,6 +572,8 @@ checks:
     run: |
       ps -eo user=,pid=,comm= | awk '$1 == "root" && $3 == "sudo" {print $2}'
     expect: empty
+    rationale: A sudo process that is still running is an open privileged session that someone may have left behind.
+    remediation: Look at each listed process with `ps -fp <pid>` and end the sessions that are no longer needed.
     reference: "{{ doc_base_url }}#check_sudo_processes"
 
   - id: MRH-ROOT-KEYS
@@ -536,6 +587,8 @@ checks:
         grep -vxF {% for k in trusted_root_keys %}-e '{{ k }}' {% endfor %}
     allow_rc: [0, 1]
     expect: empty
+    rationale: Every key in root's authorized_keys gives its holder a root login without a password.
+    remediation: Remove the unapproved keys from /root/.ssh/authorized_keys and find out who added them.
     reference: "{{ doc_base_url }}#check_ssh_keys"
 
   - id: MRH-PAM
@@ -547,6 +600,8 @@ checks:
       find /etc/pam.d -type f -exec sha256sum {} + | grep -vxFf vars/trusted-pam.sha256
     allow_rc: [0, 1]
     expect: empty
+    rationale: PAM decides how every login is authenticated, and a changed file can weaken that or load a backdoor module.
+    remediation: Compare the listed files with the approved versions and restore them, or have the change approved and its checksum added to vars/trusted-pam.sha256.
     reference: "{{ doc_base_url }}#check_pam_config"
 
   # --- Processes and binaries -------------------------------------------------------
@@ -566,6 +621,8 @@ checks:
         grep -vxF {% for b in trusted_root_binaries %}-e {{ b }} {% endfor %}
     allow_rc: [0, 1]
     expect: empty
+    rationale: A root process whose binary belongs to no package or was deleted from disk is unmanaged code with full privileges and a common sign of a compromise.
+    remediation: Investigate each listed binary. Restart services that still run a binary replaced by an update, and add accepted programs to trusted_root_binaries.
     reference: "{{ doc_base_url }}#check_root_processes"
 
   - id: MRH-SUID
@@ -580,6 +637,8 @@ checks:
       } | sort -u | while read -r f; do rpm -qf "$f" >/dev/null 2>&1 || echo "$f"; done
     allow_rc: [0, 1]
     expect: empty
+    rationale: SUID, SGID and capability files run with elevated rights, and one that no package owns is an unreviewed privilege or a backdoor.
+    remediation: Investigate each listed file and remove it, or remove its special rights with `chmod ug-s` or `setcap -r`.
     reference: "{{ doc_base_url }}#check_suid"
 
   # --- Configuration ----------------------------------------------------------------
@@ -594,6 +653,8 @@ checks:
       [ "$static" = "$fqdn" ] || [ "$static" = "${fqdn%%.*}" ] || echo "hostnamectl: $static"
       [ "$file" = "$fqdn" ] || [ "$file" = "${fqdn%%.*}" ] || echo "/etc/hostname: $file"
     expect: empty
+    rationale: Inconsistent host names make logs, monitoring and certificates point to different identities for the same machine.
+    remediation: Set the name with `hostnamectl set-hostname <fqdn>` and add the FQDN to /etc/hosts.
     reference: "{{ doc_base_url }}#check_hostname"
 
   - id: MRH-HOSTS-FILE
@@ -604,6 +665,8 @@ checks:
       grep -cE '^127\.0\.0\.1[[:space:]].*localhost' /etc/hosts
     allow_rc: [0, 1]
     expect: ["~ ^root:root 6[0-4]4$", "~ ^[1-9][0-9]*$"]
+    rationale: /etc/hosts overrides DNS, so write access for others lets them redirect connections, and without the localhost entry local services fail.
+    remediation: Run `chown root:root /etc/hosts` and `chmod 644 /etc/hosts` and add the line `127.0.0.1 localhost` if it is missing.
     reference: "{{ doc_base_url }}#check_hosts_file"
 
   - id: MRH-SELINUX
@@ -613,6 +676,8 @@ checks:
     run: |
       echo "$(getenforce) $(awk -F= '$1 == "SELINUX" {print $2}' /etc/selinux/config)"
     expect: "== Enforcing enforcing"
+    rationale: Without SELinux in enforcing mode a compromised service can use every right of its user account.
+    remediation: Set SELINUX=enforcing in /etc/selinux/config and reboot.
     reference: "{{ doc_base_url }}#check_selinux"
 
   - id: MRH-SNMP
@@ -625,6 +690,8 @@ checks:
         /etc/snmp/snmpd.conf /etc/snmp/snmpd.conf.d/*.conf 2>/dev/null
     allow_rc: [0, 1, 2]
     expect: empty
+    rationale: SNMP write access lets anyone who knows the community string or the user credentials change settings of the host over the network.
+    remediation: Replace the listed lines with read-only access (rouser, rocommunity) and restart snmpd.
     reference: "{{ doc_base_url }}#check_snmp"
 
   - id: MRH-CRON
@@ -639,6 +706,8 @@ checks:
       } | grep -vxFf vars/trusted-cron.sha256
     allow_rc: [0, 1]
     expect: empty
+    rationale: A root cron job runs with full privileges on every schedule, which makes cron a common place for persistence and unreviewed changes.
+    remediation: Review the listed files and remove unknown jobs. Have accepted jobs approved and their checksums added to vars/trusted-cron.sha256.
     reference: "{{ doc_base_url }}#check_cron"
 
   # --- sshd (effective configuration) ---------------------------------------------
@@ -651,6 +720,8 @@ checks:
     run: |
       sshd -T 2>/dev/null | awk -v key={{ item.key }} '$1 == key {print substr($0, length(key) + 2)}'
     expect: "{{ item.value }}"
+    rationale: "sshd is the main remote entry to the host. Another value of {{ item.key }} departs from the approved settings for its port, authentication, logging and cryptography."
+    remediation: "Set {{ item.key }} in /etc/ssh/sshd_config to a value that meets the expectation and reload sshd."
     reference: "{{ doc_base_url }}#check_ssh"
 
   # --- ITSLC hardening ------------------------------------------------------------------
@@ -659,6 +730,8 @@ checks:
     tags: [itslc, full, limited]
     run: sha256sum /etc/issue | cut -d' ' -f1
     expect: "== {{ issue_sha256 }}"
+    rationale: The approved banner carries the notice that has to be shown before login, and a changed /etc/issue no longer guarantees that.
+    remediation: Restore /etc/issue with the approved banner text.
 
   - id: MRH-ITSLC-TMOUT
     name: Idle shells time out after at most 30 minutes
@@ -668,6 +741,8 @@ checks:
         sed -E 's/.*TMOUT=([0-9]+).*/\1/' | sort -n | sed -n 1p
     allow_rc: [0, 1]
     expect: ["!empty", "> 0", "<= 1800"]
+    rationale: An idle shell at an unattended terminal can be used by anyone who walks by.
+    remediation: Set and export TMOUT=1800 or less in a file below /etc/profile.d and mark it readonly.
 
   - id: MRH-ITSLC-PASSWORD-HASHES
     name: No password uses DES or MD5
@@ -677,6 +752,8 @@ checks:
     run: |
       awk -F: '$2 ~ /^\$1\$/ || ($2 != "" && $2 !~ /^[!*$]/) {print $1}' /etc/shadow
     expect: empty
+    rationale: DES and MD5 password hashes are cracked quickly once /etc/shadow leaks.
+    remediation: Have a new password set for each listed account so that it is stored with the current hash method.
 
   - id: MRH-ITSLC-FAILLOCK
     name: Accounts lock after 5 failed logins
@@ -686,6 +763,8 @@ checks:
       awk -F= '/^[[:space:]]*deny[[:space:]]*=/ {gsub(/[[:space:]]/, "", $2); print "deny=" $2}' /etc/security/faillock.conf
     allow_rc: [0, 1]
     expect: ["~ ^1$", "~ deny=[1-5]$"]
+    rationale: Without a lockout an attacker can try passwords against an account without limit.
+    remediation: Run `authselect enable-feature with-faillock` and set deny = 5 in /etc/security/faillock.conf.
 
   - id: "MRH-ITSLC-SYSCTL-{{ item.key }}"
     name: "sysctl {{ item.key }} = {{ item.value }}"
@@ -693,6 +772,8 @@ checks:
     loop: "{{ itslc_sysctl }}"
     run: sysctl -n {{ item.key }}
     expect: "== {{ item.value }}"
+    rationale: "With another value of {{ item.key }} the IPv4 stack routes, accepts or leaves unlogged packets that serve spoofing, redirection or flooding attacks."
+    remediation: "Set {{ item.key }} = {{ item.value }} in a file below /etc/sysctl.d and run `sysctl --system`."
 
   - id: MRH-ITSLC-EMERGENCY
     name: Rescue and emergency mode require the root password
@@ -702,6 +783,8 @@ checks:
         systemctl cat "$unit.service" 2>/dev/null | grep -E '^ExecStart=.*(sulogin|systemd-sulogin-shell)' >/dev/null || echo "$unit"
       done
     expect: empty
+    rationale: Without sulogin rescue and emergency mode give a root shell to anyone at the console.
+    remediation: Remove the drop-ins that replace ExecStart of the listed units so that they start sulogin again.
 
   - id: MRH-ITSLC-AUDIT
     name: auditd and rsyslog are running
@@ -709,6 +792,8 @@ checks:
     run: systemctl is-active auditd rsyslog | sort -u
     allow_rc: [0, 3]
     expect: "== active"
+    rationale: Without auditd and rsyslog security events and system messages are neither recorded nor forwarded.
+    remediation: systemctl enable --now auditd rsyslog
 
   - id: MRH-ITSLC-FIREWALL
     name: The host firewall is active
@@ -716,6 +801,8 @@ checks:
     run: systemctl is-active firewalld nftables iptables 2>/dev/null | grep -c '^active$'
     allow_rc: [0, 1, 3]
     expect: ">= 1"
+    rationale: Without a host firewall every listening port is reachable from the whole network.
+    remediation: systemctl enable --now firewalld
 
   - id: MRH-ITSLC-TIME
     name: Time is synchronised
@@ -723,6 +810,8 @@ checks:
     run: |
       timedatectl status | awk -F': ' '/(NTP|System clock) synchronized/ {print $2}'
     expect: "== yes"
+    rationale: Log entries from a drifting clock cannot be correlated with those of other systems.
+    remediation: Run `systemctl enable --now chronyd` and configure a reachable time server in /etc/chrony.conf.
 
   - id: MRH-ITSLC-ROOT-PATH
     name: root's PATH has no empty or relative entries
@@ -731,4 +820,6 @@ checks:
     # Login scripts may print banners; only the PATH= line is used.
     run: su - root -c 'printf "PATH=%s\\n" "$PATH"' 2>/dev/null | sed -n 's/^PATH=//p' | tail -1
     expect: '!~ (^|:)\.?(:|$)'
+    rationale: An empty or relative PATH entry makes root run programs from the current directory, where any user can plant one under the name of a common command.
+    remediation: Remove empty, "." and other relative entries from the PATH that root's shell start files set.
 ```

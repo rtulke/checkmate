@@ -106,6 +106,8 @@ checks:
         }
       }
     expect: empty
+    rationale: A Run key entry starts at every logon, so one that points to a user-writable folder or downloads code gives an attacker a session each time.
+    remediation: Look at each listed value and the program it starts. Delete a value nobody can account for and investigate the system for further traces.
 
   - id: ATT-WIN-STARTUP-FOLDERS
     name: Startup folders contain no programs or scripts
@@ -121,6 +123,8 @@ checks:
           Where-Object { $_.Extension -ne '.lnk' -and $_.Name -ne 'desktop.ini' } | ForEach-Object { $_.FullName }
       }
     expect: empty
+    rationale: Every file in a startup folder runs at logon, and a program or script placed there directly is unusual for installed software.
+    remediation: Review each listed file and find out who placed it. Remove a file nobody can account for and investigate the system for further traces.
 
   - id: ATT-WIN-SCHEDULED-TASKS
     name: No scheduled task runs code from a user-writable folder or a download
@@ -135,6 +139,8 @@ checks:
         }
       }
     expect: empty
+    rationale: A scheduled task that runs code from a user-writable folder or downloads it executes attacker-controlled code on a schedule, often with SYSTEM rights.
+    remediation: Inspect each listed task with `Get-ScheduledTask` and find out who created it. Remove a task nobody can account for with `Unregister-ScheduledTask` and investigate the system for further traces.
 
   - id: ATT-WIN-WMI-SUBSCRIPTION
     name: No WMI event subscription runs commands or scripts
@@ -147,6 +153,8 @@ checks:
           ForEach-Object { "{0}: {1}{2}" -f $class, $_.Name, $(if ($_.CommandLineTemplate) { ' -> ' + $_.CommandLineTemplate } else { '' }) }
       }
     expect: empty
+    rationale: A WMI command-line or script consumer runs code as SYSTEM whenever its event fires and is visible in no autostart list.
+    remediation: Review each listed consumer with its event filter and binding in root\subscription. Remove a subscription nobody can account for with `Remove-CimInstance` and investigate the system for further traces.
 
   - id: ATT-WIN-SERVICE-PATHS
     name: Service paths are quoted and not in user-writable folders
@@ -164,6 +172,8 @@ checks:
         elseif ($p -match '{{ attack_win_suspicious }}') { "$($s.Name): $p" }
       }
     expect: empty
+    rationale: With an unquoted path that contains spaces Windows first tries shorter paths, so a planted program runs with the rights of the service. A service binary in a user-writable folder can be replaced by any user.
+    remediation: Put the path in the ImagePath value of each listed service in quotes. Investigate a service whose binary lies in a user-writable folder and remove it if nobody can account for it.
 
   - id: ATT-WIN-IFEO
     name: No program is redirected through Image File Execution Options
@@ -186,6 +196,8 @@ checks:
         if ($m) { "$($_.PSChildName): MonitorProcess = $m" }
       }
     expect: empty
+    rationale: A Debugger or MonitorProcess value makes Windows start another program instead of or after the named one, which attackers use for persistence and for a SYSTEM shell on the logon screen.
+    remediation: Find out who set each listed value. Delete a value nobody can account for and investigate the system for further traces.
 
   - id: ATT-WIN-ACCESSIBILITY-BINARIES
     name: Accessibility programs are the signed originals
@@ -200,6 +212,8 @@ checks:
         if ($sig.Status -ne 'Valid' -or $sig.SignerCertificate.Subject -notmatch 'O=Microsoft Corporation') { "${n}: signature $($sig.Status)" }
       }
     expect: empty
+    rationale: The accessibility programs can be started from the logon screen as SYSTEM, so a replaced binary gives a command prompt without logging on.
+    remediation: Restore the original files with `sfc /scannow` and investigate the system, because replacing them needs administrator rights.
 
   - id: ATT-WIN-WINLOGON
     name: Winlogon starts only Explorer and userinit
@@ -211,6 +225,8 @@ checks:
       if ($w.Shell -and $w.Shell.Trim() -notmatch '^(explorer\.exe)$') { "Shell = $($w.Shell)" }
       if ($w.Userinit -and $w.Userinit.Trim().TrimEnd(',') -notmatch '^(?i)C:\\Windows\\system32\\userinit\.exe$') { "Userinit = $($w.Userinit)" }
     expect: empty
+    rationale: Programs named in the Shell and Userinit values start at every logon, so an added entry runs attacker code for every user.
+    remediation: Set Shell to explorer.exe and Userinit to C:\Windows\system32\userinit.exe, under HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon, and investigate the system for further traces.
 
   - id: ATT-WIN-APPINIT
     name: AppInit DLLs are not loaded
@@ -223,6 +239,8 @@ checks:
         if ($p -and $p.LoadAppInit_DLLs -eq 1 -and $p.AppInit_DLLs) { "${k}: $($p.AppInit_DLLs)" }
       }
     expect: empty
+    rationale: An AppInit DLL is loaded into every process that uses user32.dll and runs attacker code inside those processes.
+    remediation: Identify the listed DLLs, then set LoadAppInit_DLLs to 0 and clear AppInit_DLLs in the listed key. Investigate the system if nobody can account for a DLL.
 
   - id: ATT-WIN-LSA-PACKAGES
     name: LSA loads only the standard security, authentication and notification packages
@@ -239,6 +257,8 @@ checks:
         foreach ($p in @($lsa.$name)) { if ($p -and $known -notcontains $p) { "${name}: $p" } }
       }
     expect: empty
+    rationale: A package loaded by LSA runs inside the LSASS process and sees passwords in clear text when users log on or change them.
+    remediation: Identify each listed package and its DLL. Add packages of installed security products to attack_win_lsa_packages. Remove a package nobody can account for from the registry value and treat the passwords used on the system as exposed.
 
   - id: ATT-WIN-COM-HIJACK
     name: No per-user COM class points to a user-writable folder
@@ -253,6 +273,8 @@ checks:
         }
       }
     expect: empty
+    rationale: A per-user COM registration overrides the machine one, so a program that creates the object loads the attacker's file with the rights of the user.
+    remediation: Inspect each listed class and the file it points to. Delete a registration nobody can account for and investigate the system for further traces.
 
   - id: ATT-WIN-OFFICE-TEST
     name: The Office test key is not present
@@ -264,6 +286,8 @@ checks:
         if (Test-Path -LiteralPath $k) { $k }
       }
     expect: empty
+    rationale: A DLL named under this key is loaded by every Office application at start, and regular installations do not create the key.
+    remediation: Note the DLL the key points to, delete the key and investigate the system for further traces.
 
   - id: ATT-WIN-BITS-JOBS
     name: No BITS job downloads from outside Microsoft
@@ -278,6 +302,8 @@ checks:
         }
       }
     expect: empty
+    rationale: BITS jobs download files in the background, survive restarts and can run a command on completion, which attackers use to fetch and restart their tools.
+    remediation: Inspect the jobs with `Get-BitsTransfer -AllUsers` and find out which software created them. Remove a job nobody can account for with `Remove-BitsTransfer`.
 
   # ===== Privilege escalation and credential access ============================
 
@@ -291,6 +317,8 @@ checks:
       if ($p.EnableLUA -ne 1) { "EnableLUA = $($p.EnableLUA)" }
       if ($p.ConsentPromptBehaviorAdmin -eq 0) { 'ConsentPromptBehaviorAdmin = 0 (elevates without prompting)' }
     expect: empty
+    rationale: With UAC off, or elevation without a prompt, every program an administrator starts gets full administrator rights unnoticed.
+    remediation: Set EnableLUA to 1 and ConsentPromptBehaviorAdmin to a value other than 0 under HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System and restart.
 
   - id: ATT-WIN-REMOTE-UAC
     name: Local administrators do not get full rights over the network
@@ -299,6 +327,8 @@ checks:
     severity: high
     run: (Get-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System').LocalAccountTokenFilterPolicy
     expect: "!= 1"
+    rationale: With LocalAccountTokenFilterPolicy set to 1 a stolen password hash of a local administrator gives full remote control of the system.
+    remediation: Delete the value LocalAccountTokenFilterPolicy under HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System or set it to 0.
 
   - id: ATT-WIN-GUEST
     name: The Guest account is disabled
@@ -310,6 +340,8 @@ checks:
       $g = Get-LocalUser | Where-Object { $_.SID.Value -like '*-501' }
       if ($g -and $g.Enabled) { "$($g.Name) is enabled" }
     expect: empty
+    rationale: An enabled Guest account lets anyone log on without a password.
+    remediation: Disable the listed account with `Disable-LocalUser -Name <name>`.
 
   - id: ATT-WIN-LSA-PROTECTION
     name: LSASS runs as a protected process
@@ -318,6 +350,8 @@ checks:
     severity: high
     run: (Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa').RunAsPPL
     expect: "in [1, 2]"
+    rationale: Without LSA protection any process with administrator rights can read password hashes and tickets from the memory of LSASS.
+    remediation: Set RunAsPPL to 1 under HKLM\SYSTEM\CurrentControlSet\Control\Lsa and restart.
 
   - id: ATT-WIN-WDIGEST
     name: WDigest does not keep clear-text passwords in memory
@@ -328,6 +362,8 @@ checks:
       $v = (Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest' -ErrorAction SilentlyContinue).UseLogonCredential
       if ($v -eq 1) { 'UseLogonCredential = 1' }
     expect: empty
+    rationale: With UseLogonCredential set to 1 LSASS keeps the passwords of logged-on users in clear text, where credential dumping tools read them.
+    remediation: Set UseLogonCredential to 0 under HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest and find out who enabled it.
 
   - id: ATT-WIN-SAM-ACL
     name: Users cannot read the SAM, SYSTEM and SECURITY hives
@@ -343,6 +379,8 @@ checks:
         }
       }
     expect: empty
+    rationale: A user who can read these hives can extract the password hashes of all local accounts.
+    remediation: Install the current Windows updates, restore the inherited permissions with `icacls %windir%\system32\config\*.* /inheritance:e` and delete older volume shadow copies.
 
   - id: ATT-WIN-RDP-NLA
     name: Remote Desktop requires network level authentication
@@ -354,6 +392,8 @@ checks:
       $rdp = Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp'
       if ($ts.fDenyTSConnections -eq 0 -and $rdp.UserAuthentication -ne 1) { 'RDP is enabled without NLA' }
     expect: empty
+    rationale: Without network level authentication the server opens a full logon session before the user is authenticated, which exposes the logon screen to password guessing and to attacks on the RDP service.
+    remediation: Set UserAuthentication to 1 under HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp.
 
   # ===== Stealth and defense impairment ========================================
 
@@ -367,6 +407,8 @@ checks:
         Where-Object { $_.ExecutablePath -match '(?i)(\\Windows\\Temp\\|\\AppData\\Local\\Temp\\|\\Users\\Public\\)' } |
         ForEach-Object { "$($_.ProcessId) $($_.ExecutablePath)" }
     expect: empty
+    rationale: Attack tools are often downloaded to and started from temporary or public folders, where every user can write.
+    remediation: Inspect each listed process and its program file. Installers also run from temporary folders. End a process nobody can account for and investigate the system for further traces.
 
   - id: ATT-WIN-FIREWALL
     name: Windows Firewall is on in every profile
@@ -376,6 +418,8 @@ checks:
     run: |
       Get-NetFirewallProfile -PolicyStore ActiveStore | Where-Object { -not $_.Enabled } | ForEach-Object { "$($_.Name) profile is off" }
     expect: empty
+    rationale: With a profile switched off every listening service is reachable from that network, and attackers switch the firewall off to open their own ports.
+    remediation: Run `Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True` and find out who switched the profile off.
 
   - id: ATT-WIN-EVENTLOG
     name: The event log service runs and the Security log is enabled
@@ -388,6 +432,8 @@ checks:
       $log = Get-WinEvent -ListLog Security -ErrorAction SilentlyContinue
       if (-not $log -or -not $log.IsEnabled) { 'Security log is disabled' }
     expect: empty
+    rationale: Without the event log service or the Security log logons and other security events are not recorded, which attackers arrange to cover their tracks.
+    remediation: Start the service with `Start-Service EventLog`, enable the Security log and find out who stopped or disabled it.
 
   - id: ATT-WIN-DEFENDER
     name: Microsoft Defender real-time protection is on without broad exclusions
@@ -403,6 +449,8 @@ checks:
         if ($e -match '^(?i)([A-Z]:\\?|\*|\.?exe|\.?dll|\.?ps1|%[^%]+%\\?)$') { "broad exclusion: $e" }
       }
     expect: empty
+    rationale: With real-time protection off or a whole drive or file type excluded, malware runs without being scanned.
+    remediation: Run `Set-MpPreference -DisableRealtimeMonitoring $false`, remove the listed exclusions with `Remove-MpPreference` and find out who changed the settings.
 
   - id: ATT-WIN-POWERSHELL-LOGGING
     name: PowerShell script block logging is on
@@ -411,6 +459,8 @@ checks:
     severity: medium
     run: (Get-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging' -ErrorAction SilentlyContinue).EnableScriptBlockLogging
     expect: "== 1"
+    rationale: Without script block logging the content of PowerShell scripts and commands that ran is not recorded, not even for obfuscated code.
+    remediation: Enable the group policy "Turn on PowerShell Script Block Logging", or set EnableScriptBlockLogging to 1 under HKLM\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging.
 
   - id: ATT-WIN-POWERSHELL-V2
     name: The PowerShell 2.0 engine is not installed
@@ -421,4 +471,6 @@ checks:
       $v = (Get-ItemProperty -LiteralPath 'HKLM:\SOFTWARE\Microsoft\PowerShell\1\PowerShellEngine' -ErrorAction SilentlyContinue).PowerShellVersion
       if ($v -like '2.*') { "PowerShell engine $v is installed" }
     expect: empty
+    rationale: Attackers start the old 2.0 engine on purpose, because it supports neither script block logging nor AMSI.
+    remediation: Run `Disable-WindowsOptionalFeature -Online -FeatureName MicrosoftWindowsPowerShellV2Root`, or `Uninstall-WindowsFeature PowerShell-V2` on Windows Server.
 ```

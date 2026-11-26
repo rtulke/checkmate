@@ -38,6 +38,8 @@ checks:
       find -H /etc/crontab /etc/cron.d /etc/cron.hourly /etc/cron.daily /etc/cron.weekly /etc/cron.monthly /etc/anacrontab \
         \( ! -user root -o -perm /022 \) -print 2>/dev/null || true
     expect: empty
+    rationale: Whoever can write a cron file or directory can schedule commands that run as root.
+    remediation: Run `chown root` and `chmod go-w` on the listed files and directories, and review their content for jobs nobody approved.
 
   - id: ATT-LNX-CRON-SUSPICIOUS
     name: No cron job downloads code, opens a shell or runs from /tmp
@@ -50,6 +52,8 @@ checks:
         grep -HEn '{{ attack_suspicious }}' "$f" | grep -vE '^[^:]+:[0-9]+:[[:space:]]*#' || true
       done
     expect: empty
+    rationale: A cron job that downloads code, opens a network shell or starts a program from a world-writable directory is a typical way for an attacker to come back after the first break-in.
+    remediation: Look at each listed line and find out who created it and when. Remove a job nobody can account for and investigate the host for further traces.
 
   - id: ATT-LNX-SYSTEMD-SUSPICIOUS
     name: No systemd unit or timer runs code from /tmp or downloads it
@@ -62,6 +66,8 @@ checks:
         grep -rHE '^[[:space:]]*Exec[A-Za-z]*=' "$d" 2>/dev/null | grep -E '{{ attack_suspicious }}' || true
       done
     expect: empty
+    rationale: A unit or timer that downloads code or starts a program from a world-writable directory runs attacker-controlled code at every boot or on a schedule.
+    remediation: Inspect each listed unit with `systemctl cat <unit>`. Disable and remove a unit nobody can account for and investigate the host for further traces.
 
   - id: ATT-LNX-USER-UNITS
     name: Users have no own systemd units
@@ -70,6 +76,8 @@ checks:
     severity: info
     run: find /root/.config/systemd/user /home/*/.config/systemd/user -type f \( -name '*.service' -o -name '*.timer' \) 2>/dev/null || true
     expect: empty
+    rationale: User units start with the session without root rights and rarely get reviewed, which makes them a quiet place for persistence.
+    remediation: Review each listed unit with its owner and remove those nobody can account for.
 
   - id: ATT-LNX-SHELL-PROFILE
     name: Shell start-up files contain no download, reverse shell or preload
@@ -82,6 +90,8 @@ checks:
         grep -HEn '{{ attack_suspicious }}|LD_PRELOAD=' "$f" | grep -vE '^[^:]+:[0-9]+:[[:space:]]*#' || true
       done
     expect: empty
+    rationale: A line in a shell start-up file runs at every login with the rights of that user, so a download, reverse shell or preload there gives an attacker a session each time.
+    remediation: Look at each listed line and find out who added it. Remove an entry nobody can account for and investigate the host for further traces.
 
   - id: ATT-LNX-RC-LOCAL
     name: rc.local starts nothing
@@ -95,6 +105,8 @@ checks:
         fi
       done
     expect: empty
+    rationale: Commands in an executable rc.local run as root at every boot, outside the service management where they would be noticed.
+    remediation: Review the listed commands, move legitimate ones into a systemd unit and remove the rest.
 
   - id: ATT-LNX-UDEV
     name: No udev rule runs programs from /tmp or downloads code
@@ -103,6 +115,8 @@ checks:
     severity: high
     run: grep -rHE 'RUN\+?=' /etc/udev/rules.d /run/udev/rules.d 2>/dev/null | grep -E '{{ attack_suspicious }}' || true
     expect: empty
+    rationale: A udev rule runs its program as root whenever the matching device event occurs, so a rule that downloads code or starts a program from /tmp is a hidden trigger for attacker code.
+    remediation: Look at each listed rule and find out who created it. Remove a rule nobody can account for, run `udevadm control --reload` and investigate the host for further traces.
 
   - id: ATT-LNX-XDG-AUTOSTART
     name: No desktop autostart entry runs code from /tmp or downloads it
@@ -111,6 +125,8 @@ checks:
     severity: high
     run: grep -sHE '^Exec=' /etc/xdg/autostart/*.desktop /root/.config/autostart/*.desktop /home/*/.config/autostart/*.desktop | grep -E '{{ attack_suspicious }}' || true
     expect: empty
+    rationale: An autostart entry runs at every desktop login, so one that downloads code or starts a program from /tmp gives an attacker a session each time.
+    remediation: Look at each listed entry and find out who created it. Remove an entry nobody can account for and investigate the host for further traces.
 
   - id: ATT-LNX-AT-JOBS
     name: No at jobs are queued
@@ -120,6 +136,8 @@ checks:
     only_if: command -v atq
     run: atq 2>/dev/null || true
     expect: empty
+    rationale: A queued at job runs once at a later time with the rights of its owner and is easily overlooked.
+    remediation: Show each job with `at -c <job>` and remove those nobody can account for with `atrm <job>`.
 
   - id: ATT-LNX-AUTHKEYS-PERMS
     name: authorized_keys files are writable only by their owner
@@ -128,6 +146,8 @@ checks:
     severity: high
     run: find /root/.ssh /home/*/.ssh -name 'authorized_keys*' \( -perm /022 -o -type l \) -print 2>/dev/null || true
     expect: empty
+    rationale: Whoever can write an authorized_keys file, or the target of a link in its place, can add a key and log in as that user.
+    remediation: Run `chmod go-w` on the listed files, replace symbolic links with regular files and review the keys they contain.
 
   - id: ATT-LNX-PAM-UNPACKAGED
     name: Every PAM module belongs to a package
@@ -149,6 +169,8 @@ checks:
         { find /lib/security /lib64/security /usr/lib/security /usr/lib64/security /lib/*/security /usr/lib/*/security -maxdepth 1 -type f -name '*.so' 2>/dev/null || true; } | sort -u |
           while read -r f; do apk info --who-owns "$f" 2>/dev/null | grep "is owned by" >/dev/null || echo "$f"; done
     expect: empty
+    rationale: Every PAM module sees the passwords of the logins it handles, and a module that no package installed is a common backdoor.
+    remediation: Find out where each listed module came from. Remove a module nobody can account for, check /etc/pam.d for lines that load it and treat the passwords used on the host as exposed.
 
   - id: ATT-LNX-PAM-EXEC
     name: PAM runs no external programs
@@ -157,6 +179,8 @@ checks:
     severity: medium
     run: grep -rHE '^[^#]*(pam_exec\.so|[[:space:]]/(tmp|var/tmp|dev/shm|home)/)' /etc/pam.d 2>/dev/null || true
     expect: empty
+    rationale: A program started by pam_exec or a module loaded from a home or temporary directory can receive the password of every login.
+    remediation: Review each listed line and the program or module it names. Remove a line nobody can account for and treat the passwords used on the host as exposed.
 
   - id: ATT-LNX-KERNEL-MODULES
     name: Only signed in-tree kernel modules are loaded
@@ -170,6 +194,8 @@ checks:
         BEGIN {n = split(allowed, a, " "); for (i = 1; i <= n; i++) ok[a[i]] = 1}
         $NF ~ /^\(.*[OE].*\)$/ && !($1 in ok) {print $1 " " $NF}' /proc/modules
     expect: empty
+    rationale: An out-of-tree or unsigned module runs with full kernel privileges and is the usual form of a kernel rootkit.
+    remediation: Identify each listed module with `modinfo <module>`. Add expected modules to attack_allowed_modules and investigate the host if a module is of unknown origin.
 
   - id: ATT-LNX-UID0
     name: root is the only account with UID 0
@@ -179,6 +205,8 @@ checks:
     run: |
       awk -F: '$3 == 0 && $1 != "root" {print $1}' /etc/passwd
     expect: empty
+    rationale: A second account with UID 0 has full root rights under a name nobody watches.
+    remediation: Find out who created the listed accounts and when, then delete them and investigate the host for further traces.
 
   - id: ATT-LNX-WEBSHELL
     name: Web roots contain no typical web shell code
@@ -192,6 +220,8 @@ checks:
           if grep -qE '(eval|assert)[[:space:]]*\([[:space:]]*(base64_decode|gzinflate|str_rot13)|(system|passthru|shell_exec|exec|popen)[[:space:]]*\([[:space:]]*\$_(GET|POST|REQUEST|COOKIE)|Runtime\.getRuntime\(\)\.exec\(request' "$f"; then echo "$f"; fi
         done
     expect: empty
+    rationale: A web shell lets anyone who knows its URL run commands with the rights of the web server.
+    remediation: Inspect each listed file. Remove a confirmed web shell, find out how it was uploaded and investigate the host for further traces.
 
   # ===== Privilege escalation ==================================================
 
@@ -202,6 +232,8 @@ checks:
     severity: critical
     run: find /tmp /var/tmp /dev/shm /home -xdev -type f -perm /6000 -print 2>/dev/null || true
     expect: empty
+    rationale: A set-ID file in a directory users can write to is practically never legitimate and usually a root shell left behind by an attacker.
+    remediation: Find out who created each listed file and when, then remove it and investigate the host for further traces.
 
   - id: ATT-LNX-SUID-UNPACKAGED
     name: Every SUID and SGID program belongs to a package
@@ -223,6 +255,8 @@ checks:
         find / -xdev -type f -perm /6000 2>/dev/null |
           while read -r f; do apk info --who-owns "$f" 2>/dev/null | grep "is owned by" >/dev/null || echo "$f"; done
     expect: empty
+    rationale: A set-ID program that no package installed runs with elevated rights and has never been reviewed, which makes it a common backdoor.
+    remediation: Find out where each listed file came from. Remove the set-ID bits with `chmod ug-s` or delete the file, and investigate the host if nobody can account for it.
 
   - id: ATT-LNX-SUDO-NOPASSWD
     name: sudo always asks for a password
@@ -232,6 +266,8 @@ checks:
     only_if: test -e /etc/sudoers
     run: grep -rhiE '^[^#]*(NOPASSWD|!authenticate)' /etc/sudoers /etc/sudoers.d 2>/dev/null || true
     expect: empty
+    rationale: With NOPASSWD or !authenticate an attacker who takes over the account becomes root without knowing a password.
+    remediation: Remove NOPASSWD and !authenticate from the listed rules with `visudo`.
 
   - id: ATT-LNX-PATH
     name: The PATH contains no relative or writable directories
@@ -244,6 +280,8 @@ checks:
         if [ -d "$d" ] && find -H "$d" -maxdepth 0 -perm /022 | grep . >/dev/null; then echo "$d is writable by group or others"; fi
       done
     expect: empty
+    rationale: A relative or writable directory in root's PATH lets another user plant a program that root then runs under the name of a common command.
+    remediation: Remove relative entries from the PATH, for sudo in secure_path, and run `chmod go-w` on the listed directories.
 
   - id: ATT-LNX-DOCKER-SOCKET
     name: The Docker socket is not writable by all users
@@ -253,6 +291,8 @@ checks:
     only_if: test -S /var/run/docker.sock
     run: find -H /var/run/docker.sock -perm /002 -print
     expect: empty
+    rationale: Anyone who can write to the Docker socket can start a container that mounts the host file system and so becomes root on the host.
+    remediation: chmod 660 /var/run/docker.sock
 
   # ===== Credential access =====================================================
 
@@ -263,6 +303,8 @@ checks:
     severity: critical
     run: find -H /etc/shadow /etc/gshadow -perm /0137 -printf '%m %p\n' 2>/dev/null || true
     expect: empty
+    rationale: Anyone who can read the password hashes can crack them offline.
+    remediation: chmod u-x,g-wx,o-rwx /etc/shadow /etc/gshadow
 
   - id: ATT-LNX-PRIVATE-KEYS
     name: Private SSH keys are readable only by their owner
@@ -273,6 +315,8 @@ checks:
       find /root/.ssh /home/*/.ssh -type f -name 'id_*' ! -name '*.pub' -perm /077 -print 2>/dev/null || true
       find /etc/ssh -maxdepth 1 -type f -name 'ssh_host_*_key' -perm /037 -print 2>/dev/null || true
     expect: empty
+    rationale: Anyone who can read a private key can log in as its owner, or pose as the host with a host key.
+    remediation: Run `chmod 600` on the listed keys and replace keys that other users were able to read.
 
   - id: ATT-LNX-CREDENTIAL-FILES
     name: Credential files are readable only by their owner
@@ -282,6 +326,8 @@ checks:
     run: |
       find /root /home -maxdepth 2 -type f \( -name .netrc -o -name .pgpass -o -name .my.cnf -o -name .git-credentials \) -perm /077 -print 2>/dev/null || true
     expect: empty
+    rationale: These files hold passwords and tokens in clear text, and every user who can read them can use the accounts behind them.
+    remediation: Run `chmod 600` on the listed files and change the credentials that other users were able to read.
 
   # ===== Stealth and defense impairment ========================================
 
@@ -294,6 +340,8 @@ checks:
       if [ -f /etc/ld.so.preload ]; then grep -vE '^[[:space:]]*(#|$)' /etc/ld.so.preload | sed 's|^|/etc/ld.so.preload: |' || true; fi
       grep -sH '^[[:space:]]*LD_PRELOAD' /etc/environment || true
     expect: empty
+    rationale: A preloaded library runs inside every program that starts, which user-mode rootkits use to hide files and processes and to capture passwords.
+    remediation: Identify each listed library and find out who configured it. Remove an entry nobody can account for and investigate the host with tools that do not run on it, because a rootkit hides its traces.
 
   - id: ATT-LNX-HISTORY
     name: Shell history is not disabled
@@ -307,6 +355,8 @@ checks:
       done
       find /root /home -maxdepth 2 -name '.*_history' -type l -print 2>/dev/null || true
     expect: empty
+    rationale: A disabled or redirected shell history removes the record of commands, which attackers arrange to hide what they did.
+    remediation: Look at each listed line or link and find out who created it. Remove the setting and investigate the account if nobody can account for it.
 
   - id: ATT-LNX-HIDDEN-EXECUTABLES
     name: No hidden executables lie in /tmp, /var/tmp or /dev/shm
@@ -315,6 +365,8 @@ checks:
     severity: high
     run: find /tmp /var/tmp /dev/shm -xdev -type f -name '.*' -perm /111 -print 2>/dev/null || true
     expect: empty
+    rationale: A hidden executable in a world-writable directory is a typical place for tools an attacker has dropped.
+    remediation: Find out who created each listed file and when, and whether a process runs it. Remove the file and investigate the host for further traces.
 
   - id: ATT-LNX-FILELESS
     name: No process runs from memory or from a world-writable directory
@@ -330,6 +382,8 @@ checks:
         case "$exe" in /memfd:*|/tmp/*|/var/tmp/*|/dev/shm/*) echo "pid ${p#/proc/}: $exe" ;; esac
       done
     expect: empty
+    rationale: A process that runs from memory or from a temporary directory leaves no program file in a regular place, which is how attackers run downloaded tools unnoticed.
+    remediation: Inspect each listed process with `ps -fp <pid>` and the files in /proc/<pid>. End a process nobody can account for and investigate the host for further traces.
 
   - id: ATT-LNX-AUDITD
     name: The audit daemon is running
@@ -339,6 +393,8 @@ checks:
     only_if: command -v systemctl && test -d /run/systemd/system
     run: systemctl show -p ActiveState auditd | cut -d= -f2
     expect: "== active"
+    rationale: Without a running auditd the actions of an attacker leave no audit trail, and attackers stop the daemon for that reason.
+    remediation: Run `systemctl enable --now auditd` and find out why the daemon was not running.
 
   - id: ATT-LNX-AUDIT-IMMUTABLE
     name: Audit rules are locked until reboot
@@ -348,6 +404,8 @@ checks:
     only_if: auditctl -s >/dev/null 2>&1
     run: auditctl -s | awk '$1 == "enabled" {print $2}'
     expect: "== 2"
+    rationale: Without the immutable flag an attacker with root rights can delete audit rules and then act unrecorded.
+    remediation: Add "-e 2" as the last line of the audit rules and reboot.
 
   - id: ATT-LNX-FIREWALL
     name: A host firewall is active
@@ -361,6 +419,8 @@ checks:
       if command -v iptables >/dev/null && [ "$(iptables -S 2>/dev/null | grep -cvE '^-P [A-Z]+ ACCEPT$')" -gt 0 ]; then echo iptables; exit 0; fi
       echo none
     expect: "!= none"
+    rationale: Without a host firewall every listening port is reachable from the whole network, and attackers switch the firewall off to open their own.
+    remediation: Define rules for the required ports and enable firewalld, ufw or an nftables rule set. Find out why the firewall was off if it had been enabled before.
 
   - id: ATT-LNX-PERSISTENT-LOGS
     name: System logs are written to disk
@@ -376,3 +436,5 @@ checks:
       if [ "$storage" = persistent ] || { [ "${storage:-auto}" = auto ] && [ -d /var/log/journal ]; }; then echo journald; exit 0; fi
       echo none
     expect: "!= none"
+    rationale: Logs that exist only in memory are gone after a reboot, and with them the evidence of an attack.
+    remediation: Set Storage=persistent in /etc/systemd/journald.conf and restart systemd-journald, or run rsyslog or syslog-ng.

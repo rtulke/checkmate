@@ -84,6 +84,8 @@ checks:
         if plutil -p "$f" 2>/dev/null | grep -E '{{ attack_mac_suspicious }}' >/dev/null; then echo "$f"; fi
       done
     expect: empty
+    rationale: A launch agent or daemon that starts a program from a temporary or shared folder or downloads code runs attacker-controlled code at every login or boot.
+    remediation: Inspect each listed plist with `plutil -p <file>` and find out who installed it. Unload and remove a job nobody can account for and investigate the Mac for further traces.
 
   - id: ATT-MAC-LAUNCHD-SIGNATURE
     name: Every launch daemon starts a validly signed program
@@ -98,6 +100,8 @@ checks:
         codesign --verify "$p" >/dev/null 2>&1 || echo "$f: $p"
       done
     expect: empty
+    rationale: A launch daemon runs as root at boot, and a program without a valid signature may have been modified or placed there by an attacker.
+    remediation: Identify the software behind each listed daemon and reinstall it from the vendor. Remove a daemon nobody can account for and investigate the Mac for further traces.
 
   - id: ATT-MAC-DYLD-INSERT
     name: No launch agent or daemon injects libraries
@@ -110,6 +114,8 @@ checks:
         if plutil -p "$f" 2>/dev/null | grep DYLD_INSERT_LIBRARIES >/dev/null; then echo "$f"; fi
       done
     expect: empty
+    rationale: DYLD_INSERT_LIBRARIES loads a foreign library into the program of the job, where it can hide activity and read data with the rights of that program.
+    remediation: Inspect each listed plist and the library it names. Remove a job nobody can account for and investigate the Mac for further traces.
 
   - id: ATT-MAC-EMOND
     name: The event monitor daemon runs no custom rules
@@ -122,6 +128,8 @@ checks:
         case "$f" in */SampleRules.plist) ;; *) echo "$f" ;; esac
       done
     expect: empty
+    rationale: An emond rule runs commands as root on system events such as startup or login and is rarely looked at.
+    remediation: Review each listed rule file and remove those nobody can account for.
 
   - id: ATT-MAC-LOGIN-HOOK
     name: No login or logout hook is set
@@ -136,6 +144,8 @@ checks:
         done
       done
     expect: empty
+    rationale: A login or logout hook runs a script as root whenever a user logs in or out.
+    remediation: Review the script the hook points to. Remove an unexpected hook with `sudo defaults delete com.apple.loginwindow LoginHook` or `LogoutHook` and investigate the Mac for further traces.
 
   - id: ATT-MAC-SHELL-PROFILE
     name: System shell start-up files contain no download or reverse shell
@@ -148,6 +158,8 @@ checks:
         grep -HEn '{{ attack_mac_suspicious }}|DYLD_INSERT_LIBRARIES' "$f" | grep -vE '^[^:]+:[0-9]+:[[:space:]]*#' || true
       done
     expect: empty
+    rationale: A line in a system shell start-up file runs in every shell of every user, so a download or reverse shell there gives an attacker a session each time.
+    remediation: Look at each listed line and find out who added it. Remove an entry nobody can account for and investigate the Mac for further traces.
 
   - id: ATT-MAC-CRON
     name: No cron job downloads code or runs from a temporary folder
@@ -161,6 +173,8 @@ checks:
         grep -HEn '{{ attack_mac_suspicious }}' "$f" | grep -vE '^[^:]+:[0-9]+:[[:space:]]*#' || true
       done
     expect: empty
+    rationale: A cron job that downloads code or starts a program from a temporary folder is a typical way for an attacker to come back after the first break-in.
+    remediation: Look at each listed line and find out who created it. Remove a job nobody can account for and investigate the Mac for further traces.
 
   - id: ATT-MAC-AUTHKEYS-PERMS
     name: authorized_keys files are writable only by their owner
@@ -169,6 +183,8 @@ checks:
     severity: high
     run: find /Users/*/.ssh /var/root/.ssh -name 'authorized_keys*' -perm +022 -print 2>/dev/null || true
     expect: empty
+    rationale: Whoever can write an authorized_keys file can add a key and log in as that user.
+    remediation: Run `chmod go-w` on the listed files and review the keys they contain.
 
   - id: ATT-MAC-PRIVATE-KEYS
     name: Private SSH keys are readable only by their owner
@@ -177,6 +193,8 @@ checks:
     severity: high
     run: find /Users/*/.ssh /var/root/.ssh -type f -name 'id_*' ! -name '*.pub' -perm +077 -print 2>/dev/null || true
     expect: empty
+    rationale: Anyone who can read a private key can log in as its owner wherever the key is accepted.
+    remediation: Run `chmod 600` on the listed keys and replace keys that other users were able to read.
 
   - id: ATT-MAC-SUDO-NOPASSWD
     name: sudo always asks for a password
@@ -186,6 +204,8 @@ checks:
     when: facts.is_root
     run: grep -rhiE '^[^#]*(NOPASSWD|!authenticate)' /etc/sudoers /etc/sudoers.d 2>/dev/null || true
     expect: empty
+    rationale: With NOPASSWD or !authenticate an attacker who takes over the account becomes root without knowing a password.
+    remediation: Remove NOPASSWD and !authenticate from the listed rules with `sudo visudo`.
 
   # ===== Stealth ===============================================================
 
@@ -199,6 +219,8 @@ checks:
         if [ "$id" -ge 500 ] && [ "$(dscl . -read "/Users/$u" IsHidden 2>/dev/null | awk '{print $2}')" = 1 ]; then echo "$u ($id)"; fi
       done
     expect: empty
+    rationale: An account hidden from the login window and from System Settings is easy to overlook, which attackers use for accounts they create.
+    remediation: Find out who created each listed account and why it is hidden. Delete an account nobody can account for and investigate the Mac for further traces.
 
   - id: ATT-MAC-HIDDEN-EXECUTABLES
     name: No hidden executables lie in temporary or shared folders
@@ -211,6 +233,8 @@ checks:
           if file -b "$f" | grep -E 'Mach-O|script|executable' >/dev/null; then echo "$f"; fi
         done
     expect: empty
+    rationale: A hidden executable in a temporary or shared folder is a typical place for tools an attacker has dropped.
+    remediation: Find out who created each listed file and when, and whether a process runs it. Remove the file and investigate the Mac for further traces.
 
   - id: ATT-MAC-TEMP-PROCESSES
     name: No process runs from a temporary or shared folder
@@ -219,6 +243,8 @@ checks:
     severity: high
     run: ps -axo pid=,comm= | awk '$2 ~ /^\/(private\/)?(tmp|var\/tmp)\// || $2 ~ /^\/Users\/Shared\//'
     expect: empty
+    rationale: Legitimate software does not run from temporary or shared folders, but downloaded attack tools often do.
+    remediation: Inspect each listed process and its program file. End a process nobody can account for and investigate the Mac for further traces.
 
   # ===== Defense impairment and remote access ==================================
 
@@ -230,6 +256,8 @@ checks:
     run: spctl --status 2>&1
     allow_rc: [0, 1]
     expect: "~ assessments enabled"
+    rationale: Without Gatekeeper macOS starts unsigned and unnotarized applications without a warning.
+    remediation: Allow only applications from the App Store and known developers in System Settings under Privacy & Security, and find out who switched Gatekeeper off.
 
   - id: ATT-MAC-SIP
     name: System Integrity Protection is enabled
@@ -238,6 +266,8 @@ checks:
     severity: critical
     run: csrutil status
     expect: "~ (?i)status: enabled"
+    rationale: Without System Integrity Protection root can modify system files and load kernel extensions, which rootkits need.
+    remediation: Boot into macOS Recovery, run `csrutil enable` in the Terminal and restart. Find out who disabled the protection.
 
   - id: ATT-MAC-FIREWALL
     name: The application firewall is enabled
@@ -246,6 +276,8 @@ checks:
     severity: medium
     run: /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate
     expect: "~ (?i)(enabled|State = [12])"
+    rationale: Without the application firewall every listening program accepts connections from the network.
+    remediation: sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
 
   - id: ATT-MAC-GUEST
     name: The Guest account is disabled
@@ -254,6 +286,8 @@ checks:
     severity: medium
     run: defaults read /Library/Preferences/com.apple.loginwindow GuestEnabled 2>/dev/null || echo 0
     expect: "== 0"
+    rationale: The Guest account lets anyone with access to the Mac log in without a password.
+    remediation: sudo defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool false
 
   - id: ATT-MAC-SCREEN-SHARING
     name: Screen sharing is off
@@ -262,4 +296,6 @@ checks:
     severity: medium
     run: launchctl print-disabled system 2>/dev/null | grep '"com.apple.screensharing"' || echo '"com.apple.screensharing" => disabled'
     expect: "~ => (disabled|true)"
+    rationale: Screen sharing gives anyone with valid credentials full remote control of the desktop and is a common path for moving between machines.
+    remediation: Turn off Screen Sharing in System Settings under General, Sharing.
 ```

@@ -17,6 +17,8 @@ checks:
     run: sw_vers -productVersion
     as: version
     expect: ">= {{ min_macos }}"
+    rationale: "A version older than macOS {{ min_macos }} is below the minimum of this policy and may no longer receive security updates."
+    remediation: System Settings → General → Software Update
 
   - id: MAC-002
     name: FileVault disk encryption is on
@@ -25,6 +27,7 @@ checks:
     when: facts.os == "darwin"
     run: fdesetup status
     expect: "~ ^FileVault is On"
+    rationale: Without FileVault anyone who gets hold of the Mac or its disk can read the data on it.
     remediation: System Settings → Privacy & Security → FileVault
 
   - id: MAC-003
@@ -34,6 +37,8 @@ checks:
     when: facts.os == "darwin"
     run: csrutil status
     expect: "~ status: enabled"
+    rationale: Without System Integrity Protection root can modify system files and load kernel extensions, which rootkits need.
+    remediation: Boot into macOS Recovery, run `csrutil enable` in the Terminal and restart.
 
   - id: MAC-004
     name: Gatekeeper is enabled
@@ -42,6 +47,8 @@ checks:
     when: facts.os == "darwin"
     run: spctl --status
     expect: "== assessments enabled"
+    rationale: Without Gatekeeper macOS starts unsigned and unnotarized applications without a warning.
+    remediation: Allow only applications from the App Store and known developers under System Settings → Privacy & Security.
 
   - id: MAC-005
     name: Application firewall is enabled
@@ -50,6 +57,7 @@ checks:
     when: facts.os == "darwin"
     run: /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate
     expect: "~ enabled"
+    rationale: Without the application firewall every listening program accepts connections from the network.
     remediation: sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
 
   - id: MAC-006
@@ -59,6 +67,8 @@ checks:
     when: facts.os == "darwin"
     run: /usr/libexec/ApplicationFirewall/socketfilterfw --getstealthmode
     expect: "~ (?i)stealth mode is on"
+    rationale: Without stealth mode the Mac answers pings and probes of closed ports, which shows a scanner that it is there.
+    remediation: sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on
 
   - id: MAC-007
     name: Automatic update checks are on
@@ -66,6 +76,8 @@ checks:
     when: facts.os == "darwin"
     run: softwareupdate --schedule
     expect: "~ turned on"
+    rationale: Without automatic checks new updates are only noticed when someone looks for them.
+    remediation: sudo softwareupdate --schedule on
 
   - id: MAC-008
     name: Critical security updates install automatically
@@ -73,6 +85,8 @@ checks:
     when: facts.os == "darwin"
     run: defaults read /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall
     expect: "== 1"
+    rationale: Security responses and system data files close holes that are already being exploited and only help when they arrive quickly.
+    remediation: sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -bool true
 
   - id: MAC-009
     name: Screen lock is not disabled
@@ -81,6 +95,8 @@ checks:
     # sysadminctl writes its answer to stderr, prefixed with a timestamp.
     run: sysadminctl -screenLock status
     expect: { stderr: "!~ screenLock is off" }
+    rationale: Without a screen lock anyone can use an unattended Mac after the display wakes up.
+    remediation: Require a password after the screen saver begins or the display is turned off under System Settings → Lock Screen.
 
   - id: MAC-010
     name: "Display sleeps after at most {{ max_display_sleep_minutes }} minutes"
@@ -90,6 +106,8 @@ checks:
     run: |
       pmset -g | awk '$1 == "displaysleep" {print $2}'
     expect: ["!empty", "<= {{ max_display_sleep_minutes }}", "> 0"]
+    rationale: A display that never sleeps keeps the session open and visible on an unattended Mac.
+    remediation: "sudo pmset -a displaysleep {{ max_display_sleep_minutes }}"
 
   - id: MAC-011
     name: Guest account is disabled
@@ -97,6 +115,8 @@ checks:
     when: facts.os == "darwin"
     run: defaults read /Library/Preferences/com.apple.loginwindow GuestEnabled
     expect: "== 0"
+    rationale: The Guest account lets anyone with access to the Mac log in without a password.
+    remediation: sudo defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool false
 
   - id: "MAC-SVC-{{ item.id }}"
     name: "{{ item.label }} is disabled"
@@ -111,6 +131,8 @@ checks:
     allow_rc: [0, 1]
     # Not listed means launchd uses the default, which is "disabled".
     expect: { any: [empty, "~ => (disabled|true)"] }
+    rationale: "{{ item.label }} accepts logins from the network, which a workstation rarely needs."
+    remediation: "Turn off {{ item.label }} under System Settings → General → Sharing."
 
   - id: MAC-012
     name: Internal disk reports a healthy SMART status
@@ -119,3 +141,5 @@ checks:
     run: |
       diskutil info disk0 | awk -F: '/SMART Status/ {gsub(/^[[:space:]]+/, "", $2); print $2}'
     expect: "in [Verified, Not Supported]"
+    rationale: A failing SMART status announces that the disk is about to lose data.
+    remediation: Back up the data now and have the disk replaced.
