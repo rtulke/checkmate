@@ -22,6 +22,7 @@ Nothing is installed or copied to the host. checkmate first asks it for its fact
 | Shell | `bash` if the host has it, else `sh`; `shell:` in the policy can ask for `bash`, `sh` or `zsh`. PowerShell and `cmd` are not available over SSH. |
 | Environment | `LC_ALL=C`, the `env` of the policy, and `PATH` extended by `/usr/local/sbin:/usr/sbin:/sbin`, where many audit tools live and which SSH sessions often lack. |
 | Working directory | The home directory of the remote user. Files next to the policy are **not** on the host: checks that read them (`{{ policy_dir }}`, relative paths) need the content in a variable instead. |
+| Parallelism | At most 8 commands at a time per host, whatever `--jobs` says: they share one connection, and sshd accepts 10 sessions per connection by default (`MaxSessions`). |
 | Timeouts | If the host has `timeout` (coreutils, BusyBox), it ends the command and its children there. Otherwise only the connection is ended and the command may keep running on the host. |
 | Unreachable host | The run ends with an error before any check; a host that stops answering during the run turns the remaining checks into ERROR. It never looks compliant. |
 

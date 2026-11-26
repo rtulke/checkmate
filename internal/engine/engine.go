@@ -127,6 +127,9 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 	if jobs <= 0 {
 		jobs = runtime.NumCPU()
 	}
+	if opts.Target != nil && jobs > runner.MaxRemoteJobs {
+		jobs = runner.MaxRemoteJobs
+	}
 	checks, expandErrs := policy.ExpandRun(ctx, p, opts.Facts, opts.Vars, jobs, opts.Target)
 
 	// Broken checks are always reported, regardless of filters: a policy
