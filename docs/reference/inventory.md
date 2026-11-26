@@ -32,7 +32,7 @@ hosts:                            # hosts outside of any group
   - backup01.example.net
 ```
 
-Every host is checked the way [`--host`](../guides/remote.md#a-whole-policy-on-another-host) checks one: nothing is installed there, the facts are those of the host, and the same policy file is used for all of them.
+Every host is checked the way [`--host`](../guides/remote.md#a-whole-policy-on-another-host) checks one: nothing is installed there, the facts are those of the host, and the same policy file is used for all of them. Linux, macOS, BSD and Windows hosts are told apart by asking them; only devices without a shell have to be marked.
 
 ## Keys
 
@@ -45,7 +45,8 @@ Every host is checked the way [`--host`](../guides/remote.md#a-whole-policy-on-a
 | `address` | host | Where to connect, if not the name: an IP address or another DNS name. |
 | `user` | defaults, group, host | Remote user. Without it, ssh decides (`~/.ssh/config`, the local user). |
 | `port` | defaults, group, host | SSH port. Without it, ssh decides. |
-| `become` | defaults, group, host | `true` runs every command through `sudo -n`. |
+| `become` | defaults, group, host | `true` runs every command through `sudo -n`. Not for Windows hosts and devices. |
+| `device` | defaults, group, host | Marks a host without a shell, such as a switch or a firewall, and names its platform (`ios`, `junos`, `eos`, ...). See [devices](../guides/remote.md#switches-firewalls-and-other-devices). |
 | `vars` | defaults, group, host | Variables for the policy. |
 
 Unknown keys are rejected, so a typo does not silently drop a setting.

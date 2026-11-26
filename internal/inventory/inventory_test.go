@@ -98,20 +98,45 @@ func TestLimit(t *testing.T) {
 
 func TestParseErrors(t *testing.T) {
 	for src, want := range map[string]string{
-		``:                                    "empty",
-		`groups: {}`:                          "lists no hosts",
-		`hosts: [{address: 10.0.0.1}]`:        "has no name",
-		`hosts: ["a b"]`:                      "must not contain blanks",
-		`hosts: [{name: a, usr: x}]`:          "usr",
-		`defauls: {user: x}` + "\nhosts: [a]": "defauls",
-		`groups: {all: {hosts: [a]}}`:         `invalid group name "all"`,
-		`groups: {"a,b": {hosts: [a]}}`:       "invalid group name",
-		`groups: {web: {host: [a]}}`:          "group web",
-		`groups: [web]`:                       "groups must be a mapping",
-		`hosts: [{name: a, port: 70000}]`:     "invalid port",
+		``:                                        "empty",
+		`groups: {}`:                              "lists no hosts",
+		`hosts: [{address: 10.0.0.1}]`:            "has no name",
+		`hosts: ["a b"]`:                          "must not contain blanks",
+		`hosts: [{name: a, usr: x}]`:              "usr",
+		`defauls: {user: x}` + "\nhosts: [a]":     "defauls",
+		`groups: {all: {hosts: [a]}}`:             `invalid group name "all"`,
+		`groups: {"a,b": {hosts: [a]}}`:           "invalid group name",
+		`groups: {web: {host: [a]}}`:              "group web",
+		`groups: [web]`:                           "groups must be a mapping",
+		`hosts: [{name: a, port: 70000}]`:         "invalid port",
+		`hosts: [{name: a, device: "Cisco IOS"}]`: "invalid device",
+		`defaults: {become: true}` + "\nhosts: [{name: a, device: ios}]": "become needs a shell",
 	} {
 		if _, err := parse([]byte(src)); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("%q: error %v, want one mentioning %q", src, err, want)
 		}
+	}
+}
+
+func TestDevices(t *testing.T) {
+	inv, err := parse([]byte(`
+defaults: { become: true }
+groups:
+  switches:
+    device: ios
+    become: false
+    hosts: [sw01, { name: fw01, device: fortios }]
+hosts: [web01]
+`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := map[string]string{}
+	for _, h := range inv.Hosts {
+		got[h.Name] = h.Device
+	}
+	want := map[string]string{"sw01": "ios", "fw01": "fortios", "web01": ""}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("devices %v, want %v", got, want)
 	}
 }

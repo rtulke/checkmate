@@ -4,6 +4,7 @@ package runner
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"os"
 	"os/exec"
@@ -11,6 +12,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf16"
 )
 
 // fakeSSH writes a stand-in for ssh that does what sshd does with a
@@ -115,7 +117,7 @@ func TestRemoteBecomeAndOptions(t *testing.T) {
 	if line != want {
 		t.Errorf("got  %s\nwant %s", line, want)
 	}
-	argv, err := tgt.argv("sh", "true", nil, 0)
+	argv, _, err := tgt.argv("sh", "true", nil, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -214,5 +216,87 @@ func TestRemoteFacts(t *testing.T) {
 	}
 	if _, err := nosudo.Facts(context.Background()); err == nil || !strings.Contains(err.Error(), "a password is required") {
 		t.Errorf("sudo with password: %v", err)
+	}
+}
+
+func TestWindowsCommandCarriesTheScriptOnStdin(t *testing.T) {
+	tgt := target(t, "")
+	tgt.Windows, tgt.Shell = true, "powershell"
+	argv, stdin, err := tgt.argv("pwsh", "Get-Item 'C:\\a b' | % { \"$_\" }", map[string]string{"CHECKMATE_ITEM": "it's; $(x) `y`", "A": "1"}, time.Minute)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := "$env:A = '1'\n$env:CHECKMATE_ITEM = 'it''s; $(x) `y`'\nGet-Item 'C:\\a b' | % { \"$_\" }"
+	if stdin != want {
+		t.Errorf("script:\n got %q\nwant %q", stdin, want)
+	}
+	// The command line is the fixed bootstrap only: nothing of the check
+	// or its variables, and nothing a shell could interpret.
+	line := argv[len(argv)-1]
+	prefix := "pwsh -NoLogo -NoProfile -NonInteractive -EncodedCommand "
+	if !strings.HasPrefix(line, prefix) || strings.ContainsAny(strings.TrimPrefix(line, prefix), " '\"$`;&|<>%^") {
+		t.Fatalf("command line %q", line)
+	}
+	raw, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(line, prefix))
+	if err != nil || len(raw)%2 != 0 {
+		t.Fatalf("encoding: %v", err)
+	}
+	units := make([]uint16, len(raw)/2)
+	for i := range units {
+		units[i] = uint16(raw[2*i]) | uint16(raw[2*i+1])<<8
+	}
+	if got := string(utf16.Decode(units)); got != windowsBootstrap {
+		t.Errorf("bootstrap changed on the way:\n%s", got)
+	}
+	if len(line) > 4000 {
+		t.Errorf("command line of %d characters; cmd.exe accepts 8191", len(line))
+	}
+
+	for shell, want := range map[string]string{"bash": "not available on a Windows host", "cmd": "not available on a Windows host"} {
+		if _, _, err := tgt.argv(shell, "x", nil, 0); err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("%s: %v", shell, err)
+		}
+	}
+	tgt.Become = true
+	if _, _, err := tgt.argv("powershell", "x", nil, 0); err == nil || !strings.Contains(err.Error(), "become") {
+		t.Errorf("become: %v", err)
+	}
+}
+
+func TestDeviceGetsCommandsAsTheyAre(t *testing.T) {
+	tgt := target(t, "")
+	tgt.Device = "ios"
+	// The stand-in hands the command to sh; a device would take the same
+	// text as its own command line.
+	res, err := Run(context.Background(), Request{Command: "echo show version '|' include uptime", Shell: "bash", Target: tgt, Timeout: 10 * time.Second})
+	if err != nil || strings.TrimSpace(res.Stdout) != "show version | include uptime" || res.Shell != "device" {
+		t.Errorf("got %+v, %v", res, err)
+	}
+	if _, err := Run(context.Background(), Request{Command: "show version", Target: tgt, Env: map[string]string{"CHECKMATE_ITEM": "x"}}); err == nil ||
+		!strings.Contains(err.Error(), "cannot receive variables") {
+		t.Errorf("variables: %v", err)
+	}
+	if tgt.MaxJobs() != 1 {
+		t.Errorf("a device takes %d commands at a time", tgt.MaxJobs())
+	}
+	f, err := tgt.Facts(context.Background())
+	if err != nil || f.OS != "ios" || f.Distro != "ios" || strings.Join(f.PlatformKeys(), ",") != "ios,unix,default" {
+		t.Errorf("facts %+v keys %v, %v", f, f.PlatformKeys(), err)
+	}
+	if err := tgt.Open(); err != nil || tgt.controlDir != "" {
+		t.Errorf("a device must not share a connection: %q, %v", tgt.controlDir, err)
+	}
+
+	down := target(t, `echo "ssh: connect to host $host port 22: No route to host" >&2; exit 255`)
+	down.Device = "ios"
+	if _, err := Run(context.Background(), Request{Command: "show version", Target: down}); !errors.Is(err, ErrUnreachable) {
+		t.Errorf("unreachable device: %v", err)
+	}
+	// Devices may answer a command they do not know with 255.
+	odd := target(t, `echo "% Invalid input detected" >&2; exit 255`)
+	odd.Device = "ios"
+	res, err = Run(context.Background(), Request{Command: "show nonsense", Target: odd})
+	if err != nil || res.RC != 255 {
+		t.Errorf("command error 255: %+v, %v", res, err)
 	}
 }
