@@ -60,6 +60,8 @@ checks:
       macos: scutil --dns | grep -c 'nameserver\['
     allow_rc: [0, 1]
     expect: ">= 1"
+    rationale: Without a name server the host resolves no names, and most network services fail.
+    remediation: Add a nameserver entry to /etc/resolv.conf or to the network configuration that writes the file.
 
   - id: DNS-002
     name: Only approved name servers are used
@@ -70,6 +72,8 @@ checks:
         grep -vxF {% for ns in allowed_nameservers %}-e {{ ns }} {% endfor %}
     allow_rc: [0, 1]
     expect: empty
+    rationale: An unapproved resolver sees every name the host looks up and can answer with forged addresses.
+    remediation: Remove the listed servers from the resolver configuration or add them to allowed_nameservers.
 
   - id: DNS-003
     name: "{{ dns_test_name }} resolves"
@@ -80,6 +84,8 @@ checks:
       linux: getent ahosts {{ dns_test_name }} | sed -n 1p
       macos: dscacheutil -q host -a name {{ dns_test_name }} | sed -n 1,2p
     expect: "!empty"
+    rationale: A failed lookup means that name resolution does not work although name servers are configured.
+    remediation: Check that the configured name servers are reachable and that the firewall lets port 53 through.
 
   - id: DNS-004
     name: /etc/hosts maps localhost to 127.0.0.1
@@ -88,6 +94,8 @@ checks:
       grep -E '^127\.0\.0\.1[[:space:]]+([^#]*[[:space:]])?localhost([[:space:]]|$)' /etc/hosts
     allow_rc: [0, 1]
     expect: { lines: ">= 1" }
+    rationale: Many programs expect localhost to resolve to 127.0.0.1 and fail without this entry.
+    remediation: Add the line `127.0.0.1 localhost` to /etc/hosts.
 
   - id: DNS-005
     name: /etc/hosts contains only valid IP addresses
@@ -97,6 +105,8 @@ checks:
     run: |
       awk '!/^[[:space:]]*(#|$)/ && $1 !~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/ && $1 !~ /:/ {print}' /etc/hosts
     expect: empty
+    rationale: The resolver skips malformed lines, so the entry that someone meant to add has no effect.
+    remediation: Correct or remove the listed lines in /etc/hosts.
 
   - id: DNS-006
     name: The host name resolves to a non-loopback address
@@ -105,4 +115,6 @@ checks:
     when: facts.os == "linux"
     run: getent hosts "$(hostname -f)" | awk '{print $1}' | sed -n 1p
     expect: ["!empty", "!~ ^(127\\.|::1$)"]
+    rationale: A host name that resolves to loopback makes cluster software and services announce an address that no other host can reach.
+    remediation: Map the fully qualified host name to the primary address in DNS or in /etc/hosts.
 ```

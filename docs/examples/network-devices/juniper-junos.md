@@ -64,6 +64,8 @@ checks:
     loop: "{{ junos_devices }}"
     run: { use: junos, arg: "{{ item }}", args: { path: system services } }
     expect: "!~ set system services telnet"
+    rationale: telnet sends passwords and the whole session in clear text.
+    remediation: "Run `delete system services telnet` on {{ item }} and commit."
 
   - id: "JUNOS-ROOTLOGIN-{{ item }}"
     name: "{{ item }}: root cannot log in over SSH"
@@ -72,6 +74,8 @@ checks:
     loop: "{{ junos_devices }}"
     run: { use: junos, arg: "{{ item }}", args: { path: system services ssh } }
     expect: "~ root-login deny"
+    rationale: Direct root logins expose the most powerful account to password guessing and cannot be attributed to a person.
+    remediation: "Run `set system services ssh root-login deny` on {{ item }} and commit."
 
   - id: "JUNOS-SSHV2-{{ item }}"
     name: "{{ item }}: SSH protocol version 2 only"
@@ -79,6 +83,8 @@ checks:
     loop: "{{ junos_devices }}"
     run: { use: junos, arg: "{{ item }}", args: { path: system services ssh } }
     expect: "!~ protocol-version v1"
+    rationale: SSH version 1 has known protocol weaknesses that allow session hijacking.
+    remediation: "Run `delete system services ssh protocol-version v1` on {{ item }} and commit."
 
   - id: "JUNOS-NTP-{{ item }}"
     name: "{{ item }}: NTP servers are configured"
@@ -86,6 +92,8 @@ checks:
     loop: "{{ junos_devices }}"
     run: { use: junos, arg: "{{ item }}", args: { path: system ntp } }
     expect: "~ set system ntp server"
+    rationale: "Without NTP the clock of {{ item }} drifts and its log timestamps cannot be correlated with other devices."
+    remediation: "Run `set system ntp server <address>` on {{ item }} and commit."
 
   - id: "JUNOS-SYSLOG-{{ item }}"
     name: "{{ item }}: remote syslog is configured"
@@ -93,6 +101,8 @@ checks:
     loop: "{{ junos_devices }}"
     run: { use: junos, arg: "{{ item }}", args: { path: system syslog } }
     expect: "~ set system syslog host"
+    rationale: Local log files are limited in size and are lost with the device, so events need a copy on a server.
+    remediation: "Run `set system syslog host <address> any notice` on {{ item }} and commit."
 
   - id: "JUNOS-SNMP-{{ item }}"
     name: "{{ item }}: no default SNMP communities"
@@ -101,4 +111,6 @@ checks:
     loop: "{{ junos_devices }}"
     run: { use: junos, arg: "{{ item }}", args: { path: snmp } }
     expect: "!~ community (public|private)( |$)"
+    rationale: The communities public and private are the first ones every scanner tries, and they expose the device data to anyone.
+    remediation: "Run `delete snmp community public` and `delete snmp community private` on {{ item }} and commit."
 ```

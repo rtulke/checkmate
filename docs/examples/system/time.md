@@ -59,6 +59,8 @@ checks:
         timedatectl status | awk -F': ' '/(NTP|System clock) synchronized/ {print $2}'
       macos: sntp -t 3 time.apple.com >/dev/null 2>&1 && echo yes || echo no
     expect: "== yes"
+    rationale: A drifting clock breaks Kerberos and certificate validation and makes log timestamps useless for correlation.
+    remediation: Enable an NTP client (`timedatectl set-ntp true` on Linux) and check that the time servers are reachable.
 
   - id: TIME-002
     name: chrony reports a normal leap status
@@ -69,6 +71,8 @@ checks:
       chronyc -n tracking 2>/dev/null | awk -F': ' '/^Leap status/ {print $2}'
     allow_rc: [0, 1]
     expect: "== Normal"
+    rationale: A leap status other than Normal usually means that chronyd is not running or not synchronised.
+    remediation: Start chronyd with `systemctl enable --now chronyd` and check its sources with `chronyc sources`.
 
   - id: TIME-003
     name: "Clock offset is below {{ max_offset_seconds }} seconds"
@@ -79,6 +83,8 @@ checks:
       chronyc -n tracking 2>/dev/null | awk '/^System time/ {print $4}'
     allow_rc: [0, 1]
     expect: ["!empty", "< {{ max_offset_seconds }}"]
+    rationale: A large offset breaks time-based authentication and puts log entries of different hosts in the wrong order.
+    remediation: Check the sources with `chronyc sources` and step the clock with `chronyc makestep`.
 
   - id: TIME-004
     name: At least two time sources are reachable
@@ -90,6 +96,8 @@ checks:
       chronyc -n sources 2>/dev/null | grep -cE '^\^[*+]'
     allow_rc: [0, 1]
     expect: ">= 2"
+    rationale: With a single source a failed or wrong time server goes unnoticed.
+    remediation: Add further `server` or `pool` lines to the chrony configuration and restart chronyd.
 
   - id: TIME-005
     name: "Time zone is {{ expected_timezone }}"
@@ -100,4 +108,6 @@ checks:
         timedatectl status | awk -F': ' '/Time zone/ {print $2}' | cut -d' ' -f1
       macos: readlink /etc/localtime | sed 's#.*/zoneinfo/##'
     expect: "== {{ expected_timezone }}"
+    rationale: A uniform time zone keeps log timestamps comparable across hosts.
+    remediation: "Set the time zone, on Linux with `timedatectl set-timezone {{ expected_timezone }}`."
 ```

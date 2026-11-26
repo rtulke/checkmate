@@ -19,6 +19,8 @@ checks:
     only_if: command -v kea-dhcp4 && test -e /etc/kea/kea-dhcp4.conf
     run: kea-dhcp4 -t /etc/kea/kea-dhcp4.conf >/dev/null 2>&1
     expect: true
+    rationale: Kea does not start with an invalid configuration, so clients get no addresses after the next restart.
+    remediation: Run `kea-dhcp4 -t /etc/kea/kea-dhcp4.conf`, correct the reported error and reload Kea.
 
   - id: KEA-CONTROL-SOCKET
     name: The Kea control socket is not writable by other users
@@ -28,6 +30,8 @@ checks:
     only_if: command -v kea-dhcp4
     run: find /run/kea /var/run/kea /tmp -maxdepth 1 -type s -name 'kea*' -perm /002 -print 2>/dev/null || true
     expect: empty
+    rationale: Whoever can write to the control socket can change the running configuration and the leases.
+    remediation: Move the socket to a directory that only the Kea account can access, such as /run/kea.
 
   - id: KEA-CONTROL-AGENT
     name: The Kea control agent listens only locally or requires authentication
@@ -39,6 +43,8 @@ checks:
       if [ -z "$host" ] || [ "$host" = 127.0.0.1 ] || [ "$host" = ::1 ] || [ "$host" = localhost ]; then echo local; exit 0; fi
       if grep -q '"authentication"' /etc/kea/kea-ctrl-agent.conf; then echo authenticated; else echo "listens on $host without authentication"; fi
     expect: "in [local, authenticated]"
+    rationale: The control agent accepts commands that change the DHCP configuration, and without authentication it takes them from anyone who reaches the port.
+    remediation: Set http-host to 127.0.0.1 in /etc/kea/kea-ctrl-agent.conf or add an authentication block.
 
   # ===== ISC dhcpd =============================================================
   - id: DHCPD-END-OF-LIFE
@@ -53,6 +59,8 @@ checks:
       done
       true
     expect: empty
+    rationale: ISC DHCP reached its end of maintenance in 2022 and gets no security fixes.
+    remediation: Migrate the configuration to Kea and remove ISC dhcpd.
 
   - id: DHCPD-CONFIG
     name: The ISC dhcpd configuration is valid
@@ -61,6 +69,8 @@ checks:
     only_if: command -v dhcpd && test -s /etc/dhcp/dhcpd.conf
     run: dhcpd -t -cf /etc/dhcp/dhcpd.conf >/dev/null 2>&1
     expect: true
+    rationale: dhcpd does not start with an invalid configuration, so clients get no addresses after the next restart.
+    remediation: Run `dhcpd -t -cf /etc/dhcp/dhcpd.conf`, correct the reported error and restart dhcpd.
 
   - id: DHCPD-OMAPI
     name: The ISC dhcpd management API is off or protected by a key
@@ -71,3 +81,5 @@ checks:
       c=/etc/dhcp/dhcpd.conf
       if grep -qE '^[[:space:]]*omapi-port' "$c" && ! grep -qE '^[[:space:]]*omapi-key' "$c"; then echo "omapi-port without omapi-key"; fi
     expect: empty
+    rationale: OMAPI without a key lets anyone who reaches the port read and change leases and host entries.
+    remediation: Remove omapi-port from dhcpd.conf or define a key and name it with omapi-key.

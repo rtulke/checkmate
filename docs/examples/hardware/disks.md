@@ -61,6 +61,8 @@ checks:
         smartctl -H "/dev/$disk" 2>/dev/null | grep -E 'PASSED|OK$' >/dev/null || echo "$disk"
       done
     expect: empty
+    rationale: A failed SMART health check announces a disk failure.
+    remediation: Back up the data and replace the listed disks.
 
   - id: HW-DISK-002
     name: Software RAID arrays are complete
@@ -71,6 +73,8 @@ checks:
     run: grep -E '\[U*_[U_]*\]' /proc/mdstat
     allow_rc: [0, 1]
     expect: empty
+    rationale: A degraded array has lost redundancy, and a further disk failure can destroy the data.
+    remediation: Replace the failed disk and add the new one to the array with `mdadm --manage <array> --add <device>`.
 
   - id: HW-DISK-003
     name: "NVMe wear is below {{ max_nvme_wear_percent }}%"
@@ -80,6 +84,8 @@ checks:
     run: |
       nvme smart-log /dev/nvme0 | awk -F: '/percentage_used/ {gsub(/[[:space:]%]/, "", $2); print $2}'
     expect: ["!empty", "< {{ max_nvme_wear_percent }}"]
+    rationale: An NVMe device near the end of its rated write endurance fails more often and can switch to read-only.
+    remediation: Plan the replacement of the device.
 
   - id: HW-DISK-004
     name: No disk I/O errors in the kernel log
@@ -90,6 +96,8 @@ checks:
       dmesg 2>/dev/null | grep -ciE 'I/O error|medium error|critical target error'
     allow_rc: [0, 1]
     expect: "== 0"
+    rationale: I/O errors in the kernel log come from a failing disk, cable or controller and precede data loss.
+    remediation: Identify the device in the output of `dmesg`, check its SMART data and replace the faulty part.
 
   - id: HW-DISK-005
     name: The internal disk reports a verified SMART status
@@ -99,6 +107,8 @@ checks:
     run: |
       diskutil info disk0 | awk -F: '/SMART Status/ {gsub(/^[[:space:]]+/, "", $2); print $2}'
     expect: "in [Verified, Not Supported]"
+    rationale: A SMART status other than Verified announces a disk failure.
+    remediation: Back up the data and have the disk replaced.
 
   - id: HW-DISK-006
     name: Physical disks are healthy (Windows)
@@ -108,4 +118,6 @@ checks:
     run: |
       Get-PhysicalDisk | Where-Object HealthStatus -ne 'Healthy' | Select-Object -ExpandProperty FriendlyName
     expect: empty
+    rationale: A disk that Windows reports as unhealthy is failing or has already failed.
+    remediation: Back up the data and replace the listed disks.
 ```

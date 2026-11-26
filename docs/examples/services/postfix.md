@@ -80,6 +80,8 @@ checks:
     run: postfix check 2>&1
     allow_rc: [0, 1]
     expect: [true, empty]
+    rationale: Configuration errors keep Postfix from starting or from delivering mail.
+    remediation: Run `postfix check`, correct the reported problems and reload Postfix.
 
   - id: POSTFIX-SERVICE
     name: Postfix is running
@@ -88,6 +90,8 @@ checks:
     only_if: command -v postfix && command -v systemctl && test -d /run/systemd/system
     run: systemctl show -p ActiveState postfix | cut -d= -f2
     expect: "== active"
+    rationale: Mail stays undelivered while Postfix is stopped.
+    remediation: systemctl enable --now postfix
 
   - id: POSTFIX-NO-OPEN-RELAY
     name: Mail to foreign domains is only relayed for permitted clients
@@ -98,6 +102,8 @@ checks:
     run: |
       postconf -xh smtpd_relay_restrictions smtpd_recipient_restrictions | tr ', ' '\n\n' | grep -xE '(reject|defer)_unauth_destination' || true
     expect: "!empty"
+    rationale: An open relay is found and used by spammers, and the server ends up on blocklists.
+    remediation: Add reject_unauth_destination to smtpd_relay_restrictions in main.cf and reload Postfix.
 
   - id: POSTFIX-MYNETWORKS
     name: mynetworks does not trust the whole internet
@@ -106,6 +112,8 @@ checks:
     only_if: command -v postconf
     run: { use: postconf, arg: mynetworks }
     expect: "!~ (^|[[:space:],])(0\\.0\\.0\\.0/0|\\[?::\\]?/0|\\*)([[:space:],]|$)"
+    rationale: Clients in mynetworks may relay mail to any destination, so a catch-all entry makes the server an open relay.
+    remediation: Limit mynetworks in main.cf to loopback and the networks of trusted clients.
 
   - id: POSTFIX-LISTEN
     name: A send-only server listens only on loopback
@@ -116,6 +124,8 @@ checks:
     only_if: command -v postconf
     run: { use: postconf, arg: inet_interfaces }
     expect: "in [loopback-only, localhost, 127.0.0.1]"
+    rationale: A server that only sends mail has no reason to accept SMTP connections from the network.
+    remediation: postconf -e 'inet_interfaces = loopback-only' && systemctl restart postfix
 
   - id: POSTFIX-BANNER
     name: The SMTP banner does not name the mail software
@@ -124,6 +134,8 @@ checks:
     only_if: command -v postconf
     run: postconf -h smtpd_banner
     expect: "!~ (?i)(\\$mail_name|\\$mail_version|postfix)"
+    rationale: Software name and version in the banner tell an attacker which known vulnerabilities to try.
+    remediation: Set smtpd_banner in main.cf to `$myhostname ESMTP`.
 
   - id: "POSTFIX-{{ item.key | upper | replace('_', '-') }}"
     name: "{{ item.value.name }}"
@@ -135,6 +147,8 @@ checks:
       smtpd_helo_required: { name: Clients must send HELO or EHLO, expect: "== yes" }
     run: { use: postconf, arg: "{{ item.key }}" }
     expect: "{{ item.value.expect }}"
+    rationale: "Without {{ item.key }} the server confirms which addresses exist or accepts clients that skip the SMTP greeting, as spam software often does."
+    remediation: "postconf -e '{{ item.key }} = yes' && systemctl reload postfix"
 
   - id: POSTFIX-TLS-INCOMING
     name: A receiving server offers TLS with a certificate
@@ -149,6 +163,8 @@ checks:
     expect:
       - "~ level=(may|encrypt)"
       - "!~ cert=none$"
+    rationale: Without TLS on the receiving side incoming mail crosses the internet in clear text.
+    remediation: Set smtpd_tls_security_level = may in main.cf and configure the certificate with smtpd_tls_cert_file and smtpd_tls_key_file.
 
   - id: POSTFIX-TLS-PROTOCOLS
     name: TLS below version 1.2 is not accepted for mandatory encryption
@@ -165,6 +181,8 @@ checks:
         echo "$p = $v"
       done
     expect: empty
+    rationale: SSLv3, TLS 1.0 and TLS 1.1 have known weaknesses and are deprecated.
+    remediation: Set smtpd_tls_mandatory_protocols and smtp_tls_mandatory_protocols to `>=TLSv1.2` in main.cf.
 
   - id: POSTFIX-TLS-OUTGOING
     name: Outgoing mail uses TLS when the receiver offers it
@@ -173,6 +191,8 @@ checks:
     only_if: command -v postconf
     run: { use: postconf, arg: smtp_tls_security_level }
     expect: "in [may, encrypt, dane, dane-only, verify, secure]"
+    rationale: Without opportunistic TLS outgoing mail crosses the network in clear text even when the receiver supports encryption.
+    remediation: postconf -e 'smtp_tls_security_level = may' && systemctl reload postfix
 
   - id: POSTFIX-SASL-TLS
     name: SMTP authentication is only offered over TLS
@@ -184,6 +204,8 @@ checks:
         echo "smtpd_sasl_auth_enable = yes without smtpd_tls_auth_only = yes"
       fi
     expect: empty
+    rationale: SMTP authentication without TLS sends the password in a form that anyone on the network path can read.
+    remediation: Set smtpd_tls_auth_only = yes in main.cf and reload Postfix.
 
   - id: POSTFIX-QUEUE
     name: "The mail queue holds fewer than {{ postfix_queue_max }} messages"
@@ -192,4 +214,6 @@ checks:
     only_if: command -v postqueue && postqueue -j >/dev/null 2>&1
     run: postqueue -j | grep -c . || true
     expect: "< {{ postfix_queue_max }}"
+    rationale: A growing queue means that mail is not being delivered or that the server is sending spam.
+    remediation: Inspect the queue with `postqueue -p`, fix the delivery problem and flush the queue with `postqueue -f`.
 ```

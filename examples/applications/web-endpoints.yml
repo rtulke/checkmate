@@ -21,6 +21,8 @@ checks:
     timeout: 20s
     run: curl -s -o /dev/null --max-time 15 -w '%{http_code}' {{ item }}
     expect: "== 200"
+    rationale: "Any other status means that users do not get the page at {{ item }}."
+    remediation: "Check the web server and the application behind {{ item }} and their logs."
 
   - id: "WEB-REDIRECT-{{ item }}"
     name: "http://{{ item }} redirects to HTTPS"
@@ -29,6 +31,8 @@ checks:
     timeout: 20s
     run: curl -s -o /dev/null --max-time 15 -w '%{http_code} %{redirect_url}' http://{{ item }}/
     expect: "~ ^30[178] https://"
+    rationale: "Without the redirect visitors who type {{ item }} stay on unencrypted HTTP."
+    remediation: "Make the web server for {{ item }} answer plain HTTP with a 301 redirect to the https URL."
 
   - id: "WEB-TIME-{{ item | replace('https://', '') | replace('/', '_') }}"
     name: "{{ item }} responds within {{ max_response_seconds }} seconds"
@@ -38,6 +42,8 @@ checks:
     timeout: 20s
     run: curl -s -o /dev/null --max-time 15 -w '%{time_total}' {{ item }}
     expect: "< {{ max_response_seconds }}"
+    rationale: A slow answer points to an overloaded or failing component before users report an outage.
+    remediation: "Look for the slow component in the web server and application logs of {{ item }}."
 
   - id: "WEB-HEADER-{{ item }}"
     name: "Security header {{ item }} is set"
@@ -48,6 +54,8 @@ checks:
       curl -s -D - -o /dev/null --max-time 15 {{ urls[0] }} | tr -d '\r' | grep -i '^{{ item }}:'
     allow_rc: [0, 1]
     expect: "!empty"
+    rationale: "Without {{ item }} browsers do not apply the protection that this header switches on."
+    remediation: "Send the {{ item }} header from the web server or the application."
 
   - id: WEB-SERVER-VERSION
     name: The Server header does not reveal a version
@@ -58,3 +66,5 @@ checks:
       curl -s -D - -o /dev/null --max-time 15 {{ urls[0] }} | tr -d '\r' | grep -i '^server:'
     allow_rc: [0, 1]
     expect: "!~ [0-9]+\\.[0-9]+"
+    rationale: A version number in the Server header tells an attacker which known vulnerabilities to try.
+    remediation: Switch off the version output, for example with `server_tokens off` in nginx or `ServerTokens Prod` in Apache.

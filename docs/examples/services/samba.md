@@ -65,6 +65,8 @@ checks:
     only_if: command -v testparm
     run: testparm -s -d0 >/dev/null 2>&1
     expect: true
+    rationale: Samba ignores parameters it cannot parse, so a typing error can silently switch off a protection.
+    remediation: Run `testparm -s`, correct the reported problems and reload Samba.
 
   - id: SAMBA-SERVICE
     name: Samba is running
@@ -77,6 +79,8 @@ checks:
       done
       echo inactive
     expect: "== active"
+    rationale: Users cannot reach their shares while Samba is stopped.
+    remediation: Start the service (`smb` or `smbd`) with systemctl.
 
   - id: "SAMBA-{{ item.key | upper | replace(' ', '-') }}"
     name: "{{ item.value.name }}"
@@ -92,6 +96,8 @@ checks:
       restrict anonymous: { name: Anonymous users cannot list users and shares, expect: "== 2", severity: medium }
     run: { use: global, arg: "{{ item.key }}" }
     expect: "{{ item.value.expect }}"
+    rationale: "Another value of `{{ item.key }}` admits old protocol versions, weak authentication, unsigned or unencrypted sessions or anonymous access."
+    remediation: "Set `{{ item.key }}` in the [global] section of smb.conf to a value that satisfies `{{ item.value.expect }}` and restart Samba."
 
   - id: SAMBA-GUEST-SHARES
     name: No share allows guest access
@@ -103,6 +109,8 @@ checks:
         /^\[/ {share = $0}
         tolower($0) ~ /^[[:space:]]*(guest ok|public)[[:space:]]*=[[:space:]]*yes/ {print share}'
     expect: empty
+    rationale: A guest share gives everyone on the network access to its files without a login.
+    remediation: Remove `guest ok = yes` and `public = yes` from the listed shares.
 
   - id: SAMBA-WORLD-WRITABLE-SHARES
     name: No share path is writable by every user
@@ -114,4 +122,6 @@ checks:
         if [ -d "$p" ] && find "$p" -maxdepth 0 -perm -0002 ! -perm -1000 | grep . >/dev/null; then echo "$p is world-writable without sticky bit"; fi
       done
     expect: empty
+    rationale: In a world-writable directory without the sticky bit every user can delete or replace the files of others.
+    remediation: Remove write access for others with `chmod o-w <path>` and grant it to a group.
 ```

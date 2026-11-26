@@ -85,6 +85,7 @@ checks:
     loop: "{{ sysctl_hardening }}"
     run: sysctl -n {{ item.key }}
     expect: "{{ item.value }}"
+    rationale: "A value of {{ item.key }} outside the expected range switches off a kernel protection against local exploits or information leaks."
     remediation: "Set {{ item.key }} in /etc/sysctl.d/99-hardening.conf and run sysctl --system."
 
   - id: "KRN-MOD-{{ item }}"
@@ -101,6 +102,7 @@ checks:
       linux: modprobe -n -v {{ item }} 2>&1
     allow_rc: [0, 1, 2]
     expect: { any: ["~ install( {{ item }})? /(usr/)?bin/(true|false)", "~ (?i)not found"] }
+    rationale: "The kernel loads modules such as {{ item }} on demand, and rarely used code adds attack surface."
     remediation: "echo 'install {{ item }} /bin/false' >> /etc/modprobe.d/disabled.conf"
 
   - id: KRN-001
@@ -109,6 +111,8 @@ checks:
     when: facts.os == "linux"
     run: sysctl -n fs.suid_dumpable
     expect: "== 0"
+    rationale: A core dump of a setuid program can contain secrets of another user, such as password hashes.
+    remediation: Set fs.suid_dumpable = 0 in /etc/sysctl.d/99-hardening.conf and run sysctl --system.
 
   - id: KRN-002
     name: Kernel lockdown or Secure Boot is active
@@ -118,6 +122,8 @@ checks:
     run: |
       cat /sys/kernel/security/lockdown 2>/dev/null || echo "[none]"
     expect: "!~ \\[none\\]"
+    rationale: Without lockdown root can change the running kernel, for example by loading unsigned modules.
+    remediation: Enable Secure Boot or add lockdown=integrity to the kernel command line.
 
   - id: KRN-003
     name: Running kernel matches the newest installed kernel
@@ -129,4 +135,6 @@ checks:
       debian: test ! -f /var/run/reboot-required
       suse: zypper needs-rebooting >/dev/null
     expect: true
+    rationale: An installed kernel update protects the system only after a reboot.
+    remediation: Reboot the system into the newest installed kernel.
 ```

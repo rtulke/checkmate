@@ -106,6 +106,7 @@ checks:
           done
     allow_rc: [0, 1]
     expect: empty
+    rationale: A SUID or SGID file that no package owns was placed by hand and can be a backdoor to root.
     remediation: Remove the setuid bit (chmod u-s,g-s <file>) or the file itself.
 
   - id: FIND-002
@@ -119,6 +120,8 @@ checks:
         grep -vxF {% for f in allowed_suid %}-e {{ f }} {% endfor %}
     allow_rc: [0, 1]
     expect: empty
+    rationale: Every SUID binary runs with root rights for any user, so each additional one is a possible way to root.
+    remediation: Remove the bit with `chmod u-s <file>` or add the path to allowed_suid.
 
   - id: FIND-003
     name: Only approved files carry capabilities
@@ -132,6 +135,8 @@ checks:
         grep -vxF {% for f in allowed_capabilities %}-e {{ f }} {% endfor %}
     allow_rc: [0, 1]
     expect: empty
+    rationale: File capabilities such as cap_setuid grant root powers without the SUID bit.
+    remediation: Remove the capabilities with `setcap -r <file>` or add the path to allowed_capabilities.
 
   - id: FIND-004
     name: No world-writable files
@@ -142,6 +147,8 @@ checks:
       find / -xdev -type f -perm -0002 ! -path '/proc/*' ! -path '/sys/*' 2>/dev/null
     allow_rc: [0, 1]
     expect: empty
+    rationale: Any user can change a world-writable file, including scripts and data that other users or root rely on.
+    remediation: chmod o-w <file>
 
   - id: FIND-005
     name: No executable files in /tmp and /dev/shm
@@ -152,6 +159,8 @@ checks:
       find /tmp /var/tmp /dev/shm -xdev -type f -perm /111 2>/dev/null
     allow_rc: [0, 1]
     expect: empty
+    rationale: Attackers drop and start their tools in world-writable temporary directories.
+    remediation: Inspect and remove the listed files and mount the directories with noexec.
 
   - id: FIND-006
     name: Fewer than 100 files in /etc changed in the last 24 hours
@@ -161,6 +170,8 @@ checks:
       find /etc -xdev -type f -mmin -1440 2>/dev/null
     allow_rc: [0, 1]
     expect: { lines: "< 100" }
+    rationale: Many changes in /etc within a day point to an unplanned rollout or to tampering.
+    remediation: Compare the changed files with the planned changes and investigate those that nobody can explain.
 
   - id: FIND-007
     name: No hidden files in system binary directories
@@ -170,4 +181,6 @@ checks:
       find /bin /sbin /usr/bin /usr/sbin /usr/local/bin -maxdepth 1 -name '.*' ! -name '.' ! -name '..' 2>/dev/null
     allow_rc: [0, 1]
     expect: empty
+    rationale: Hidden files in binary directories are a common hiding place for attacker tools.
+    remediation: Inspect the listed files and remove those that no package owns.
 ```

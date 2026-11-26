@@ -29,6 +29,8 @@ checks:
     loop: "{{ snmp_devices }}"
     run: { use: snmp, arg: "{{ item }}", args: { oid: SNMPv2-MIB::sysUpTime.0 } }
     expect: ">= {{ min_uptime_days * 8640000 }}"
+    rationale: "A short uptime means that {{ item }} restarted recently, possibly after a crash or a power loss."
+    remediation: "Look for the reason of the restart in the log of {{ item }}."
 
   - id: "SNMP-IFDOWN-{{ item }}"
     name: "{{ item }}: no administratively enabled interface is down"
@@ -40,6 +42,8 @@ checks:
       paste -d' ' <(walk IF-MIB::ifAdminStatus) <(walk IF-MIB::ifOperStatus) | grep -c '^up down$'
     allow_rc: [0, 1]
     expect: "== 0"
+    rationale: An enabled interface that is down is a failed link or an unused port that nobody shut down.
+    remediation: "Repair the link on {{ item }} or shut the unused interface down administratively."
 
   - id: "SNMP-DESCR-{{ item }}"
     name: "{{ item }}: answers SNMPv3 queries"
@@ -47,6 +51,8 @@ checks:
     loop: "{{ snmp_devices }}"
     run: { use: snmp, arg: "{{ item }}", args: { oid: SNMPv2-MIB::sysDescr.0 } }
     expect: "!empty"
+    rationale: A device that does not answer is unreachable or uses other SNMPv3 settings, and monitoring cannot see it.
+    remediation: "Check that {{ item }} is reachable and compare its SNMPv3 user, authentication and privacy settings."
 
   - id: "SNMP-V1-{{ item }}"
     name: "{{ item }}: does not answer to the community 'public'"
@@ -55,3 +61,5 @@ checks:
     loop: "{{ snmp_devices }}"
     run: snmpget -v2c -c public -t 2 -r 0 {{ item }} SNMPv2-MIB::sysDescr.0 >/dev/null 2>&1
     expect: false
+    rationale: The community public is the first one every scanner tries, and SNMPv2c sends it in clear text.
+    remediation: "Remove the community public on {{ item }} and allow SNMPv3 only."

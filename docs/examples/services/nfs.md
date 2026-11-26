@@ -64,6 +64,8 @@ checks:
       done
       echo inactive
     expect: "== active"
+    rationale: Clients hang on their mounts while the NFS server is stopped.
+    remediation: Start the service (`nfs-server` or `nfs-kernel-server`) with systemctl.
 
   - id: NFS-NO-WORLD-EXPORT
     name: No directory is exported to every host
@@ -76,6 +78,8 @@ checks:
         awk '{ if (NF == 1) { print $1 ": no client given"; next }
                for (i = 2; i <= NF; i++) { c = $i; sub(/\(.*/, "", c); if (c == "*" || c == "" || c ~ /^(0\.0\.0\.0\/0|::\/0)$/) print $1 ": " $i } }'
     expect: empty
+    rationale: An export without a client restriction can be mounted by every host that reaches the server.
+    remediation: Name the client hosts or networks for every export in /etc/exports and run `exportfs -ra`.
 
   - id: "NFS-NO-{{ item.key | upper | replace('_', '-') }}"
     name: "{{ item.value }}"
@@ -88,6 +92,8 @@ checks:
     run: |
       { cat /etc/exports /etc/exports.d/*.exports 2>/dev/null || true; } | sed -e 's/#.*//' | grep -E '[(,]{{ item.key }}[,)]' || true
     expect: empty
+    rationale: "With {{ item.key }} the server drops a default protection, so a user on a client can act as root or as another user on the export."
+    remediation: "Remove {{ item.key }} from the listed exports and run `exportfs -ra`."
 
   - id: NFS-KERBEROS
     name: Exports use Kerberos instead of trusting client user IDs
@@ -99,6 +105,8 @@ checks:
       { cat /etc/exports /etc/exports.d/*.exports 2>/dev/null || true; } | sed -e 's/#.*//' -e '/^[[:space:]]*$/d' |
         awk '{ for (i = 2; i <= NF; i++) if ($i !~ /sec=krb5/) print $1 ": " $i }'
     expect: empty
+    rationale: With sec=sys the server trusts whatever user ID a client sends, so root on any client can read the files of every user.
+    remediation: Add sec=krb5, sec=krb5i or sec=krb5p to every export and set up Kerberos principals for the server and its clients.
 
   - id: NFS-V4-ONLY
     name: Only NFS version 4 is served
@@ -111,6 +119,8 @@ checks:
         [ "$(nfsconf --get nfsd "$v" 2>/dev/null)" = n ] || echo "$v is not disabled in nfs.conf"
       done
     expect: empty
+    rationale: NFSv3 needs rpcbind and mountd as additional network services.
+    remediation: Set vers2=n and vers3=n in the [nfsd] section of /etc/nfs.conf and restart the NFS server.
 
   - id: NFS-EXPORTS-PERMS
     name: Export files are owned by root and not writable by others
@@ -119,4 +129,6 @@ checks:
     only_if: test -e /etc/exports
     run: find -H /etc/exports /etc/exports.d \( ! -user root -o -perm /022 \) -print 2>/dev/null || true
     expect: empty
+    rationale: Whoever can write the export files can export any directory to any host.
+    remediation: Run `chown root` and `chmod go-w` on the listed files.
 ```

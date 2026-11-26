@@ -75,6 +75,8 @@ checks:
       args: { cmd: show version, jq: ".result[0].version" }
     as: version
     expect: ">= {{ min_eos_version }}"
+    rationale: Old EOS releases lack fixes for known vulnerabilities.
+    remediation: "Upgrade {{ item }} to EOS {{ min_eos_version }} or newer."
 
   - id: "EOS-NTP-{{ item }}"
     name: "{{ item }}: NTP is synchronised"
@@ -85,6 +87,8 @@ checks:
       arg: "{{ item }}"
       args: { cmd: show ntp status, format: text, jq: ".result[0].output" }
     expect: "~ (?i)synchroni[sz]ed"
+    rationale: "Without a synchronised clock the log timestamps of {{ item }} cannot be correlated with other devices."
+    remediation: "Configure reachable NTP servers on {{ item }} with `ntp server <address>`."
 
   - id: "EOS-ERRDISABLED-{{ item }}"
     name: "{{ item }}: no interface is err-disabled"
@@ -98,6 +102,8 @@ checks:
         cmd: show interfaces status
         jq: '.result[0].interfaceStatuses | to_entries[] | select(.value.linkStatus == "errdisabled") | .key'
     expect: empty
+    rationale: The switch disables an interface after a fault such as a loop or a port security violation, and the link stays out of service.
+    remediation: "Fix the cause of the fault on {{ item }} and bring the port back with `shutdown` and `no shutdown`."
 
   - id: "EOS-TELNET-{{ item }}"
     name: "{{ item }}: telnet management is disabled"
@@ -109,4 +115,6 @@ checks:
       arg: "{{ item }}"
       args: { cmd: show running-config section management telnet, format: text, jq: ".result[0].output" }
     expect: "!~ (?m)^[[:space:]]*no shutdown"
+    rationale: telnet sends passwords and the whole session in clear text.
+    remediation: "Run `shutdown` under `management telnet` on {{ item }}."
 ```

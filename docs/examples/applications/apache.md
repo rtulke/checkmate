@@ -105,6 +105,8 @@ checks:
     # An invalid configuration exits 1: that is a failure, not an error.
     allow_rc: [0, 1]
     expect: { stderr: "~ Syntax OK" }
+    rationale: httpd does not start with an invalid configuration, so the next restart takes the sites down.
+    remediation: Run `apachectl configtest`, correct the reported line and reload httpd.
 
   - id: "HTTPD-MOD-{{ item }}"
     name: "Module {{ item }} is not loaded"
@@ -114,6 +116,8 @@ checks:
     run: '{{ httpd }} -M 2>/dev/null'
     allow_rc: [0, 1]
     expect: { none: "~ ^[[:space:]]*{{ item }}[[:space:]]" }
+    rationale: "{{ item }} adds functions that most sites do not use and that reveal server details or widen the attack surface."
+    remediation: "Remove the LoadModule line for {{ item }} (on Debian with `a2dismod`) and restart httpd."
 
   - id: "HTTPD-DIRECTIVE-{{ item.key | upper }}"
     name: "{{ item.key }} {{ item.value }}"
@@ -133,6 +137,8 @@ checks:
       LogLevel: "in [warn, notice, info]"
     run: { use: directive, arg: "{{ item.key }}" }
     expect: ["!empty", "{{ item.value }}"]
+    rationale: "With {{ item.key }} missing or set differently httpd reveals server details, lets slow or oversized requests tie up workers, or logs too little."
+    remediation: "Set {{ item.key }} in the main httpd configuration to a value that satisfies `{{ item.value }}` and reload httpd."
 
   - id: HTTPD-NO-INDEXES
     name: Directory listings are disabled
@@ -141,6 +147,8 @@ checks:
     run: { use: conf }
     allow_rc: [0, 1]
     expect: { none: "~ (?i)^[[:space:]]*Options[[:space:]].*([[:space:]]|\\+)Indexes" }
+    rationale: A directory listing shows every file in a directory, including backups and files that no page links to.
+    remediation: Remove Indexes from the Options directives or write `Options -Indexes`.
 
   - id: HTTPD-NO-SSI-EXEC
     name: Server-side includes cannot execute programs
@@ -149,6 +157,8 @@ checks:
     run: { use: conf }
     allow_rc: [0, 1]
     expect: { none: "~ (?i)^[[:space:]]*Options[[:space:]].*([[:space:]]|\\+)(Includes|ExecCGI)([[:space:]]|$)" }
+    rationale: Includes and ExecCGI let content in the document root run programs on the server.
+    remediation: Replace Includes with IncludesNOEXEC and remove ExecCGI from the Options directives.
 
   - id: HTTPD-ROOT-DENY
     name: Access to the file system root is denied
@@ -158,6 +168,8 @@ checks:
     run: { use: conf }
     allow_rc: [0, 1]
     expect: { some: "~ (?i)^[[:space:]]*Require[[:space:]]+all[[:space:]]+denied" }
+    rationale: Without a default deny httpd can serve any file that a misplaced alias or symbolic link makes reachable.
+    remediation: Add `Require all denied` to the `<Directory />` block and grant access only to the content directories.
 
   - id: HTTPD-HTACCESS
     name: .htaccess files are not served
@@ -167,6 +179,8 @@ checks:
     run: { use: conf }
     allow_rc: [0, 1]
     expect: { some: "~ (?i)<Files(Match)?[[:space:]].*\\^?\\\\?\\.ht" }
+    rationale: .htaccess and .htpasswd files contain access rules and password hashes.
+    remediation: Add a `<FilesMatch "^\.ht">` block that contains `Require all denied`.
 
   - id: HTTPD-USER
     name: httpd runs as an unprivileged user
@@ -175,6 +189,8 @@ checks:
     only_if: 'command -v apache2ctl || command -v httpd'
     run: { use: directive, arg: User }
     expect: ["!empty", "!in [root, '0']"]
+    rationale: A flaw in httpd or in a web application gives the attacker the rights of the account that httpd runs as.
+    remediation: Set the User and Group directives to a dedicated account such as apache or www-data.
 
   - id: HTTPD-CONF-OWNER
     name: Configuration files are owned by root and not writable by others
@@ -184,6 +200,8 @@ checks:
     run: find /etc/httpd /etc/apache2 ! -type l \( ! -user root -o -perm /022 \) 2>/dev/null
     allow_rc: [0, 1]
     expect: empty
+    rationale: Whoever can write the configuration can load modules or run commands when httpd starts as root.
+    remediation: Run `chown -R root` and `chmod -R go-w` on the configuration directory.
 
   - id: HTTPD-LOGS-PERMS
     name: Log directories are not readable by others
@@ -191,6 +209,8 @@ checks:
     run: find /var/log/httpd /var/log/apache2 -maxdepth 0 -perm /007 2>/dev/null
     allow_rc: [0, 1]
     expect: empty
+    rationale: Access logs contain client addresses, URLs and sometimes session tokens.
+    remediation: chmod o-rwx <log directory>
 
   - id: HTTPD-TLS-PROTOCOL
     name: Only TLS 1.2 and newer are offered
@@ -203,6 +223,8 @@ checks:
       all:
         - { some: "~ (?i)^[[:space:]]*SSLProtocol[[:space:]]" }
         - { none: "~ (?i)^[[:space:]]*SSLProtocol[[:space:]].*([[:space:]]|\\+)(SSLv3|TLSv1|TLSv1\\.1)([[:space:]]|$)" }
+    rationale: SSLv3, TLS 1.0 and TLS 1.1 have known weaknesses and are deprecated.
+    remediation: Set `SSLProtocol -all +TLSv1.2 +TLSv1.3` in the TLS configuration.
 
   - id: HTTPD-TLS-CIPHERS
     name: No weak cipher suites
@@ -212,6 +234,8 @@ checks:
     run: { use: conf }
     allow_rc: [0, 1]
     expect: { none: "~ (?i)^[[:space:]]*SSLCipherSuite[[:space:]].*(^|[:+ ])(RC4|DES|3DES|MD5|EXPORT|NULL)([: ]|$)" }
+    rationale: RC4, DES, 3DES, MD5, EXPORT and NULL suites give little or no confidentiality.
+    remediation: Remove the RC4, DES, 3DES, MD5, EXPORT and NULL suites from SSLCipherSuite.
 
   - id: HTTPD-TLS-COMPRESSION
     name: TLS compression and insecure renegotiation are off
@@ -221,4 +245,6 @@ checks:
     run: { use: conf }
     allow_rc: [0, 1]
     expect: { none: "~ (?i)^[[:space:]]*(SSLCompression|SSLInsecureRenegotiation)[[:space:]]+on" }
+    rationale: TLS compression enables the CRIME attack, and insecure renegotiation lets an attacker inject data into a session.
+    remediation: Remove the SSLCompression and SSLInsecureRenegotiation directives or set both to off.
 ```

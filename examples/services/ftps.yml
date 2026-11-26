@@ -41,6 +41,8 @@ checks:
       xferlog_enable: { name: Transfers are logged, default: "NO", expect: "== yes", severity: low }
     run: { use: vsftpd, arg: "{{ item.key }}" }
     expect: "{{ item.value.expect }}"
+    rationale: "Another value of {{ item.key }} allows anonymous or unencrypted access, old protocol versions, access outside the home directory or transfers without a log entry."
+    remediation: "Set {{ item.key }} in vsftpd.conf to a value that satisfies `{{ item.value.expect }}` and restart vsftpd."
 
   - id: VSFTPD-BANNER
     name: The vsftpd banner does not reveal the version
@@ -51,6 +53,8 @@ checks:
     run: |
       { cat /etc/vsftpd.conf /etc/vsftpd/vsftpd.conf 2>/dev/null || true; } | awk -F= '$1 == "ftpd_banner" || $1 == "banner_file" {v = $2} END {print v}'
     expect: "!empty"
+    rationale: The version in the greeting tells an attacker which known vulnerabilities to try.
+    remediation: Set ftpd_banner in vsftpd.conf to a neutral text.
 
   # ===== ProFTPD ===============================================================
   - id: PROFTPD-ANONYMOUS
@@ -60,6 +64,8 @@ checks:
     only_if: command -v proftpd
     run: grep -rihE '^[[:space:]]*<Anonymous' /etc/proftpd /etc/proftpd.conf 2>/dev/null || true
     expect: empty
+    rationale: Anonymous access lets everyone download files and, with a writable directory, store their own.
+    remediation: Remove the <Anonymous> sections from the ProFTPD configuration.
 
   - id: "PROFTPD-{{ item.key | upper }}"
     name: "{{ item.value.name }}"
@@ -73,6 +79,8 @@ checks:
       DefaultRoot: { name: Users are locked into their home directory, expect: "== ~", severity: medium }
     run: { use: proftpd, arg: "{{ item.key }}" }
     expect: "{{ item.value.expect }}"
+    rationale: "Another value of {{ item.key }} allows unencrypted logins or transfers, shows the server version or lets users leave their home directory."
+    remediation: "Set {{ item.key }} in the ProFTPD configuration to a value that satisfies `{{ item.value.expect }}` and restart ProFTPD."
 
   - id: PROFTPD-TLSPROTOCOL
     name: ProFTPD offers only TLS 1.2 and newer
@@ -85,3 +93,5 @@ checks:
     expect:
       - "!empty"
       - "!~ (^|[[:space:]])(sslv3|tlsv1|tlsv1\\.1)([[:space:]]|$)"
+    rationale: SSLv3, TLS 1.0 and TLS 1.1 have known weaknesses and are deprecated.
+    remediation: Set `TLSProtocol TLSv1.2 TLSv1.3` in the ProFTPD configuration.

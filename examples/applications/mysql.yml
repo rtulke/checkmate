@@ -24,6 +24,8 @@ checks:
     only_if: command -v mysqladmin
     run: mysqladmin ping
     expect: "~ alive"
+    rationale: Applications fail when the database does not answer, and the other checks of this policy need a running server.
+    remediation: Start the database service and read its error log if it does not come up.
 
   - id: MYSQL-002
     name: No anonymous accounts
@@ -32,6 +34,8 @@ checks:
     only_if: command -v mysqladmin && mysqladmin ping >/dev/null 2>&1
     run: { use: sql, arg: "SELECT CONCAT(user, '@', host) FROM mysql.user WHERE user = ''" }
     expect: empty
+    rationale: An anonymous account lets anyone connect without a user name.
+    remediation: Drop the listed accounts with `DROP USER ''@'<host>'`.
 
   - id: MYSQL-003
     name: root can only log in locally
@@ -40,6 +44,8 @@ checks:
     only_if: command -v mysqladmin && mysqladmin ping >/dev/null 2>&1
     run: { use: sql, arg: "SELECT host FROM mysql.user WHERE user = 'root'" }
     expect: { each: "in [localhost, 127.0.0.1, '::1']" }
+    rationale: A root account that accepts remote logins exposes full control of the server to password guessing over the network.
+    remediation: Drop the remote root accounts with `DROP USER 'root'@'<host>'`.
 
   - id: MYSQL-004
     name: No account accepts connections from any host
@@ -48,6 +54,8 @@ checks:
     only_if: command -v mysqladmin && mysqladmin ping >/dev/null 2>&1
     run: { use: sql, arg: "SELECT CONCAT(user, '@', host) FROM mysql.user WHERE host = '%'" }
     expect: empty
+    rationale: An account with host % can log in from every address that reaches the server.
+    remediation: Limit the listed accounts to the hosts of the application, for example with `RENAME USER 'app'@'%' TO 'app'@'10.0.0.%'`.
 
   - id: "MYSQL-VAR-{{ item.key }}"
     name: "{{ item.key }} {{ item.value }}"
@@ -61,6 +69,8 @@ checks:
       sql_mode: "~ STRICT_(TRANS|ALL)_TABLES"
     run: { use: sql, arg: "SELECT @@{{ item.key }}" }
     expect: "{{ item.value }}"
+    rationale: "Another value of {{ item.key }} gives clients access to files through the server, allows unencrypted connections or lets faulty data and errors pass unnoticed."
+    remediation: "Change {{ item.key }} in the [mysqld] section of the option file to a value that satisfies `{{ item.value }}` and restart the server."
 
   - id: MYSQL-005
     name: "Server version {{ min_version }} or newer"
@@ -69,6 +79,8 @@ checks:
     run: { use: sql, arg: "SELECT VERSION()" }
     as: version
     expect: ">= {{ min_version }}"
+    rationale: Old release series no longer get security fixes.
+    remediation: Upgrade the server to a supported release.
 
   - id: MYSQL-006
     name: The data directory is only accessible by mysql
@@ -77,6 +89,8 @@ checks:
     only_if: test -d /var/lib/mysql
     run: find /var/lib/mysql -maxdepth 0 \( -perm /o+rwx -o ! -user mysql \)
     expect: empty
+    rationale: Whoever can read the data directory can copy every table without logging in.
+    remediation: chown mysql /var/lib/mysql && chmod 750 /var/lib/mysql
 
   - id: MYSQL-007
     name: No credentials in world-readable option files
@@ -88,3 +102,5 @@ checks:
         if grep -qiE '^[[:space:]]*password[[:space:]]*=' "$f" && [ -n "$(find "$f" -perm /o+r)" ]; then echo "$f"; fi
       done
     expect: empty
+    rationale: A password in a world-readable option file is available to every local user.
+    remediation: Move the password to a separate option file that only its owner can read (`chmod 600 <file>`).

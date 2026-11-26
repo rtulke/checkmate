@@ -22,6 +22,8 @@ checks:
     run: systemd-detect-virt
     allow_rc: [0, 1]
     expect: "in {{ allowed_platforms }}"
+    rationale: A host on an unexpected platform was deployed outside the standard process or moved to another environment.
+    remediation: Move the host to an approved platform or add the platform to allowed_platforms.
 
   - id: VIRT-002
     name: VMware Tools are running on VMware guests
@@ -30,6 +32,8 @@ checks:
     run: systemctl is-active vmtoolsd
     allow_rc: [0, 3]
     expect: "== active"
+    rationale: Without VMware Tools the hypervisor cannot shut the guest down cleanly or quiesce it for snapshots.
+    remediation: Install open-vm-tools and run `systemctl enable --now vmtoolsd`.
 
   - id: VIRT-003
     name: The QEMU guest agent runs on KVM guests
@@ -38,6 +42,8 @@ checks:
     run: systemctl is-active qemu-guest-agent
     allow_rc: [0, 3]
     expect: "== active"
+    rationale: Without the guest agent the hypervisor cannot freeze file systems for consistent snapshots or shut the guest down cleanly.
+    remediation: Install qemu-guest-agent and run `systemctl enable --now qemu-guest-agent`.
 
   - id: VIRT-004
     name: Hyper-V daemons run on Hyper-V guests
@@ -46,6 +52,8 @@ checks:
     run: systemctl is-active hypervkvpd hv-kvp-daemon 2>/dev/null | grep -c '^active$'
     allow_rc: [0, 1, 3]
     expect: ">= 1"
+    rationale: Without the Hyper-V daemons the host cannot exchange data with the guest, for example its IP addresses or backup requests.
+    remediation: Install the Hyper-V daemons package of the distribution and start the KVP daemon.
 
   - id: VIRT-005
     name: All IPMI sensors are in a normal state
@@ -57,6 +65,8 @@ checks:
     run: |
       ipmitool sdr list 2>/dev/null | awk -F'|' '{gsub(/[[:space:]]/, "", $3)} $3 != "ok" && $3 != "ns" {print $1 "(" $3 ")"}'
     expect: empty
+    rationale: A sensor outside its normal state reports a hardware problem such as a failed fan, a failed power supply or high temperature.
+    remediation: Read the sensors with `ipmitool sdr list` and repair or replace the affected component.
 
   - id: VIRT-006
     name: The IPMI system event log has no critical entries
@@ -66,3 +76,5 @@ checks:
     run: ipmitool sel elist 2>/dev/null | grep -ciE 'critical|non-recoverable'
     allow_rc: [0, 1]
     expect: "== 0"
+    rationale: Critical entries in the event log record hardware faults such as memory errors or power failures.
+    remediation: Read the entries with `ipmitool sel elist`, fix the hardware fault and clear the log with `ipmitool sel clear`.

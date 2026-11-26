@@ -62,6 +62,8 @@ checks:
     run: firewall-cmd --state 2>&1
     allow_rc: [0, 252]
     expect: "== running"
+    rationale: Without a running firewall every listening port is reachable from the network.
+    remediation: systemctl enable --now firewalld
 
   - id: FW-002
     name: The default zone is not "trusted"
@@ -70,6 +72,8 @@ checks:
     only_if: command -v firewall-cmd && firewall-cmd --state >/dev/null 2>&1
     run: firewall-cmd --get-default-zone
     expect: "!in [trusted]"
+    rationale: The trusted zone accepts all incoming connections.
+    remediation: firewall-cmd --set-default-zone=public
 
   - id: FW-003
     name: Only approved services are open in the default zone
@@ -80,6 +84,8 @@ checks:
         grep -vxF {% for s in allowed_firewalld_services %}-e {{ s }} {% endfor %}
     allow_rc: [0, 1]
     expect: empty
+    rationale: Every open service in the default zone is reachable from all networks assigned to that zone.
+    remediation: Close the service with `firewall-cmd --permanent --remove-service=<service>` and `firewall-cmd --reload`, or add it to allowed_firewalld_services.
 
   - id: FW-004
     name: nftables drops unsolicited input by default
@@ -91,6 +97,8 @@ checks:
       nft list ruleset 2>/dev/null | grep -E 'hook input .*policy drop'
     allow_rc: [0, 1]
     expect: { lines: ">= 1" }
+    rationale: With an accept policy every port without an explicit rule is open.
+    remediation: Give the input chain of the nftables ruleset `policy drop;` together with rules that accept established connections and the required ports.
 
   - id: FW-005
     name: iptables INPUT policy is DROP
@@ -100,6 +108,8 @@ checks:
     only_if: command -v iptables && ! command -v firewall-cmd && ! command -v nft
     run: iptables -S INPUT | sed -n 1p
     expect: "in ['-P INPUT DROP', '-P INPUT REJECT']"
+    rationale: With an ACCEPT policy every port without an explicit rule is open.
+    remediation: Add rules for established connections and the required ports, then run `iptables -P INPUT DROP` and save the rules.
 
   - id: FW-006
     name: ufw is active
@@ -109,4 +119,6 @@ checks:
     only_if: command -v ufw
     run: ufw status | sed -n 1p
     expect: "== Status: active"
+    rationale: An inactive ufw filters nothing, even when rules are defined.
+    remediation: Allow SSH with `ufw allow ssh`, then run `ufw enable`.
 ```

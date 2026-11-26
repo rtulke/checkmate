@@ -80,6 +80,8 @@ checks:
     only_if: test -f {{ mongod_conf }}
     run: { use: mongo_conf, arg: security.authorization }
     expect: "== enabled"
+    rationale: Without authorization every client that reaches the port can read and change all databases.
+    remediation: "Set security.authorization to enabled in {{ mongod_conf }} and restart mongod."
 
   - id: MONGO-BIND
     name: mongod does not listen on all interfaces
@@ -88,6 +90,8 @@ checks:
     only_if: test -f {{ mongod_conf }}
     run: { use: mongo_conf, arg: net.bindIp }
     expect: ["!empty", "!~ (0\\.0\\.0\\.0|::,|\\*)", "!~ ^::$"]
+    rationale: A database that listens on all interfaces is reachable from every network the host is connected to.
+    remediation: "Set net.bindIp in {{ mongod_conf }} to the loopback address and the addresses that clients use."
 
   - id: MONGO-NO-BINDALL
     name: bindIpAll is not set
@@ -96,6 +100,8 @@ checks:
     only_if: test -f {{ mongod_conf }}
     run: { use: mongo_conf, arg: net.bindIpAll }
     expect: "in ['', 'false']"
+    rationale: bindIpAll makes mongod listen on all interfaces regardless of net.bindIp.
+    remediation: "Remove net.bindIpAll from {{ mongod_conf }} or set it to false."
 
   - id: MONGO-TLS
     name: Connections require TLS
@@ -104,6 +110,8 @@ checks:
     only_if: test -f {{ mongod_conf }}
     run: { use: mongo_conf, arg: net.tls.mode }
     expect: "== requireTLS"
+    rationale: Without TLS credentials and data cross the network in clear text.
+    remediation: "Set net.tls.mode to requireTLS in {{ mongod_conf }} and configure the certificate with net.tls.certificateKeyFile."
 
   - id: MONGO-JAVASCRIPT
     name: Server-side JavaScript is disabled
@@ -111,6 +119,8 @@ checks:
     only_if: test -f {{ mongod_conf }}
     run: { use: mongo_conf, arg: security.javascriptEnabled }
     expect: "== false"
+    rationale: Server-side JavaScript lets a client with query injection run its own code inside the server.
+    remediation: "Set security.javascriptEnabled to false in {{ mongod_conf }} and restart mongod."
 
   - id: MONGO-LOG-APPEND
     name: Log files are appended, not overwritten
@@ -119,6 +129,8 @@ checks:
     only_if: test -f {{ mongod_conf }}
     run: { use: mongo_conf, arg: systemLog.logAppend }
     expect: "== true"
+    rationale: Without logAppend every restart begins a new log file, which interrupts the record that log collection relies on.
+    remediation: "Set systemLog.logAppend to true in {{ mongod_conf }}."
 
   - id: MONGO-AUDIT
     name: Auditing is configured (Enterprise and Percona)
@@ -127,6 +139,8 @@ checks:
     only_if: test -f {{ mongod_conf }}
     run: { use: mongo_conf, arg: auditLog.destination }
     expect: "!empty"
+    rationale: Without an audit log there is no record of who read or changed data and accounts.
+    remediation: "Set auditLog.destination to file or syslog in {{ mongod_conf }}."
 
   - id: MONGO-USER
     name: mongod does not run as root
@@ -135,6 +149,8 @@ checks:
     only_if: pgrep -x mongod >/dev/null
     run: ps -o user= -p "$(pgrep -x mongod | sed -n 1p)"
     expect: "!= root"
+    rationale: A flaw in mongod gives the attacker the rights of the account that the server runs as.
+    remediation: Start mongod through its service unit under the dedicated service account.
 
   - id: MONGO-CONF-PERMS
     name: mongod.conf is not readable by others
@@ -142,6 +158,8 @@ checks:
     only_if: test -f {{ mongod_conf }}
     run: find {{ mongod_conf }} -perm /007
     expect: empty
+    rationale: The configuration shows where key files are and can contain the password of the TLS key.
+    remediation: "chmod o-rwx {{ mongod_conf }}"
 
   - id: MONGO-DATA-PERMS
     name: The data directory is only accessible by the mongod user
@@ -153,4 +171,6 @@ checks:
       [ -n "$dir" ] && [ -d "$dir" ] && find "$dir" -maxdepth 0 -perm /077
     allow_rc: [0, 1]
     expect: empty
+    rationale: Whoever can read the data files can read every database without logging in.
+    remediation: chmod 700 <dbPath>
 ```

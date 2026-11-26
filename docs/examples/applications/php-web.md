@@ -87,6 +87,8 @@ checks:
     run: { use: php_ini, arg: "{{ item.key }}" }
     as: string
     expect: "{{ item.expect }}"
+    rationale: "With another value of {{ item.key }} PHP leaks details to clients, lets scripts reach remote or arbitrary files, weakens session cookies or drops error messages."
+    remediation: "Change {{ item.key }} in php.ini so that it is {{ item.label }} and restart PHP-FPM or the web server."
 
   - id: PHP-DISABLE-FUNCTIONS
     name: Dangerous PHP functions are disabled
@@ -100,6 +102,8 @@ checks:
         case ",$disabled," in *",$f,"*) ;; *) echo "$f" ;; esac
       done
     expect: empty
+    rationale: These functions start operating system commands, which turns a code injection into control of the host.
+    remediation: Add the listed functions to disable_functions in php.ini.
 
   - id: PHP-VERSION
     name: PHP 8.1 or newer
@@ -109,6 +113,8 @@ checks:
     run: php -r 'echo PHP_VERSION, PHP_EOL;'
     as: version
     expect: ">= 8.1"
+    rationale: PHP branches before 8.1 are end of life and get no security fixes.
+    remediation: Upgrade PHP to a supported branch.
 
   # --- web content -----------------------------------------------------------
   - id: WEB-WEBSHELL-EVAL
@@ -125,6 +131,7 @@ checks:
       done
     allow_rc: [0, 1]
     expect: empty
+    rationale: eval on decoded or request data is the usual shape of a PHP web shell.
     remediation: Treat the host as compromised and investigate the listed files.
 
   - id: WEB-SUSPICIOUS-NAMES
@@ -140,6 +147,8 @@ checks:
       done
     allow_rc: [0, 1]
     expect: empty
+    rationale: These names are typical for web shells and for files that attackers leave behind.
+    remediation: Inspect the listed files and treat the host as compromised if they do not belong to the application.
 
   - id: WEB-HTACCESS-APPEND
     name: No .htaccess file injects code into every request
@@ -153,6 +162,8 @@ checks:
       done
     allow_rc: [0, 1]
     expect: empty
+    rationale: auto_prepend_file and auto_append_file run a PHP file on every request, which malware uses to stay active.
+    remediation: Remove the php_value line and the file it points to, then find out how the .htaccess file was changed.
 
   - id: WEB-EXECUTABLE-UPLOADS
     name: Upload directories contain no PHP files
@@ -166,6 +177,8 @@ checks:
       done
     allow_rc: [0, 1]
     expect: empty
+    rationale: A PHP file in an upload directory usually got there through an upload form and runs with the rights of the web server.
+    remediation: Inspect and remove the listed files and switch off PHP execution for upload directories.
 
   - id: WEB-WRITABLE
     name: Web content is not writable by the web server user
@@ -179,4 +192,6 @@ checks:
       done
     allow_rc: [0, 1]
     expect: empty
+    rationale: Code that the web server user can write can be replaced through any file write flaw in the application.
+    remediation: Give the listed files to another owner such as root and leave only upload directories writable.
 ```

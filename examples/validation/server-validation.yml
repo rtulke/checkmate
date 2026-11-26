@@ -55,6 +55,8 @@ checks:
       getent passwd {{ item.name }} | cut -d: -f3,6,7
     allow_rc: [0, 2]
     expect: "== {{ item.uid }}:{{ item.home }}:{{ item.shell }}"
+    rationale: "The {{ item.name }} account owns files and runs services, so another UID, home or shell breaks file ownership or opens an interactive login."
+    remediation: "Create the account with `useradd` or correct it with `usermod` (-u {{ item.uid }}, -d {{ item.home }}, -s {{ item.shell }})."
 
   - id: "VAL-USER-GROUPS-{{ item.name }}"
     name: "User {{ item.name }} is a member of {{ item.groups | join(', ') }}"
@@ -67,6 +69,8 @@ checks:
         case " $member " in *" $g "*) ;; *) echo "$g" ;; esac
       done
     expect: empty
+    rationale: "Without these group memberships {{ item.name }} cannot access the files and sockets of its role."
+    remediation: "Add the user to each listed group with `usermod -aG <group> {{ item.name }}`."
 
   - id: "VAL-GROUP-{{ item.name }}"
     name: "Group {{ item.name }} exists with GID {{ item.gid }}"
@@ -76,6 +80,8 @@ checks:
       getent group {{ item.name }} | cut -d: -f3
     allow_rc: [0, 2]
     expect: "== {{ item.gid }}"
+    rationale: "Another GID for {{ item.name }} breaks file ownership on shared storage and in restored backups."
+    remediation: "Create the group with `groupadd -g {{ item.gid }} {{ item.name }}` or change its GID with `groupmod -g {{ item.gid }} {{ item.name }}`."
 
   # --- packages, services, processes ------------------------------------------------
   - id: "VAL-PKG-{{ item.name }}"
@@ -86,6 +92,8 @@ checks:
     allow_rc: [0, 1]
     as: version
     expect: ["!empty", "!~ not installed", ">= {{ item.min_version }}"]
+    rationale: "The server role needs {{ item.name }}, and versions before {{ item.min_version }} lack features or fixes that the role relies on."
+    remediation: "Install the {{ item.name }} package or upgrade it to {{ item.min_version }} or newer."
 
   - id: "VAL-SVC-{{ item }}"
     name: "{{ item }} is running and enabled"
@@ -95,6 +103,8 @@ checks:
     run: |
       echo "$(systemctl show -p ActiveState {{ item }} | cut -d= -f2) $(systemctl show -p UnitFileState {{ item }} | cut -d= -f2)"
     expect: "== active enabled"
+    rationale: "The server role depends on {{ item }}, and a unit that is not enabled stays down after the next reboot."
+    remediation: "systemctl enable --now {{ item }}"
 
   - id: "VAL-PROC-{{ item.exe | replace('/', '_') }}"
     name: "{{ item.exe }} runs as {{ item.user }}"
@@ -106,6 +116,8 @@ checks:
         if [ "$(readlink /proc/$pid/exe 2>/dev/null)" = "{{ item.exe }}" ]; then ps -o user= -p "$pid"; fi
       done | sort -u
     expect: { some: "== {{ item.user }}" }
+    rationale: "Without a process of {{ item.exe }} the service is down, and a process under another user than {{ item.user }} was started the wrong way."
+    remediation: "Start the process through its service unit and set the user there to {{ item.user }}."
 
   # --- network ---------------------------------------------------------------------
   - id: "VAL-PORT-{{ item.proto }}-{{ item.port }}"
@@ -115,6 +127,8 @@ checks:
     run: ss -Hln{{ 't' if item.proto == 'tcp' else 'u' }} 'sport = :{{ item.port }}' | awk '{print $4}'
     # Listening on all interfaces (*, [::]) also covers the requested address.
     expect: { some: "in ['{{ item.address }}:{{ item.port }}', '*:{{ item.port }}', '[::]:{{ item.port }}', '0.0.0.0:{{ item.port }}']" }
+    rationale: "Clients cannot reach the service when nothing listens on {{ item.proto | upper }} port {{ item.port }} at {{ item.address }}."
+    remediation: "Start the service and set its listen address to {{ item.address }} and its port to {{ item.port }}."
 
   - id: "VAL-DNS-{{ item.name }}"
     name: "{{ item.name }} resolves"
@@ -124,6 +138,8 @@ checks:
     run: getent ahosts {{ item.name }} | sed -n 1p
     allow_rc: [0, 2]
     expect: "{{ '!empty' if item.resolves else 'empty' }}"
+    rationale: "The server depends on the expected resolution of {{ item.name }}, and another result points to a wrong resolver or record."
+    remediation: "Check the resolver configuration of the server and the DNS record of {{ item.name }}."
 
   - id: "VAL-HTTP-{{ item.url | replace('://', '-') | replace('/', '_') }}"
     name: "{{ item.url }} answers with {{ item.status }}"
@@ -134,6 +150,8 @@ checks:
     # Connection problems (refused, timeout, empty reply) are failures.
     allow_rc: [0, 6, 7, 28, 35, 52, 56]
     expect: "== {{ item.status }}"
+    rationale: "Any other answer from {{ item.url }} means that the application does not serve requests as expected."
+    remediation: "Check the web server and the application behind {{ item.url }} and their logs."
 
   - id: "VAL-REACH-{{ item.host }}-{{ item.port }}"
     name: "{{ item.host }}:{{ item.port }} is reachable"
@@ -142,6 +160,8 @@ checks:
     timeout: 10s
     run: timeout 5 bash -c '</dev/tcp/{{ item.host }}/{{ item.port }}' 2>/dev/null
     expect: true
+    rationale: "The server depends on {{ item.host }}:{{ item.port }}, and a blocked path breaks the functions that use it."
+    remediation: "Check name resolution, routing and firewall rules on the path to {{ item.host }}:{{ item.port }}."
 
   # --- files, mounts, kernel ----------------------------------------------------------
   - id: "VAL-FILE-{{ item.path | replace('/', '_') }}"
@@ -151,6 +171,8 @@ checks:
     run: stat -c '%F %a %U %G' {{ item.path }}
     allow_rc: [0, 1]
     expect: "~ ^{{ item.type | default('regular( empty)? file') }} {{ item.mode }} {{ item.owner }} {{ item.group }}$"
+    rationale: "Another type, mode or owner of {{ item.path }} keeps the service from using it or opens it to other users."
+    remediation: "Run `chown {{ item.owner }}:{{ item.group }} {{ item.path }}` and `chmod {{ item.mode }} {{ item.path }}`, and recreate the path if its type is wrong."
 
   - id: "VAL-FILE-CONTENT-{{ item.path | replace('/', '_') }}"
     name: "{{ item.path }} contains {{ item.contains }}"
@@ -159,6 +181,8 @@ checks:
     run: cat {{ item.path }}
     allow_rc: [0, 1]
     expect: { some: "~ {{ item.contains }}" }
+    rationale: "Without {{ item.contains }} the file {{ item.path }} is not the configuration that this role expects."
+    remediation: "Deploy the intended version of {{ item.path }}."
 
   - id: "VAL-MOUNT-{{ item.path | replace('/', '_') }}"
     name: "{{ item.path }} is a {{ item.fstype }} mount with {{ item.options | join(',') }}"
@@ -173,6 +197,8 @@ checks:
         case ",$2," in *",$o,"*) ;; *) echo "option $o is missing" ;; esac
       done
     expect: empty
+    rationale: "Without the mount at {{ item.path }} data lands on the wrong file system, and missing options drop the restrictions planned for it."
+    remediation: "Correct the entry for {{ item.path }} in /etc/fstab (type {{ item.fstype }}, options {{ item.options | join(',') }}) and mount it again."
 
   - id: "VAL-SYSCTL-{{ item.key }}"
     name: "{{ item.key }} {{ item.value }}"
@@ -180,3 +206,5 @@ checks:
     loop: "{{ kernel_params }}"
     run: sysctl -n {{ item.key }}
     expect: "{{ item.value }}"
+    rationale: "The server role is tuned for {{ item.key }} {{ item.value }}, and another value changes its behaviour under load."
+    remediation: "Set {{ item.key }} in a file in /etc/sysctl.d to a value that satisfies `{{ item.value }}` and run `sysctl --system`."

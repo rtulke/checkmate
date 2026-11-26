@@ -38,6 +38,8 @@ checks:
         ! -type l \( ! -user root -o -perm /go+w \) 2>/dev/null
     allow_rc: [0, 1]
     expect: empty
+    rationale: cron runs these files as root, so whoever can write them can run commands as root.
+    remediation: Run `chown root` and `chmod go-w` on the listed files and directories.
 
   - id: CRON-002
     name: Access to crontab is controlled by cron.allow
@@ -46,6 +48,8 @@ checks:
     when: facts.os == "linux"
     run: test -f /etc/cron.allow && test ! -f /etc/cron.deny
     expect: true
+    rationale: With cron.deny every account that is not listed may schedule jobs, including accounts created later.
+    remediation: Create /etc/cron.allow with the permitted users and delete /etc/cron.deny.
 
   - id: CRON-003
     name: root's crontab matches an approved version
@@ -57,6 +61,8 @@ checks:
       { crontab -l -u root 2>/dev/null || true; } | grep -Ev '^[[:space:]]*(#|$)' | (sha256sum 2>/dev/null || shasum -a 256) | cut -d' ' -f1
     allow_rc: [0, 1]
     expect: "in {{ trusted_root_crontab }}"
+    rationale: An extra entry in root's crontab is a common way to keep root access after a compromise.
+    remediation: Review the output of `crontab -l -u root`, remove unknown entries or add the new checksum to trusted_root_crontab.
 
   - id: CRON-004
     name: Only approved jobs in /etc/cron.d
@@ -66,6 +72,8 @@ checks:
       ls -1 /etc/cron.d 2>/dev/null | grep -vxF {% for f in allowed_cron_d %}-e {{ f }} {% endfor %}
     allow_rc: [0, 1]
     expect: empty
+    rationale: Every file in /etc/cron.d can run commands as any user, so an unknown file is a possible backdoor.
+    remediation: Remove the listed files from /etc/cron.d or add their names to allowed_cron_d.
 
   - id: CRON-005
     name: Only approved systemd timers are enabled
@@ -77,3 +85,5 @@ checks:
         grep -vxF {% for t in allowed_timers %}-e {{ t }} {% endfor %}
     allow_rc: [0, 1]
     expect: empty
+    rationale: A systemd timer runs commands on a schedule just like cron and is easy to overlook.
+    remediation: Disable the listed timers with `systemctl disable --now <timer>` or add them to allowed_timers.

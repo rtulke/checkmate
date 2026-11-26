@@ -25,6 +25,7 @@ checks:
           grep -vxF {% for p in allowed_ports %}-e {{ p }} {% endfor %}
     allow_rc: [0, 1]
     expect: empty
+    rationale: Every listening port is a service that can be attacked from the network.
     remediation: Stop or firewall the services listening on the listed ports.
 
   - id: "PORT-LOCAL-{{ item }}"
@@ -37,6 +38,8 @@ checks:
     run: |
       ss -Hlnt "sport = :{{ item }}" | awk '{print $4}'
     expect: "!~ ^(0\\.0\\.0\\.0|\\*|\\[::\\]):"
+    rationale: "The service on port {{ item }} is meant for local clients, and on all interfaces the whole network can reach it."
+    remediation: "Bind the service on port {{ item }} to 127.0.0.1 in its configuration and restart it."
 
   - id: PORT-002
     name: SSH is listening
@@ -46,6 +49,8 @@ checks:
       macos: lsof -nP -iTCP:22 -sTCP:LISTEN
     allow_rc: [0, 1]
     expect: "!empty"
+    rationale: Without a listening SSH daemon the host cannot be administered remotely.
+    remediation: Start sshd and check its Port and ListenAddress settings.
 
   - id: "PORT-REACH-{{ item.host }}-{{ item.port }}"
     name: "{{ item.host }}:{{ item.port }} is reachable"
@@ -54,3 +59,5 @@ checks:
     run: nc -z -w 3 {{ item.host }} {{ item.port }}
     timeout: 10s
     expect: true
+    rationale: "The host depends on {{ item.host }}:{{ item.port }}, and a blocked path breaks the functions that use it."
+    remediation: "Check name resolution, routing and firewall rules on the path to {{ item.host }}:{{ item.port }}."

@@ -67,6 +67,7 @@ checks:
     run: curl -s -o /dev/null --max-time 3 -w '%{http_code}' http://169.254.169.254/latest/meta-data/
     allow_rc: [0, 7, 28]
     expect: "in [401, 000]"
+    rationale: IMDSv1 answers plain GET requests, so a server-side request forgery flaw in an application hands out the credentials of the instance role.
     remediation: aws ec2 modify-instance-metadata-options --instance-id <id> --http-tokens required
 
   - id: CLOUD-AWS-SSM
@@ -77,6 +78,8 @@ checks:
     run: systemctl is-active amazon-ssm-agent snap.amazon-ssm-agent.amazon-ssm-agent.service 2>/dev/null
     allow_rc: [0, 3, 4]
     expect: { some: "== active" }
+    rationale: Without the agent the instance cannot be patched, inventoried or reached through Systems Manager.
+    remediation: Install the agent and run `systemctl enable --now amazon-ssm-agent`.
 
   # --- Azure -------------------------------------------------------------------
   - id: CLOUD-AZURE-AGENT
@@ -86,6 +89,8 @@ checks:
     run: systemctl is-active walinuxagent waagent 2>/dev/null
     allow_rc: [0, 3, 4]
     expect: { some: "== active" }
+    rationale: Without the guest agent Azure cannot provision the machine, run extensions or report its state.
+    remediation: Install the Azure Linux agent and start its service (`walinuxagent` or `waagent`).
 
   - id: CLOUD-AZURE-IMDS-USERS
     name: "Azure: only root can reach the metadata service"
@@ -97,6 +102,8 @@ checks:
       { iptables -S OUTPUT 2>/dev/null; nft list ruleset 2>/dev/null; } | grep -E '169\.254\.169\.254'
     allow_rc: [0, 1]
     expect: { lines: ">= 1" }
+    rationale: Every local process can ask the metadata service for the token of the managed identity, including a compromised web application.
+    remediation: Add a firewall rule that lets only root reach the service, for example `iptables -A OUTPUT -d 169.254.169.254 -m owner ! --uid-owner 0 -j REJECT`.
 
   # --- Google Cloud --------------------------------------------------------------
   - id: CLOUD-GCP-AGENT
@@ -106,6 +113,8 @@ checks:
     run: systemctl is-active google-guest-agent 2>/dev/null
     allow_rc: [0, 3, 4]
     expect: "== active"
+    rationale: Without the guest agent Google Cloud cannot manage accounts, SSH keys and network settings of the instance.
+    remediation: Install the guest environment and run `systemctl enable --now google-guest-agent`.
 
   - id: CLOUD-GCP-OSLOGIN
     name: "Google Cloud: OS Login manages SSH access"
@@ -114,6 +123,8 @@ checks:
     run: grep -c 'oslogin' /etc/nsswitch.conf
     allow_rc: [0, 1]
     expect: ">= 1"
+    rationale: Without OS Login SSH access depends on keys in the instance metadata, which are not tied to IAM permissions.
+    remediation: Set the metadata key enable-oslogin to TRUE on the instance or the project.
 
   # --- Every cloud -------------------------------------------------------------------
   - id: CLOUD-CREDENTIAL-FILES
@@ -126,6 +137,7 @@ checks:
         -o -path '*/.config/gcloud/application_default_credentials.json' \) 2>/dev/null
     allow_rc: [0, 1]
     expect: empty
+    rationale: Long-lived credentials on disk fall to anyone who compromises the instance and stay valid outside of it.
     remediation: Use instance roles / managed identities instead of stored credentials.
 
   - id: CLOUD-INIT-USERDATA
@@ -139,6 +151,8 @@ checks:
         grep -iE '(password|passwd|secret|token|aws_secret_access_key|private_key)[[:space:]]*[:=]'
     allow_rc: [0, 1]
     expect: empty
+    rationale: User data stays readable on the instance and through the metadata service for the whole life of the machine.
+    remediation: Remove the secrets from the user data, rotate them and fetch secrets from a secret store at boot.
 
   - id: CLOUD-INIT-LOGS
     name: cloud-init logs are not readable by everyone
@@ -147,4 +161,6 @@ checks:
     run: find /var/log/cloud-init.log /var/log/cloud-init-output.log -perm /o+r 2>/dev/null
     allow_rc: [0, 1]
     expect: empty
+    rationale: The cloud-init logs contain the output of the first boot scripts, which can include passwords and tokens.
+    remediation: chmod o-r /var/log/cloud-init.log /var/log/cloud-init-output.log
 ```

@@ -60,6 +60,8 @@ checks:
     tags: [files, content]
     run: grep -qxF '127.0.0.1 localhost' /etc/hosts || grep -qE '^127\.0\.0\.1[[:space:]]+localhost' /etc/hosts
     expect: true
+    rationale: Many programs expect localhost to resolve to 127.0.0.1 and fail without this entry.
+    remediation: Add the line `127.0.0.1 localhost` to /etc/hosts.
 
   - id: CONTENT-002
     name: A pattern is absent
@@ -67,6 +69,8 @@ checks:
     # grep exits 1 if nothing matches: expect false means "must not match".
     run: grep -qE '^[[:space:]]*PermitRootLogin[[:space:]]+yes' /etc/ssh/sshd_config
     expect: false
+    rationale: With PermitRootLogin yes attackers can guess the root password directly over SSH.
+    remediation: Set PermitRootLogin no in /etc/ssh/sshd_config and reload sshd.
 
   - id: CONTENT-003
     name: key=value setting (shell-style config)
@@ -75,6 +79,8 @@ checks:
     run: |
       awk -F= '$1 == "SELINUX" {gsub(/["[:space:]]/, "", $2); print $2}' /etc/selinux/config
     expect: "== enforcing"
+    rationale: Any other value leaves SELinux permissive or disabled after the next reboot.
+    remediation: Set SELINUX=enforcing in /etc/selinux/config.
 
   - id: CONTENT-004
     name: "key = value with spaces (login.defs style)"
@@ -84,6 +90,8 @@ checks:
       cat /etc/login.defs 2>/dev/null | awk '$1 == "ENCRYPT_METHOD" {print $2}'
     allow_rc: [0, 1]
     expect: "in [SHA512, YESCRYPT]"
+    rationale: Older hash methods such as MD5 and DES are cracked quickly once the shadow file leaks.
+    remediation: Set ENCRYPT_METHOD SHA512 or ENCRYPT_METHOD YESCRYPT in /etc/login.defs.
 
   - id: CONTENT-005
     name: INI value via Python configparser
@@ -92,6 +100,8 @@ checks:
     run: |
       python3 -c 'import configparser; c = configparser.ConfigParser(); c.read("/etc/dnf/dnf.conf"); print(c.get("main", "gpgcheck", fallback=""))'
     expect: "in [1, True, true]"
+    rationale: Without gpgcheck dnf installs packages whose signature nobody verified.
+    remediation: Set gpgcheck=1 in the [main] section of /etc/dnf/dnf.conf.
 
   - id: CONTENT-006
     name: JSON value via jq
@@ -99,6 +109,8 @@ checks:
     only_if: test -f /etc/docker/daemon.json && command -v jq
     run: jq -r '.["live-restore"] // false' /etc/docker/daemon.json
     expect: "== true"
+    rationale: Without live-restore every restart of the Docker daemon stops all containers.
+    remediation: Set live-restore to true in /etc/docker/daemon.json and reload the Docker daemon.
 
   - id: CONTENT-007
     name: The login banner matches the approved text
@@ -107,6 +119,8 @@ checks:
     only_if: test -f /etc/issue.net
     run: sha256sum /etc/issue.net | cut -d' ' -f1
     expect: "== {{ login_banner_sha256 }}"
+    rationale: A banner that differs from the approved text was edited outside the approved process or carries an outdated legal notice.
+    remediation: Restore the approved text in /etc/issue.net, or update login_banner_sha256 after a deliberate change.
 
   - id: CONTENT-008
     name: The login banner does not reveal the operating system
@@ -117,12 +131,16 @@ checks:
     run: grep -iE '(\\[mrsv]|ubuntu|debian|red hat|rocky|suse)' /etc/issue /etc/issue.net 2>/dev/null
     allow_rc: [0, 1, 2]
     expect: empty
+    rationale: Operating system and kernel details in the banner help an attacker choose exploits before logging in.
+    remediation: Remove the getty escapes \r, \s, \v and \m and the distribution name from /etc/issue and /etc/issue.net.
 
   - id: CONTENT-009
     name: A file is not empty
     tags: [files, content]
     run: test -s /etc/resolv.conf
     expect: true
+    rationale: An empty /etc/resolv.conf leaves the host without name resolution.
+    remediation: Restore the name server entries in /etc/resolv.conf or repair the service that writes the file.
 
   - id: CONTENT-010
     name: Multi-line content contains a block in order
@@ -133,4 +151,6 @@ checks:
     run: |
       awk '/^\[main\]/ {m = 1} m && /^gpgcheck=1/ {print "found"; exit}' /etc/dnf/dnf.conf
     expect: "== found"
+    rationale: gpgcheck=1 takes effect for all repositories only inside the [main] section.
+    remediation: Add gpgcheck=1 below the [main] header in /etc/dnf/dnf.conf.
 ```

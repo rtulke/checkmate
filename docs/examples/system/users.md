@@ -67,6 +67,8 @@ checks:
     run: |
       awk -F: '$3 == 0 {print $1}' /etc/passwd
     expect: "== root"
+    rationale: Every account with UID 0 has full root rights under a name that nobody watches.
+    remediation: Remove the additional account or give it another UID with `usermod -u <uid> <user>`.
 
   - id: USR-002
     name: No account has an empty password
@@ -76,6 +78,7 @@ checks:
     run: |
       awk -F: '$2 == "" {print $1}' /etc/shadow
     expect: empty
+    rationale: An account with an empty password field can be used without any credential.
     remediation: Lock the listed accounts with `passwd -l <user>`.
 
   - id: USR-003
@@ -87,6 +90,8 @@ checks:
     run: |
       awk -F: '$2 ~ /^\$1\$/ || ($2 != "" && $2 !~ /^[!*$]/) {print $1}' /etc/shadow
     expect: empty
+    rationale: DES and MD5 password hashes are cracked quickly on current hardware.
+    remediation: Set ENCRYPT_METHOD SHA512 in /etc/login.defs and have the listed users set a new password.
 
   - id: "USR-DUP-{{ item.key | upper }}"
     name: "No duplicate {{ item.value }}"
@@ -102,6 +107,8 @@ checks:
       field={{ 1 if item.key in ["user", "group"] else 3 }}
       cut -d: -f"$field" "$file" | sort | uniq -d
     expect: empty
+    rationale: "Duplicate {{ item.value }} make it unclear which account or group owns a file or caused a log entry."
+    remediation: "Rename or renumber the listed entries so that all {{ item.value }} are unique."
 
   - id: USR-004
     name: System accounts cannot log in
@@ -110,6 +117,7 @@ checks:
     run: |
       awk -F: -v min={{ uid_min }} '$3 < min && $1 !~ /^(root|sync|shutdown|halt)$/ && $7 !~ /(nologin|false)$/ {print $1 " (" $7 ")"}' /etc/passwd
     expect: empty
+    rationale: A system account with a login shell allows interactive access as soon as it gets a password or key.
     remediation: usermod -s /usr/sbin/nologin <account>
 
   - id: USR-005
@@ -118,6 +126,8 @@ checks:
     run: |
       getent group root 2>/dev/null | cut -d: -f4 || awk -F: '$1 == "root" {print $4}' /etc/group
     expect: empty
+    rationale: Members of the root group can access files that are readable or writable for that group.
+    remediation: Remove the listed users with `gpasswd -d <user> root`.
 
   - id: USR-006
     name: Home directories are not accessible by others
@@ -129,6 +139,7 @@ checks:
           if [ -d "$home" ]; then find "$home" -maxdepth 0 -perm /o+rwx; fi
         done
     expect: empty
+    rationale: Home directories open to others expose private files such as shell history and configuration with credentials.
     remediation: chmod 750 <home>
 
   - id: "USR-KEYS-{{ item }}"
@@ -148,6 +159,7 @@ checks:
         echo --
       fi
     expect: "--"
+    rationale: "Whoever can write the authorized_keys file of {{ item }} can add a key and log in as that account."
     remediation: chmod 600 ~<account>/.ssh/authorized_keys
 
   - id: USR-007
@@ -158,6 +170,8 @@ checks:
       cat /etc/login.defs 2>/dev/null | awk '$1 == "PASS_MAX_DAYS" {print $2}'
     allow_rc: [0, 1]
     expect: ["!empty", "<= {{ max_password_age_days }}"]
+    rationale: A password that never expires stays usable for an unlimited time after a leak.
+    remediation: "Set PASS_MAX_DAYS {{ max_password_age_days }} in /etc/login.defs and apply it to existing accounts with `chage -M {{ max_password_age_days }} <user>`."
 
   - id: USR-008
     name: root's PATH contains no empty or relative entries
@@ -166,6 +180,8 @@ checks:
     # Login scripts may print banners; only the PATH= line is used.
     run: su - root -c 'printf "PATH=%s\\n" "$PATH"' 2>/dev/null | sed -n 's/^PATH=//p' | tail -1
     expect: '!~ (^|:)\.?(:|$)'
+    rationale: An empty or relative PATH entry makes root run programs from the current directory, where another user may have placed them.
+    remediation: Remove empty entries, `.` and relative directories from PATH in root's shell startup files.
 
   - id: USR-009
     name: Default umask is 027 or stricter
@@ -177,4 +193,6 @@ checks:
     as: string
     allow_rc: [0, 1]
     expect: "in ['027', '077', '0027', '0077']"
+    rationale: A lax umask makes new files readable by every local user.
+    remediation: Set UMASK 027 in /etc/login.defs.
 ```

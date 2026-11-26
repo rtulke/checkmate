@@ -54,6 +54,8 @@ checks:
     only_if: test -S /var/run/docker.sock
     run: stat -c '%a %U %G' /var/run/docker.sock
     expect: "== 660 root docker"
+    rationale: Access to the Docker socket is equivalent to root on the host.
+    remediation: chown root:docker /var/run/docker.sock && chmod 660 /var/run/docker.sock
 
   - id: DOCKER-002
     name: No container runs privileged
@@ -64,6 +66,8 @@ checks:
       docker ps -q | xargs -r docker inspect --format '{% raw %}{{ .Name }} {{ .HostConfig.Privileged }}{% endraw %}' |
         awk '$2 == "true" {print $1}'
     expect: empty
+    rationale: A privileged container has all capabilities and access to host devices, so a process in it can take over the host.
+    remediation: Recreate the listed containers without --privileged and add single capabilities with --cap-add where needed.
 
   - id: DOCKER-003
     name: No container uses the host network
@@ -74,6 +78,8 @@ checks:
       docker ps -q | xargs -r docker inspect --format '{% raw %}{{ .Name }} {{ .HostConfig.NetworkMode }}{% endraw %}' |
         awk '$2 == "host" {print $1}'
     expect: empty
+    rationale: A container on the host network reaches services bound to localhost and bypasses the network isolation of Docker.
+    remediation: Recreate the listed containers on a bridge network and publish the ports they need.
 
   - id: DOCKER-004
     name: No container mounts the Docker socket
@@ -85,6 +91,8 @@ checks:
         grep 'docker\.sock' | awk '{print $1}'
     allow_rc: [0, 1]
     expect: empty
+    rationale: A container that can reach the Docker socket can start a privileged container and take over the host.
+    remediation: Recreate the listed containers without the docker.sock mount.
 
   - id: DOCKER-005
     name: Containers do not run as root
@@ -94,6 +102,8 @@ checks:
       docker ps -q | xargs -r docker inspect --format '{% raw %}{{ .Name }} {{ if .Config.User }}{{ .Config.User }}{{ else }}root{{ end }}{% endraw %}' |
         awk '$2 == "root" || $2 == "0" || $2 ~ /^0:/ {print $1}'
     expect: empty
+    rationale: A process that runs as root in a container is root on the host after a container escape.
+    remediation: Set a USER in the image or start the container with `--user <uid>:<gid>`.
 
   - id: DOCKER-006
     name: live-restore keeps containers running during daemon restarts
@@ -102,6 +112,8 @@ checks:
     only_if: docker info >/dev/null 2>&1
     run: docker info --format '{% raw %}{{ .LiveRestoreEnabled }}{% endraw %}'
     expect: "== true"
+    rationale: Without live-restore every restart or upgrade of the daemon stops all containers.
+    remediation: Set live-restore to true in /etc/docker/daemon.json and reload the Docker daemon.
 
   - id: DOCKER-007
     name: Container logs go to a central driver
@@ -110,6 +122,8 @@ checks:
     only_if: docker info >/dev/null 2>&1
     run: docker info --format '{% raw %}{{ .LoggingDriver }}{% endraw %}'
     expect: "in [journald, syslog, fluentd, gelf, awslogs, splunk]"
+    rationale: The default json-file driver keeps logs only on the host, where they disappear with the container.
+    remediation: Set log-driver in /etc/docker/daemon.json to one of the central drivers and restart the Docker daemon.
 
   - id: DOCKER-008
     name: Every running container has a memory limit
@@ -119,4 +133,6 @@ checks:
       docker ps -q | xargs -r docker inspect --format '{% raw %}{{ .Name }} {{ .HostConfig.Memory }}{% endraw %}' |
         awk '$2 == 0 {print $1}'
     expect: empty
+    rationale: A container without a memory limit can use up the memory of the host and get other containers killed.
+    remediation: Start the listed containers with `--memory <limit>` or run `docker update --memory <limit> <container>`.
 ```
