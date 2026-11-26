@@ -23,6 +23,8 @@ Flags may come before or after the policy file.
 | `--fail-on SEVERITY` | Lowest severity whose failures make the run non-compliant. Default: `defaults.fail_on`, else `low`. |
 | `--waivers FILE` | File with accepted deviations (repeatable). See [Waivers](waivers.md). |
 | `--ignore-waivers` | Report every result as if no waiver existed. |
+| `--host [USER@]HOST[:PORT]` | Run the checks on another host over SSH instead of locally. See [Checking remote systems](../guides/remote.md). |
+| `--become` | With `--host`: run every command through `sudo -n`. |
 | `--format FORMAT` | Output on stdout: `text` (default), `json`, `jsonl`, `csv`, `html`, `junit`, `xccdf`, `arf`, `prom`, `attack`. See [Reports and exports](exports.md). |
 | `--export LIST` | Also write these formats to files, comma-separated: `html,pdf,json`. `syslog` or `syslog:udp://host` sends the results to syslog. |
 | `-o`, `--output BASE` | Base name or directory of the `--export` files. Default: `checkmate-<host>-<time>` in the current directory. |

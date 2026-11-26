@@ -57,6 +57,7 @@ type loopExec struct {
 	ctx          context.Context
 	platformKeys []string
 	jobs         int
+	target       *runner.Target
 }
 
 var (
@@ -122,6 +123,7 @@ func expandLoopRun(p *Policy, src CheckSource, node, loopRunNode *yaml.Node, ctx
 		Dir:     src.Dir,
 		Env:     p.Env,
 		Timeout: proto.Timeout,
+		Target:  exec.target,
 	})
 	if err != nil {
 		return fixed(FixedError, "loop_run: "+err.Error(), command)
@@ -270,7 +272,7 @@ func (c *Check) ExpandDeferred(ctx context.Context, platformKeys []string, outco
 	for name, o := range outcomes {
 		values[name] = o.Values()
 	}
-	checks, err := c.expandItems(&loopExec{ctx: ctx, platformKeys: platformKeys, jobs: 1}, values)
+	checks, err := c.expandItems(&loopExec{ctx: ctx, platformKeys: platformKeys, jobs: 1, target: c.target}, values)
 	if err != nil {
 		var ce *CheckError
 		if errors.As(err, &ce) {

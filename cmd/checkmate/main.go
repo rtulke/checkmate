@@ -20,6 +20,7 @@ import (
 	"github.com/rtulke/checkmate/internal/facts"
 	"github.com/rtulke/checkmate/internal/policy"
 	"github.com/rtulke/checkmate/internal/report"
+	"github.com/rtulke/checkmate/internal/runner"
 
 	"golang.org/x/term"
 	"gopkg.in/yaml.v3"
@@ -110,6 +111,25 @@ func (c *commonFlags) register(fs *flag.FlagSet, withFilter bool) {
 		"load policy files even if they are writable by non-root users while running as root")
 }
 
+// splitHostPort separates a trailing port from an ssh destination. A bare
+// IPv6 address has several colons and no port; with a port it is written
+// [addr]:port.
+func splitHostPort(dest string) (string, int) {
+	i := strings.LastIndexByte(dest, ':')
+	if i < 0 {
+		return dest, 0
+	}
+	name, digits := dest[:i], dest[i+1:]
+	if strings.Contains(name, ":") && !strings.HasSuffix(name, "]") {
+		return dest, 0
+	}
+	port, err := strconv.Atoi(digits)
+	if err != nil || port <= 0 {
+		return dest, 0
+	}
+	return strings.Trim(name, "[]"), port
+}
+
 func (c *commonFlags) filter() engine.Filter {
 	return engine.Filter{
 		Tags:     engine.ParseTagExpr(c.tags),
@@ -183,6 +203,8 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	var waiverFiles multiFlag
 	fs.Var(&waiverFiles, "waivers", "file with accepted deviations (repeatable), see the waivers reference")
 	ignoreWaivers := fs.Bool("ignore-waivers", false, "report every result as if no waiver existed")
+	host := fs.String("host", "", "run the checks on another host over SSH: [user@]host[:port]")
+	become := fs.Bool("become", false, "with --host: run every command through sudo -n")
 	fs.Usage = func() {
 		fmt.Fprintln(stderr, "Usage: checkmate run [flags] <policy.yml>")
 		printDefaults(fs, "json-out", "junit-out", "attack-layer")
@@ -252,8 +274,31 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	// does not reach them: cancel the run instead, which kills them.
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
 	defer stop()
+	hostFacts := facts.Gather()
+	var target *runner.Target
+	if *host != "" {
+		name, port := splitHostPort(*host)
+		target, err = runner.NewTarget(name, port, *become)
+		if err == nil {
+			err = target.Open()
+		}
+		if err == nil {
+			defer target.Close()
+			// The facts of the host decide which commands run there, and
+			// gathering them proves that it can be reached.
+			hostFacts, err = target.Facts(ctx)
+		}
+		if err != nil {
+			fmt.Fprintln(stderr, "checkmate:", err)
+			return exitUsage
+		}
+	} else if *become {
+		fmt.Fprintln(stderr, "checkmate: --become needs --host; run checkmate itself with sudo for local checks")
+		return exitUsage
+	}
 	r := engine.Run(ctx, p, engine.Options{
-		Facts:         facts.Gather(),
+		Facts:         hostFacts,
+		Target:        target,
 		Vars:          vars,
 		Filter:        common.filter(),
 		Jobs:          *jobs,

@@ -1,8 +1,42 @@
 # Checking remote systems
 
-checkmate runs commands locally, but nothing stops a command from reaching another system. Run checkmate on a management host and check switches, firewalls, appliances or servers that cannot run it themselves.
+There are two ways to check a system checkmate is not installed on:
 
-## Over SSH
+- **`--host`** runs a whole policy on another host over SSH. The policy is the same file you would run locally. Use it for servers with a POSIX shell.
+- **A command that reaches out**: nothing stops a command from calling `ssh`, `curl` or `snmpget`. Use it for switches, firewalls and appliances, and for checks that look at a system from outside.
+
+## A whole policy on another host
+
+```bash
+checkmate run baseline.yml --host web01.example.net
+checkmate run baseline.yml --host audit@web01.example.net:2222 --become
+```
+
+Nothing is installed or copied to the host. checkmate first asks it for its facts (distribution, version, user), so platform variants and `when` are decided for that host, not for the machine checkmate runs on. Then every command of the policy (`run`, `only_if`, `loop_run`) is executed there, and the report is written here, with the facts of the host.
+
+| | |
+|---|---|
+| Connection | The `ssh` program of the machine, so `~/.ssh/config`, agents, jump hosts and `known_hosts` apply as on the command line. One connection is shared by all commands. Set `CHECKMATE_SSH` to use another ssh program. |
+| Authentication | Keys or an agent. checkmate never asks for a password or passphrase (`BatchMode`); a host that needs one is reported as not reachable. An unknown host key is refused, as ssh does. |
+| Privileges | `--become` runs every command through `sudo -n`. The remote user needs a sudoers rule without password; each command then shows up in the sudo log of the host. Without `--become` the checks run as the remote user and `facts.is_root` is false. |
+| Shell | `bash` if the host has it, else `sh`; `shell:` in the policy can ask for `bash`, `sh` or `zsh`. PowerShell and `cmd` are not available over SSH. |
+| Environment | `LC_ALL=C`, the `env` of the policy, and `PATH` extended by `/usr/local/sbin:/usr/sbin:/sbin`, where many audit tools live and which SSH sessions often lack. |
+| Working directory | The home directory of the remote user. Files next to the policy are **not** on the host: checks that read them (`{{ policy_dir }}`, relative paths) need the content in a variable instead. |
+| Timeouts | If the host has `timeout` (coreutils, BusyBox), it ends the command and its children there. Otherwise only the connection is ended and the command may keep running on the host. |
+| Unreachable host | The run ends with an error before any check; a host that stops answering during the run turns the remaining checks into ERROR. It never looks compliant. |
+
+The login shell of the remote user must be a POSIX shell (sh, bash, zsh, ksh, dash).
+
+To check many hosts, run the command once per host and merge the reports:
+
+```bash
+for h in web01 web02 db01; do
+  checkmate run baseline.yml --host "$h.example.net" --become --export json -o "reports/$h" -q
+done
+checkmate export reports/*.json --export html,pdf -o fleet
+```
+
+## Over SSH, from inside a command
 
 Put the connection into a snippet and loop over an inventory:
 

@@ -12,7 +12,7 @@ import (
 func expandRun(t *testing.T, checks string) ([]*Check, []*CheckError) {
 	t.Helper()
 	p := load(t, writePolicy(t, map[string]string{"p.yml": "name: t\nvars:\n  users: 'alice\\nbob smith\\nalice'\nsnippets:\n  two: printf 'x\\ny\\n'\nchecks:" + checks + "\n"}, "p.yml"))
-	return ExpandRun(context.Background(), p, linuxFacts, nil, 4)
+	return ExpandRun(context.Background(), p, linuxFacts, nil, 4, nil)
 }
 
 func TestLoopRunCreatesOneCheckPerItem(t *testing.T) {
