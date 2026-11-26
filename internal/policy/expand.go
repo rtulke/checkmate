@@ -62,6 +62,7 @@ type Check struct {
 
 	// A loop_run check that is expanded during the run, see ExpandDeferred.
 	deferred    bool
+	target      *runner.Target
 	expandItems func(exec *loopExec, outcomes map[string]any) ([]*Check, error)
 }
 
@@ -206,11 +207,13 @@ func Expand(p *Policy, f facts.Facts, extraVars map[string]any) ([]*Check, []*Ch
 
 // ExpandRun is Expand for a run: it executes the loop_run commands, at most
 // jobs of them at a time, and returns one check per item.
-func ExpandRun(ctx context.Context, p *Policy, f facts.Facts, extraVars map[string]any, jobs int) ([]*Check, []*CheckError) {
+//
+// With a target the commands run on that host; f must be its facts.
+func ExpandRun(ctx context.Context, p *Policy, f facts.Facts, extraVars map[string]any, jobs int, target *runner.Target) ([]*Check, []*CheckError) {
 	if jobs < 1 {
 		jobs = 1
 	}
-	return expand(p, f, extraVars, &loopExec{ctx: ctx, platformKeys: f.PlatformKeys(), jobs: jobs})
+	return expand(p, f, extraVars, &loopExec{ctx: ctx, platformKeys: f.PlatformKeys(), jobs: jobs, target: target})
 }
 
 func expand(p *Policy, f facts.Facts, extraVars map[string]any, exec *loopExec) ([]*Check, []*CheckError) {
@@ -247,6 +250,7 @@ func expand(p *Policy, f facts.Facts, extraVars map[string]any, exec *loopExec) 
 			proto := expanded[i].checks[0]
 			if refersToAny(proto.When, names) {
 				proto.deferred = true
+				proto.target = exec.target
 				continue
 			}
 			wg.Add(1)

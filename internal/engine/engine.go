@@ -113,6 +113,9 @@ type Options struct {
 	Waivers []policy.Waiver
 	// IgnoreWaivers reports every result as if no waiver existed.
 	IgnoreWaivers bool
+	// Target runs the checks on another host over SSH; Facts must then be
+	// the facts of that host.
+	Target *runner.Target
 	// Now is the time waiver expiry is compared against (default: now).
 	Now time.Time
 }
@@ -124,7 +127,7 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 	if jobs <= 0 {
 		jobs = runtime.NumCPU()
 	}
-	checks, expandErrs := policy.ExpandRun(ctx, p, opts.Facts, opts.Vars, jobs)
+	checks, expandErrs := policy.ExpandRun(ctx, p, opts.Facts, opts.Vars, jobs, opts.Target)
 
 	// Broken checks are always reported, regardless of filters: a policy
 	// that cannot be evaluated must never look compliant.
@@ -191,7 +194,7 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 			res.Waiver = &WaiverInfo{Reason: w.Reason, Until: w.UntilString(), Source: w.Source}
 			return res, policy.Outcome{Status: "waived"}
 		}
-		res := runCheck(ctx, p, c, platformKeys)
+		res := runCheck(ctx, p, c, platformKeys, opts.Target)
 		outcome := policy.Outcome{Status: outcomeStatus(res.Status), RC: res.RC}
 		// Failures below the threshold (always including "info") are
 		// warnings. Errors are never downgraded: a check that cannot be
@@ -469,7 +472,7 @@ func baseResult(c *policy.Check) Result {
 	}
 }
 
-func runCheck(ctx context.Context, p *policy.Policy, c *policy.Check, platformKeys []string) (res Result) {
+func runCheck(ctx context.Context, p *policy.Policy, c *policy.Check, platformKeys []string, target *runner.Target) (res Result) {
 	start := time.Now()
 	res = baseResult(c)
 	defer func() {
@@ -519,7 +522,7 @@ func runCheck(ctx context.Context, p *policy.Policy, c *policy.Check, platformKe
 			return withStatus(res, StatusNA, notApplicableMessage(c, c.OnlyIf, platformKeys))
 		}
 		res.OnlyIf = guard
-		out, err := execute(ctx, p, c, guard)
+		out, err := execute(ctx, p, c, guard, target)
 		if err != nil {
 			return withStatus(res, StatusError, "only_if: "+err.Error())
 		}
@@ -528,7 +531,7 @@ func runCheck(ctx context.Context, p *policy.Policy, c *policy.Check, platformKe
 		}
 	}
 
-	out, err := execute(ctx, p, c, command)
+	out, err := execute(ctx, p, c, command, target)
 	res.Shell = out.Shell
 	res.Stdout = out.Stdout
 	res.Stderr = out.Stderr
@@ -557,12 +560,13 @@ func runCheck(ctx context.Context, p *policy.Policy, c *policy.Check, platformKe
 	return withStatus(res, StatusFail, msg)
 }
 
-func execute(ctx context.Context, p *policy.Policy, c *policy.Check, command string) (runner.Result, error) {
+func execute(ctx context.Context, p *policy.Policy, c *policy.Check, command string, target *runner.Target) (runner.Result, error) {
 	return runner.Run(ctx, runner.Request{
 		Command: command,
 		Shell:   c.Shell,
 		Dir:     c.Source.Dir,
 		Env:     checkEnv(p, c),
+		Target:  target,
 		Timeout: c.Timeout,
 	})
 }

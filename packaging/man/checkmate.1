@@ -156,6 +156,26 @@ Report every result as if no waiver existed.
 .BI \-j ", " \-\-jobs " n"
 Number of checks run in parallel.
 Default: the number of CPUs.
+.TP
+.BI \-\-host " [user@]host[:port]"
+Run the checks on another host over SSH instead of locally.
+Nothing is installed there.
+The facts are those of the host, so platform variants and
+.B when
+are decided for it.
+checkmate uses the
+.BR ssh (1)
+program, with the configuration, keys and known hosts of the user; it
+never asks for a password.
+The environment variable
+.B CHECKMATE_SSH
+names another ssh program.
+.TP
+.B \-\-become
+With
+.BR \-\-host :
+run every command through
+.BR "sudo \-n" .
 .SS Output (run, export, diff)
 .TP
 .BI \-\-format " format"

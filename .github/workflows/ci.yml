@@ -40,6 +40,16 @@ jobs:
       - name: Run all examples in Linux containers
         run: test/linux/run.sh
 
+  remote-ssh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Run policies over SSH and compare with local runs
+        run: test/linux/ssh.sh
+
   cis-benchmarks:
     runs-on: ubuntu-latest
     steps:

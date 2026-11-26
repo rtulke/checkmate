@@ -6,4 +6,5 @@
 /site/
 /test/linux/out-cis/
 /test/linux/out-remote/
+/test/linux/out-ssh/
 /test/linux/out/

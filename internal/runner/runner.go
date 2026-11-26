@@ -31,6 +31,9 @@ type Request struct {
 	Dir     string            // working directory
 	Env     map[string]string // extra environment variables
 	Timeout time.Duration
+	// Target runs the command on another host over SSH; nil runs it here.
+	// Dir does not apply then: the command starts in the home directory.
+	Target *Target
 }
 
 // Result is the outcome of a command.
@@ -47,28 +50,57 @@ type Result struct {
 // ErrTimeout is returned when a command exceeds its timeout.
 var ErrTimeout = errors.New("command timed out")
 
+// ErrUnreachable is returned when the host of a remote command does not
+// answer.
+var ErrUnreachable = errors.New("host is not reachable over SSH")
+
 // Run executes the request. An error is returned only if the command could
 // not be run to completion (shell missing, timeout); a non-zero exit code
 // is reported in the result.
 func Run(ctx context.Context, req Request) (Result, error) {
 	shell := req.Shell
-	if shell == "" {
-		shell = DefaultShell()
+	remote := req.Target != nil
+	var argv []string
+	var err error
+	localTimeout := req.Timeout
+	if remote {
+		if shell == "" {
+			shell = req.Target.Shell
+		}
+		if shell == "" {
+			shell = "sh"
+		}
+		argv, err = req.Target.argv(shell, req.Command, req.Env, req.Timeout)
+		if req.Timeout > 0 && req.Target.HasTimeout {
+			// The host ends the command and its children itself; ending
+			// ssh first would leave them running.
+			localTimeout += 5 * time.Second
+		}
+	} else {
+		if shell == "" {
+			shell = DefaultShell()
+		}
+		argv, err = shellArgv(shell, req.Command)
 	}
-	argv, err := shellArgv(shell, req.Command)
 	if err != nil {
 		return Result{Shell: shell}, err
 	}
 
-	if req.Timeout > 0 {
+	if localTimeout > 0 {
 		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, req.Timeout)
+		ctx, cancel = context.WithTimeout(ctx, localTimeout)
 		defer cancel()
 	}
 
 	cmd := exec.CommandContext(ctx, argv[0], argv[1:]...)
-	cmd.Dir = req.Dir
-	cmd.Env = buildEnv(shell, req.Env)
+	if remote {
+		// ssh needs the environment of the user (agent, configuration);
+		// the variables of the check are part of the remote command.
+		cmd.Env = os.Environ()
+	} else {
+		cmd.Dir = req.Dir
+		cmd.Env = buildEnv(shell, req.Env)
+	}
 	cmd.Stdin = nil
 	stdout := &limitedBuffer{limit: maxOutput}
 	stderr := &limitedBuffer{limit: maxOutput}
@@ -94,6 +126,21 @@ func Run(ctx context.Context, req Request) (Result, error) {
 
 	if ctx.Err() == context.DeadlineExceeded {
 		return res, fmt.Errorf("%w after %s", ErrTimeout, req.Timeout)
+	}
+	if remote {
+		rc := 0
+		var exitErr *exec.ExitError
+		if errors.As(runErr, &exitErr) {
+			rc = exitErr.ExitCode()
+		}
+		// timeout(1) reports 124 when it ended the command, 137 when it
+		// had to kill it.
+		if (rc == 124 || rc == 137) && req.Timeout > 0 && req.Target.HasTimeout && res.Duration >= req.Timeout {
+			return res, fmt.Errorf("%w after %s", ErrTimeout, req.Timeout)
+		}
+		if rc == 255 && !req.Target.reachable(ctx) {
+			return res, fmt.Errorf("%w: %s%s", ErrUnreachable, req.Target.Host, firstLineSuffix(res.Stderr))
+		}
 	}
 	// The command succeeded, but a process it left behind kept stdout or
 	// stderr open beyond WaitDelay. The command itself has completed.
@@ -225,6 +272,17 @@ func windowsPowerShellModulePath(value string) string {
 		}
 	}
 	return strings.Join(kept, ";")
+}
+
+func firstLineSuffix(s string) string {
+	s = strings.TrimSpace(s)
+	if i := strings.IndexByte(s, '\n'); i >= 0 {
+		s = s[:i]
+	}
+	if s == "" {
+		return ""
+	}
+	return ": " + strings.TrimSpace(s)
 }
 
 func normalizeNewlines(s string) string {

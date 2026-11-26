@@ -5,6 +5,7 @@ package facts
 
 import (
 	"bufio"
+	"io"
 	"os"
 	"os/exec"
 	"regexp"
@@ -95,15 +96,19 @@ func gatherLinux(f *Facts) {
 	if len(osRelease) == 0 {
 		osRelease = readOSRelease("/usr/lib/os-release")
 	}
+	applyOSRelease(f, osRelease)
+	if data, err := os.ReadFile("/proc/sys/kernel/osrelease"); err == nil {
+		f.Kernel = strings.TrimSpace(string(data))
+	}
+}
+
+func applyOSRelease(f *Facts, osRelease map[string]string) {
 	f.Distro = strings.ToLower(osRelease["ID"])
 	f.DistroLike = strings.Fields(strings.ToLower(osRelease["ID_LIKE"]))
 	f.DistroName = osRelease["PRETTY_NAME"]
 	f.Version = osRelease["VERSION_ID"]
 	if f.Distro == "" {
 		f.Distro = "linux"
-	}
-	if data, err := os.ReadFile("/proc/sys/kernel/osrelease"); err == nil {
-		f.Kernel = strings.TrimSpace(string(data))
 	}
 }
 
@@ -153,14 +158,17 @@ func windowsProduct(installType string, build int) string {
 
 // readOSRelease parses an os-release(5) file into a key/value map.
 func readOSRelease(path string) map[string]string {
-	result := map[string]string{}
 	fh, err := os.Open(path)
 	if err != nil {
-		return result
+		return map[string]string{}
 	}
 	defer fh.Close()
+	return parseOSRelease(fh)
+}
 
-	scanner := bufio.NewScanner(fh)
+func parseOSRelease(r io.Reader) map[string]string {
+	result := map[string]string{}
+	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" || strings.HasPrefix(line, "#") {
