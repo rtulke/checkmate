@@ -124,6 +124,38 @@ SSH-003  high      system,ssh,crypto   No weak ciphers
                                          expect: stdout not to be empty and stdout !~ "(cbc|arcfour|3des|blowfish)"
 ```
 
+### What would run on other hosts
+
+`list` takes `--host`, `--become`, `--inventory`, `--limit` and `--forks` as `run` does, and shows for every host what a run would do there, without running a check:
+
+```console
+$ checkmate list -v baseline.yml -i hosts.yml -l web,switches
+web01.example.net · Rocky Linux 9.4 · as root through sudo
+ID          SEVERITY  TAGS  NAME
+PKG-SSHD    medium          sshd is installed
+                              $ rpm -q openssh-server
+                              expect: exit code 0
+KEY-{item}  high            No authorized_keys for {item}
+                              one check per line of: $ ls /home
+                              $ test -f "/home/$CHECKMATE_ITEM/.ssh/authorized_keys"
+                              expect: non-zero exit code
+NTP         medium          The clock is synchronized
+                              skipped here: when: "switches" in group_names is false
+
+sw-core-01.example.net · ios · device, commands are sent as written
+ID          SEVERITY  TAGS  NAME
+NTP         medium          The clock is synchronized
+                              $ show ntp status
+                              expect: stdout ~ "Clock is synchronized"
+```
+
+- Every host is asked for its facts, because they decide which variant of a command applies and which `when` holds. Nothing else is sent to it.
+- Per host: the command for its platform, with the variables of the inventory filled in. A `loop_run` check appears once with the command that would list its items; a check with `no_log` shows neither command nor expectation.
+- A `when` that is already decided by facts and variables is shown as skipped. One that asks for the outcome of another check is decided only by a run.
+- A host that cannot be asked is named with the reason, and the exit code is 3.
+
+Use it before the first run against an inventory, and when a policy changed: it is the answer to "what exactly will this do on which machine".
+
 ## checkmate export
 
 Converts JSON reports into other formats and merges several reports (hosts or runs) into one document. See [Reports and exports](exports.md#checkmate-export).

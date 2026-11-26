@@ -63,7 +63,9 @@ checkmate run baseline.yml -i hosts.yml --export html,pdf -o reports/
 checkmate run baseline.yml -i hosts.yml --limit web
 ```
 
-Linux, Windows and devices can share an inventory; what each host is, is found out per host. The hosts are checked in parallel, each one as described above. The console shows an overview of all hosts, and every export format contains all of them. A host that cannot be reached has no results: it is listed as unreachable and counts neither as compliant nor as non-compliant.
+Linux, Windows and devices can share an inventory; what each host is, is found out per host. Before the first run, `checkmate list -v baseline.yml -i hosts.yml` shows for every host which commands a run would execute there, without running any of them.
+
+The hosts are checked in parallel, each one as described above. The console shows an overview of all hosts, and every export format contains all of them. A host that cannot be reached has no results: it is listed as unreachable and counts neither as compliant nor as non-compliant.
 
 ## Switches, firewalls and other devices
 

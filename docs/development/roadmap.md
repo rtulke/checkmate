@@ -21,7 +21,7 @@ The command and the output of every check are part of the report. A password tha
 
 ### See what would run, before it runs
 
-`checkmate list --inventory hosts.yml` shows, per host, which checks would run and with which command, without running any of them. It asks every host for its facts, since they decide which variant of a command applies, and nothing else.
+Done: `checkmate list -v --inventory hosts.yml` shows, per host, which checks would run and with which command, without running any of them. See [the command line reference](../reference/cli.md#what-would-run-on-other-hosts).
 
 ## Later
 
