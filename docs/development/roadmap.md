@@ -4,24 +4,17 @@ What is planned, what is being considered, and what was decided against. Nothing
 
 ## Next
 
-### Know where a policy comes from
+### Trust in policies
 
-A policy is code that runs as root, with an inventory on many hosts at once. checkmate should say what it is about to run and where that came from.
+Checkmate says where a policy comes from and can require signatures, see [Where a policy comes from](../reference/trust.md). Open:
 
-1. **Provenance of shipped policies.** Done, see [Where a policy comes from](../reference/trust.md): the hashes of all shipped policies are built into the binary, and every run and report says which files are shipped, modified or your own.
-2. **Signatures for your own policies.** Done: `checkmate keygen`, `sign` and `verify`, a file of trusted keys, and `--require-signed`, which refuses everything that is neither shipped nor signed. Still open: a system-wide setting that users without root cannot turn off, and private keys that are encrypted or held in a hardware token.
-3. **Signed releases.** A signature over `SHA256SUMS` of every release, so that the binary the hashes of step 1 live in can be verified itself.
+- **Signed releases.** A signature over `SHA256SUMS` of every release, so that the binary the built-in policy hashes live in can be verified itself.
+- **Requiring signatures system-wide.** `--require-signed` is an option of a run. A setting in a file that only root can change would make it binding for everyone on a machine.
+- **Protected private keys.** The key file of `checkmate sign` is not encrypted; keys with a passphrase or in a hardware token.
 
-### Keep secrets out of reports
+### Secrets on remote hosts
 
-The command and the output of every check are part of the report. A password that is rendered into a command ends up in JSON, HTML, PDF and syslog.
-
-- `no_log: true` on a check keeps its command, output and messages out of every report and off the console. Done, see [Secrets](../reference/checks.md#secrets).
-- Secrets for remote runs: variables of a check that reach the host without appearing on a command line or in the sudo log.
-
-### See what would run, before it runs
-
-Done: `checkmate list -v --inventory hosts.yml` shows, per host, which checks would run and with which command, without running any of them. See [the command line reference](../reference/cli.md#what-would-run-on-other-hosts).
+`no_log` keeps a secret out of reports, see [Secrets](../reference/checks.md#secrets). Over SSH the variables of a check still travel on the command line of the remote shell, and with `become` into the sudo log of the host. They need a way to the host that appears in neither.
 
 ## Later
 
@@ -56,5 +49,5 @@ Done: `checkmate list -v --inventory hosts.yml` shows, per host, which checks wo
 
 | Version | |
 |---|---|
-| 2.4 | Remote runs over SSH (`--host`, `--inventory`) for Linux, macOS, BSD, Windows and devices; reports and exit code for hosts that cannot be checked; `loop_run`, `register`, `cases`; job objects and UTF-8 on Windows |
+| 2.4 | Remote runs over SSH (`--host`, `--inventory`) for Linux, macOS, BSD, Windows and devices, with `list` as a preview of what would run where; reports and exit code for hosts that cannot be checked; origin and hashes of policy files in every run and report, signatures and `--require-signed`; `no_log`; `loop_run`, `register`, `cases`; rationale and remediation on every example check; job objects, UTF-8 and policy file checks on Windows |
 | 2.3 | `rationale` on every CIS and STIG check; checks stop on SIGTERM; export targets are checked before the run |
