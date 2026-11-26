@@ -132,6 +132,11 @@ checks:
 		}
 	}
 
+	out.Reset()
+	if got := run(args("-l", "web"), &out, &errOut); got != exitCompliant || !strings.Contains(out.String(), "2 hosts") {
+		t.Errorf("-l web: exit %d\n%s", got, out.String())
+	}
+
 	// The overview names the state and gives no numbers for the host.
 	out.Reset()
 	run(args(), &out, &errOut)

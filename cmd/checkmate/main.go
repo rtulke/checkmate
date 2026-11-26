@@ -209,6 +209,7 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	inventoryPath := fs.String("inventory", "", "run the checks on every host of this inventory file over SSH")
 	fs.StringVar(inventoryPath, "i", "", "shorthand for --inventory")
 	limit := fs.String("limit", "", "with --inventory: only these hosts or groups, comma-separated; host names may use * and ?")
+	fs.StringVar(limit, "l", "", "shorthand for --limit")
 	forks := fs.Int("forks", 5, "with --inventory: number of hosts checked at the same time")
 	fs.Usage = func() {
 		fmt.Fprintln(stderr, "Usage: checkmate run [flags] <policy.yml>")
