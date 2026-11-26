@@ -19,8 +19,9 @@ import (
 //go:embed shipped.sha256
 var manifest string
 
-// Manifest returns the built-in list of shipped policies.
-func Manifest() string { return manifest }
+// Manifest returns the built-in list of shipped policies, with Unix line
+// ends also where a checkout converted them.
+func Manifest() string { return strings.ReplaceAll(manifest, "\r\n", "\n") }
 
 // Origins of a file.
 const (
