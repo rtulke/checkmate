@@ -138,6 +138,8 @@ checks:
     only_if: command -v systemctl && test -d /run/systemd/system
     run: systemctl get-default
     expect: "!= graphical.target"
+    rationale: A graphical desktop adds software a server does not need and invites its use as a workstation.
+    remediation: Run `systemctl set-default multi-user.target` and reboot.
 
   - id: BSI-SYS.1.1.A1-NO-WORKSTATION-APPS
     name: No web browser or office program is installed
@@ -149,6 +151,8 @@ checks:
         if command -v "$p" >/dev/null 2>&1; then command -v "$p"; fi
       done
     expect: empty
+    rationale: A browser, mail client or office program opens untrusted content from the internet on a system that holds server data.
+    remediation: Remove the listed programs with the package manager.
 
   - id: BSI-SYS.1.1.A2-SSH-EMPTY-PASSWORDS
     name: SSH rejects empty passwords
@@ -159,6 +163,8 @@ checks:
     only_if: command -v sshd
     run: sshd -T 2>/dev/null | awk '$1 == "permitemptypasswords" {print $2}'
     expect: "== no"
+    rationale: With PermitEmptyPasswords yes an account without a password can be used over the network without any credential.
+    remediation: Set PermitEmptyPasswords no in /etc/ssh/sshd_config and reload sshd.
 
   - id: BSI-SYS.1.1.A2-EMPTY-PASSWORDS
     name: No account has an empty password
@@ -169,6 +175,8 @@ checks:
     run: |
       awk -F: '$2 == "" {print $1}' /etc/shadow
     expect: empty
+    rationale: Anyone can log in to an account whose password field in /etc/shadow is empty.
+    remediation: Set a password for each listed account or lock it with `passwd -l <account>`.
 
   - id: "BSI-SYS.1.1.A5-MODULE-{{ item | upper }}"
     name: "Kernel module {{ item }} cannot be loaded"
@@ -184,6 +192,7 @@ checks:
       linux: modprobe -n -v {{ item }} 2>&1
     allow_rc: [0, 1, 2]
     expect: { any: ["~ install( {{ item }})? /(usr/)?bin/(true|false)", "~ (?i)not found", "~ ^blacklist"] }
+    rationale: "The {{ item }} module makes an interface usable through which anyone with physical access can copy data or attack the system."
     remediation: "printf 'install {{ item }} /bin/false\\nblacklist {{ item }}\\n' > /etc/modprobe.d/{{ item }}.conf"
 
   - id: "BSI-SYS.1.1.A6-SERVICE-{{ item | upper }}"
@@ -195,6 +204,7 @@ checks:
     loop: "{{ bsi_unwanted_services }}"
     run: systemctl show -p ActiveState {{ item }} | cut -d= -f2
     expect: "!= active"
+    rationale: "A running {{ item }} adds attack surface for a function the server does not need."
     remediation: "systemctl disable --now {{ item }}"
 
   - id: BSI-SYS.1.1.A6-LEGACY-LISTENERS
@@ -206,6 +216,8 @@ checks:
     only_if: command -v ss
     run: ss -Htulnp | awk '{split($5, a, ":"); p = a[length(a)]} p == 21 || p == 23 || p == 69 || p == 512 || p == 513 || p == 514'
     expect: empty
+    rationale: These protocols transfer data and passwords in clear text, and SSH replaces all of them.
+    remediation: Stop and disable the service behind each listed socket and remove its package.
 
   - id: BSI-SYS.1.1.A10-AUDITD
     name: The audit daemon is running
@@ -216,6 +228,8 @@ checks:
     only_if: command -v systemctl && test -d /run/systemd/system
     run: systemctl show -p ActiveState auditd | cut -d= -f2
     expect: "== active"
+    rationale: Without auditd security-relevant events such as logins and permission changes leave no audit trail.
+    remediation: Install the audit package and run `systemctl enable --now auditd`.
 
   - id: "BSI-SYS.1.1.A10-AUDIT-{{ item.key }}"
     name: "{{ item.value.name }}"
@@ -243,6 +257,8 @@ checks:
         pattern: "(EACCES|EPERM|exit=-13|exit=-1 )"
     run: { use: audit_rules }
     expect: { some: "~ {{ item.value.pattern }}" }
+    rationale: "Without an audit rule for {{ item.value.event }} these events cannot be traced after an incident."
+    remediation: "Add an audit rule for {{ item.value.event }} to a file in /etc/audit/rules.d and load it with `augenrules --load`."
 
   - id: BSI-SYS.1.1.A10-PERSISTENT-LOG
     name: System events are written to a persistent log
@@ -258,6 +274,8 @@ checks:
       if [ "$storage" = persistent ] || { [ "${storage:-auto}" = auto ] && [ -d /var/log/journal ]; }; then echo journald; exit 0; fi
       echo none
     expect: "!= none"
+    rationale: A journal that is kept only in memory is lost at reboot, and with it the record of system starts and errors.
+    remediation: Set Storage=persistent in /etc/systemd/journald.conf and restart systemd-journald, or run rsyslog or syslog-ng.
 
   - id: BSI-SYS.1.1.A10-FIREWALL-LOG
     name: Blocked network traffic is logged
@@ -276,6 +294,8 @@ checks:
       if command -v iptables >/dev/null && iptables -S 2>/dev/null | grep -- '-j LOG' >/dev/null; then echo "iptables LOG rule"; exit 0; fi
       echo "no logging of blocked traffic"
     expect: { all: ["!~ ^no logging", "!~ LogDenied=(off|)$", "!~ ^ufw off"] }
+    rationale: Blocked connections that are not logged hide port scans and attempts to get around the firewall rules.
+    remediation: Run `firewall-cmd --set-log-denied=all` with firewalld or `ufw logging on` with ufw. With nftables or iptables add a log rule in front of the final drop.
 
   - id: BSI-SYS.1.1.A19-FIREWALL-DEFAULT-DENY
     name: The local packet filter rejects incoming traffic by default
@@ -295,6 +315,8 @@ checks:
       if command -v iptables >/dev/null && iptables -S INPUT 2>/dev/null | grep -E '^-P INPUT (DROP|REJECT)' >/dev/null; then echo "iptables input policy drop"; exit 0; fi
       echo "no packet filter with a default deny for incoming traffic"
     expect: { all: ["!~ ^no packet filter", "!~ accepts everything", "!~ ^ufw allow \\(incoming\\)"] }
+    rationale: A packet filter that accepts by default exposes every listening port to the whole network.
+    remediation: Allow the required ports first. Then run `ufw default deny incoming`, set the input policy of nftables or iptables to drop, or use a firewalld default zone whose target is not ACCEPT.
 
   - id: BSI-SYS.1.1.A23-MONITORING
     name: A monitoring agent is running
@@ -308,6 +330,8 @@ checks:
       done
       echo none
     expect: "!= none"
+    rationale: A server without a monitoring agent can fail or run out of resources without anyone noticing.
+    remediation: Install and start the monitoring agent in use, or add its process name to bsi_monitoring_agents.
 
   - id: BSI-SYS.1.1.A27-HIDS
     name: File integrity monitoring or a host-based IDS is in place
@@ -328,6 +352,8 @@ checks:
       done
       echo none
     expect: "!= none"
+    rationale: Without integrity monitoring a manipulated system file or configuration stays undetected.
+    remediation: Install AIDE, initialize its database and schedule a regular check, or add the process name of the IDS agent in use to bsi_hids_agents.
 
   - id: BSI-SYS.1.1.A30-ONE-SERVICE
     name: The server offers at most one network service
@@ -347,6 +373,8 @@ checks:
         }
         END {for (p in seen) print p}' | sort
     expect: { lines: "<= 1" }
+    rationale: Services that share a server share its weaknesses, so a compromise of one exposes the data of the others.
+    remediation: Move the additional services to servers of their own, or add infrastructure daemons to bsi_infrastructure_listeners.
 
   - id: BSI-SYS.1.1.A31-EXECUTION-CONTROL
     name: Execution control allows only approved programs
@@ -356,6 +384,8 @@ checks:
     only_if: command -v systemctl && test -d /run/systemd/system
     run: systemctl show -p ActiveState fapolicyd | cut -d= -f2
     expect: "== active"
+    rationale: Without execution control any file that a user or an attacker places on the server can be run.
+    remediation: Install fapolicyd, review its rules and run `systemctl enable --now fapolicyd`.
 
   - id: BSI-SYS.1.1.A34-DISK-ENCRYPTION
     name: The root file system is encrypted
@@ -368,6 +398,8 @@ checks:
       src=$(findmnt -n -o SOURCE /)
       if lsblk -s -n -o TYPE "$src" 2>/dev/null | grep crypt >/dev/null; then echo encrypted; else echo "$src is not on a dm-crypt device"; fi
     expect: "== encrypted"
+    rationale: An unencrypted disk can be read by anyone who gets hold of the drive or of a copy of the volume.
+    remediation: Reinstall or migrate the server onto a LUKS-encrypted root volume.
 
   - id: BSI-SYS.1.1.A36-SECURE-BOOT
     name: Secure Boot is enabled
@@ -380,6 +412,8 @@ checks:
       f=$(ls /sys/firmware/efi/efivars/SecureBoot-* 2>/dev/null | sed -n 1p)
       if [ -n "$f" ] && [ "$(od -An -tu1 -j4 -N1 "$f" | tr -d ' ')" = 1 ]; then echo "SecureBoot enabled"; else echo "SecureBoot disabled"; fi
     expect: "~ (?i)SecureBoot enabled"
+    rationale: Without Secure Boot a modified boot loader or kernel starts unnoticed.
+    remediation: Enable Secure Boot in the UEFI firmware setup and boot a signed boot loader and kernel.
 
   - id: BSI-SYS.1.1.A38-READ-ONLY-ROOT
     name: The root file system is read-only
@@ -391,6 +425,8 @@ checks:
       if [ -e /run/ostree-booted ]; then echo immutable; exit 0; fi
       findmnt -n -o OPTIONS / | tr ',' '\n' | grep -x ro >/dev/null && echo immutable || echo "root is mounted read-write"
     expect: "== immutable"
+    rationale: On a writable root file system an attacker with root rights can change system files permanently.
+    remediation: Mount / read-only or deploy the server as an image-based system such as rpm-ostree.
 
   # ===== SYS.1.3 Server unter Linux und Unix ===================================
 
@@ -406,6 +442,8 @@ checks:
       GID: { name: Every GID is unique, file: /etc/group, field: 3 }
     run: cut -d':' -f{{ item.value.field }} {{ item.value.file }} | sort | uniq -d
     expect: empty
+    rationale: "Duplicate entries in {{ item.value.file }} make it impossible to tell from file ownership and logs which account or group is meant."
+    remediation: "Rename or renumber the duplicates listed from {{ item.value.file }} with usermod or groupmod."
 
   - id: BSI-SYS.1.3.A2-GROUPS-DEFINED
     name: Every primary group of an account exists
@@ -415,6 +453,8 @@ checks:
     run: |
       awk -F: 'NR == FNR {gid[$3] = 1; next} !($4 in gid) {print $1 " (GID " $4 ")"}' /etc/group /etc/passwd
     expect: empty
+    rationale: Files of an undefined GID belong to no administered group, and a group created later with that GID gets access to them.
+    remediation: Create the missing group with `groupadd -g <gid> <name>` or assign the account an existing primary group with `usermod -g`.
 
   - id: BSI-SYS.1.3.A3-AUTOFS
     name: Removable media are not mounted automatically
@@ -424,6 +464,8 @@ checks:
     only_if: command -v systemctl && test -d /run/systemd/system
     run: systemctl show -p ActiveState autofs | cut -d= -f2
     expect: "!= active"
+    rationale: Automatically mounted removable media bring unchecked files and programs onto the server.
+    remediation: systemctl disable --now autofs
 
   - id: BSI-SYS.1.3.A3-DESKTOP-AUTOMOUNT
     name: The desktop does not mount removable media automatically
@@ -434,6 +476,8 @@ checks:
     run: |
       cat /etc/dconf/db/*.d/* 2>/dev/null | awk -F= '$1 ~ /^automount$/ {gsub(/[[:space:]]/, "", $2); v = $2} END {print (v == "" ? "not set" : v)}'
     expect: "== false"
+    rationale: A desktop session that mounts inserted media by itself makes their content available without a decision by an administrator.
+    remediation: Set automount=false under [org/gnome/desktop/media-handling] in a file below /etc/dconf/db/local.d and run `dconf update`.
 
   - id: BSI-SYS.1.3.A4-ASLR
     name: Address space layout randomization is fully enabled
@@ -442,6 +486,8 @@ checks:
     severity: high
     run: cat /proc/sys/kernel/randomize_va_space
     expect: "== 2"
+    rationale: Without full address space randomization memory addresses are predictable, which makes memory corruption exploits reliable.
+    remediation: Set kernel.randomize_va_space = 2 in a file below /etc/sysctl.d and run `sysctl --system`.
 
   - id: BSI-SYS.1.3.A4-NX
     name: The NX bit is available and not disabled
@@ -459,6 +505,8 @@ checks:
         x86_64|i?86) grep -qw nx /proc/cpuinfo || echo "the CPU does not report the nx flag" ;;
       esac
     expect: empty
+    rationale: Without NX an attacker can execute data injected into the stack or heap as code.
+    remediation: Remove the listed option from the kernel command line in the boot loader configuration and reboot. If the CPU flag is missing, enable NX/XD in the firmware setup.
 
   - id: BSI-SYS.1.3.A4-KERNEL-PROTECTION
     name: Kernel security functions are not switched off at boot
@@ -470,6 +518,8 @@ checks:
         case "$o" in norandmaps|mitigations=off|nopti|pti=off|nosmap|nosmep|nokaslr|selinux=0|apparmor=0|enforcing=0|audit=0) echo "$o" ;; esac
       done
     expect: empty
+    rationale: Each of these boot options switches off a kernel protection such as KASLR, page table isolation, CPU vulnerability mitigations, mandatory access control or auditing.
+    remediation: Remove the listed options from the kernel command line in the boot loader configuration and reboot.
 
   - id: BSI-SYS.1.3.A5-UNPACKAGED-BINARIES
     name: System binary directories contain only files from packages
@@ -492,6 +542,8 @@ checks:
         find /usr/bin /usr/sbin -maxdepth 1 -type f | sort > "$tmp/fs"
         comm -23 "$tmp/fs" "$tmp/pkg"
     expect: empty
+    rationale: Files in /usr/bin and /usr/sbin that belong to no package receive no updates and cannot be verified against the package database.
+    remediation: Move self-built software to /usr/local or /opt or install it as a package. Investigate listed files of unknown origin.
 
   - id: BSI-SYS.1.3.A8-SSH-KEYS
     name: SSH logins use keys instead of passwords
@@ -502,6 +554,8 @@ checks:
     only_if: command -v sshd
     run: sshd -T 2>/dev/null | awk '$1 == "passwordauthentication" {print $2}'
     expect: "== no"
+    rationale: Passwords can be guessed, phished and reused, while a private key never leaves the client.
+    remediation: Set PasswordAuthentication no in /etc/ssh/sshd_config and reload sshd once key logins work.
 
   - id: BSI-SYS.1.3.A10-MAC
     name: SELinux is enforcing or AppArmor enforces profiles
@@ -517,6 +571,8 @@ checks:
       fi
       echo "no mandatory access control"
     expect: { any: ["== SELinux Enforcing", "~ ^AppArmor [1-9][0-9]* profiles"] }
+    rationale: Without mandatory access control a compromised service can use every right of its user account.
+    remediation: Set SELINUX=enforcing in /etc/selinux/config and reboot, or enable AppArmor and put the shipped profiles into enforce mode with aa-enforce.
 
   - id: "BSI-SYS.1.3.A14-{{ item.key }}"
     name: "{{ item.value.name }}"
@@ -528,6 +584,8 @@ checks:
       KPTR: { name: Kernel pointers are hidden from users, file: /proc/sys/kernel/kptr_restrict, expect: ">= 1" }
     run: cat {{ item.value.file }}
     expect: "{{ item.value.expect }}"
+    rationale: The kernel log and kernel pointers reveal addresses that help a local user to exploit kernel bugs.
+    remediation: "Set the sysctl behind {{ item.value.file }} to 1 in a file below /etc/sysctl.d and run `sysctl --system`."
 
   - id: BSI-SYS.1.3.A14-LOG-FILES
     name: Log files are not readable by all users
@@ -537,6 +595,8 @@ checks:
     when: facts.is_root
     run: find -H /var/log -type f -perm -0004 2>/dev/null
     expect: empty
+    rationale: Log files contain user names, addresses and error details that help an unprivileged user to prepare an attack.
+    remediation: Run `chmod o-r` on the listed files and correct the mode in the logrotate or syslog configuration that creates them.
 
   - id: BSI-SYS.1.3.A16-SECCOMP
     name: Network services run with a system call filter
@@ -555,6 +615,8 @@ checks:
         if [ "$mode" != 2 ]; then echo "$(cat "/proc/$pid/comm" 2>/dev/null) (pid $pid)"; fi
       done
     expect: empty
+    rationale: A network service without a system call filter can use the whole kernel interface once it is compromised.
+    remediation: Add a filter such as SystemCallFilter=@system-service to the systemd unit of each listed service and restart it.
 
   - id: BSI-SYS.1.3.A17-LOCKDOWN
     name: The kernel runs in lockdown mode
@@ -563,4 +625,6 @@ checks:
     severity: low
     run: cat /sys/kernel/security/lockdown 2>/dev/null || echo "[none] (not supported)"
     expect: "~ \\[(integrity|confidentiality)\\]"
+    rationale: Without lockdown root can modify the running kernel, for example through /dev/mem or unsigned modules.
+    remediation: Add lockdown=integrity to the kernel command line and reboot.
 ```

@@ -53,6 +53,7 @@ checks:
     run: zypper --non-interactive --quiet patch-check
     timeout: 3m
     expect: { rc: "!= 101" }
+    rationale: Every pending security patch is a published vulnerability that is still open on this system.
     remediation: zypper patch --category security
 
   - id: SUSE-002
@@ -63,6 +64,8 @@ checks:
     run: zypper --non-interactive --quiet patch-check
     timeout: 3m
     expect: { rc: "== 0" }
+    rationale: Pending patches leave known bugs in place that can affect stability and support.
+    remediation: zypper patch
 
   - id: SUSE-003
     name: The system is registered with SCC or RMT
@@ -71,6 +74,8 @@ checks:
     only_if: command -v SUSEConnect
     run: SUSEConnect --status-text
     expect: "~ (?i)registered"
+    rationale: An unregistered system gets no patches from the SUSE update repositories.
+    remediation: Register the system with `SUSEConnect -r <registration code>`, or with `SUSEConnect --url <RMT server>` for a local RMT.
 
   - id: SUSE-004
     name: AppArmor is active
@@ -78,6 +83,8 @@ checks:
     when: '"suse" in facts.distro_like or facts.distro == "sles"'
     run: systemctl is-active apparmor
     expect: "== active"
+    rationale: Without AppArmor a compromised service can use every right of its user account.
+    remediation: systemctl enable --now apparmor
 
   - id: SUSE-005
     name: No repository disables GPG checks
@@ -88,6 +95,8 @@ checks:
       grep -HEi '^[[:space:]]*gpgcheck[[:space:]]*=[[:space:]]*(0|off|no|false)' /etc/zypp/repos.d/*.repo
     allow_rc: [0, 1, 2]
     expect: empty
+    rationale: With signature checks switched off a manipulated repository or mirror can deliver modified packages that are installed as root.
+    remediation: Set gpgcheck=1 in the listed files.
 
   - id: SUSE-006
     name: No reboot needed
@@ -96,4 +105,6 @@ checks:
     # Exit code 102 means a reboot is required.
     run: zypper needs-rebooting
     expect: { rc: "!= 102" }
+    rationale: Until the reboot the system runs the old kernel and libraries with the vulnerabilities the patches fix.
+    remediation: Reboot the system.
 ```

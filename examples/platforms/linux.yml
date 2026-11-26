@@ -18,6 +18,8 @@ checks:
     when: facts.os == "linux"
     run: test -r /etc/os-release
     expect: true
+    rationale: Software identifies the distribution and its version from /etc/os-release, and without the file package tools and scripts make wrong decisions.
+    remediation: Reinstall the release package of the distribution, which provides the file.
 
   - id: LNX-OS-002
     name: "Kernel is {{ min_kernel }} or newer"
@@ -26,6 +28,8 @@ checks:
     run: uname -r | cut -d- -f1
     as: version
     expect: ">= {{ min_kernel }}"
+    rationale: "A kernel older than {{ min_kernel }} lacks security features and fixes that current software expects."
+    remediation: Install a current kernel from the distribution and reboot.
 
   - id: LNX-OS-003
     name: systemd is the init system
@@ -34,6 +38,8 @@ checks:
     when: facts.os == "linux"
     run: cat /proc/1/comm
     expect: "== systemd"
+    rationale: The service checks of this policy use systemctl, which only works where systemd is the init system.
+    remediation: Leave the systemd-based checks out on this host or use a policy written for its init system.
 
   - id: LNX-OS-004
     name: No failed systemd units
@@ -41,6 +47,7 @@ checks:
     when: facts.os == "linux"
     run: systemctl list-units --state=failed --no-legend --plain
     expect: empty
+    rationale: A failed unit is a service or job that is not doing its work, often without anyone noticing.
     remediation: Inspect with `systemctl --failed` and `journalctl -u <unit>`.
 
   - id: LNX-OS-005
@@ -51,6 +58,7 @@ checks:
       debian: test ! -f /var/run/reboot-required
       suse: zypper needs-rebooting >/dev/null
     expect: true
+    rationale: Until the reboot the system runs the old kernel and libraries with the vulnerabilities the updates fix.
     remediation: Schedule a reboot to activate the updated kernel and libraries.
 
   - id: LNX-OS-006
@@ -60,6 +68,7 @@ checks:
     when: facts.os == "linux"
     run: awk '{print int($1 / 86400)}' /proc/uptime
     expect: "< {{ max_uptime_days }}"
+    rationale: "A system that has been up for more than {{ max_uptime_days }} days has not booted a newer kernel in all that time."
     remediation: Long uptimes usually mean missed kernel updates.
 
   - id: LNX-OS-007
@@ -68,6 +77,8 @@ checks:
     when: facts.os == "linux"
     run: getent hosts "$(hostname -f)"
     expect: "!empty"
+    rationale: Many services need the host's own name to resolve, among them mail, Kerberos and cluster software.
+    remediation: Add the FQDN of the host to DNS or to /etc/hosts.
 
   - id: LNX-OS-008
     name: "Timezone is {{ expected_timezone }}"
@@ -77,6 +88,8 @@ checks:
     run: |
       timedatectl status | awk -F': ' '/Time zone/ {print $2}' | cut -d' ' -f1
     expect: "== {{ expected_timezone }}"
+    rationale: Hosts in different time zones write log time stamps that are hard to compare.
+    remediation: "timedatectl set-timezone {{ expected_timezone }}"
 
   - id: LNX-OS-009
     name: Load average is below the number of CPUs
@@ -86,3 +99,5 @@ checks:
     run: |
       awk -v cpus="$(nproc)" '{print ($1 <= cpus) ? "ok" : "high: " $1}' /proc/loadavg
     expect: "== ok"
+    rationale: With a load above the number of CPUs processes wait for CPU time or I/O and the system responds slowly.
+    remediation: Find the processes that cause the load with `top`, and add capacity if the load stays high.

@@ -65,6 +65,8 @@ checks:
     when: facts.os == "windows"
     run: (Get-MpComputerStatus).RealTimeProtectionEnabled
     expect: "== True"
+    rationale: Without real-time protection files are not scanned when they are written or started, so malware runs unhindered.
+    remediation: Set-MpPreference -DisableRealtimeMonitoring $false
 
   - id: WIN-002
     name: "Defender signatures are at most {{ max_signature_age_days }} days old"
@@ -73,6 +75,7 @@ checks:
     when: facts.os == "windows"
     run: (Get-MpComputerStatus).AntivirusSignatureAge
     expect: "<= {{ max_signature_age_days }}"
+    rationale: "Signatures older than {{ max_signature_age_days }} days do not know current malware."
     remediation: Update-MpSignature
 
   - id: WIN-003
@@ -83,6 +86,7 @@ checks:
     run: |
       Get-NetFirewallProfile | Where-Object { -not $_.Enabled } | Select-Object -ExpandProperty Name
     expect: empty
+    rationale: With a profile switched off every listening service is reachable from that network.
     remediation: Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
 
   - id: WIN-004
@@ -93,6 +97,8 @@ checks:
     run: |
       (Get-BitLockerVolume -MountPoint $env:SystemDrive).ProtectionStatus
     expect: "== On"
+    rationale: Without BitLocker anyone who gets hold of the computer or its disk can read the data on it.
+    remediation: Turn on BitLocker for the system drive, for example with `Enable-BitLocker`, and keep the recovery key in a safe place.
 
   - id: WIN-005
     name: SMBv1 is disabled
@@ -101,6 +107,7 @@ checks:
     when: facts.os == "windows"
     run: (Get-SmbServerConfiguration).EnableSMB1Protocol
     expect: "== False"
+    rationale: SMBv1 has no protection against tampering and was the way in for worms such as WannaCry.
     remediation: Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force
 
   - id: WIN-006
@@ -110,6 +117,8 @@ checks:
     run: |
       (Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp').UserAuthentication
     expect: "== 1"
+    rationale: Without Network Level Authentication the server opens a full logon session before the user is authenticated, which exposes it to password guessing and to attacks on the RDP service.
+    remediation: Set UserAuthentication to 1 under HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp.
 
   - id: WIN-007
     name: User Account Control is enabled
@@ -119,6 +128,8 @@ checks:
     run: |
       (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System').EnableLUA
     expect: "== 1"
+    rationale: With User Account Control off every program an administrator starts gets full administrator rights unnoticed.
+    remediation: Set EnableLUA to 1 under HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System and restart.
 
   - id: WIN-008
     name: The built-in Guest account is disabled
@@ -127,6 +138,8 @@ checks:
     run: |
       (Get-LocalUser | Where-Object { $_.SID -like '*-501' }).Enabled
     expect: "== False"
+    rationale: An enabled Guest account lets anyone log on without a password.
+    remediation: Get-LocalUser | Where-Object { $_.SID -like '*-501' } | Disable-LocalUser
 
   - id: WIN-009
     name: No reboot pending
@@ -139,6 +152,8 @@ checks:
       )
       ($keys | Where-Object { Test-Path $_ }).Count
     expect: "== 0"
+    rationale: Until the restart the installed updates are not active and the old code keeps running.
+    remediation: Restart the computer.
 
   - id: WIN-010
     name: "An update was installed within {{ max_days_since_update }} days"
@@ -149,6 +164,8 @@ checks:
       $last = Get-HotFix | Where-Object InstalledOn | Sort-Object InstalledOn -Descending | Select-Object -First 1
       ((Get-Date) - $last.InstalledOn).Days
     expect: "<= {{ max_days_since_update }}"
+    rationale: "A system without any update for more than {{ max_days_since_update }} days is missing current security fixes."
+    remediation: Install the pending updates in Settings under Windows Update and find out why automatic updating did not work.
 
   - id: WIN-011
     name: PowerShell v2 engine is removed
@@ -157,6 +174,8 @@ checks:
     run: |
       (Get-WindowsOptionalFeature -Online -FeatureName MicrosoftWindowsPowerShellV2Root).State
     expect: "in [Disabled, DisabledWithPayloadRemoved]"
+    rationale: Attackers start the old 2.0 engine on purpose, because it supports neither script block logging nor AMSI.
+    remediation: Run `Disable-WindowsOptionalFeature -Online -FeatureName MicrosoftWindowsPowerShellV2Root`.
 
   - id: WIN-012
     name: Windows version is supported
@@ -165,4 +184,6 @@ checks:
     run: echo "{{ facts.version }}"
     as: version
     expect: ">= 10.0.19045"
+    rationale: A Windows build below the minimum of this policy has usually reached the end of its support and gets no security updates.
+    remediation: Upgrade to a supported Windows version.
 ```
