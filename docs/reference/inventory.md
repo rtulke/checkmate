@@ -113,8 +113,21 @@ It does not count in the totals and the score, and the run gets an exit code of 
 | `3` | No host is non-compliant, but at least one could not be checked. |
 | `2` | Usage error, invalid policy or inventory. |
 
-In the JSON report such a host has an `error` text instead of results, and `"unreachable": true` if it did not answer.
+Every export format says so in its own way and none of them invents a result:
+
+| Format | A host that could not be checked |
+|---|---|
+| text | A line in the overview with the reason instead of numbers. |
+| `json` | A report with `error`, no results, and `"unreachable": true` if it did not answer. |
+| `html`, `pdf` | A row in the host table with the reason; not a column of the check table, not part of totals and score. |
+| `csv` | One row with the status `UNREACHABLE` or `NOT CHECKED` and the reason, without a check. |
+| `jsonl`, syslog | One event `unchecked` with the reason (syslog severity `err`); no result and no summary event. |
+| `prom` | `checkmate_host_checked` is 0. No score, `checkmate_compliant` or check series for the host. |
+| `junit` | A suite with one errored test case, so that a pipeline does not turn green. |
+| `xccdf`, `arf` | Left out: these formats hold test results, and there are none. |
 
 ## Reports
 
 A run with an inventory produces one report per host. On the console they appear as an overview; `--export` writes them as one document per format, exactly like `checkmate export` does for several report files. See [Reports and exports](exports.md).
+
+Reports name a host as the inventory does, not as the host calls itself. With more than one group, the overview, the HTML and the PDF report add a table per group: hosts, compliant, not compliant, not checked and the score of the group. The HTML report has one column per host in the check table; the PDF report shows the same as a matrix of the checks with problems.

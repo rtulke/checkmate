@@ -26,6 +26,20 @@ func writeCSV(w io.Writer, rs []*engine.Report, _ Options) error {
 		return err
 	}
 	for _, r := range rs {
+		if r.Unchecked() {
+			// One row without a check, so that the host does not silently
+			// drop out of the sheet.
+			row := make([]string, len(csvHeader))
+			copy(row, []string{r.HostName(), "", "", policyTitle(r), r.PolicyVersion, r.Started.Format(time.RFC3339), r.RunID,
+				"", "", strings.ToUpper(r.State()), "", "", r.Error})
+			for j := range row {
+				row[j] = csvSafe(row[j])
+			}
+			if err := cw.Write(row); err != nil {
+				return err
+			}
+			continue
+		}
 		for i := range r.Results {
 			res := &r.Results[i]
 			var reason, until string
@@ -33,7 +47,7 @@ func writeCSV(w io.Writer, rs []*engine.Report, _ Options) error {
 				reason, until = res.Waiver.Reason, res.Waiver.Until
 			}
 			row := []string{
-				r.Facts.Hostname, r.Facts.OS, r.Facts.DistroName, policyTitle(r), r.PolicyVersion,
+				r.HostName(), r.Facts.OS, r.Facts.DistroName, policyTitle(r), r.PolicyVersion,
 				r.Started.Format(time.RFC3339), r.RunID,
 				res.ID, res.Name, string(res.Status), res.Severity, strings.Join(res.Tags, " "),
 				res.Message, res.Expected, reason, until, waiverOrigin(res), res.Reference,

@@ -21,7 +21,7 @@ func writeProm(w io.Writer, rs []*engine.Report, _ Options) error {
 		fmt.Fprintf(&b, "# HELP %s %s\n# TYPE %s %s\n", name, help, name, typ)
 	}
 	labels := func(r *engine.Report, extra ...string) string {
-		pairs := []string{"policy", policyTitle(r), "host", r.Facts.Hostname}
+		pairs := []string{"policy", policyTitle(r), "host", r.HostName()}
 		pairs = append(pairs, extra...)
 		parts := make([]string, 0, len(pairs)/2)
 		for i := 0; i+1 < len(pairs); i += 2 {
@@ -29,8 +29,14 @@ func writeProm(w io.Writer, rs []*engine.Report, _ Options) error {
 		}
 		return "{" + strings.Join(parts, ",") + "}"
 	}
+	// A host that could not be checked gets a series of its own and none of
+	// the others: a score or "compliant 0" would claim to know something.
+	metric("checkmate_host_checked", "1 if the host was checked, 0 if it could not be reached or checked.", "gauge")
+	for _, r := range rs {
+		fmt.Fprintf(&b, "checkmate_host_checked%s %d\n", labels(r), boolInt(!r.Unchecked()))
+	}
 	each := func(f func(r *engine.Report)) {
-		for _, r := range rs {
+		for _, r := range checkedReports(rs) {
 			f(r)
 		}
 	}

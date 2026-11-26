@@ -107,6 +107,28 @@ type Report struct {
 	Notices     []string  `json:"notices,omitempty"` // e.g. expired waivers
 }
 
+// HostName is the name of the host of the report: its name in the
+// inventory if the run had one, since that is how the user knows it,
+// otherwise the host name the host reports.
+func (r *Report) HostName() string {
+	if r.Host != "" {
+		return r.Host
+	}
+	return r.Facts.Hostname
+}
+
+// Unchecked reports whether the host could not be checked at all. Such a
+// report has no results and says nothing about compliance.
+func (r *Report) Unchecked() bool { return r.Error != "" }
+
+// State names why a host was not checked.
+func (r *Report) State() string {
+	if r.Unreachable {
+		return "unreachable"
+	}
+	return "not checked"
+}
+
 // Options configure a run.
 type Options struct {
 	Facts  facts.Facts

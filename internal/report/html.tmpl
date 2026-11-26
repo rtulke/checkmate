@@ -120,13 +120,28 @@ a { color: var(--accent); }
 <table>
   <thead><tr><th>Host</th><th>System</th><th>Policy</th><th>Started</th><th>Duration</th><th>Score</th><th class="pass">Pass</th><th class="fail">Fail</th><th class="warn">Warn</th><th class="error">Error</th><th class="waived">Waived</th><th>Result</th></tr></thead>
   <tbody>
-  {{range .Hosts}}<tr><td><b>{{.Label}}</b></td><td>{{.Distro}}<div class="tags">{{.Kernel}} {{.Arch}}</div></td><td>{{.Policy}}</td><td>{{.Started}}</td><td>{{.Duration}}</td>
+  {{range .Hosts}}{{if .Unchecked}}<tr><td><b>{{.Label}}</b>{{if .Groups}}<div class="tags">{{.Groups}}</div>{{end}}</td><td colspan="10"><span class="tags">Not checked, nothing is known about this host:</span> {{.Error}}</td>
+    <td><span class="verdict {{.VerdictCl}}" style="font-size:12px">{{.Verdict}}</span></td></tr>
+  {{else}}<tr><td><b>{{.Label}}</b>{{if .Groups}}<div class="tags">{{.Groups}}</div>{{end}}</td><td>{{.Distro}}<div class="tags">{{.Kernel}} {{.Arch}}</div></td><td>{{.Policy}}</td><td>{{.Started}}</td><td>{{.Duration}}</td>
     <td class="score {{.ScoreCls}}" style="font-size:14px">{{.Score}}</td><td>{{.Summary.Passed}}</td><td>{{.Summary.Failed}}</td><td>{{.Summary.Warnings}}</td><td>{{.Summary.Errors}}</td><td>{{.Summary.Waived}}</td>
     <td><span class="verdict {{.VerdictCl}}" style="font-size:12px">{{.Verdict}}</span></td></tr>
+  {{end}}{{end}}
+  </tbody>
+</table>
+</div>
+
+{{if .Unchecked}}<div class="notice">{{.Unchecked}} of {{len .Hosts}} hosts could not be checked. Nothing is known about them: they count neither in the totals nor in the score.</div>
+{{end}}{{if gt (len .Groups) 1}}<h2>Groups</h2>
+<div class="panel scroll">
+<table>
+  <thead><tr><th>Group</th><th>Hosts</th><th class="pass">Compliant</th><th class="fail">Not compliant</th><th class="warn">Not checked</th><th>Score</th></tr></thead>
+  <tbody>
+  {{range .Groups}}<tr><td><b>{{.Name}}</b></td><td>{{.Hosts}}</td><td>{{.Compliant}}</td><td>{{.NotCompliant}}</td><td>{{.Unchecked}}</td><td class="score {{.ScoreCls}}" style="font-size:14px">{{.Score}}</td></tr>
   {{end}}
   </tbody>
 </table>
 </div>
+{{end}}
 
 <h2>Checks</h2>
 <div class="filters">

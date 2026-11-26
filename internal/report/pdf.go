@@ -99,26 +99,36 @@ func sevBadgeColors(sev string) (pdf.Color, pdf.Color) {
 	return bg, pdfWhite
 }
 
-func writePDF(w io.Writer, rs []*engine.Report, o Options) error {
+func writePDF(w io.Writer, reports []*engine.Report, o Options) error {
+	// Totals and findings cover the hosts that were checked; the host table
+	// lists every host.
+	rs := checkedReports(reports)
 	d := pdf.New()
 	d.Created = o.now()
-	title := documentTitle(rs)
+	title := documentTitle(reports)
 	d.Title = title + " - checkmate compliance report"
 	d.Author = "checkmate " + o.Version
 	l := &pdfLayout{d: d, width: d.Width - 2*pdfMargin}
 	l.newPage()
 
-	labels := hostLabels(rs)
-	s := aggregate(rs)
+	allLabels := hostLabels(reports)
+	labels := make([]string, 0, len(rs))
+	for i, r := range reports {
+		if !r.Unchecked() {
+			labels = append(labels, allLabels[i])
+		}
+	}
+	s := aggregate(reports)
+	multi := len(reports) > 1
 
 	// Title block.
 	d.Text(pdfMargin, l.y+10, pdf.HelveticaBold, 9, pdfAccent, "CHECKMATE COMPLIANCE REPORT")
 	l.y += 18
 	l.paragraph(pdfMargin, l.width, pdf.HelveticaBold, 20, pdfText, title)
-	sub := scope(rs)
-	if len(rs) == 1 {
+	sub := scope(reports)
+	if !multi && len(rs) == 1 {
 		r := rs[0]
-		sub = strings.TrimSpace(r.Facts.Hostname + " · " + r.Facts.DistroName)
+		sub = strings.TrimSpace(r.HostName() + " · " + r.Facts.DistroName)
 		sub = strings.TrimSuffix(sub, " ·") + " · " + r.Started.Format("2006-01-02 15:04")
 	}
 	l.paragraph(pdfMargin, l.width, pdf.Helvetica, 10, pdfMuted, sub)
@@ -137,6 +147,9 @@ func writePDF(w io.Writer, rs []*engine.Report, o Options) error {
 		d.Rect(pdfMargin+14, l.y+58, barW*s.Score/100, 5, &scoreColor, nil)
 	}
 	v, vc := verdict(s)
+	if len(rs) == 0 {
+		v, vc = "NOT CHECKED", "warn"
+	}
 	d.Text(pdfMargin+14, l.y+78, pdf.HelveticaBold, 10, pdfStatusC[vc], v)
 
 	counts := []struct {
@@ -154,16 +167,33 @@ func writePDF(w io.Writer, rs []*engine.Report, o Options) error {
 	}
 	l.y += panelH + 6
 	l.paragraph(pdfMargin, l.width, pdf.Helvetica, 8, pdfMuted, fmt.Sprintf("%d checks%s. Failures of severity %s and above make a host non-compliant; errors always do.",
-		s.Total, map[bool]string{true: " · " + scope(rs), false: ""}[len(rs) > 1], firstNonEmpty(s.FailOn, rs[0].Summary.FailOn, "low")))
+		s.Total, map[bool]string{true: " · " + scope(reports), false: ""}[multi], firstNonEmpty(s.FailOn, reports[0].Summary.FailOn, "low")))
+	if n := len(reports) - len(rs); n > 0 {
+		l.paragraph(pdfMargin, l.width, pdf.HelveticaBold, 8, pdfStatusC["warn"], fmt.Sprintf(
+			"%d of %d hosts could not be checked. Nothing is known about them: they count neither in the totals nor in the score.", n, len(reports)))
+	}
 
 	// Hosts.
-	l.heading(map[bool]string{true: "Hosts", false: "Host"}[len(rs) > 1])
+	l.heading(map[bool]string{true: "Hosts", false: "Host"}[multi])
 	hostCols := []pdfCol{{"Host", 0.22}, {"System", 0.22}, {"Policy", 0.22}, {"Score", 0.09}, {"Pass", 0.06}, {"Fail", 0.06}, {"Error", 0.06}, {"Waived", 0.07}}
 	var hostRows [][]pdfCell
-	for i, r := range rs {
+	for i, r := range reports {
+		name := allLabels[i]
+		if len(r.Groups) > 0 {
+			name += "\n" + strings.Join(r.Groups, ", ")
+		}
+		if r.Unchecked() {
+			hostRows = append(hostRows, []pdfCell{
+				{Text: name, Font: pdf.HelveticaBold},
+				{Text: strings.ToUpper(r.State()), Font: pdf.HelveticaBold, Color: pdfStatusC["warn"]},
+				{Text: clipLines(r.Error, 3)},
+				{Text: "-"}, {Text: "-"}, {Text: "-"}, {Text: "-"}, {Text: "-"},
+			})
+			continue
+		}
 		hs := r.Summary
 		hostRows = append(hostRows, []pdfCell{
-			{Text: labels[i], Font: pdf.HelveticaBold},
+			{Text: name, Font: pdf.HelveticaBold},
 			{Text: strings.TrimSpace(r.Facts.DistroName + "\n" + r.Facts.Kernel + " " + r.Facts.Arch)},
 			{Text: policyTitle(r) + map[bool]string{true: " v" + r.PolicyVersion, false: ""}[r.PolicyVersion != ""] + "\n" + r.Started.Format("2006-01-02 15:04")},
 			{Text: scoreText(hs.Score), Font: pdf.HelveticaBold},
@@ -172,10 +202,26 @@ func writePDF(w io.Writer, rs []*engine.Report, o Options) error {
 	}
 	l.table(hostCols, hostRows)
 
+	if groups := groupRows(reports); len(groups) > 1 {
+		l.need(80) // keep the heading with its table
+		l.heading("Groups")
+		var groupCells [][]pdfCell
+		for _, g := range groups {
+			groupCells = append(groupCells, []pdfCell{
+				{Text: g.Name, Font: pdf.HelveticaBold}, {Text: fmt.Sprint(g.Hosts)},
+				{Text: fmt.Sprint(g.Compliant), Color: pdfStatusC["pass"]},
+				{Text: fmt.Sprint(g.NotCompliant), Color: pdfStatusC["fail"]},
+				{Text: fmt.Sprint(g.Unchecked), Color: pdfStatusC["warn"]},
+				{Text: scoreText(g.Summary.Score), Font: pdf.HelveticaBold},
+			})
+		}
+		l.table([]pdfCol{{"Group", 0.34}, {"Hosts", 0.12}, {"Compliant", 0.14}, {"Not compliant", 0.14}, {"Not checked", 0.14}, {"Score", 0.12}}, groupCells)
+	}
+
 	var notices []string
 	for i, r := range rs {
 		for _, n := range r.Notices {
-			if len(rs) > 1 {
+			if multi {
 				n = labels[i] + ": " + n
 			}
 			notices = append(notices, n)
@@ -191,6 +237,9 @@ func writePDF(w io.Writer, rs []*engine.Report, o Options) error {
 	// Findings with details.
 	rows := checkRows(rs)
 	problems := problemRows(rows)
+	if len(rs) > 1 && len(problems) > 0 {
+		l.problemMatrix(problems, labels)
+	}
 	l.heading(fmt.Sprintf("Findings (%d)", len(problems)))
 	if len(problems) == 0 {
 		l.paragraph(pdfMargin, l.width, pdf.Helvetica, 10, pdfMuted, "No check failed, warned or errored.")
@@ -352,6 +401,83 @@ type pdfCell struct {
 	Size  float64
 	Color pdf.Color
 	Badge bool // draw as severity badge
+}
+
+// problemMatrix shows at a glance which check has a problem on which host:
+// one row per check, one column per host. With more hosts than fit on the
+// page, the matrix continues with the next hosts.
+func (l *pdfLayout) problemMatrix(problems []checkRow, labels []string) {
+	const perTable = 6
+	short := shortLabels(labels)
+	l.need(80) // keep the heading with its table
+	l.heading("Problems by host")
+	for start := 0; start < len(labels); start += perTable {
+		end := minInt(start+perTable, len(labels))
+		cols := []pdfCol{{"Check", 0.34}}
+		share := 0.66 / float64(perTable)
+		for _, label := range short[start:end] {
+			// The header is a single line: shorten what does not fit.
+			for pdf.Width(pdf.HelveticaBold, 7.5, label) > share*l.width-8 && len(label) > 1 {
+				r := []rune(strings.TrimSuffix(label, "…"))
+				label = string(r[:len(r)-1]) + "…"
+			}
+			cols = append(cols, pdfCol{label, share})
+		}
+		var cells [][]pdfCell
+		for _, row := range problems {
+			line := []pdfCell{{Text: row.ID, Font: pdf.Courier, Size: 7}}
+			found := false
+			for _, res := range row.Results[start:end] {
+				switch {
+				case res == nil:
+					line = append(line, pdfCell{Text: "-", Color: pdfMuted})
+				case isProblem(res.Status):
+					found = true
+					line = append(line, pdfCell{Text: string(res.Status), Font: pdf.HelveticaBold, Size: 7, Color: pdfStatusC[statusClass(res.Status)]})
+				default:
+					line = append(line, pdfCell{Text: strings.ToLower(string(res.Status)), Size: 7, Color: pdfMuted})
+				}
+			}
+			// Checks without a problem on these hosts would only add noise.
+			if found {
+				cells = append(cells, line)
+			}
+		}
+		if len(cells) > 0 {
+			l.table(cols, cells)
+		}
+	}
+}
+
+// shortLabels drops the domain that all host names share, which only costs
+// room in a narrow column: web01.example.net and db01.example.net become
+// web01 and db01.
+func shortLabels(labels []string) []string {
+	if len(labels) < 2 {
+		return labels
+	}
+	suffix := labels[0]
+	for _, l := range labels[1:] {
+		for suffix != "" && !strings.HasSuffix(l, suffix) {
+			if i := strings.IndexByte(suffix[1:], '.'); i >= 0 {
+				suffix = suffix[i+1:]
+			} else {
+				suffix = ""
+			}
+		}
+	}
+	// A shared tail of digits belongs to IP addresses, not to a domain.
+	if !strings.HasPrefix(suffix, ".") || !strings.ContainsAny(suffix, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") {
+		return labels
+	}
+	out := make([]string, len(labels))
+	for i, l := range labels {
+		out[i] = strings.TrimSuffix(l, suffix)
+		if out[i] == "" {
+			return labels
+		}
+	}
+	return out
 }
 
 // table draws rows with wrapped cells, repeating the header after page

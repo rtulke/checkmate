@@ -70,7 +70,7 @@ func (d ReportDiff) Regressions() int {
 }
 
 func reportLabel(r *engine.Report) string {
-	l := r.Facts.Hostname
+	l := r.HostName()
 	name := r.Policy
 	if name == "" {
 		name = r.PolicyPath
@@ -90,7 +90,7 @@ func Reports(old, new []*engine.Report) ReportDiff {
 		d.Hosts = append(d.Hosts, compareReports(old[0], new[0]))
 		return d
 	}
-	key := func(r *engine.Report) string { return r.Facts.Hostname + "\x00" + r.Policy }
+	key := func(r *engine.Report) string { return r.HostName() + "\x00" + r.Policy }
 	newByKey := map[string]*engine.Report{}
 	for _, r := range new {
 		newByKey[key(r)] = r

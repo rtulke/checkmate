@@ -287,3 +287,19 @@ func TestScope(t *testing.T) {
 		t.Errorf("got %q", got)
 	}
 }
+
+func TestShortLabels(t *testing.T) {
+	for _, c := range []struct{ in, want []string }{
+		{[]string{"web01.example.net", "db01.example.net"}, []string{"web01", "db01"}},
+		{[]string{"web01.eu.example.net", "db01.us.example.net"}, []string{"web01.eu", "db01.us"}},
+		{[]string{"web01", "db01"}, []string{"web01", "db01"}},
+		{[]string{"web01.example.net", "db01.example.com"}, []string{"web01.example.net", "db01.example.com"}},
+		{[]string{"a.example.net", "example.net"}, []string{"a.example", "example"}},
+		{[]string{"web01.example.net"}, []string{"web01.example.net"}},
+		{[]string{"10.0.0.1", "10.1.0.1"}, []string{"10.0.0.1", "10.1.0.1"}},
+	} {
+		if got := shortLabels(c.in); strings.Join(got, " ") != strings.Join(c.want, " ") {
+			t.Errorf("shortLabels(%v) = %v, want %v", c.in, got, c.want)
+		}
+	}
+}

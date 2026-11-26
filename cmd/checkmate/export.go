@@ -54,7 +54,7 @@ var unsafeName = regexp.MustCompile(`[^A-Za-z0-9._-]+`)
 
 // defaultBase names the exports of a run: checkmate-<host>-<time>.
 func defaultBase(r *engine.Report) string {
-	host := unsafeName.ReplaceAllString(r.Facts.Hostname, "_")
+	host := unsafeName.ReplaceAllString(r.HostName(), "_")
 	if host == "" {
 		host = "host"
 	}
