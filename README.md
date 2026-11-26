@@ -141,7 +141,7 @@ Two more keys cover what a fixed list cannot. `loop_run` creates one check per l
 
 The items of a `loop_run` come from the host, so commands read them from the environment variable `CHECKMATE_ITEM` instead of having them pasted into the command line.
 
-`rationale` says why a check matters and `remediation` how to fix a failure; both appear with `-vv` and in the reports. Every bundled CIS and STIG check carries both.
+`rationale` says why a check matters and `remediation` how to fix a failure; both appear with `-vv` and in the reports. Every bundled check carries both.
 
 `expect` understands `true`/`false` (exit code), `==`, `!=`, `>`, `>=`, `<`, `<=`, `!>`, `!<`, regular expressions (`~`, `!~`), lists (`in`, `!in`), `empty`, line counts and stderr. These building blocks combine with `all`, `any`, `not`, per-line checks (`each`, `some`, `none`) and conditional expectations:
 

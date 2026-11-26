@@ -141,7 +141,7 @@ Zwei weitere Schlüssel decken ab, was eine feste Liste nicht kann. `loop_run` e
 
 Die Items eines `loop_run` kommen vom Host. Kommandos lesen sie deshalb aus der Umgebungsvariable `CHECKMATE_ITEM`, statt sie in die Kommandozeile eingesetzt zu bekommen.
 
-`rationale` beschreibt, warum ein Check wichtig ist, `remediation`, wie man einen Fehlschlag behebt; beides erscheint mit `-vv` und in den Reports. Alle mitgelieferten CIS- und STIG-Checks haben beides.
+`rationale` beschreibt, warum ein Check wichtig ist, `remediation`, wie man einen Fehlschlag behebt; beides erscheint mit `-vv` und in den Reports. Alle mitgelieferten Checks haben beides.
 
 `expect` versteht `true`/`false` (Exit-Code), `==`, `!=`, `>`, `>=`, `<`, `<=`, `!>`, `!<`, reguläre Ausdrücke (`~`, `!~`), Listen (`in`, `!in`), `empty`, Zeilenzahlen und stderr. Diese Bausteine lassen sich mit `all`, `any`, `not`, zeilenweisen Prüfungen (`each`, `some`, `none`) und bedingten Erwartungen kombinieren:
 

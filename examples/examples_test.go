@@ -309,3 +309,26 @@ exit [int]($bad -gt 0)`
 		t.Errorf("PowerShell syntax errors:\n%s", out)
 	}
 }
+
+// Every example says why a check matters and what to do about a failure,
+// as the generated benchmarks do: a finding without either is half a
+// finding.
+func TestExamplesExplainThemselves(t *testing.T) {
+	for _, file := range policyFiles(t) {
+		if strings.HasPrefix(file, "../") {
+			continue
+		}
+		p, err := policy.Load(file, policy.LoadOptions{AllowInsecure: true})
+		if err != nil {
+			t.Fatal(err)
+		}
+		for name, f := range platforms {
+			checks, _ := policy.Expand(p, f, nil)
+			for _, c := range checks {
+				if strings.TrimSpace(c.Rationale) == "" || strings.TrimSpace(c.Remediation) == "" {
+					t.Errorf("%s: %s (%s): rationale and remediation are required in the examples", file, c.ID, name)
+				}
+			}
+		}
+	}
+}
