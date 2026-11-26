@@ -56,6 +56,9 @@ type Result struct {
 	Reference   string      `json:"reference,omitempty"`
 	Location    string      `json:"location"`
 	Waiver      *WaiverInfo `json:"waiver,omitempty"`
+	// NoLog says that the check keeps its command and output back; they
+	// are empty and the messages are general.
+	NoLog bool `json:"no_log,omitempty"`
 }
 
 // WaiverInfo records the waiver applied to a result.
@@ -233,6 +236,9 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 			return res, policy.Outcome{Status: "waived"}
 		}
 		res := runCheck(ctx, p, c, platformKeys, opts.Target)
+		if c.NoLog {
+			res = withoutDetails(res)
+		}
 		outcome := policy.Outcome{Status: outcomeStatus(res.Status), RC: res.RC}
 		// Failures below the threshold (always including "info") are
 		// warnings. Errors are never downgraded: a check that cannot be
@@ -608,6 +614,46 @@ func execute(ctx context.Context, p *policy.Policy, c *policy.Check, command str
 		Target:  target,
 		Timeout: c.Timeout,
 	})
+}
+
+// HiddenByNoLog stands in results for what a check with no_log keeps back.
+const HiddenByNoLog = "hidden by no_log"
+
+// withoutDetails removes from the result of a no_log check everything that
+// could contain the secret it handles: the commands, their output, the
+// expectation, and the messages, which quote all three. What happened
+// stays: the status, the exit code, the duration.
+func withoutDetails(res Result) Result {
+	res.NoLog = true
+	res.Command, res.OnlyIf, res.Stdout, res.Stderr = "", "", "", ""
+	res.Expected = HiddenByNoLog
+	switch res.Status {
+	case StatusPass:
+		res.Message = ""
+	case StatusFail:
+		res.Message = "the expectation does not hold (details " + HiddenByNoLog + ")"
+	case StatusSkip:
+		if strings.HasPrefix(res.Message, "only_if:") {
+			res.Message = "only_if: the command did not succeed (details " + HiddenByNoLog + ")"
+		}
+	case StatusError:
+		what := "the check could not be evaluated"
+		for _, known := range []string{"command timed out", "command not found or not executable", "command failed with exit code",
+			"host is not reachable"} {
+			if strings.Contains(res.Message, known) {
+				what = known
+			}
+		}
+		if strings.HasSuffix(what, "exit code") {
+			if res.RC != nil {
+				what += fmt.Sprintf(" %d", *res.RC)
+			} else {
+				what = "command failed"
+			}
+		}
+		res.Message = what + " (details " + HiddenByNoLog + ")"
+	}
+	return res
 }
 
 // checkEnv is the policy environment plus the variables of the check.

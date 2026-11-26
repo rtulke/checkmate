@@ -16,8 +16,8 @@ A policy is code that runs as root, with an inventory on many hosts at once. che
 
 The command and the output of every check are part of the report. A password that is rendered into a command ends up in JSON, HTML, PDF and syslog.
 
-- `no_log: true` on a check keeps its command, output and messages out of every report and off the console.
-- Values from the environment of the machine checkmate runs on, instead of from the command line.
+- `no_log: true` on a check keeps its command, output and messages out of every report and off the console. Done, see [Secrets](../reference/checks.md#secrets).
+- Secrets for remote runs: variables of a check that reach the host without appearing on a command line or in the sudo log.
 
 ### See what would run, before it runs
 
