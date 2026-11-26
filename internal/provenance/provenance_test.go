@@ -11,6 +11,8 @@ func TestLookup(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// The checkout itself may have Windows line ends.
+	data = []byte(strings.ReplaceAll(string(data), "\r\n", "\n"))
 	// Known content is shipped wherever the file lies, also with the line
 	// ends of a checkout on Windows.
 	for _, path := range []string{"examples/getting-started.yml", "/tmp/copy.yml", `C:\policies\gs.yml`} {
