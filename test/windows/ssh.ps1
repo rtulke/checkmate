@@ -79,6 +79,8 @@ foreach ($policy in @('examples/platforms/windows.yml')) {
 $long = ('# ' + ('x' * 120) + "`n      ") * 120
 @"
 name: SSH probe
+defaults:
+  timeout: 120s    # the first start of Windows PowerShell on a busy runner can take long
 checks:
   - id: QUOTING
     run: |

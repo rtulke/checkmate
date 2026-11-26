@@ -18,6 +18,7 @@ import (
 
 	"github.com/rtulke/checkmate/internal/engine"
 	"github.com/rtulke/checkmate/internal/facts"
+	"github.com/rtulke/checkmate/internal/inventory"
 	"github.com/rtulke/checkmate/internal/policy"
 	"github.com/rtulke/checkmate/internal/report"
 	"github.com/rtulke/checkmate/internal/runner"
@@ -489,8 +490,18 @@ func cmdList(args []string, stdout, stderr io.Writer) int {
 	common.register(fs, true)
 	verbose := fs.Bool("verbose", false, "show the command each check runs on this platform")
 	fs.BoolVar(verbose, "v", false, "shorthand for --verbose")
+	host := fs.String("host", "", "list for another host, as run --host would check it: [user@]host[:port]")
+	become := fs.Bool("become", false, "with --host: as run --become would check it")
+	inventoryPath := fs.String("inventory", "", "list for every host of this inventory file")
+	fs.StringVar(inventoryPath, "i", "", "shorthand for --inventory")
+	limit := fs.String("limit", "", "with --inventory: only these hosts or groups, comma-separated")
+	fs.StringVar(limit, "l", "", "shorthand for --limit")
+	forks := fs.Int("forks", 5, "with --inventory: number of hosts asked at the same time")
 	fs.Usage = func() {
-		fmt.Fprintln(stderr, "Usage: checkmate list [flags] <policy.yml>")
+		fmt.Fprintln(stderr, "Usage: checkmate list [flags] <policy.yml>\n\n"+
+			"Lists the checks of a policy and, with -v, the commands they would run.\n"+
+			"Nothing is run. With --host or --inventory the hosts are asked for their\n"+
+			"facts, which decide which variant of a command applies, and for nothing else.")
 		fs.PrintDefaults()
 	}
 	path, code := parseWithPolicy(fs, args)
@@ -507,40 +518,125 @@ func cmdList(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "checkmate:", err)
 		return exitUsage
 	}
-	f := facts.Gather()
-	checks, errs := policy.Expand(p, f, vars)
-	for _, e := range errs {
-		fmt.Fprintln(stderr, e.Error())
+	filter := common.filter()
+
+	var hosts []inventory.Host
+	switch {
+	case *inventoryPath != "":
+		if *host != "" || *become {
+			fmt.Fprintln(stderr, "checkmate: --inventory cannot be combined with --host or --become; put them into the inventory")
+			return exitUsage
+		}
+		if hosts, err = inventoryHosts(*inventoryPath, *limit); err != nil {
+			fmt.Fprintln(stderr, "checkmate:", err)
+			return exitUsage
+		}
+	case *limit != "":
+		fmt.Fprintln(stderr, "checkmate: --limit needs --inventory")
+		return exitUsage
+	case *host != "":
+		name, port := splitHostPort(*host)
+		hosts = []inventory.Host{{Name: name, Address: name, Port: port, Become: *become, Vars: map[string]any{}}}
+	case *become:
+		fmt.Fprintln(stderr, "checkmate: --become needs --host")
+		return exitUsage
+	default:
+		f := facts.Gather()
+		checks, errs := policy.Expand(p, f, vars)
+		for _, e := range errs {
+			fmt.Fprintln(stderr, e.Error())
+		}
+		printChecks(stdout, checks, f, filter, *verbose)
+		if len(errs) > 0 {
+			return exitUsage
+		}
+		return exitCompliant
 	}
 
-	filter := common.filter()
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
+	defer stop()
+	previews := previewHosts(ctx, p, hosts, vars, *host == "", *forks)
+	unchecked, broken := 0, false
+	for i, pv := range previews {
+		if i > 0 {
+			fmt.Fprintln(stdout)
+		}
+		if pv.err != nil {
+			unchecked++
+			fmt.Fprintf(stdout, "%s: not listed, the host could not be asked: %v\n", pv.host.Name, pv.err)
+			continue
+		}
+		how := "as " + map[bool]string{true: "root", false: "an ordinary user"}[pv.facts.IsRoot]
+		switch {
+		case pv.host.Device != "":
+			how = "device, commands are sent as written"
+		case pv.host.Become:
+			how += " through sudo"
+		}
+		fmt.Fprintf(stdout, "%s · %s · %s\n", pv.host.Name, firstNonEmpty(pv.facts.DistroName, pv.facts.Distro, pv.facts.OS), how)
+		for _, e := range pv.errs {
+			broken = true
+			fmt.Fprintln(stderr, e.Error())
+		}
+		printChecks(stdout, pv.checks, pv.facts, filter, *verbose)
+	}
+	switch {
+	case broken:
+		return exitUsage
+	case unchecked > 0:
+		fmt.Fprintf(stderr, "checkmate: %d of %d hosts could not be asked\n", unchecked, len(previews))
+		return exitUnchecked
+	}
+	return exitCompliant
+}
+
+// printChecks lists checks as a table; with verbose also what each of them
+// would do on a host with the given facts.
+func printChecks(w io.Writer, checks []*policy.Check, f facts.Facts, filter engine.Filter, verbose bool) {
 	keys := f.PlatformKeys()
-	tw := tabwriter.NewWriter(stdout, 0, 4, 2, ' ', 0)
+	tw := tabwriter.NewWriter(w, 0, 4, 2, ' ', 0)
 	fmt.Fprintln(tw, "ID\tSEVERITY\tTAGS\tNAME")
+	detail := func(label, text string) {
+		fmt.Fprintf(tw, "\t\t\t  %s%s\n", label, strings.ReplaceAll(strings.TrimSpace(text), "\n", "\n\t\t\t    "))
+	}
+	command := func(spec policy.CommandSpec, c *policy.Check) string {
+		cmd, ok, err := c.Command(spec, keys)
+		switch {
+		case err != nil:
+			return "error: " + err.Error()
+		case !ok:
+			return "(not applicable on this platform)"
+		}
+		return cmd
+	}
 	for _, c := range checks {
 		if !filter.Match(c.ID, c.Tags) {
 			continue
 		}
 		fmt.Fprintf(tw, "%s\t%s\t%s\t%s\n", c.ID, c.Severity, strings.Join(c.Tags, ","), c.Name)
-		if *verbose && c.NoLog {
-			fmt.Fprintf(tw, "\t\t\t  (command and expectation %s)\n", engine.HiddenByNoLog)
-		} else if *verbose {
-			cmd, ok, err := c.Command(c.Run, keys)
-			switch {
-			case err != nil:
-				cmd = "error: " + err.Error()
-			case !ok:
-				cmd = "(not applicable on this platform)"
-			}
-			fmt.Fprintf(tw, "\t\t\t  $ %s\n", strings.ReplaceAll(strings.TrimSpace(cmd), "\n", "\n\t\t\t    "))
-			fmt.Fprintf(tw, "\t\t\t  expect: %s\n", c.Expect.String())
+		if !verbose {
+			continue
 		}
+		// A condition on facts and variables is already decided; one that
+		// asks for the outcome of another check is not.
+		if ok, cond, err := c.Applies(); err == nil && !ok {
+			detail("skipped here: when: ", cond+" is false")
+			continue
+		}
+		if c.NoLog {
+			detail("", "(command and expectation "+engine.HiddenByNoLog+")")
+			continue
+		}
+		if !c.LoopRun.IsZero() {
+			detail("one check per line of: $ ", command(c.LoopRun, c))
+		}
+		if !c.OnlyIf.IsZero() {
+			detail("only if: $ ", command(c.OnlyIf, c))
+		}
+		detail("$ ", command(c.Run, c))
+		detail("expect: ", c.Expect.String())
 	}
 	tw.Flush()
-	if len(errs) > 0 {
-		return exitUsage
-	}
-	return exitCompliant
 }
 
 func cmdFacts(stdout io.Writer) int {

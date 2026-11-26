@@ -173,3 +173,106 @@ func TestInventoryOptionsNeedEachOther(t *testing.T) {
 		}
 	}
 }
+
+func TestListForHostsRunsNothing(t *testing.T) {
+	dir := t.TempDir()
+	standInSSH(t, dir)
+	marker := filepath.Join(dir, "ran")
+	// sudo that lets everything through, for the host with become.
+	if err := os.WriteFile(filepath.Join(dir, "sudo"), []byte("#!/bin/sh\n[ \"$1\" = -n ] && shift\nexec \"$@\"\n"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
+	writeFiles(t, dir, map[string]string{
+		"hosts.yml": `
+groups:
+  web:
+    vars: { role: web }
+    hosts: [web01.example.net]
+  db:
+    become: true
+    vars: { role: db }
+    hosts: [db01.example.net, down01.example.net]
+  switches:
+    device: ios
+    vars: { role: switch }
+    hosts: [sw01.example.net]
+`,
+		"p.yml": `
+name: Preview
+checks:
+  - id: ROLE
+    when: '"web" in group_names'
+    run: echo "{{ role }} on {{ inventory_hostname }}"; touch ` + marker + `
+    expect: "!empty"
+  - id: VARIANT
+    run:
+      ios: show version
+      unix: uname -r; touch ` + marker + `
+    expect: "!empty"
+  - id: "ITEM-{{ item }}"
+    only_if: test -d /home
+    loop_run: ls /home; touch ` + marker + `
+    run: echo "$CHECKMATE_ITEM"
+    expect: "!empty"
+  - id: SECRET
+    no_log: true
+    run: echo s3cr3t
+    expect: s3cr3t
+`,
+	})
+	var out, errOut bytes.Buffer
+	args := []string{"list", "--allow-insecure-policy", "-v", "-i", filepath.Join(dir, "hosts.yml"), filepath.Join(dir, "p.yml")}
+	// One host is down: everything else is listed, and the exit code says so.
+	if code := run(args, &out, &errOut); code != exitUnchecked {
+		t.Fatalf("exit %d: %s", code, errOut.String())
+	}
+	text := out.String()
+	for _, want := range []string{
+		"web01.example.net · ", "as an ordinary user",
+		`$ echo "web on web01.example.net"`,
+		"db01.example.net · ", "through sudo",
+		`skipped here: when: "web" in group_names is false`,
+		"sw01.example.net · ios · device, commands are sent as written",
+		"$ show version",
+		"ITEM-{item}", "one check per line of: $ ls /home", "only if: $ test -d /home",
+		"(command and expectation hidden by no_log)",
+		"down01.example.net: not listed, the host could not be asked",
+	} {
+		if !strings.Contains(text, want) {
+			t.Errorf("the list lacks %q:\n%s", want, text)
+		}
+	}
+	if strings.Contains(text, "s3cr3t") {
+		t.Error("the list shows the command of a no_log check")
+	}
+	if _, err := os.Stat(marker); err == nil {
+		t.Error("list ran a command of the policy")
+	}
+
+	// Without -v only the table, and --limit as for run.
+	out.Reset()
+	errOut.Reset()
+	if code := run([]string{"list", "--allow-insecure-policy", "-i", filepath.Join(dir, "hosts.yml"), "-l", "web",
+		filepath.Join(dir, "p.yml")}, &out, &errOut); code != exitCompliant {
+		t.Fatalf("exit %d: %s", code, errOut.String())
+	}
+	if strings.Contains(out.String(), "$ ") || strings.Contains(out.String(), "db01") || !strings.Contains(out.String(), "ROLE") {
+		t.Errorf("short list for one group:\n%s", out.String())
+	}
+	// A single host.
+	out.Reset()
+	if code := run([]string{"list", "--allow-insecure-policy", "--host", "web01.example.net", "--id", "VARIANT", "-v",
+		"-e", "role=x", "-e", "inventory_hostname=h", "-e", "group_names=[]",
+		filepath.Join(dir, "p.yml")}, &out, &errOut); code != exitCompliant || !strings.Contains(out.String(), "$ uname -r") ||
+		strings.Contains(out.String(), "ROLE") {
+		t.Errorf("list --host: exit %d\n%s", code, out.String())
+	}
+	for _, bad := range [][]string{{"--limit", "web"}, {"--become"}, {"-i", filepath.Join(dir, "hosts.yml"), "--host", "x"}} {
+		out.Reset()
+		errOut.Reset()
+		if code := run(append([]string{"list", "--allow-insecure-policy", filepath.Join(dir, "p.yml")}, bad...), &out, &errOut); code != exitUsage {
+			t.Errorf("%v: exit %d", bad, code)
+		}
+	}
+}

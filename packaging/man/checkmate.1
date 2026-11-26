@@ -64,6 +64,12 @@ Load and expand a policy and report errors without running any check.
 List the selected checks; with
 .B \-v
 also the command each check would run on this host.
+With
+.B \-\-host
+or
+.B \-\-inventory
+it shows that for every host: the hosts are asked for their facts, and no
+check is run.
 .TP
 .B verify
 List every file a policy is loaded from, with its SHA-256 hash, whether it

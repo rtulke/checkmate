@@ -76,38 +76,12 @@ func runHost(ctx context.Context, p *policy.Policy, h inventory.Host, opts engin
 		}
 	}
 
-	target, err := runner.NewTarget(h.Destination(), h.Port, h.Become)
+	target, hostFacts, err := connectHost(ctx, h)
 	if err != nil {
-		return unchecked(err)
-	}
-	target.Device = h.Device
-	if err := target.Open(); err != nil {
 		return unchecked(err)
 	}
 	defer target.Close()
-	hostFacts, err := target.Facts(ctx)
-	if err != nil {
-		return unchecked(err)
-	}
-	if h.Device != "" {
-		hostFacts.Hostname = h.Name
-	}
-
-	// Variables of the inventory override those of the policy; the command
-	// line overrides both.
-	vars := map[string]any{}
-	for k, v := range h.Vars {
-		vars[k] = v
-	}
-	groups := make([]any, len(h.Groups))
-	for i, g := range h.Groups {
-		groups[i] = g
-	}
-	vars["inventory_hostname"] = h.Name
-	vars["group_names"] = groups
-	for k, v := range opts.Vars {
-		vars[k] = v
-	}
+	vars := hostVars(h, opts.Vars)
 	opts.Vars = vars
 	opts.Facts = hostFacts
 	opts.Target = target
@@ -130,4 +104,91 @@ func hostVerdict(r *engine.Report) string {
 		return "compliant"
 	}
 	return "not compliant"
+}
+
+// connectHost prepares the connection to a host and asks it for its facts.
+// The caller closes the target.
+func connectHost(ctx context.Context, h inventory.Host) (*runner.Target, facts.Facts, error) {
+	target, err := runner.NewTarget(h.Destination(), h.Port, h.Become)
+	if err != nil {
+		return nil, facts.Facts{}, err
+	}
+	target.Device = h.Device
+	if err := target.Open(); err != nil {
+		return nil, facts.Facts{}, err
+	}
+	hostFacts, err := target.Facts(ctx)
+	if err != nil {
+		target.Close()
+		return nil, facts.Facts{}, err
+	}
+	if h.Device != "" {
+		hostFacts.Hostname = h.Name
+	}
+	return target, hostFacts, nil
+}
+
+// hostVars are the variables of a run on a host: those of the inventory
+// override the policy, the command line overrides both.
+func hostVars(h inventory.Host, extra map[string]any) map[string]any {
+	vars := map[string]any{}
+	for k, v := range h.Vars {
+		vars[k] = v
+	}
+	groups := make([]any, len(h.Groups))
+	for i, g := range h.Groups {
+		groups[i] = g
+	}
+	vars["inventory_hostname"] = h.Name
+	vars["group_names"] = groups
+	for k, v := range extra {
+		vars[k] = v
+	}
+	return vars
+}
+
+// preview is what would run on one host.
+type preview struct {
+	host   inventory.Host
+	facts  facts.Facts
+	checks []*policy.Check
+	errs   []*policy.CheckError
+	err    error // the host could not be asked for its facts
+}
+
+// previewHosts expands the policy for every host without running a check.
+// The hosts are asked for their facts, which decide which variant of a
+// command applies; fromInventory adds the inventory variables.
+func previewHosts(ctx context.Context, p *policy.Policy, hosts []inventory.Host, extra map[string]any, fromInventory bool, forks int) []preview {
+	if forks < 1 {
+		forks = 1
+	}
+	previews := make([]preview, len(hosts))
+	sem := make(chan struct{}, forks)
+	var wg sync.WaitGroup
+	for i, h := range hosts {
+		wg.Add(1)
+		sem <- struct{}{}
+		go func(i int, h inventory.Host) {
+			defer wg.Done()
+			defer func() { <-sem }()
+			pv := preview{host: h}
+			target, hostFacts, err := connectHost(ctx, h)
+			if err != nil {
+				pv.err = err
+				previews[i] = pv
+				return
+			}
+			target.Close()
+			vars := extra
+			if fromInventory {
+				vars = hostVars(h, extra)
+			}
+			pv.facts = hostFacts
+			pv.checks, pv.errs = policy.Expand(p, hostFacts, vars)
+			previews[i] = pv
+		}(i, h)
+	}
+	wg.Wait()
+	return previews
 }
