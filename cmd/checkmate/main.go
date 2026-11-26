@@ -495,7 +495,9 @@ func cmdList(args []string, stdout, stderr io.Writer) int {
 			continue
 		}
 		fmt.Fprintf(tw, "%s\t%s\t%s\t%s\n", c.ID, c.Severity, strings.Join(c.Tags, ","), c.Name)
-		if *verbose {
+		if *verbose && c.NoLog {
+			fmt.Fprintf(tw, "\t\t\t  (command and expectation %s)\n", engine.HiddenByNoLog)
+		} else if *verbose {
 			cmd, ok, err := c.Command(c.Run, keys)
 			switch {
 			case err != nil:

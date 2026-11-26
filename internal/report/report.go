@@ -223,6 +223,9 @@ func writeDetails(w io.Writer, res engine.Result, paint func(string, string) str
 		}
 		field("waiver", waiver+")")
 	}
+	if res.NoLog {
+		field("command", "("+engine.HiddenByNoLog+", as is the output)")
+	}
 	field("command", res.Command)
 	if res.RC != nil {
 		field("exit code", fmt.Sprint(*res.RC))

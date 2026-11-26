@@ -141,6 +141,12 @@ do not run the command and show the check once, with
 .B {item}
 as the item.
 .TP
+.B no_log
+If true, the command, its output, the expectation and the messages that
+quote them are kept out of every report and off the console.
+For checks that handle a secret.
+The status and the exit code remain.
+.TP
 .B register
 A name for the outcome of the check.
 Checks defined later can use it in

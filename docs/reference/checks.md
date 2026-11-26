@@ -34,6 +34,7 @@
 | `loop` | | List, mapping or `"{{ variable }}"`. See [Loops](templating.md#loops). |
 | `loop_run` | | A command (same forms as `run`); one check per line it prints. See [Loops over command output](templating.md#loops-over-command-output). |
 | `register` | | A name under which later checks see the outcome of this check in `when`. See [Checks that depend on other checks](templating.md#checks-that-depend-on-other-checks). |
+| `no_log` | | `true` keeps the command, its output, the expectation and the messages out of every report and off the console. For checks that handle a secret. See [Secrets](#secrets). |
 | `run` | yes | A command string, platform variants or a snippet reference. See [Platforms](platforms.md). |
 | `expect` | yes | The condition. See [expect operators](expect.md). |
 | `as` | | How values are compared: `auto` (default), `number`, `version`, `string`. |
@@ -65,3 +66,34 @@ run: { use: pkg_installed, arg: openssh-server }
 ```
 
 `only_if` accepts the same forms.
+
+## Secrets
+
+The command and the output of every check are part of the result: they are shown with `-vv` and stored in the JSON, HTML and PDF reports, in JUnit files and in syslog events. A check that handles a password or a token has to say so:
+
+```yaml
+- id: DB-REPLICATION-USER
+  name: The replication account cannot log in from everywhere
+  no_log: true
+  run: PGPASSWORD="$REPL_PASSWORD" psql -h db01.example.net -U repl -Atc "select count(*) from pg_hba_file_rules where user_name @> '{repl}' and address = '0.0.0.0'"
+  expect: "0"
+```
+
+With `no_log: true` a result keeps what happened and drops everything that could contain the secret:
+
+| Kept | Dropped |
+|---|---|
+| status, exit code, duration | the commands of `run`, `only_if` and `loop_run` |
+| id, name, severity, tags | standard output and standard error |
+| `rationale`, `remediation`, `reference` | the expectation |
+| | the messages that quote any of these: a failure reads `the expectation does not hold (details hidden by no_log)` |
+
+`checkmate list -v` does not show the command either.
+
+Three things `no_log` cannot do:
+
+- **Where the secret comes from.** Do not write it into the policy or pass it with `-e`: both end up in files and shell histories. Locally, a command sees the environment of checkmate, so `REPL_PASSWORD=... checkmate run ...` or a secrets manager that sets the variable works without any template.
+- **The process list.** A secret that is part of a command line is visible to other users of the machine while the command runs. Pass it in an environment variable or a file, as above, not as an argument.
+- **Remote hosts.** Over SSH the variables of a check travel on the command line of the remote shell, and with `become` the command is written to the sudo log of the host. Do not use checks with secrets over `--host` and `--inventory` yet.
+
+The id and the name of a check are never hidden; keep secrets out of them, also where they come from a `loop_run` item.
