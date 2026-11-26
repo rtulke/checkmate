@@ -3220,7 +3220,7 @@ checks:
     tags: [cis, cis-suse16, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      loginctl list-users --no-legend | awk '$1 != 0 {print $2}' | xargs -r -I{} sh -c 'loginctl show-user {} --property=Linger | grep -q "Linger=yes" && echo {} || true' 2>/dev/null || true
+      loginctl list-users --no-legend | awk '$1 != 0 {print $2}' | xargs -r -I{} sh -c 'loginctl show-user {} --property=Linger | grep "Linger=yes" >/dev/null && echo {} || true' 2>/dev/null || true
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -4221,7 +4221,7 @@ checks:
     tags: [cis, cis-suse16, cis-section-4, cis-level-2, cis-server, cis-level2-server]
     severity: low
     run: |
-      for z in $(firewall-cmd --get-active-zones 2>/dev/null | awk '!/^ /{print $1}'); do i=$(firewall-cmd --zone=$z --list-interfaces); echo "$i" | grep -Eqx '(lo|virbr[^ ]+)?' && continue; t=$(firewall-cmd --permanent --zone=$z --get-target); case $t in ACCEPT|'') echo "$z target=$t interfaces=$i";; esac; done
+      for z in $(firewall-cmd --get-active-zones 2>/dev/null | awk '!/^ /{print $1}'); do i=$(firewall-cmd --zone=$z --list-interfaces); echo "$i" | grep -Ex '(lo|virbr[^ ]+)?' >/dev/null && continue; t=$(firewall-cmd --permanent --zone=$z --get-target); case $t in ACCEPT|'') echo "$z target=$t interfaces=$i";; esac; done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -5067,7 +5067,7 @@ checks:
     tags: [cis, cis-suse16, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      g=$(sed -nE 's/^[[:space:]]*auth[[:space:]]+(required|requisite)[[:space:]]+pam_wheel\.so[[:space:]](.*[[:space:]])?group=([^[:space:]]+).*/\3/p' /etc/pam.d/su 2>/dev/null | head -n 1)
+      g=$(sed -nE 's/^[[:space:]]*auth[[:space:]]+(required|requisite)[[:space:]]+pam_wheel\.so[[:space:]](.*[[:space:]])?group=([^[:space:]]+).*/\3/p' /etc/pam.d/su 2>/dev/null | sed -n 1p)
       if [ -z "$g" ]; then echo "pam_wheel in /etc/pam.d/su names no group"; exit 0; fi
       e=$(getent group "$g")
       if [ -z "$e" ]; then echo "group $g does not exist"; exit 0; fi

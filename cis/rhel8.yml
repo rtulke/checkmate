@@ -4949,7 +4949,7 @@ checks:
     tags: [cis, cis-rhel8, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      for fw in `firewall-cmd --get-active-zones | grep -P -B 4  'interfaces: (?!lo|virbr)' | head -n 1 | cut -d ' ' -f1`; do firewall-cmd --permanent --zone=$fw --get-target; done
+      for fw in `firewall-cmd --get-active-zones | grep -P -B 4  'interfaces: (?!lo|virbr)' | sed -n 1p | cut -d ' ' -f1`; do firewall-cmd --permanent --zone=$fw --get-target; done
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
@@ -6178,7 +6178,7 @@ checks:
     tags: [cis, cis-rhel8, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      g=$(sed -nE 's/^[[:space:]]*auth[[:space:]]+(required|requisite)[[:space:]]+pam_wheel\.so[[:space:]](.*[[:space:]])?group=([^[:space:]]+).*/\3/p' /etc/pam.d/su 2>/dev/null | head -n 1)
+      g=$(sed -nE 's/^[[:space:]]*auth[[:space:]]+(required|requisite)[[:space:]]+pam_wheel\.so[[:space:]](.*[[:space:]])?group=([^[:space:]]+).*/\3/p' /etc/pam.d/su 2>/dev/null | sed -n 1p)
       if [ -z "$g" ]; then echo "pam_wheel in /etc/pam.d/su names no group"; exit 0; fi
       e=$(getent group "$g")
       if [ -z "$e" ]; then echo "group $g does not exist"; exit 0; fi

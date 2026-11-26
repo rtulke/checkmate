@@ -1780,7 +1780,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' apparmor 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' apparmor 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-d4cd5996bb |
       AppArmor is a mandatory access control system that confines programs to a defined set of files, capabilities and network access. Having it installed is the prerequisite for limiting what a compromised service can do beyond normal user permissions.
@@ -1794,7 +1794,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' apparmor-utils 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' apparmor-utils 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-57320ccd01 |
       apparmor-utils provides tools such as aa-enforce, aa-complain and aa-status for managing AppArmor profiles. They are needed to put profiles into enforce mode and to verify their state, which is how AppArmor confines applications and limits the damage of a compromised service.
@@ -2192,7 +2192,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' prelink 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' prelink 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-18deabdd17 |
       prelink rewrites binaries and libraries to speed up loading. These modifications interfere with file integrity tools such as AIDE and with package verification, and a compromised prelink could alter binaries system-wide. With address space randomization in place it brings little benefit.
@@ -2219,7 +2219,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.5.7. NIST SP 800-53 Rev. 5: NA."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' apport 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' apport 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       f='/etc/default/apport'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -2233,7 +2233,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.5.7. NIST SP 800-53 Rev. 5: NA."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' apport 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' apport 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       cat '/etc/default/apport'
     allow_rc: any
@@ -2443,7 +2443,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       f='/etc/pam.d/gdm-password'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -2457,7 +2457,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.6.1. NIST SP 800-53 Rev. 5: CM-6, CM-1, CM-3."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       cat '/etc/pam.d/gdm-password'
     allow_rc: any
@@ -2789,7 +2789,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       f='/etc/dconf/db/local.d/locks/00-banner-message'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -2803,7 +2803,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       cat '/etc/dconf/db/local.d/locks/00-banner-message'
     allow_rc: any
@@ -2821,7 +2821,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       f='/etc/dconf/profile/user'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -2835,7 +2835,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       cat '/etc/dconf/profile/user'
     allow_rc: any
@@ -2853,7 +2853,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.1. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       cat /etc/dconf/db/local.d/* 2>/dev/null | grep -E '^\s*banner-message-(enable|text)\s*='
     allow_rc: any
@@ -2876,7 +2876,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.2. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       f='/etc/dconf/db/local.d/locks/00-login-screen'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -2890,7 +2890,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.2. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       cat '/etc/dconf/db/local.d/locks/00-login-screen'
     allow_rc: any
@@ -2905,7 +2905,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.2. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       f='/etc/dconf/profile/user'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -2917,7 +2917,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.2. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       cat '/etc/dconf/profile/user'
     allow_rc: any
@@ -2931,7 +2931,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.2. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       cat /etc/dconf/db/local.d/* 2>/dev/null | grep -E '^\s*disable-user-list\s*='
     allow_rc: any
@@ -2953,7 +2953,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.3. NIST SP 800-53 Rev. 5: NA."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       f='/etc/dconf/db/local.d/00-screensaver'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -2967,7 +2967,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.3. NIST SP 800-53 Rev. 5: NA."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       cat '/etc/dconf/db/local.d/00-screensaver'
     allow_rc: any
@@ -2989,7 +2989,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.3. NIST SP 800-53 Rev. 5: NA."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       f='/etc/dconf/db/local.d/locks/00-screensaver'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -3003,7 +3003,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.3. NIST SP 800-53 Rev. 5: NA."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       cat '/etc/dconf/db/local.d/locks/00-screensaver'
     allow_rc: any
@@ -3021,7 +3021,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.4. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       f='/etc/dconf/db/local.d/00-media-automount'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -3035,7 +3035,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.4. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       cat '/etc/dconf/db/local.d/00-media-automount'
     allow_rc: any
@@ -3055,7 +3055,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.4. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       f='/etc/dconf/db/local.d/locks/00-automount_lock'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -3069,7 +3069,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.4. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       cat '/etc/dconf/db/local.d/locks/00-automount_lock'
     allow_rc: any
@@ -3087,7 +3087,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       f='/etc/dconf/db/local.d/locks/00-autorun_lock'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -3101,7 +3101,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       cat '/etc/dconf/db/local.d/locks/00-autorun_lock'
     allow_rc: any
@@ -3116,7 +3116,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       f='/etc/dconf/db/local.d/00-media-autorun'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -3130,7 +3130,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.5. NIST SP 800-53 Rev. 5: CM-1, CM-2, CM-6, CM-7, IA-5."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       cat '/etc/dconf/db/local.d/00-media-autorun'
     allow_rc: any
@@ -3148,7 +3148,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.6. NIST SP 800-53 Rev. 5: SI-4."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       f='/etc/gdm3/custom.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -3162,7 +3162,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.6. NIST SP 800-53 Rev. 5: SI-4."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       cat '/etc/gdm3/custom.conf'
     allow_rc: any
@@ -3177,7 +3177,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.7. NIST SP 800-53 Rev. 5: CM-7."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       f='/etc/gdm3/custom.conf'
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -3190,7 +3190,7 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 1.7.7. NIST SP 800-53 Rev. 5: CM-7."
     tags: [cis, cis-ubuntu24, cis-section-1, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
-    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
       cat '/etc/gdm3/custom.conf'
     allow_rc: any
@@ -3209,7 +3209,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' autofs 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' autofs 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-66cc7255f3 |
       autofs mounts file systems automatically when they are accessed, including removable media and network shares. That makes it easier to introduce untrusted media and adds a privileged daemon. Systems that do not rely on automounted network shares or home directories should not have it installed.
@@ -3267,7 +3267,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' avahi-daemon 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' avahi-daemon 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-70b707d084 |
       Avahi implements mDNS/DNS-SD zero-configuration networking, advertising and discovering services on the local network. Servers rarely need it; it runs a listening network daemon and discloses information about the host. Removing it reduces attack surface.
@@ -3281,7 +3281,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' kea-dhcp-ddns-server 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' kea-dhcp-ddns-server 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-f63a241406 |
       The Kea DHCP-DDNS server updates DNS records on behalf of a DHCP server. Unless the host has this role, the package only adds an unneeded network service and code that could be exploited or misused to alter DNS data.
@@ -3295,7 +3295,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' kea-dhcp4-server 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' kea-dhcp4-server 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-38bb4c8329 |
       The Kea DHCPv4 server hands out network configuration to clients. On a host that is not a DHCP server it is an unneeded network service, and a running instance could assign rogue addresses, gateways or DNS servers. The package should only be installed on dedicated DHCP servers.
@@ -3309,7 +3309,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' kea-dhcp6-server 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' kea-dhcp6-server 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-e7b0b0a5d7 |
       The Kea DHCPv6 server hands out network configuration to clients. On a host that is not a DHCP server it is an unneeded network service, and a running instance could assign rogue addresses, gateways or DNS servers. The package should only be installed on dedicated DHCP servers.
@@ -3323,7 +3323,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' kea 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' kea 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-d4b62f58d9 |
       The kea package pulls in the ISC Kea DHCP server components. Systems that do not serve DHCP do not need them; removing the package reduces installed network services and the risk of rogue address assignment.
@@ -3337,7 +3337,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' apache2 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' apache2 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-a32b202315 |
       Apache is a web server. If the system does not need to serve web content, removing it eliminates a network-facing service and its vulnerabilities and configuration risks.
@@ -3351,7 +3351,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' nginx 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' nginx 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-2bba0b25fe |
       A web server is a network-facing service that adds attack surface. Unless the system is meant to serve web content or act as a reverse proxy, nginx should not be installed.
@@ -3365,7 +3365,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' nginx-plus 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' nginx-plus 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-766ebb3818 |
       NGINX Plus is the commercial edition of the nginx web server and a network-facing service like it. Unless the system is meant to serve web content or act as a reverse proxy, it should not be installed.
@@ -3379,7 +3379,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' bind9 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' bind9 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-e524956514 |
       A DNS server is a complex network-facing service with a history of serious vulnerabilities. Systems that are not designated name servers should not have it installed, which removes that exposure and the risk of the host being abused for DNS amplification attacks.
@@ -3393,7 +3393,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' vsftpd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' vsftpd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-7acf1c085d |
       FTP transfers credentials and data in clear text, and FTP servers are frequent attack targets. Unless the system is an approved FTP server, the server package should not be installed; SFTP or FTPS are secure alternatives.
@@ -3407,7 +3407,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' dnsmasq 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' dnsmasq 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-6976005192 |
       dnsmasq combines a DNS forwarder with DHCP and TFTP servers. Unless the system needs it, for example for local virtualization networking, it is an unnecessary network-facing service that adds attack surface.
@@ -3421,7 +3421,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' slapd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' slapd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-ca98560dc1 |
       slapd is an LDAP directory server. Unless the system is intended to provide directory services, removing it eliminates an unneeded network service and its vulnerabilities.
@@ -3435,7 +3435,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' dovecot-imapd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' dovecot-imapd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-f083dc4e37 |
       dovecot-imapd provides an IMAP mail server. Unless the system is meant to serve mailboxes, removing it eliminates an unneeded network service that handles authentication and user data.
@@ -3449,7 +3449,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' dovecot-pop3d 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' dovecot-pop3d 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-f73ccd264d |
       dovecot-pop3d provides a POP3 mail server. Unless the system is meant to serve mailboxes, removing it eliminates an unneeded network service that handles authentication and user data.
@@ -3478,7 +3478,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' ypserv 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' ypserv 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-235f84ca9a |
       The NIS server distributes account and host maps over the network without encryption and with weak authentication, so any host on the segment can read password hashes or impersonate the server. A system that does not act as a NIS server has no reason to carry this software, and removing it eliminates an unneeded network service.
@@ -3492,7 +3492,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' cups 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' cups 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-a74706f42c |
       CUPS provides printing services and can listen on the network. Servers that do not print or act as print servers do not need it; removing it eliminates a service with a history of vulnerabilities.
@@ -3536,7 +3536,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' rsync 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' rsync 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-d7ab2a1cad |
       The rsync daemon offers file synchronization over an unencrypted, weakly authenticated protocol. Unless the system is meant to serve rsync modules it should not be available. On some platforms the check covers the rsync package itself, which also provides the client used over SSH.
@@ -3550,7 +3550,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' samba 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' samba 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-71a7199772 |
       Samba provides SMB/CIFS file and print sharing. It is a large network-facing service with a history of vulnerabilities; unless the system is meant to share files with SMB clients it should not be installed.
@@ -3564,7 +3564,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' snmpd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' snmpd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-522c2bfbd8 |
       An SNMP agent exposes detailed system and network information. SNMP v1 and v2c authenticate with community strings sent in clear text. Unless the system is monitored via SNMP, the agent should not be installed.
@@ -3578,7 +3578,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' telnetd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' telnetd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-bc2744af62 |
       telnetd provides remote login over Telnet, which transmits passwords and session data in clear text and does not authenticate the server. Anyone on the network path can capture credentials or hijack sessions. SSH covers the same need securely, so the package should not be installed.
@@ -3592,7 +3592,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' tftpd-hpa 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' tftpd-hpa 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-ec591b84d8 |
       TFTP transfers files without any authentication or encryption. A TFTP server is only needed on systems that provide network boot images or device configurations; elsewhere it should not be installed.
@@ -3606,7 +3606,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' squid 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' squid 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-3ba46f5d95 |
       Squid is an HTTP proxy server. A proxy that is not meant to run can be abused to relay traffic or reach internal systems, so it should not be installed unless the system is an approved proxy.
@@ -3620,7 +3620,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' xinetd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' xinetd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-16174e0987 |
       xinetd starts network services on demand, often legacy services with weak or no authentication. Modern systems use systemd socket activation instead; xinetd should not be installed unless a required service depends on it.
@@ -3633,9 +3633,9 @@ checks:
     description: "CIS Ubuntu 24.04 LTS benchmark recommendation 2.1.23. NIST SP 800-53 Rev. 5: CM-11."
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-2, cis-server, cis-level2-server]
     severity: low
-    only_if: "! dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep -q 'install ok installed'"
+    only_if: "! dpkg-query -W -f='${Status}' gdm3 2\u003e/dev/null | grep 'install ok installed' \u003e/dev/null"
     run: |
-      dpkg-query -W -f='${Status}' xserver-common 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' xserver-common 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-9887718198 |
       A graphical display server is rarely needed on servers. It adds a large amount of code, including setuid or privileged components with a history of vulnerabilities. Servers administered remotely should not have it installed.
@@ -3649,7 +3649,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' nis 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' nis 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-ac1806fa8d |
       NIS is a legacy directory service that sends information, including password hashes, unencrypted and with weak authentication. The client should not be installed; LDAP with TLS or similar services replace it.
@@ -3663,7 +3663,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' rsh-client 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' rsh-client 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-51164d638c |
       Removing the package rsh-client removes rsh, rcp and rlogin, which send credentials and data in clear text. Their presence also encourages use of these insecure protocols instead of SSH.
@@ -3677,7 +3677,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' talk 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' talk 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-c19976dd5a |
       The talk client connects to the talk daemon over unencrypted network connections and is an obsolete chat tool. Keeping it installed adds software that nobody needs and that could be abused to reach other hosts, so it should be removed unless there is a documented use.
@@ -3691,7 +3691,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' inetutils-telnet 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' inetutils-telnet 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-2717cc3d33 |
       Removing the package inetutils-telnet removes the telnet client. Telnet transfers credentials and data unencrypted, and having the client available encourages its use instead of SSH.
@@ -3705,7 +3705,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' telnet 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' telnet 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-b00660eaf1 |
       The telnet client connects using an unencrypted protocol, so credentials and session data typed into it are exposed on the network. Removing it discourages insecure remote logins; use ssh for administration and tools such as nc or openssl s_client for port testing.
@@ -3719,7 +3719,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' ldap-utils 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' ldap-utils 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-3bdc2b1e12 |
       Removing the package ldap-utils removes the LDAP command line clients. They are not needed unless the system administers a directory, and leaving them installed provides tools for querying directory data.
@@ -3733,7 +3733,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' ftp 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' ftp 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-65af69f8a0 |
       The FTP client transfers credentials and data in clear text. Removing it discourages the use of insecure transfers and leaves fewer tools for an attacker on the system; SFTP or SCP are secure replacements.
@@ -3747,7 +3747,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' tnftp 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' tnftp 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-8c2ed6a9d4 |
       Removing the package tnftp removes an FTP client. FTP sends credentials and data in clear text; secure alternatives such as sftp or scp should be used instead.
@@ -3761,7 +3761,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' chrony 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' chrony 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-a0cc2c0b8d |
       Accurate, synchronized time is required for log correlation, Kerberos, certificate validation and time-based one-time passwords. A system should run exactly one time synchronization client. Depending on the platform the check expects chrony to be installed or, where systemd-timesyncd is the chosen client, not installed, to avoid competing daemons.
@@ -3888,7 +3888,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' cron 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' cron 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-23d53a9a2b |
       cron runs scheduled jobs such as log rotation, integrity checks and other maintenance. If the daemon is not installed, enabled and running, these security-relevant tasks silently stop.
@@ -4150,7 +4150,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' bluez 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' bluez 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-26028fd092 |
       Bluetooth gives devices in radio range a way to connect to the system and has a history of remotely exploitable vulnerabilities. Servers rarely need it, so removing the BlueZ stack removes this wireless attack surface.
@@ -5446,7 +5446,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-8061e449a6 |
       A host firewall limits which network services are reachable and contains the damage of a compromised neighbour. On Debian and Ubuntu, ufw is the simple front end for managing those rules; where another tool such as firewalld, nftables or iptables is chosen, ufw should be absent, because two firewall managers overwrite each other's rules and leave the effective policy unpredictable.
@@ -6178,11 +6178,11 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      l_ver=$(sshd -V 2>&1 | grep -Eio 'openssh_[0-9]+\.[0-9]+' | head -1 | cut -d_ -f2)
+      l_ver=$(sshd -V 2>&1 | grep -Eio 'openssh_[0-9]+\.[0-9]+' | sed -n 1p | cut -d_ -f2)
       l_kex=$(sshd -T 2>/dev/null | awk '$1 == "kexalgorithms" {print $2}')
-      echo "$l_kex" | grep -q 'sntrup761x25519-sha512' && echo "PASS: sntrup761x25519-sha512" || echo "FAIL: sntrup761x25519-sha512 not in kexalgorithms"
-      if [ -n "$l_ver" ] && [ "$(printf '%s\n' 9.9 "$l_ver" | sort -V | head -1)" = "9.9" ]; then
-        echo "$l_kex" | grep -q 'mlkem768x25519-sha256' && echo "PASS: mlkem768x25519-sha256" || echo "FAIL: mlkem768x25519-sha256 not in kexalgorithms on OpenSSH $l_ver"
+      echo "$l_kex" | grep 'sntrup761x25519-sha512' >/dev/null && echo "PASS: sntrup761x25519-sha512" || echo "FAIL: sntrup761x25519-sha512 not in kexalgorithms"
+      if [ -n "$l_ver" ] && [ "$(printf '%s\n' 9.9 "$l_ver" | sort -V | sed -n 1p)" = "9.9" ]; then
+        echo "$l_kex" | grep 'mlkem768x25519-sha256' >/dev/null && echo "PASS: mlkem768x25519-sha256" || echo "FAIL: mlkem768x25519-sha256 not in kexalgorithms on OpenSSH $l_ver"
       fi
     allow_rc: any
     expect:
@@ -6209,7 +6209,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' sudo 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' sudo 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-f5f9e1cba7 |
       sudo lets administrators run privileged commands with their own credentials instead of a shared root password. That gives individual accountability, fine-grained permissions and a log of every privileged command.
@@ -6383,7 +6383,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      g=$(sed -nE 's/^[[:space:]]*auth[[:space:]]+(required|requisite)[[:space:]]+pam_wheel\.so[[:space:]](.*[[:space:]])?group=([^[:space:]]+).*/\3/p' /etc/pam.d/su 2>/dev/null | head -n 1)
+      g=$(sed -nE 's/^[[:space:]]*auth[[:space:]]+(required|requisite)[[:space:]]+pam_wheel\.so[[:space:]](.*[[:space:]])?group=([^[:space:]]+).*/\3/p' /etc/pam.d/su 2>/dev/null | sed -n 1p)
       if [ -z "$g" ]; then echo "pam_wheel in /etc/pam.d/su names no group"; exit 0; fi
       e=$(getent group "$g")
       if [ -z "$e" ]; then echo "group $g does not exist"; exit 0; fi
@@ -6406,7 +6406,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' libpam-runtime 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' libpam-runtime 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-d12af28ab2 |
       PAM is the framework through which login, sudo, su and other services authenticate users and apply account policy. libpam-runtime provides the shared configuration and the pam-auth-update tool that maintain the common PAM stack on Debian-based systems. Without it the authentication policy cannot be managed consistently.
@@ -6438,7 +6438,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' libpam-modules 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' libpam-modules 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-2de35c7416 |
       libpam-modules supplies the standard PAM modules such as pam_unix, pam_faillock and pam_pwhistory, which implement password verification, account lockout and password history. Many authentication hardening controls depend on these modules being installed.
@@ -6470,7 +6470,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' libpam-pwquality 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' libpam-pwquality 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-6bfcd4d189 |
       The pam_pwquality module rejects weak passwords when they are set, checking length, character classes, dictionary words and similarity to the previous password. Installing it is a prerequisite for enforcing password complexity rules on Debian-based systems.
@@ -6502,7 +6502,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' cracklib-runtime 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' cracklib-runtime 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-7ad01b26a0 |
       cracklib-runtime provides the word dictionary and utilities used by password quality checks to reject passwords built from common words. Without it, dictionary checks cannot work and easily guessable passwords may be accepted.
@@ -7877,7 +7877,7 @@ checks:
       uid_min=$(awk '/^[[:space:]]*UID_MIN/ {print $2}' /etc/login.defs)
       valid=$(awk -F/ '$NF != "nologin" && /^\// {print}' /etc/shells)
       awk -F: -v m="${uid_min:-1000}" '($1 !~ /^(root|halt|sync|shutdown|nfsnobody)$/ && ($3 < m+0 || $3 == 65534)) {print $1, $NF}' /etc/passwd | while read -r u s; do
-        printf '%s\n' "$valid" | grep -qxF -- "$s" && echo "FAIL: Service account $u has a valid shell: $s"
+        printf '%s\n' "$valid" | grep -xF -- "$s" >/dev/null && echo "FAIL: Service account $u has a valid shell: $s"
       done
       echo "scan_done"
     allow_rc: any
@@ -7902,7 +7902,7 @@ checks:
     run: |
       bash -c 'valid=$(awk -F/ "\$NF != \"nologin\" && /^\// {print}" /etc/shells)
       awk -F: "\$1 != \"root\" {print \$1, \$NF}" /etc/passwd | while read -r u s; do
-        printf "%s\n" "$valid" | grep -qxF -- "$s" && continue
+        printf "%s\n" "$valid" | grep -xF -- "$s" >/dev/null && continue
         passwd -S "$u" | awk "\$2 !~ /^L/ {print \"Account: \" \$1 \" does not have a valid login shell and is not locked\"}"
       done'
     allow_rc: any
@@ -8078,7 +8078,7 @@ checks:
         [ -f "$l_conf" ] || continue
         while read -r l_type l_path l_perm l_rest; do
           [ "$l_type" = "f" ] || continue
-          echo "$l_perm" | grep -Eq '^0?[0-7]{3,4}$' || continue
+          echo "$l_perm" | grep -E '^0?[0-7]{3,4}$' >/dev/null || continue
           [ -f "$l_path" ] || continue
           l_actual=$(stat -c '%a' "$l_path" 2>/dev/null)
           [ -n "$l_actual" ] && [ "$l_actual" -gt 640 ] && echo "REVIEW: $l_path is mode $l_actual (max 640) defined in $l_conf"
@@ -8238,7 +8238,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      dpkg-query -W -f='${Status}' audispd-plugins 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' audispd-plugins 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-c47e4e0adc |
       audispd-plugins provides plugins for the audit event dispatcher, notably audisp-remote, which forwards audit records to a remote server. Sending audit records off the host protects them from tampering by an attacker who obtains root locally and enables central analysis.
@@ -8252,7 +8252,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      dpkg-query -W -f='${Status}' auditd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' auditd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-7fcda27331 |
       The Linux audit framework records security-relevant events such as logins, privilege use, changes to critical files and administrative actions. Its user-space tools (auditd, auditctl, augenrules) must be installed for the kernel audit events to be collected, written to disk and reviewed.
@@ -9955,7 +9955,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      d=$(sed -nE 's|^[[:space:]]*log_file[[:space:]]*=[[:space:]]*([^[:space:]]*)/[^/[:space:]]*[[:space:]]*$|\1|p' /etc/audit/auditd.conf 2>/dev/null | head -n 1)
+      d=$(sed -nE 's|^[[:space:]]*log_file[[:space:]]*=[[:space:]]*([^[:space:]]*)/[^/[:space:]]*[[:space:]]*$|\1|p' /etc/audit/auditd.conf 2>/dev/null | sed -n 1p)
       [ -n "$d" ] || d='/etc/audit/auditd.conf-not-found'
       f=$d
       if [ ! -e "$f" ] && [ ! -L "$f" ]; then echo "$f does not exist"; exit 0; fi
@@ -9977,7 +9977,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      d=$(sed -nE 's|^[[:space:]]*log_file[[:space:]]*=[[:space:]]*([^[:space:]]*)/[^/[:space:]]*[[:space:]]*$|\1|p' /etc/audit/auditd.conf 2>/dev/null | head -n 1)
+      d=$(sed -nE 's|^[[:space:]]*log_file[[:space:]]*=[[:space:]]*([^[:space:]]*)/[^/[:space:]]*[[:space:]]*$|\1|p' /etc/audit/auditd.conf 2>/dev/null | sed -n 1p)
       [ -n "$d" ] || d='/var/log/audit'
       find "$d" -type f -perm /0137
     allow_rc: any
@@ -9999,7 +9999,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      d=$(sed -nE 's|^[[:space:]]*log_file[[:space:]]*=[[:space:]]*([^[:space:]]*)/[^/[:space:]]*[[:space:]]*$|\1|p' /etc/audit/auditd.conf 2>/dev/null | head -n 1)
+      d=$(sed -nE 's|^[[:space:]]*log_file[[:space:]]*=[[:space:]]*([^[:space:]]*)/[^/[:space:]]*[[:space:]]*$|\1|p' /etc/audit/auditd.conf 2>/dev/null | sed -n 1p)
       [ -n "$d" ] || d='/var/log/audit'
       find "$d" -type f ! -user root
     allow_rc: any
@@ -10046,7 +10046,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      d=$(sed -nE 's|^[[:space:]]*log_file[[:space:]]*=[[:space:]]*([^[:space:]]*)/[^/[:space:]]*[[:space:]]*$|\1|p' /etc/audit/auditd.conf 2>/dev/null | head -n 1)
+      d=$(sed -nE 's|^[[:space:]]*log_file[[:space:]]*=[[:space:]]*([^[:space:]]*)/[^/[:space:]]*[[:space:]]*$|\1|p' /etc/audit/auditd.conf 2>/dev/null | sed -n 1p)
       [ -n "$d" ] || d='/var/log/audit'
       find -L "$d" -maxdepth 1 -type f ! -group root ! -group adm
     allow_rc: any
@@ -10840,7 +10840,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' aide 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' aide 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-24b82fc810 |
       AIDE is a file integrity checker that records a baseline of files and later reports changes. It detects unauthorised modifications of binaries and configuration files that could indicate a compromise.
@@ -10854,7 +10854,7 @@ checks:
     tags: [cis, cis-ubuntu24, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' aide-common 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' aide-common 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-8e6297dc4c |
       AIDE builds a database of file checksums and attributes and reports later changes. Without such a file integrity tool, modified binaries, configuration files or planted backdoors can go unnoticed. The aide-common package provides the configuration and helper scripts that Debian and Ubuntu use to initialize and run AIDE regularly.

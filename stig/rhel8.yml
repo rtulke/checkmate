@@ -7040,7 +7040,7 @@ checks:
     tags: [stig, stig-rhel8, stig-cat-2]
     severity: medium
     run: |
-      sh -c '! dnf repolist 2>/dev/null | grep -qi epel'
+      sh -c '! dnf repolist 2>/dev/null | grep -i epel >/dev/null'
     expect: { rc: "== 0" }
     rationale: &rat-3e0b2ca8f7 |
       The EPEL is a repository of high-quality open-source packages for enterprise-class Linux distributions such as RHEL, CentOS, AlmaLinux, Rocky Linux, and Oracle Linux. These packages are not part of the official distribution but are built using the same Fedora build system to ensure compatibility and maintain quality standards.

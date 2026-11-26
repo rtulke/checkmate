@@ -2827,9 +2827,9 @@ checks:
         case "$l_mname" in
           builtin:*) echo "${l_mname#builtin:} driver is built into the kernel"; continue ;;
         esac
-        modprobe -n -v "$l_mname" 2>/dev/null | grep -Pq '^\h*install\h+/(usr/)?bin/(true|false)\b' || echo "$l_mname is loadable"
-        lsmod | awk '{print $1}' | grep -qx "$l_mname" && echo "$l_mname is loaded"
-        modprobe --showconfig 2>/dev/null | grep -Pq "^\h*blacklist\h+$l_mname\b" || echo "$l_mname is not deny listed"
+        modprobe -n -v "$l_mname" 2>/dev/null | grep -P '^\h*install\h+/(usr/)?bin/(true|false)\b' >/dev/null || echo "$l_mname is loadable"
+        lsmod | awk '{print $1}' | grep -x "$l_mname" >/dev/null && echo "$l_mname is loaded"
+        modprobe --showconfig 2>/dev/null | grep -P "^\h*blacklist\h+$l_mname\b" >/dev/null || echo "$l_mname is not deny listed"
       done
     allow_rc: any
     expect:
@@ -4610,7 +4610,7 @@ checks:
     tags: [cis, cis-suse15, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      g=$(sed -nE 's/^[[:space:]]*auth[[:space:]]+(required|requisite)[[:space:]]+pam_wheel\.so[[:space:]](.*[[:space:]])?group=([^[:space:]]+).*/\3/p' /etc/pam.d/su 2>/dev/null | head -n 1)
+      g=$(sed -nE 's/^[[:space:]]*auth[[:space:]]+(required|requisite)[[:space:]]+pam_wheel\.so[[:space:]](.*[[:space:]])?group=([^[:space:]]+).*/\3/p' /etc/pam.d/su 2>/dev/null | sed -n 1p)
       if [ -z "$g" ]; then echo "pam_wheel in /etc/pam.d/su names no group"; exit 0; fi
       e=$(getent group "$g")
       if [ -z "$e" ]; then echo "group $g does not exist"; exit 0; fi

@@ -21,7 +21,7 @@ checks:
     tags: [stig, stig-ubuntu24, stig-cat-1]
     severity: high
     run: |
-      dpkg-query -W -f='${Status}' telnetd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' telnetd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-dbfade3edb |
       Remote access services, such as those providing remote access to network devices and information systems, which lack automated control capabilities, increase risk and make remote user access management difficult at best.
@@ -39,7 +39,7 @@ checks:
     tags: [stig, stig-ubuntu24, stig-cat-1]
     severity: high
     run: |
-      dpkg-query -W -f='${Status}' rsh-server 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' rsh-server 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-2c99b59937 |
       It is detrimental for operating systems to provide, or install by default, functionality exceeding requirements or mission objectives. These unnecessary capabilities or services are often overlooked and therefore, may remain unsecured. They increase the risk to the platform by providing additional attack vectors.
@@ -57,7 +57,7 @@ checks:
     tags: [stig, stig-ubuntu24, stig-cat-1]
     severity: high
     run: |
-      dpkg-query -W -f='${Status}' nfs-kernel-server 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' nfs-kernel-server 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-42cd3bad80 |
       It is detrimental for operating systems to provide, or install by default, functionality exceeding requirements or mission objectives. These unnecessary capabilities or services are often overlooked and therefore may remain unsecured. They increase the risk to the platform by providing additional attack vectors.
@@ -82,7 +82,7 @@ checks:
     tags: [stig, stig-ubuntu24, stig-cat-1]
     severity: high
     run: |
-      dpkg-query -W -f='${Status}' ssh 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' ssh 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-26164c6453 |
       Without protection of the transmitted information, confidentiality and integrity may be compromised because unprotected communications can be intercepted and either read or altered.
@@ -426,7 +426,7 @@ checks:
     tags: [stig, stig-ubuntu24, stig-cat-2]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' aide 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' aide 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-735cbffb0b |
       Without verification, security functions may not operate correctly and the failure may go unnoticed. Security function is defined as the hardware, software, and/or firmware of the information system responsible for enforcing the system security policy and supporting the isolation of code and data on which the protection is based. Security functionality includes, but is not limited to, establishing system accounts, configuring access authorizations (i.e., permissions, privileges), setting events to be audited, and setting intrusion detection parameters.
@@ -534,7 +534,7 @@ checks:
     tags: [stig, stig-ubuntu24, stig-cat-2]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' rsyslog 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' rsyslog 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-c30acd83c8 |
       Failure to a known state can address safety or security in accordance with the mission/business needs of the organization. Failure to a known secure state helps prevent a loss of confidentiality, integrity, or availability in the event of a failure of the information system or a component of the system.
@@ -576,7 +576,7 @@ checks:
     tags: [stig, stig-ubuntu24, stig-cat-2]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-0635bc8f4b |
       Remote access services, such as those providing remote access to network devices and information systems, which lack automated control capabilities, increase risk, and make remote user access management difficult at best.
@@ -619,7 +619,7 @@ checks:
     tags: [stig, stig-ubuntu24, stig-cat-2]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' auditd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' auditd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-6c064b56dd |
       Without establishing the when, where, type, source, and outcome of events that occurred, it would be difficult to establish, correlate, and investigate the events leading up to an outage or attack.
@@ -674,7 +674,7 @@ checks:
     tags: [stig, stig-ubuntu24, stig-cat-2]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' apparmor 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' apparmor 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-82d1499f29 |
       Control of program execution is a mechanism used to prevent execution of unauthorized programs. Some operating systems may provide a capability that runs counter to the mission or provides users with functionality that exceeds mission requirements. This includes functions and services installed at Ubuntu 24.04 LTS-level.
@@ -941,7 +941,7 @@ checks:
     tags: [stig, stig-ubuntu24, stig-cat-2]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' opensc-pkcs11 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' opensc-pkcs11 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-70178fccee |
       The use of PIV credentials facilitates standardization and reduces the risk of unauthorized access.
@@ -959,7 +959,7 @@ checks:
     tags: [stig, stig-ubuntu24, stig-cat-2]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' libpam-pkcs11 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' libpam-pkcs11 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: *rat-70178fccee
     remediation: &rem-c6c3a51f07 |
@@ -974,7 +974,7 @@ checks:
     tags: [stig, stig-ubuntu24, stig-cat-2]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' vlock 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' vlock 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-fd1dbea233 |
       A session lock is a temporary action taken when a user stops work and moves away from the immediate physical vicinity of the information system but does not want to log out because of the temporary nature of the absence.
@@ -4977,7 +4977,7 @@ checks:
     tags: [stig, stig-ubuntu24, stig-cat-3]
     severity: low
     run: |
-      dpkg-query -W -f='${Status}' systemd-timesyncd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' systemd-timesyncd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-866c7c0a47 |
       Inaccurate time stamps make it more difficult to correlate events and can lead to an inaccurate analysis. Determining the correct time a particular event occurred on a system is critical when conducting forensic analysis and investigating system events. Sources outside the configured acceptable allowance (drift) may be inaccurate.
@@ -4993,7 +4993,7 @@ checks:
     tags: [stig, stig-ubuntu24, stig-cat-3]
     severity: low
     run: |
-      dpkg-query -W -f='${Status}' ntp 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' ntp 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: *rat-866c7c0a47
     remediation: &rem-1315a43c1b |
@@ -5010,7 +5010,7 @@ checks:
     tags: [stig, stig-ubuntu24, stig-cat-3]
     severity: low
     run: |
-      dpkg-query -W -f='${Status}' audispd-plugins 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' audispd-plugins 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-562377e795 |
       Information stored in one location is vulnerable to accidental or incidental deletion or alteration.
@@ -5042,7 +5042,7 @@ checks:
     tags: [stig, stig-ubuntu24, stig-cat-3]
     severity: low
     run: |
-      dpkg-query -W -f='${Status}' chrony 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' chrony 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: *rat-866c7c0a47
     remediation: &rem-19b86c0e4f |

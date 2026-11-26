@@ -1158,7 +1158,7 @@ checks:
     severity: medium
     timeout: 120000ms
     run: |
-      firewall-cmd --state && zone_list=`firewall-cmd --get-active-zones | head -1 | awk '{print $1}'` && for zone in $zone_list; do firewall-cmd --permanent --info-zone=$zone | grep "target:"; done
+      firewall-cmd --state && zone_list=`firewall-cmd --get-active-zones | sed -n 1p | awk '{print $1}'` && for zone in $zone_list; do firewall-cmd --permanent --info-zone=$zone | grep "target:"; done
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -10794,7 +10794,7 @@ checks:
     tags: [stig, stig-rhel10, stig-cat-2]
     severity: medium
     run: |
-      /bin/bash -lc 'if ! rpm -q tftp-server &>/dev/null; then echo COMPLIANT_NOT_INSTALLED; exit 0; fi; es=$(systemctl cat tftp.service 2>/dev/null | grep -i ^ExecStart || true); echo "$es"; echo "$es" | grep -qE "(^|[[:space:]])-s([[:space:]]|$)"'
+      /bin/bash -lc 'if ! rpm -q tftp-server &>/dev/null; then echo COMPLIANT_NOT_INSTALLED; exit 0; fi; es=$(systemctl cat tftp.service 2>/dev/null | grep -i ^ExecStart || true); echo "$es"; echo "$es" | grep -E "(^|[[:space:]])-s([[:space:]]|$)" >/dev/null'
     allow_rc: any
     expect:
       - { rc: "== 0" }

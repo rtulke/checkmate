@@ -755,7 +755,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' prelink 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' prelink 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-18deabdd17 |
       prelink rewrites binaries and libraries to speed up loading. These modifications interfere with file integrity tools such as AIDE and with package verification, and a compromised prelink could alter binaries system-wide. With address space randomization in place it brings little benefit.
@@ -887,7 +887,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' apparmor 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' apparmor 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-d4cd5996bb |
       AppArmor is a mandatory access control system that confines programs to a defined set of files, capabilities and network access. Having it installed is the prerequisite for limiting what a compromised service can do beyond normal user permissions.
@@ -1070,7 +1070,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' gdm3 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' gdm3 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-a7a77db979 |
       Removing the package gdm3 removes the graphical display manager, which is not needed on servers and adds a large amount of code and a local login service to the attack surface. Workstations that use a graphical login need it.
@@ -1107,7 +1107,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' chrony 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' chrony 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-a0cc2c0b8d |
       Accurate, synchronized time is required for log correlation, Kerberos, certificate validation and time-based one-time passwords. A system should run exactly one time synchronization client. Depending on the platform the check expects chrony to be installed or, where systemd-timesyncd is the chosen client, not installed, to avoid competing daemons.
@@ -1121,7 +1121,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' chrony 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' chrony 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: *rat-a0cc2c0b8d
     remediation: *rem-ffa89cc9a9
@@ -1131,7 +1131,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' ntp 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' ntp 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-3360cd3b3f |
       Running more than one time synchronization daemon makes them compete for control of the clock. On these platforms time synchronization is expected to be handled by another daemon such as systemd-timesyncd or chrony, so the ntp package should not be installed.
@@ -1231,7 +1231,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' xserver-xorg 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' xserver-xorg 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-1d2925df6e |
       Removing the package xserver-xorg removes the X Window System, which servers do not need and which has a long history of security issues. Systems that run a graphical desktop need it.
@@ -1245,7 +1245,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' avahi-daemon 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' avahi-daemon 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-ecc8324fa9 |
       Removing the package avahi-daemon removes the mDNS/DNS-SD service, which announces the host and its services on the local network and listens for multicast traffic. Servers rarely need automatic service discovery.
@@ -1259,7 +1259,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' cups 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' cups 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-5fd2f513f0 |
       CUPS provides printing services and can listen on the network (port 631), offer a web interface and browse for remote printers. Systems that do not print gain nothing from it but carry an extra network service with a history of security fixes. Remove it unless the host prints or acts as a print server.
@@ -1273,7 +1273,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' cups 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' cups 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: *rat-5fd2f513f0
     remediation: *rem-95a4b34c66
@@ -1283,7 +1283,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' slapd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' slapd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-5a5eeab5a1 |
       Removing the package slapd removes the OpenLDAP server. A directory server that is not required is an unnecessary network service that may expose account data. Keep it only on hosts that serve LDAP.
@@ -1297,7 +1297,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' bind9 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' bind9 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-c5954f0e99 |
       Removing the package bind9 removes the BIND DNS server. An unneeded DNS server is network-reachable code that can be abused for attacks such as amplification or cache poisoning. Keep it only on designated DNS servers.
@@ -1311,7 +1311,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' vsftpd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' vsftpd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-436c2763bd |
       vsftpd is an FTP server. FTP transfers credentials and data unencrypted unless TLS is configured carefully, and an FTP service is a frequent target for brute-force attacks and data leaks. Use SFTP or another encrypted transfer method and keep the FTP server off systems that do not explicitly provide it.
@@ -1325,7 +1325,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' httpd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' httpd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-363beaff7b |
       The Apache HTTP server opens a network service with a large attack surface through its modules and the content it serves. If the host is not meant to be a web server, removing it avoids accidental exposure of files and the patching burden of an unused service.
@@ -1339,7 +1339,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' dovecot-imapd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' dovecot-imapd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-cd00498564 |
       Removing the package dovecot-imapd removes the IMAP server. A mail access service that is not needed exposes a login service and mail data to the network. Keep it only on mail servers.
@@ -1353,7 +1353,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' dovecot-pop3d 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' dovecot-pop3d 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-26f5a727ee |
       Removing the package dovecot-pop3d removes the POP3 server. A mail access service that is not needed exposes a login service and mail data to the network. Keep it only on mail servers.
@@ -1367,7 +1367,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' samba 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' samba 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-d7ad1732cb |
       Samba provides SMB/CIFS file and print sharing. The SMB protocol and its implementations have a long history of critical vulnerabilities, and shares can expose data if misconfigured. Install the server only on hosts that must share files with Windows clients; client-only use does not need the server package.
@@ -1381,7 +1381,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' squid 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' squid 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-04d3922e1d |
       Squid is an HTTP caching proxy. An unneeded or misconfigured proxy can be abused to relay traffic, bypass network controls or reach internal systems, and it is network-facing code that requires patching. Remove it unless the host is a designated proxy server.
@@ -1395,7 +1395,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' snmpd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' snmpd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-6f7b2c568f |
       Removing the package snmpd removes the SNMP agent. SNMP, especially v1/v2c with community strings, can disclose detailed system information and in some setups allow configuration changes. Keep it only where SNMP monitoring is required and properly secured.
@@ -1429,7 +1429,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' rsync 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' rsync 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-f865cf7f4c |
       The rsync daemon offers file synchronisation over a plain-text protocol with weak or no authentication depending on its configuration. Systems that do not act as rsync servers should not run the daemon; rsync over SSH does not need it.
@@ -1443,7 +1443,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' nis 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' nis 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-fda00482cd |
       Removing the package nis removes the NIS client and server tools. NIS transmits account data, including password hashes, without encryption and has weak authentication.
@@ -1457,7 +1457,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' nis 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' nis 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: *rat-fda00482cd
     remediation: *rem-98afbdc9fd
@@ -1467,7 +1467,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' rsh-client 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' rsh-client 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-51164d638c |
       Removing the package rsh-client removes rsh, rcp and rlogin, which send credentials and data in clear text. Their presence also encourages use of these insecure protocols instead of SSH.
@@ -1481,7 +1481,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' talk 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' talk 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-c19976dd5a |
       The talk client connects to the talk daemon over unencrypted network connections and is an obsolete chat tool. Keeping it installed adds software that nobody needs and that could be abused to reach other hosts, so it should be removed unless there is a documented use.
@@ -1495,7 +1495,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' telnet 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' telnet 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-b00660eaf1 |
       The telnet client connects using an unencrypted protocol, so credentials and session data typed into it are exposed on the network. Removing it discourages insecure remote logins; use ssh for administration and tools such as nc or openssl s_client for port testing.
@@ -1509,7 +1509,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' ldap-utils 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' ldap-utils 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-3bdc2b1e12 |
       Removing the package ldap-utils removes the LDAP command line clients. They are not needed unless the system administers a directory, and leaving them installed provides tools for querying directory data.
@@ -1523,7 +1523,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' rpcbind 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' rpcbind 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-8a6c37a84c |
       rpcbind maps RPC program numbers to network ports and is required mainly by NFS and NIS. It listens on the network, can disclose which RPC services run on the host and has been abused for DDoS amplification. Disable or remove it unless NFS or other RPC services are in use.
@@ -2642,7 +2642,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-8061e449a6 |
       A host firewall limits which network services are reachable and contains the damage of a compromised neighbour. On Debian and Ubuntu, ufw is the simple front end for managing those rules; where another tool such as firewalld, nftables or iptables is chosen, ufw should be absent, because two firewall managers overwrite each other's rules and leave the effective policy unpredictable.
@@ -2656,7 +2656,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' iptables-persistent 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' iptables-persistent 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-0a31466bda |
       Which firewall persistence tool is present has to match the chosen firewall. With ufw or nftables, iptables-persistent loads a competing rule set at boot and should not be installed; where plain iptables is the chosen firewall, it is needed so the rules are restored after a reboot.
@@ -2724,7 +2724,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' nftables 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' nftables 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-059df58fe1 |
       Exactly one tool should manage the host firewall. Where nftables is the chosen firewall, its package has to be installed and its service enabled and running so the rule set is loaded at boot. Where firewalld is used instead, the nftables service must not run alongside it. The expected state therefore depends on the platform.
@@ -2738,7 +2738,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: *rat-8061e449a6
     remediation: &rem-7f6d83d359 |
@@ -2831,7 +2831,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' iptables 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' iptables 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-eb1c6ff1b1 |
       iptables provides the tools to define and load rules for the kernel packet filter. Where iptables is the chosen firewall, the package must be installed for the rules to be configured and applied.
@@ -2845,7 +2845,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' iptables-persistent 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' iptables-persistent 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: *rat-0a31466bda
     remediation: &rem-501e7a4301 |
@@ -2858,7 +2858,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' nftables 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' nftables 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: *rat-059df58fe1
     remediation: &rem-d5335a4227 |
@@ -2871,7 +2871,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: *rat-8061e449a6
     remediation: *rem-7f6d83d359
@@ -2881,7 +2881,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-4, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      dpkg-query -W -f='${Status}' audispd-plugins 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' audispd-plugins 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-c47e4e0adc |
       audispd-plugins provides plugins for the audit event dispatcher, notably audisp-remote, which forwards audit records to a remote server. Sending audit records off the host protects them from tampering by an attacker who obtains root locally and enables central analysis.
@@ -2895,7 +2895,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-4, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      dpkg-query -W -f='${Status}' auditd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' auditd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-f809f26f23 |
       auditd is the daemon that receives audit events from the kernel and writes them to disk. If it is not installed, enabled and running, audit rules have no effect on the persistent trail, and security events go unrecorded.
@@ -3834,7 +3834,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' rsyslog 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' rsyslog 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-ec4e2f2832 |
       rsyslog collects log messages from the kernel, services and applications, writes them to files and can forward them to a central log server. Without an installed, enabled and running syslog daemon, security-relevant events are not recorded in a durable way and incidents cannot be investigated.
@@ -4202,7 +4202,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' cron 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' cron 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-23d53a9a2b |
       cron runs scheduled jobs such as log rotation, integrity checks and other maintenance. If the daemon is not installed, enabled and running, these security-relevant tasks silently stop.
@@ -4422,7 +4422,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' sudo 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' sudo 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-f5f9e1cba7 |
       sudo lets administrators run privileged commands with their own credentials instead of a shared root password. That gives individual accountability, fine-grained permissions and a log of every privileged command.
@@ -5163,7 +5163,7 @@ checks:
     tags: [cis, cis-ubuntu18, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' libpam-pwquality 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' libpam-pwquality 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-6bfcd4d189 |
       The pam_pwquality module rejects weak passwords when they are set, checking length, character classes, dictionary words and similarity to the previous password. Installing it is a prerequisite for enforcing password complexity rules on Debian-based systems.

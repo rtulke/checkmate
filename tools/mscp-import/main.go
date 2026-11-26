@@ -22,6 +22,8 @@ import (
 	"strings"
 
 	"gopkg.in/yaml.v3"
+
+	"github.com/rtulke/checkmate/internal/pipes"
 )
 
 type rule struct {
@@ -153,7 +155,7 @@ func convert(src, version, out string) (int, int, error) {
 		fmt.Fprintf(&e, "    tags: [%s]\n", strings.Join(tags(version, cisID, level, r.Tags), ", "))
 		fmt.Fprintf(&e, "    severity: %s\n", severity(r.Severity, level))
 		e.WriteString("    run: |\n")
-		for _, line := range strings.Split(protect(check), "\n") {
+		for _, line := range strings.Split(protect(pipes.Drain(check)), "\n") {
 			e.WriteString("      " + line + "\n")
 		}
 		e.WriteString("    allow_rc: any\n")

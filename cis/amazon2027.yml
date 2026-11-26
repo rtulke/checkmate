@@ -179,11 +179,11 @@ checks:
       l_conf="$(modprobe --showconfig | grep -Pi -- '^\h*(blacklist|install)\h+')"
       for l_mod in $(find -L "$l_search"/*/kernel/fs/ -mindepth 2 -maxdepth 2 -type f ! -path '*/kernel/fs/nls/*' -exec basename {} \; | cut -d. -f1 | sort -u); do
         l_umod="$(echo "$l_mod" | tr '-' '_')"
-        if echo "$l_mounted" | grep -Pq -- "\b${l_mod}\b"; then
+        if echo "$l_mounted" | grep -P -- "\b${l_mod}\b" >/dev/null; then
           continue
-        elif echo "$l_loaded" | grep -Pq -- "\b${l_umod}\b"; then
+        elif echo "$l_loaded" | grep -P -- "\b${l_umod}\b" >/dev/null; then
           echo "loaded: $l_mod"
-        elif ! echo "$l_conf" | grep -Piq -- "\binstall\h+${l_umod}\h+\H+" || ! echo "$l_conf" | grep -Piq -- "\bblacklist\h+${l_umod}\b"; then
+        elif ! echo "$l_conf" | grep -Pi -- "\binstall\h+${l_umod}\h+\H+" >/dev/null || ! echo "$l_conf" | grep -Pi -- "\bblacklist\h+${l_umod}\b" >/dev/null; then
           echo "loadable: $l_mod"
         fi
       done
@@ -1631,7 +1631,7 @@ checks:
         echo "efi_not_in_fstab"
       else
         for l_opt in fmask=0077 uid=0 gid=0; do
-          echo ",$l_opts," | grep -q ",$l_opt," || echo "efi_missing: $l_opt"
+          echo ",$l_opts," | grep ",$l_opt," >/dev/null || echo "efi_missing: $l_opt"
         done
         echo "efi_options_checked"
       fi
@@ -2233,7 +2233,7 @@ checks:
       f=/etc/crypto-policies/state/CURRENT.pol
       if grep -Piq -- '^\h*cipher@(lib|open)ssh' "$f"; then l=$(grep -Pi -- '^\h*cipher@(lib|open)ssh(-server|-client)?\h*=' "$f"); else l=$(grep -Pi -- '^\h*cipher\h*=' "$f"); fi
       if [ -z "$l" ]; then echo ssh_chacha20=unknown
-      elif echo "$l" | grep -qi 'chacha20-poly1305'; then echo ssh_chacha20=enabled
+      elif echo "$l" | grep -i 'chacha20-poly1305' >/dev/null; then echo ssh_chacha20=enabled
       else echo ssh_chacha20=disabled; fi
     allow_rc: any
     expect:
@@ -3288,9 +3288,9 @@ checks:
         exit 0
       fi
       l_fail=""
-      lsmod | awk '{print $1}' | grep -qx "$l_mod" && { echo "FAIL - $l_mod is loaded"; l_fail="yes"; }
-      modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mod\b" || { echo "FAIL - $l_mod is not deny listed"; l_fail="yes"; }
-      modprobe --showconfig | grep -Pq -- "^\h*install\h+$l_mod\h+(/usr)?/bin/(true|false)\b" || { echo "FAIL - $l_mod is loadable"; l_fail="yes"; }
+      lsmod | awk '{print $1}' | grep -x "$l_mod" >/dev/null && { echo "FAIL - $l_mod is loaded"; l_fail="yes"; }
+      modprobe --showconfig | grep -P -- "^\h*blacklist\h+$l_mod\b" >/dev/null || { echo "FAIL - $l_mod is not deny listed"; l_fail="yes"; }
+      modprobe --showconfig | grep -P -- "^\h*install\h+$l_mod\h+(/usr)?/bin/(true|false)\b" >/dev/null || { echo "FAIL - $l_mod is loadable"; l_fail="yes"; }
       [ -z "$l_fail" ] && echo "PASS - $l_mod not loaded and not loadable"
       exit 0
     allow_rc: any
@@ -3323,9 +3323,9 @@ checks:
         exit 0
       fi
       l_fail=""
-      lsmod | awk '{print $1}' | grep -qx "$l_mod" && { echo "FAIL - $l_mod is loaded"; l_fail="yes"; }
-      modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mod\b" || { echo "FAIL - $l_mod is not deny listed"; l_fail="yes"; }
-      modprobe --showconfig | grep -Pq -- "^\h*install\h+$l_mod\h+(/usr)?/bin/(true|false)\b" || { echo "FAIL - $l_mod is loadable"; l_fail="yes"; }
+      lsmod | awk '{print $1}' | grep -x "$l_mod" >/dev/null && { echo "FAIL - $l_mod is loaded"; l_fail="yes"; }
+      modprobe --showconfig | grep -P -- "^\h*blacklist\h+$l_mod\b" >/dev/null || { echo "FAIL - $l_mod is not deny listed"; l_fail="yes"; }
+      modprobe --showconfig | grep -P -- "^\h*install\h+$l_mod\h+(/usr)?/bin/(true|false)\b" >/dev/null || { echo "FAIL - $l_mod is loadable"; l_fail="yes"; }
       [ -z "$l_fail" ] && echo "PASS - $l_mod not loaded and not loadable"
       exit 0
     allow_rc: any
@@ -3358,9 +3358,9 @@ checks:
         exit 0
       fi
       l_fail=""
-      lsmod | awk '{print $1}' | grep -qx "$l_mod" && { echo "FAIL - $l_mod is loaded"; l_fail="yes"; }
-      modprobe --showconfig | grep -Pq -- "^\h*blacklist\h+$l_mod\b" || { echo "FAIL - $l_mod is not deny listed"; l_fail="yes"; }
-      modprobe --showconfig | grep -Pq -- "^\h*install\h+$l_mod\h+(/usr)?/bin/(true|false)\b" || { echo "FAIL - $l_mod is loadable"; l_fail="yes"; }
+      lsmod | awk '{print $1}' | grep -x "$l_mod" >/dev/null && { echo "FAIL - $l_mod is loaded"; l_fail="yes"; }
+      modprobe --showconfig | grep -P -- "^\h*blacklist\h+$l_mod\b" >/dev/null || { echo "FAIL - $l_mod is not deny listed"; l_fail="yes"; }
+      modprobe --showconfig | grep -P -- "^\h*install\h+$l_mod\h+(/usr)?/bin/(true|false)\b" >/dev/null || { echo "FAIL - $l_mod is loadable"; l_fail="yes"; }
       [ -z "$l_fail" ] && echo "PASS - $l_mod not loaded and not loadable"
       exit 0
     allow_rc: any
@@ -4844,9 +4844,9 @@ checks:
         l_blocks=" $(firewall-cmd --permanent --zone="$l_zone" --list-icmp-blocks) "
         for l_type in timestamp-request timestamp-reply; do
           if [ "$l_inv" = "yes" ]; then
-            echo "$l_blocks" | grep -q " $l_type " && { echo "FAIL - zone $l_zone allows $l_type"; l_fail="yes"; }
+            echo "$l_blocks" | grep " $l_type " >/dev/null && { echo "FAIL - zone $l_zone allows $l_type"; l_fail="yes"; }
           else
-            echo "$l_blocks" | grep -q " $l_type " || { echo "FAIL - zone $l_zone does not block $l_type"; l_fail="yes"; }
+            echo "$l_blocks" | grep " $l_type " >/dev/null || { echo "FAIL - zone $l_zone does not block $l_type"; l_fail="yes"; }
           fi
         done
       done
@@ -5674,7 +5674,7 @@ checks:
     tags: [cis, cis-amazon2027, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
     run: |
-      g=$(sed -nE 's/^[[:space:]]*auth[[:space:]]+(required|requisite)[[:space:]]+pam_wheel\.so[[:space:]](.*[[:space:]])?group=([^[:space:]]+).*/\3/p' /etc/pam.d/su 2>/dev/null | head -n 1)
+      g=$(sed -nE 's/^[[:space:]]*auth[[:space:]]+(required|requisite)[[:space:]]+pam_wheel\.so[[:space:]](.*[[:space:]])?group=([^[:space:]]+).*/\3/p' /etc/pam.d/su 2>/dev/null | sed -n 1p)
       if [ -z "$g" ]; then echo "pam_wheel in /etc/pam.d/su names no group"; exit 0; fi
       e=$(getent group "$g")
       if [ -z "$e" ]; then echo "group $g does not exist"; exit 0; fi
@@ -5697,7 +5697,7 @@ checks:
     tags: [cis, cis-amazon2027, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
     run: |
-      l_inst="$(rpm -q --qf '%{VERSION}-%{RELEASE}' pam)" && [ "$(printf '%s\n%s\n' '1.5.1-8' "$l_inst" | sort -V | head -n1)" = '1.5.1-8' ] && echo "version_ok: $l_inst"
+      l_inst="$(rpm -q --qf '%{VERSION}-%{RELEASE}' pam)" && [ "$(printf '%s\n%s\n' '1.5.1-8' "$l_inst" | sort -V | sed -n 1p)" = '1.5.1-8' ] && echo "version_ok: $l_inst"
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -5714,7 +5714,7 @@ checks:
     tags: [cis, cis-amazon2027, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
     run: |
-      l_inst="$(rpm -q --qf '%{VERSION}-%{RELEASE}' libpwquality)" && [ "$(printf '%s\n%s\n' '1.4.4-6' "$l_inst" | sort -V | head -n1)" = '1.4.4-6' ] && echo "version_ok: $l_inst"
+      l_inst="$(rpm -q --qf '%{VERSION}-%{RELEASE}' libpwquality)" && [ "$(printf '%s\n%s\n' '1.4.4-6' "$l_inst" | sort -V | sed -n 1p)" = '1.4.4-6' ] && echo "version_ok: $l_inst"
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -6445,9 +6445,9 @@ checks:
     run: |
       l_root_path="$(su - root -c 'printf "%s" "$PATH"')"
       [ -n "$l_root_path" ] && echo "path_found"
-      printf '%s\n' "$l_root_path" | grep -q -- "::" && echo "FAIL: root's PATH contains an empty directory (::)"
-      printf '%s\n' "$l_root_path" | grep -Pq -- ":\h*$" && echo "FAIL: root's PATH ends with a trailing colon (:)"
-      printf '%s\n' "$l_root_path" | grep -Pq -- '(^\h*|:)\.(:|\h*$)' && echo "FAIL: root's PATH contains the current working directory (.)"
+      printf '%s\n' "$l_root_path" | grep -- "::" >/dev/null && echo "FAIL: root's PATH contains an empty directory (::)"
+      printf '%s\n' "$l_root_path" | grep -P -- ":\h*$" >/dev/null && echo "FAIL: root's PATH ends with a trailing colon (:)"
+      printf '%s\n' "$l_root_path" | grep -P -- '(^\h*|:)\.(:|\h*$)' >/dev/null && echo "FAIL: root's PATH contains the current working directory (.)"
       printf '%s\n' "$l_root_path" | tr ':' '\n' | while IFS= read -r l_path; do
         [ -z "$l_path" ] && continue
         if [ -d "$l_path" ]; then
@@ -6590,9 +6590,9 @@ checks:
           l_arg="$(printf '%s' "$l_line" | grep -Poi -- '^\h*umask\h+\K[^[:space:]#;]+')"
           [ -n "$l_arg" ] || continue
           l_dec="INVALID"
-          if printf '%s' "$l_arg" | grep -Eq '^[0-7]{3,4}$'; then
+          if printf '%s' "$l_arg" | grep -E '^[0-7]{3,4}$' >/dev/null; then
             l_dec="$(( 8#$l_arg ))"
-          elif printf '%s' "$l_arg" | grep -Eq '^([augo]+=[rwx]*)(,[augo]+=[rwx]*)*$'; then
+          elif printf '%s' "$l_arg" | grep -E '^([augo]+=[rwx]*)(,[augo]+=[rwx]*)*$' >/dev/null; then
             l_u=0; l_g=0; l_o=0
             for l_clause in $(printf '%s' "$l_arg" | tr ',' ' '); do
               l_who="${l_clause%%=*}"; l_perms="${l_clause#*=}"; l_bits=0
@@ -7764,8 +7764,8 @@ checks:
       for P in $(findmnt -n -l -k -it "$(awk '/nodev/ { print $2 }' /proc/filesystems | paste -sd,)" | grep -Pv "noexec|nosuid" | awk '{print $1}'); do
         find "$P" -xdev \( -path "*/containers/storage/*" -o -path "*/containerd/*" -o -path "*/kubelet/*" -o -path "/snap/*" \) -prune -o -perm /6000 -type f -print 2>/dev/null
       done | sort -u | while read -r F; do
-        grep -hs -- "path=$F " /etc/audit/rules.d/*.rules | grep -P -- '-a\s+(always,exit|exit,always)' | grep -P -- '-F\s+perm=x' | grep -P -- "-F\s+auid>=$UID_MIN" | grep -Pq -- '-F\s+auid!=(unset|-1|4294967295)' || echo "MISSING or incomplete on-disk rule: $F"
-        printf '%s\n' "$RUNNING" | grep -- "path=$F " | grep -P -- '-a\s+(always,exit|exit,always)' | grep -P -- '-F\s+perm=x' | grep -P -- "-F\s+auid>=$UID_MIN" | grep -Pq -- '-F\s+auid!=(unset|-1|4294967295)' || echo "MISSING or incomplete loaded rule: $F"
+        grep -hs -- "path=$F " /etc/audit/rules.d/*.rules | grep -P -- '-a\s+(always,exit|exit,always)' | grep -P -- '-F\s+perm=x' | grep -P -- "-F\s+auid>=$UID_MIN" | grep -P -- '-F\s+auid!=(unset|-1|4294967295)' >/dev/null || echo "MISSING or incomplete on-disk rule: $F"
+        printf '%s\n' "$RUNNING" | grep -- "path=$F " | grep -P -- '-a\s+(always,exit|exit,always)' | grep -P -- '-F\s+perm=x' | grep -P -- "-F\s+auid>=$UID_MIN" | grep -P -- '-F\s+auid!=(unset|-1|4294967295)' >/dev/null || echo "MISSING or incomplete loaded rule: $F"
       done
       echo check_complete
     allow_rc: any
@@ -9192,7 +9192,7 @@ checks:
         en="$(systemctl is-enabled "$t" 2>/dev/null)"; ac="$(systemctl is-active "$t" 2>/dev/null)"
         [ "$en" = "enabled" ] || [ "$ac" = "active" ] || continue
         s="$(systemctl show -p Unit --value "$t")"; [ -z "$s" ] && s="${t%.timer}.service"
-        systemctl cat "$s" 2>/dev/null | grep -Eq 'ExecStart=.*aide[[:space:]]+(--check|--update)' && echo "$t -> $s"
+        systemctl cat "$s" 2>/dev/null | grep -E 'ExecStart=.*aide[[:space:]]+(--check|--update)' >/dev/null && echo "$t -> $s"
       done
       echo check_complete
     allow_rc: any
