@@ -505,6 +505,16 @@ func TextOverview(w io.Writer, rs []*engine.Report, opts TextOptions) error {
 		s := r.Summary
 		verdict := paint(colorGreen, "compliant")
 		switch {
+		case r.Error != "":
+			// Nothing is known about this host: no numbers, and the reason
+			// instead of a verdict.
+			state := "not checked"
+			if r.Unreachable {
+				state = "unreachable"
+			}
+			fmt.Fprintf(w, "%s  %7s  %5s  %5s  %5s  %5s  %6s  %s\n", padRight(truncate(labels[i], 40), hostWidth),
+				"-", "-", "-", "-", "-", "-", paint(colorYellow, state)+paint(colorDim, ": "+oneLine(r.Error)))
+			continue
 		case s.Evaluated == 0:
 			verdict = paint(colorYellow, "nothing evaluated")
 		case !s.Compliant:
@@ -533,5 +543,9 @@ func TextOverview(w io.Writer, rs []*engine.Report, opts TextOptions) error {
 	s := aggregate(rs)
 	fmt.Fprintf(w, "\n%s · %d checks · %d passed · %d failed · %d warnings · %d errors · %d waived · score %s\n",
 		scope(rs), s.Total, s.Passed, s.Failed, s.Warnings, s.Errors, s.Waived, scoreText(s.Score))
+	if n := unchecked(rs); n > 0 {
+		fmt.Fprintf(w, "%s\n", paint(colorYellow, fmt.Sprintf(
+			"%d of %d hosts could not be checked; nothing is known about them", n, len(rs))))
+	}
 	return nil
 }

@@ -77,7 +77,9 @@ func FormatNames() string {
 }
 
 func writeText(w io.Writer, rs []*engine.Report, o Options) error {
-	if len(rs) == 1 {
+	// A single host that could not be checked has no results to list; the
+	// overview says why.
+	if len(rs) == 1 && rs[0].Error == "" {
 		return Text(w, rs[0], TextOptions{Color: o.Color, Verbosity: o.Verbosity, Quiet: o.Quiet, Version: o.Version, Width: o.Width})
 	}
 	return TextOverview(w, rs, TextOptions{Color: o.Color, Version: o.Version})
@@ -176,19 +178,29 @@ func policyTitle(r *engine.Report) string {
 
 // hostLabels returns a label per report: the hostname, extended by the
 // policy where a host appears more than once.
+// HostName is the name of the host of a report: its name in the inventory
+// if the run had one, since that is how the user knows it, otherwise the
+// host name the host reports.
+func HostName(r *engine.Report) string {
+	if r.Host != "" {
+		return r.Host
+	}
+	return r.Facts.Hostname
+}
+
 func hostLabels(rs []*engine.Report) []string {
 	count := map[string]int{}
 	for _, r := range rs {
-		count[r.Facts.Hostname]++
+		count[HostName(r)]++
 	}
 	labels := make([]string, len(rs))
 	seen := map[string]int{}
 	for i, r := range rs {
-		l := r.Facts.Hostname
+		l := HostName(r)
 		if l == "" {
 			l = "unknown host"
 		}
-		if count[r.Facts.Hostname] > 1 {
+		if count[HostName(r)] > 1 {
 			l += " · " + policyTitle(r)
 		}
 		seen[l]++
@@ -224,7 +236,7 @@ func documentTitle(rs []*engine.Report) string {
 func scope(rs []*engine.Report) string {
 	hosts := map[string]bool{}
 	for _, r := range rs {
-		hosts[r.Facts.Hostname] = true
+		hosts[HostName(r)] = true
 	}
 	plural := func(n int, word string) string {
 		if n == 1 {
@@ -320,13 +332,30 @@ func problemRows(rows []checkRow) []checkRow {
 }
 
 // aggregate sums the results of several reports.
+// unchecked counts the hosts that could not be checked.
+func unchecked(rs []*engine.Report) int {
+	n := 0
+	for _, r := range rs {
+		if r.Error != "" {
+			n++
+		}
+	}
+	return n
+}
+
+// aggregate sums up the hosts that were checked. Hosts that could not be
+// checked say nothing about compliance in either direction and are left
+// out; see unchecked.
 func aggregate(rs []*engine.Report) engine.Summary {
 	if len(rs) == 1 {
 		return rs[0].Summary
 	}
 	var all []engine.Result
-	compliant := len(rs) > 0
+	compliant := len(rs) > unchecked(rs)
 	for _, r := range rs {
+		if r.Error != "" {
+			continue
+		}
 		all = append(all, r.Results...)
 		compliant = compliant && r.Summary.Compliant
 	}

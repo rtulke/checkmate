@@ -28,14 +28,27 @@ Nothing is installed or copied to the host. checkmate first asks it for its fact
 
 The login shell of the remote user must be a POSIX shell (sh, bash, zsh, ksh, dash).
 
-To check many hosts, run the command once per host and merge the reports:
+## Many hosts
+
+List the hosts in an [inventory](../reference/inventory.md) and run the policy on all of them:
+
+```yaml
+# hosts.yml
+defaults: { user: audit, become: true }
+groups:
+  web:
+    vars: { role: web }
+    hosts: [web01.example.net, web02.example.net]
+  db:
+    hosts: [db01.example.net]
+```
 
 ```bash
-for h in web01 web02 db01; do
-  checkmate run baseline.yml --host "$h.example.net" --become --export json -o "reports/$h" -q
-done
-checkmate export reports/*.json --export html,pdf -o fleet
+checkmate run baseline.yml -i hosts.yml --export html,pdf -o reports/
+checkmate run baseline.yml -i hosts.yml --limit web
 ```
+
+The hosts are checked in parallel, each one as described above. The console shows an overview of all hosts, and every export format contains all of them. A host that cannot be reached has no results: it is listed as unreachable and counts neither as compliant nor as non-compliant.
 
 ## Over SSH, from inside a command
 

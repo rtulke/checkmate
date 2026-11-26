@@ -25,6 +25,9 @@ Flags may come before or after the policy file.
 | `--ignore-waivers` | Report every result as if no waiver existed. |
 | `--host [USER@]HOST[:PORT]` | Run the checks on another host over SSH instead of locally. See [Checking remote systems](../guides/remote.md). |
 | `--become` | With `--host`: run every command through `sudo -n`. |
+| `-i`, `--inventory FILE` | Run the checks on every host of an [inventory](inventory.md) over SSH. |
+| `--limit LIST` | With `--inventory`: only these hosts or groups, comma-separated. Host names may use `*` and `?`. |
+| `--forks N` | With `--inventory`: hosts checked at the same time. Default: 5. |
 | `--format FORMAT` | Output on stdout: `text` (default), `json`, `jsonl`, `csv`, `html`, `junit`, `xccdf`, `arf`, `prom`, `attack`. See [Reports and exports](exports.md). |
 | `--export LIST` | Also write these formats to files, comma-separated: `html,pdf,json`. `syslog` or `syslog:udp://host` sends the results to syslog. |
 | `-o`, `--output BASE` | Base name or directory of the `--export` files. Default: `checkmate-<host>-<time>` in the current directory. |
@@ -150,3 +153,4 @@ Exit codes: `0` no differences, `1` differences, `2` error.
 | `0` | Compliant |
 | `1` | Not compliant: at least one FAIL or ERROR |
 | `2` | Usage error, invalid policy, no checks selected, or no check evaluated |
+| `3` | With `--inventory`: no host is non-compliant, but at least one could not be checked |
