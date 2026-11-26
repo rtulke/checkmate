@@ -294,6 +294,8 @@ tools/              cis-import (CIS, STIG, Windows), mscp-import (macOS), gendoc
 test/               container harnesses for Linux, Windows analysis and attack simulations
 ```
 
+What is planned, considered and decided against is in the [roadmap](https://rtulke.github.io/checkmate/development/roadmap/).
+
 ## References
 
 ### Supported standards

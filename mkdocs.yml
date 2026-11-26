@@ -106,6 +106,8 @@ nav:
       - Checking remote systems: guides/remote.md
       - CI and reporting: guides/ci.md
       - Migrating from checkmate 1.x: guides/migrating.md
+  - Development:
+      - Roadmap: development/roadmap.md
   # BEGIN generated examples navigation
   - Examples:
       - examples/index.md
