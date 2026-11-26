@@ -15,6 +15,7 @@ import (
 	"testing"
 
 	"github.com/rtulke/checkmate/internal/facts"
+	"github.com/rtulke/checkmate/internal/pipes"
 	"github.com/rtulke/checkmate/internal/policy"
 )
 
@@ -99,19 +100,31 @@ func TestNoUnquotedColonSpace(t *testing.T) {
 // branch and an only_if skips the check.
 var earlyClose = regexp.MustCompile(`(^|[^|])\|\s*(grep -q|head\b)`)
 
-// The generated benchmarks are left out: their importers only pipe the
-// single status line of dpkg-query into grep -q, which cannot be cut short.
+// In the generated benchmarks the importers rewrite such pipelines
+// (internal/pipes); there the commands are compared with what the
+// rewrite makes of them, since names and texts may quote the upstream form.
 func TestNoEarlyClosingPipelines(t *testing.T) {
 	for _, file := range policyFiles(t) {
 		base := filepath.Base(file)
 		generated := (strings.HasPrefix(file, "../cis/") || strings.HasPrefix(file, "../stig/")) &&
 			base != "apache.yml" && base != "postgresql.yml"
-		if generated {
-			continue
-		}
 		data, err := os.ReadFile(file)
 		if err != nil {
 			t.Fatal(err)
+		}
+		if generated {
+			copyPath := filepath.Join(t.TempDir(), base)
+			if err := os.WriteFile(copyPath, data, 0o600); err != nil {
+				t.Fatal(err)
+			}
+			if err := pipes.DrainFile(copyPath); err != nil {
+				t.Fatal(err)
+			}
+			if drained, _ := os.ReadFile(copyPath); string(drained) != string(data) {
+				t.Errorf("%s: a command ends in `grep -q` or `head` behind a pipe; "+
+					"run: go run ./tools/cis-import -drain %s", file, file)
+			}
+			continue
 		}
 		for i, line := range strings.Split(string(data), "\n") {
 			if earlyClose.MatchString(line) {

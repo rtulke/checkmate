@@ -4916,7 +4916,7 @@ checks:
     tags: [cis, cis-rhel10, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      for fw in `firewall-cmd --get-active-zones | grep -P -B 4  'interfaces: (?!lo|virbr)' | head -n 1 | cut -d ' ' -f1`; do firewall-cmd --permanent --zone=$fw --get-target; done
+      for fw in `firewall-cmd --get-active-zones | grep -P -B 4  'interfaces: (?!lo|virbr)' | sed -n 1p | cut -d ' ' -f1`; do firewall-cmd --permanent --zone=$fw --get-target; done
     allow_rc: any
     expect:
       - { rc: "in [0, 1]" }
@@ -6082,7 +6082,7 @@ checks:
     tags: [cis, cis-rhel10, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      g=$(sed -nE 's/^[[:space:]]*auth[[:space:]]+(required|requisite)[[:space:]]+pam_wheel\.so[[:space:]](.*[[:space:]])?group=([^[:space:]]+).*/\3/p' /etc/pam.d/su 2>/dev/null | head -n 1)
+      g=$(sed -nE 's/^[[:space:]]*auth[[:space:]]+(required|requisite)[[:space:]]+pam_wheel\.so[[:space:]](.*[[:space:]])?group=([^[:space:]]+).*/\3/p' /etc/pam.d/su 2>/dev/null | sed -n 1p)
       if [ -z "$g" ]; then echo "pam_wheel in /etc/pam.d/su names no group"; exit 0; fi
       e=$(getent group "$g")
       if [ -z "$e" ]; then echo "group $g does not exist"; exit 0; fi
@@ -7499,9 +7499,9 @@ checks:
     run: |
       l_root_path="$(su - root -c 'printf "%s" "$PATH"')"
       [ -n "$l_root_path" ] && echo "path_found"
-      printf '%s\n' "$l_root_path" | grep -q -- "::" && echo "FAIL: root's PATH contains an empty directory (::)"
-      printf '%s\n' "$l_root_path" | grep -Pq -- ":\h*$" && echo "FAIL: root's PATH ends with a trailing colon (:)"
-      printf '%s\n' "$l_root_path" | grep -Pq -- '(^\h*|:)\.(:|\h*$)' && echo "FAIL: root's PATH contains the current working directory (.)"
+      printf '%s\n' "$l_root_path" | grep -- "::" >/dev/null && echo "FAIL: root's PATH contains an empty directory (::)"
+      printf '%s\n' "$l_root_path" | grep -P -- ":\h*$" >/dev/null && echo "FAIL: root's PATH ends with a trailing colon (:)"
+      printf '%s\n' "$l_root_path" | grep -P -- '(^\h*|:)\.(:|\h*$)' >/dev/null && echo "FAIL: root's PATH contains the current working directory (.)"
       printf '%s\n' "$l_root_path" | tr ':' '\n' | while IFS= read -r l_path; do
         [ -z "$l_path" ] && continue
         if [ -d "$l_path" ]; then
@@ -7708,9 +7708,9 @@ checks:
           l_arg="$(printf '%s' "$l_line" | grep -Poi -- '^\h*umask\h+\K[^[:space:]#;]+')"
           [ -n "$l_arg" ] || continue
           l_dec="INVALID"
-          if printf '%s' "$l_arg" | grep -Eq '^[0-7]{3,4}$'; then
+          if printf '%s' "$l_arg" | grep -E '^[0-7]{3,4}$' >/dev/null; then
             l_dec="$(( 8#$l_arg ))"
-          elif printf '%s' "$l_arg" | grep -Eq '^([augo]+=[rwx]*)(,[augo]+=[rwx]*)*$'; then
+          elif printf '%s' "$l_arg" | grep -E '^([augo]+=[rwx]*)(,[augo]+=[rwx]*)*$' >/dev/null; then
             l_u=0; l_g=0; l_o=0
             for l_clause in $(printf '%s' "$l_arg" | tr ',' ' '); do
               l_who="${l_clause%%=*}"; l_perms="${l_clause#*=}"; l_bits=0

@@ -3980,7 +3980,7 @@ checks:
     severity: medium
     timeout: 120000ms
     run: |
-      firewall-cmd --state && zone_list=`firewall-cmd --get-active-zones | head -1` && for zone in $zone_list; do firewall-cmd --permanent --info-zone=$zone | grep "target:"; done
+      firewall-cmd --state && zone_list=`firewall-cmd --get-active-zones | sed -n 1p` && for zone in $zone_list; do firewall-cmd --permanent --info-zone=$zone | grep "target:"; done
     allow_rc: any
     expect:
       - { rc: "== 0" }

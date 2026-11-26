@@ -1589,7 +1589,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' apparmor 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' apparmor 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-d4cd5996bb |
       AppArmor is a mandatory access control system that confines programs to a defined set of files, capabilities and network access. Having it installed is the prerequisite for limiting what a compromised service can do beyond normal user permissions.
@@ -1603,7 +1603,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' apparmor-utils 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' apparmor-utils 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-57320ccd01 |
       apparmor-utils provides tools such as aa-enforce, aa-complain and aa-status for managing AppArmor profiles. They are needed to put profiles into enforce mode and to verify their state, which is how AppArmor confines applications and limits the damage of a compromised service.
@@ -1903,7 +1903,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-1, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' prelink 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' prelink 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-edd337c308 |
       Prelink modifies binaries and libraries to speed up loading, which changes files that integrity tools such as AIDE or package verification monitor and weakens address space layout randomisation. Removing it keeps binaries in their original, verifiable state.
@@ -2304,7 +2304,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-1, cis-level-2, cis-server, cis-level2-server]
     severity: low
     run: |
-      dpkg-query -W -f='${Status}' gdm 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' gdm 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-90c9fbab39 |
       A graphical display manager and the desktop stack it pulls in add a large amount of software, listening components and potential vulnerabilities that servers rarely need. Removing GDM reduces the attack surface; workstations that need a graphical login are an exception.
@@ -2318,7 +2318,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' autofs 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' autofs 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-66cc7255f3 |
       autofs mounts file systems automatically when they are accessed, including removable media and network shares. That makes it easier to introduce untrusted media and adds a privileged daemon. Systems that do not rely on automounted network shares or home directories should not have it installed.
@@ -2332,7 +2332,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' avahi-daemon 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' avahi-daemon 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-70b707d084 |
       Avahi implements mDNS/DNS-SD zero-configuration networking, advertising and discovering services on the local network. Servers rarely need it; it runs a listening network daemon and discloses information about the host. Removing it reduces attack surface.
@@ -2346,7 +2346,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' kea 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' kea 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-2033f6aeaa |
       A DHCP server hands out network configuration to clients. On a system that is not meant to be a DHCP server it is unnecessary attack surface, and if started by mistake it can disrupt the network by handing out wrong addresses or gateways.
@@ -2360,7 +2360,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' bind9 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' bind9 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-e524956514 |
       A DNS server is a complex network-facing service with a history of serious vulnerabilities. Systems that are not designated name servers should not have it installed, which removes that exposure and the risk of the host being abused for DNS amplification attacks.
@@ -2374,7 +2374,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' dnsmasq 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' dnsmasq 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-6976005192 |
       dnsmasq combines a DNS forwarder with DHCP and TFTP servers. Unless the system needs it, for example for local virtualization networking, it is an unnecessary network-facing service that adds attack surface.
@@ -2388,7 +2388,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' vsftpd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' vsftpd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-7acf1c085d |
       FTP transfers credentials and data in clear text, and FTP servers are frequent attack targets. Unless the system is an approved FTP server, the server package should not be installed; SFTP or FTPS are secure alternatives.
@@ -2402,7 +2402,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' slapd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' slapd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-ca98560dc1 |
       slapd is an LDAP directory server. Unless the system is intended to provide directory services, removing it eliminates an unneeded network service and its vulnerabilities.
@@ -2416,7 +2416,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' dovecot-imapd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' dovecot-imapd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-f083dc4e37 |
       dovecot-imapd provides an IMAP mail server. Unless the system is meant to serve mailboxes, removing it eliminates an unneeded network service that handles authentication and user data.
@@ -2430,7 +2430,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' dovecot-pop3d 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' dovecot-pop3d 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-f73ccd264d |
       dovecot-pop3d provides a POP3 mail server. Unless the system is meant to serve mailboxes, removing it eliminates an unneeded network service that handles authentication and user data.
@@ -2444,7 +2444,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' cups 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' cups 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-a74706f42c |
       CUPS provides printing services and can listen on the network. Servers that do not print or act as print servers do not need it; removing it eliminates a service with a history of vulnerabilities.
@@ -2458,7 +2458,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' rsync 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' rsync 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-d7ab2a1cad |
       The rsync daemon offers file synchronization over an unencrypted, weakly authenticated protocol. Unless the system is meant to serve rsync modules it should not be available. On some platforms the check covers the rsync package itself, which also provides the client used over SSH.
@@ -2472,7 +2472,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' samba 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' samba 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-71a7199772 |
       Samba provides SMB/CIFS file and print sharing. It is a large network-facing service with a history of vulnerabilities; unless the system is meant to share files with SMB clients it should not be installed.
@@ -2486,7 +2486,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' snmpd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' snmpd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-522c2bfbd8 |
       An SNMP agent exposes detailed system and network information. SNMP v1 and v2c authenticate with community strings sent in clear text. Unless the system is monitored via SNMP, the agent should not be installed.
@@ -2500,7 +2500,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' telnetd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' telnetd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-e99e65cfc5 |
       A telnet server accepts logins over an unencrypted protocol, exposing credentials and session content to anyone who can observe the traffic. SSH replaces it; the server should not be installed.
@@ -2514,7 +2514,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' tftpd-hpa 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' tftpd-hpa 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-ec591b84d8 |
       TFTP transfers files without any authentication or encryption. A TFTP server is only needed on systems that provide network boot images or device configurations; elsewhere it should not be installed.
@@ -2528,7 +2528,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' squid 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' squid 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-3ba46f5d95 |
       Squid is an HTTP proxy server. A proxy that is not meant to run can be abused to relay traffic or reach internal systems, so it should not be installed unless the system is an approved proxy.
@@ -2542,7 +2542,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' apache2 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' apache2 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-a32b202315 |
       Apache is a web server. If the system does not need to serve web content, removing it eliminates a network-facing service and its vulnerabilities and configuration risks.
@@ -2556,7 +2556,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' nginx 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' nginx 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-2bba0b25fe |
       A web server is a network-facing service that adds attack surface. Unless the system is meant to serve web content or act as a reverse proxy, nginx should not be installed.
@@ -2570,7 +2570,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' xinetd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' xinetd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-16174e0987 |
       xinetd starts network services on demand, often legacy services with weak or no authentication. Modern systems use systemd socket activation instead; xinetd should not be installed unless a required service depends on it.
@@ -2584,7 +2584,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' xserver-common 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' xserver-common 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-9887718198 |
       A graphical display server is rarely needed on servers. It adds a large amount of code, including setuid or privileged components with a history of vulnerabilities. Servers administered remotely should not have it installed.
@@ -2640,7 +2640,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' nis 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' nis 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-ac1806fa8d |
       NIS is a legacy directory service that sends information, including password hashes, unencrypted and with weak authentication. The client should not be installed; LDAP with TLS or similar services replace it.
@@ -2654,7 +2654,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' rsh 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' rsh 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-86ba227c7a |
       The rsh client uses the legacy r-protocols, which transmit data, and in some configurations credentials, unencrypted and rely on host-based trust. Removing it prevents its use and the exposure of credentials; SSH is the secure replacement.
@@ -2668,7 +2668,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' talk 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' talk 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-b909a7fff8 |
       talk lets users chat in real time over an unencrypted, unauthenticated protocol. It is rarely needed, and removing it reduces the software that could be misused or exploited.
@@ -2682,7 +2682,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' telnet 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' telnet 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-f8caf76499 |
       The telnet client uses an unencrypted protocol, exposing credentials when used to log in to remote systems. Removing it prevents accidental insecure logins; SSH replaces it.
@@ -2696,7 +2696,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      dpkg-query -W -f='${Status}' ldap-utils 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' ldap-utils 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-698b783f6c |
       ldap-utils provides command-line LDAP clients. If the system does not need to query or modify directories, removing them reduces the tools available to an intruder for exploring directory services.
@@ -2710,7 +2710,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' ftp 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' ftp 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-65af69f8a0 |
       The FTP client transfers credentials and data in clear text. Removing it discourages the use of insecure transfers and leaves fewer tools for an attacker on the system; SFTP or SCP are secure replacements.
@@ -2724,7 +2724,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-2, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' chrony 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' chrony 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-a0cc2c0b8d |
       Accurate, synchronized time is required for log correlation, Kerberos, certificate validation and time-based one-time passwords. A system should run exactly one time synchronization client. Depending on the platform the check expects chrony to be installed or, where systemd-timesyncd is the chosen client, not installed, to avoid competing daemons.
@@ -3136,7 +3136,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server]
     severity: medium
     run: |
-      find /sys/class/net/*/wireless -type d 2>/dev/null | sed 's|/wireless$||' | while read iface; do cat "$iface/operstate" 2>/dev/null; done | grep -qv '^down$' && echo FAIL || echo OK
+      find /sys/class/net/*/wireless -type d 2>/dev/null | sed 's|/wireless$||' | while read iface; do cat "$iface/operstate" 2>/dev/null; done | grep -v '^down$' >/dev/null && echo FAIL || echo OK
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -3162,7 +3162,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-3, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' bluez 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' bluez 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: false
     rationale: &rat-26028fd092 |
       Bluetooth gives devices in radio range a way to connect to the system and has a history of remotely exploitable vulnerabilities. Servers rarely need it, so removing the BlueZ stack removes this wireless attack surface.
@@ -4467,7 +4467,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-4, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' ufw 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-8061e449a6 |
       A host firewall limits which network services are reachable and contains the damage of a compromised neighbour. On Debian and Ubuntu, ufw is the simple front end for managing those rules; where another tool such as firewalld, nftables or iptables is chosen, ufw should be absent, because two firewall managers overwrite each other's rules and leave the effective policy unpredictable.
@@ -5244,7 +5244,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' libsss-sudo 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' libsss-sudo 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-448d379747 |
       libsss-sudo lets sudo obtain its rules from SSSD, for example from LDAP or FreeIPA. With central sudo rules, privileges are granted and revoked in one place instead of in local sudoers files on every host.
@@ -5258,7 +5258,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' sudo 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' sudo 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-f5f9e1cba7 |
       sudo lets administrators run privileged commands with their own credentials instead of a shared root password. That gives individual accountability, fine-grained permissions and a log of every privileged command.
@@ -5404,7 +5404,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      g=$(sed -nE 's/^[[:space:]]*auth[[:space:]]+(required|requisite)[[:space:]]+pam_wheel\.so[[:space:]](.*[[:space:]])?group=([^[:space:]]+).*/\3/p' /etc/pam.d/su 2>/dev/null | head -n 1)
+      g=$(sed -nE 's/^[[:space:]]*auth[[:space:]]+(required|requisite)[[:space:]]+pam_wheel\.so[[:space:]](.*[[:space:]])?group=([^[:space:]]+).*/\3/p' /etc/pam.d/su 2>/dev/null | sed -n 1p)
       if [ -z "$g" ]; then echo "pam_wheel in /etc/pam.d/su names no group"; exit 0; fi
       e=$(getent group "$g")
       if [ -z "$e" ]; then echo "group $g does not exist"; exit 0; fi
@@ -5427,7 +5427,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' libpam-runtime 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' libpam-runtime 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-d12af28ab2 |
       PAM is the framework through which login, sudo, su and other services authenticate users and apply account policy. libpam-runtime provides the shared configuration and the pam-auth-update tool that maintain the common PAM stack on Debian-based systems. Without it the authentication policy cannot be managed consistently.
@@ -5441,7 +5441,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' libpam-modules 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' libpam-modules 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-2de35c7416 |
       libpam-modules supplies the standard PAM modules such as pam_unix, pam_faillock and pam_pwhistory, which implement password verification, account lockout and password history. Many authentication hardening controls depend on these modules being installed.
@@ -5455,7 +5455,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-5, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' libpam-pwquality 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' libpam-pwquality 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-6bfcd4d189 |
       The pam_pwquality module rejects weak passwords when they are set, checking length, character classes, dictionary words and similarity to the previous password. Installing it is a prerequisite for enforcing password complexity rules on Debian-based systems.
@@ -6947,7 +6947,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' systemd-journal-remote 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' systemd-journal-remote 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-c532adb37c |
       systemd-journal-remote provides systemd-journal-upload, which sends journal entries to a central collection server. Installing it is the prerequisite for keeping an off-host copy of the journal when journald is used as the logging solution.
@@ -7103,7 +7103,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' rsyslog 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' rsyslog 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-ec4e2f2832 |
       rsyslog collects log messages from the kernel, services and applications, writes them to files and can forward them to a central log server. Without an installed, enabled and running syslog daemon, security-relevant events are not recorded in a durable way and incidents cannot be investigated.
@@ -7303,7 +7303,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      dpkg-query -W -f='${Status}' rsyslog-gnutls 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' rsyslog-gnutls 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-9b31e4ddd5 |
       The rsyslog-gnutls package provides the TLS network stream driver for rsyslog. It is required to encrypt log forwarding so that log data cannot be read or altered in transit.
@@ -7383,7 +7383,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      dpkg-query -W -f='${Status}' audispd-plugins 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' audispd-plugins 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-c47e4e0adc |
       audispd-plugins provides plugins for the audit event dispatcher, notably audisp-remote, which forwards audit records to a remote server. Sending audit records off the host protects them from tampering by an attacker who obtains root locally and enables central analysis.
@@ -7397,7 +7397,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      dpkg-query -W -f='${Status}' auditd 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' auditd 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-f809f26f23 |
       auditd is the daemon that receives audit events from the kernel and writes them to disk. If it is not installed, enabled and running, audit rules have no effect on the persistent trail, and security events go unrecorded.
@@ -7893,7 +7893,7 @@ checks:
     run: |
       for p in /etc/network/interfaces /etc/network/interfaces.d /etc/netplan; do
       [ -e "$p" ] || continue
-      grep -hs '^-a .*system-locale' /etc/audit/rules.d/*.rules | grep -qE -- "(path|dir)=${p}/?([[:space:]]|$)" || echo "MISSING $p"
+      grep -hs '^-a .*system-locale' /etc/audit/rules.d/*.rules | grep -E -- "(path|dir)=${p}/?([[:space:]]|$)" >/dev/null || echo "MISSING $p"
       done
     allow_rc: any
     expect:
@@ -7942,7 +7942,7 @@ checks:
     run: |
       for p in /etc/network/interfaces /etc/network/interfaces.d /etc/netplan; do
       [ -e "$p" ] || continue
-      auditctl -l 2>/dev/null | grep system-locale | grep -qE -- "(path|dir)=${p}/?([[:space:]]|$)" || echo "MISSING $p"
+      auditctl -l 2>/dev/null | grep system-locale | grep -E -- "(path|dir)=${p}/?([[:space:]]|$)" >/dev/null || echo "MISSING $p"
       done
     allow_rc: any
     expect:
@@ -7958,7 +7958,7 @@ checks:
     severity: low
     run: |
       if [ -e /etc/NetworkManager ]; then
-      auditctl -l 2>/dev/null | grep system-locale | grep -qE -- "(path|dir)=/etc/NetworkManager/?([[:space:]]|$)" || echo "MISSING /etc/NetworkManager"
+      auditctl -l 2>/dev/null | grep system-locale | grep -E -- "(path|dir)=/etc/NetworkManager/?([[:space:]]|$)" >/dev/null || echo "MISSING /etc/NetworkManager"
       fi
     allow_rc: any
     expect:
@@ -7981,7 +7981,7 @@ checks:
     severity: low
     run: |
       if [ -e /etc/NetworkManager ]; then
-      grep -hs '^-a .*system-locale' /etc/audit/rules.d/*.rules | grep -qE -- "(path|dir)=/etc/NetworkManager/?([[:space:]]|$)" || echo "MISSING /etc/NetworkManager"
+      grep -hs '^-a .*system-locale' /etc/audit/rules.d/*.rules | grep -E -- "(path|dir)=/etc/NetworkManager/?([[:space:]]|$)" >/dev/null || echo "MISSING /etc/NetworkManager"
       fi
     allow_rc: any
     expect:
@@ -8023,7 +8023,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-6, cis-level-2, cis-server, cis-level2-server, cis-workstation, cis-level2-workstation]
     severity: low
     run: |
-      auditctl -l 2>/dev/null | grep -E -- 'path=[^[:space:]]+' | grep -E -- 'perm=x' | grep -qE -- '(-k|key=)[[:space:]]?privileged([[:space:]]|$)' || echo "MISSING privileged command rules"
+      auditctl -l 2>/dev/null | grep -E -- 'path=[^[:space:]]+' | grep -E -- 'perm=x' | grep -E -- '(-k|key=)[[:space:]]?privileged([[:space:]]|$)' >/dev/null || echo "MISSING privileged command rules"
     allow_rc: any
     expect:
       - { rc: "== 0" }
@@ -9376,7 +9376,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' aide 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' aide 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-24b82fc810 |
       AIDE is a file integrity checker that records a baseline of files and later reports changes. It detects unauthorised modifications of binaries and configuration files that could indicate a compromise.
@@ -9390,7 +9390,7 @@ checks:
     tags: [cis, cis-debian13, cis-section-6, cis-level-1, cis-level-2, cis-server, cis-level1-server, cis-level2-server, cis-workstation, cis-level1-workstation, cis-level2-workstation]
     severity: medium
     run: |
-      dpkg-query -W -f='${Status}' aide-common 2>/dev/null | grep -q 'install ok installed'
+      dpkg-query -W -f='${Status}' aide-common 2>/dev/null | grep 'install ok installed' >/dev/null
     expect: true
     rationale: &rat-8e6297dc4c |
       AIDE builds a database of file checksums and attributes and reports later changes. Without such a file integrity tool, modified binaries, configuration files or planted backdoors can go unnoticed. The aide-common package provides the configuration and helper scripts that Debian and Ubuntu use to initialize and run AIDE regularly.

@@ -27,6 +27,8 @@ import (
 	"text/template"
 
 	"gopkg.in/yaml.v3"
+
+	"github.com/rtulke/checkmate/internal/pipes"
 )
 
 // benchmark describes one supported CIS benchmark or DISA STIG.
@@ -132,7 +134,17 @@ func main() {
 	out := flag.String("out", "", "output policy file")
 	textsFile := flag.String("texts", "", "rationale and remediation texts of the CIS concepts (texts/linux.yml or texts/windows.yml)")
 	disaFile := flag.String("disa", "", "DISA manual XCCDF benchmark of the STIG (U_*_Manual-xccdf.xml), for rationale and fix texts")
+	drain := flag.Bool("drain", false, "rewrite early-closing pipelines in the given policy files in place, without importing")
 	flag.Parse()
+	if *drain {
+		for _, file := range flag.Args() {
+			if err := pipes.DrainFile(file); err != nil {
+				fmt.Fprintln(os.Stderr, "cis-import:", err)
+				os.Exit(1)
+			}
+		}
+		return
+	}
 
 	b, ok := benchmarks[*key]
 	if !ok || *src == "" || *out == "" {
@@ -1642,6 +1654,8 @@ func writeChecks(w *bytes.Buffer, path string, b benchmark, checks []check) erro
 				fmt.Fprintf(w, "      - %s\n", yamlString(cond))
 			}
 		}
+		// Upstream scripts are written for shells without pipefail.
+		c.OnlyIf, c.Run = pipes.Drain(c.OnlyIf), pipes.Drain(c.Run)
 		if c.OnlyIf != "" {
 			fmt.Fprintf(w, "    only_if: %s\n", yamlString(c.OnlyIf))
 		}
