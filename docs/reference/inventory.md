@@ -4,7 +4,7 @@ An inventory lists the hosts a policy is run against over SSH:
 
 ```bash
 checkmate run baseline.yml --inventory hosts.yml
-checkmate run baseline.yml -i hosts.yml --limit web --export html,pdf -o reports/
+checkmate run baseline.yml -i hosts.yml -l web --export html,pdf -o reports/
 ```
 
 ```yaml
@@ -81,7 +81,7 @@ Two more variables are set for every host:
 
 ## Selecting hosts
 
-`--limit` takes a comma-separated list of group names and host names. Host names may contain `*` and `?`:
+`--limit` (short `-l`) takes a comma-separated list of group names and host names. Host names may contain `*` and `?`:
 
 ```bash
 checkmate run baseline.yml -i hosts.yml --limit web
