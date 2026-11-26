@@ -176,6 +176,31 @@ With
 .BR \-\-host :
 run every command through
 .BR "sudo \-n" .
+.TP
+.BI \-i ", " \-\-inventory " file"
+Run the checks on every host of an inventory file over SSH, as
+.B \-\-host
+does for one.
+The file lists hosts and groups with their user, port, sudo setting and
+variables; the variables
+.B inventory_hostname
+and
+.B group_names
+are set for every host.
+The output is an overview of all hosts, and every export contains all of
+them.
+.TP
+.BI \-\-limit " list"
+With
+.BR \-\-inventory :
+only these hosts or groups, comma-separated.
+Host names may contain * and ?.
+.TP
+.BI \-\-forks " n"
+With
+.BR \-\-inventory :
+number of hosts checked at the same time.
+Default: 5.
 .SS Output (run, export, diff)
 .TP
 .BI \-\-format " format"
@@ -296,6 +321,13 @@ Not compliant: at least one FAIL or ERROR.
 .B 2
 Usage error, invalid policy or waiver file, no checks selected, or no check
 evaluated (all skipped or not applicable).
+.TP
+.B 3
+With
+.BR \-\-inventory :
+no host is non-compliant, but at least one could not be checked, for
+example because it is unreachable.
+Nothing is known about such a host.
 .SH ENVIRONMENT
 .TP
 .B NO_COLOR

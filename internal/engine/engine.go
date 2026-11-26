@@ -92,11 +92,19 @@ type Report struct {
 	PolicyPath    string      `json:"policy_path"`
 	PolicyFiles   []string    `json:"policy_files,omitempty"`
 	Facts         facts.Facts `json:"facts"`
-	Started       time.Time   `json:"started"`
-	DurationMS    int64       `json:"duration_ms"`
-	Summary       Summary     `json:"summary"`
-	Results       []Result    `json:"results"`
-	Notices       []string    `json:"notices,omitempty"` // e.g. expired waivers
+	// Host and Groups name the host in the inventory of the run; Host is
+	// empty for a run without inventory. Error is set instead of results
+	// when the host could not be checked at all, and Unreachable says that
+	// this was because it did not answer.
+	Host        string    `json:"host,omitempty"`
+	Groups      []string  `json:"groups,omitempty"`
+	Error       string    `json:"error,omitempty"`
+	Unreachable bool      `json:"unreachable,omitempty"`
+	Started     time.Time `json:"started"`
+	DurationMS  int64     `json:"duration_ms"`
+	Summary     Summary   `json:"summary"`
+	Results     []Result  `json:"results"`
+	Notices     []string  `json:"notices,omitempty"` // e.g. expired waivers
 }
 
 // Options configure a run.

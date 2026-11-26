@@ -156,6 +156,65 @@ else
     fail "unreachable host: unexpected message: $(cat "$out/unreachable.txt")"
 fi
 
+# Several hosts from an inventory, one of them down. Both names are this
+# machine; the variables tell them apart.
+ssh-keyscan -T 10 127.0.0.1 2>/dev/null >> ~/.ssh/known_hosts
+printf 'Host 127.0.0.1\n  IdentityFile %s\n  IdentitiesOnly yes\n' "$PWD/$out/key" >> ~/.ssh/config
+cat > "$out/hosts.yml" <<'INVENTORY'
+defaults:
+  vars: { expected: one }
+groups:
+  first:
+    hosts: [localhost]
+  second:
+    become: true
+    vars: { expected: two }
+    hosts:
+      - name: second.example.net
+        address: 127.0.0.1
+  down:
+    hosts:
+      - name: down.example.net
+        address: 127.0.0.1
+        port: 1
+INVENTORY
+cat > "$out/inventory.yml" <<'POLICY'
+name: Inventory probe
+checks:
+  - id: NAME
+    run: echo "{{ inventory_hostname }} {{ group_names | join(',') }}"
+    expect: "~ ^(localhost first|second.example.net second)$"
+  - id: ROOT
+    run: id -u
+    expect: "{{ '0' if 'second' in group_names else '!= 0' }}"
+  - id: VALUE
+    run: echo one
+    expect: "{{ expected }}"
+POLICY
+rc=0
+bin/checkmate run "$out/inventory.yml" -i "$out/hosts.yml" --format json > "$out/inventory.json" 2> "$out/inventory.err" || rc=$?
+jq -r '.reports[] | .host + " " + (if .unreachable then "unreachable" else ([.results[] | .id + "=" + .status] | join(",")) end)' \
+    "$out/inventory.json" > "$out/inventory.txt"
+cat > "$out/inventory.want" <<'WANT'
+localhost NAME=PASS,ROOT=PASS,VALUE=PASS
+second.example.net NAME=PASS,ROOT=PASS,VALUE=FAIL
+down.example.net unreachable
+WANT
+if [ "$rc" = 1 ] && diff "$out/inventory.want" "$out/inventory.txt"; then
+    echo "ok      inventory: two hosts checked, one unreachable, exit 1 for the finding"
+else
+    fail "inventory run: exit $rc (< expected, > got)"
+    cat "$out/inventory.err"
+fi
+rc=0
+bin/checkmate run "$out/inventory.yml" -i "$out/hosts.yml" --limit first,down > "$out/unchecked.txt" 2>&1 || rc=$?
+if [ "$rc" = 3 ] && grep -q "unreachable" "$out/unchecked.txt"; then
+    echo "ok      inventory: exit 3 when a host could not be checked and nothing failed"
+else
+    fail "inventory with an unreachable host: exit $rc"
+    cat "$out/unchecked.txt"
+fi
+
 # No connection may stay behind.
 sleep 1
 if pgrep -af 'ssh.*/cm-' >/dev/null; then

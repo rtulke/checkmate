@@ -98,6 +98,7 @@ nav:
       - Reports and exports: reference/exports.md
       - Results, severity and score: reference/results.md
       - Waivers: reference/waivers.md
+      - Inventory: reference/inventory.md
   - Security standards: standards.md
   - Guides:
       - guides/index.md

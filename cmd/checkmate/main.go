@@ -34,6 +34,7 @@ const (
 	exitCompliant    = 0
 	exitNotCompliant = 1
 	exitUsage        = 2
+	exitUnchecked    = 3 // no finding, but a host could not be checked
 )
 
 const usage = `checkmate - command-based compliance checks
@@ -205,6 +206,10 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	ignoreWaivers := fs.Bool("ignore-waivers", false, "report every result as if no waiver existed")
 	host := fs.String("host", "", "run the checks on another host over SSH: [user@]host[:port]")
 	become := fs.Bool("become", false, "with --host: run every command through sudo -n")
+	inventoryPath := fs.String("inventory", "", "run the checks on every host of this inventory file over SSH")
+	fs.StringVar(inventoryPath, "i", "", "shorthand for --inventory")
+	limit := fs.String("limit", "", "with --inventory: only these hosts or groups, comma-separated; host names may use * and ?")
+	forks := fs.Int("forks", 5, "with --inventory: number of hosts checked at the same time")
 	fs.Usage = func() {
 		fmt.Fprintln(stderr, "Usage: checkmate run [flags] <policy.yml>")
 		printDefaults(fs, "json-out", "junit-out", "attack-layer")
@@ -274,40 +279,64 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	// does not reach them: cancel the run instead, which kills them.
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGHUP)
 	defer stop()
-	hostFacts := facts.Gather()
-	var target *runner.Target
-	if *host != "" {
-		name, port := splitHostPort(*host)
-		target, err = runner.NewTarget(name, port, *become)
-		if err == nil {
-			err = target.Open()
-		}
-		if err == nil {
-			defer target.Close()
-			// The facts of the host decide which commands run there, and
-			// gathering them proves that it can be reached.
-			hostFacts, err = target.Facts(ctx)
-		}
-		if err != nil {
-			fmt.Fprintln(stderr, "checkmate:", err)
-			return exitUsage
-		}
-	} else if *become {
-		fmt.Fprintln(stderr, "checkmate: --become needs --host; run checkmate itself with sudo for local checks")
-		return exitUsage
-	}
-	r := engine.Run(ctx, p, engine.Options{
-		Facts:         hostFacts,
-		Target:        target,
+	runOpts := engine.Options{
 		Vars:          vars,
 		Filter:        common.filter(),
 		Jobs:          *jobs,
 		FailOn:        *failOn,
 		Waivers:       waivers,
 		IgnoreWaivers: *ignoreWaivers,
-	})
+	}
+	var reports []*engine.Report
+	switch {
+	case *inventoryPath != "":
+		if *host != "" || *become {
+			fmt.Fprintln(stderr, "checkmate: --inventory cannot be combined with --host or --become; put them into the inventory")
+			return exitUsage
+		}
+		if *jsonOut != "" || *junitOut != "" || *attackOut != "" {
+			fmt.Fprintln(stderr, "checkmate: use --export with --inventory")
+			return exitUsage
+		}
+		hosts, err := inventoryHosts(*inventoryPath, *limit)
+		if err != nil {
+			fmt.Fprintln(stderr, "checkmate:", err)
+			return exitUsage
+		}
+		reports = runInventory(ctx, p, hosts, runOpts, *forks, stderr)
+	case *limit != "":
+		fmt.Fprintln(stderr, "checkmate: --limit needs --inventory")
+		return exitUsage
+	default:
+		runOpts.Facts = facts.Gather()
+		if *host != "" {
+			name, port := splitHostPort(*host)
+			target, err := runner.NewTarget(name, port, *become)
+			if err == nil {
+				err = target.Open()
+			}
+			if err == nil {
+				defer target.Close()
+				// The facts of the host decide which commands run there, and
+				// gathering them proves that it can be reached.
+				runOpts.Facts, err = target.Facts(ctx)
+			}
+			if err != nil {
+				fmt.Fprintln(stderr, "checkmate:", err)
+				return exitUsage
+			}
+			runOpts.Target = target
+		} else if *become {
+			fmt.Fprintln(stderr, "checkmate: --become needs --host; run checkmate itself with sudo for local checks")
+			return exitUsage
+		}
+		reports = []*engine.Report{engine.Run(ctx, p, runOpts)}
+	}
+	for _, r := range reports {
+		r.Version = version
+	}
+	r := reports[0]
 
-	r.Version = version
 	opts := report.Options{
 		Version:   version,
 		Verbosity: minInt(verbosity, 3),
@@ -318,11 +347,16 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 	stdoutOpts := opts
 	stdoutOpts.Color = !*noColor && (*color == "always" || (*color == "auto" && useColor(stdout)))
 	stdoutOpts.Width = terminalWidth(stdout)
-	if err := stdoutFormat.Write(stdout, []*engine.Report{r}, stdoutOpts); err != nil {
+	if err := stdoutFormat.Write(stdout, reports, stdoutOpts); err != nil {
 		fmt.Fprintln(stderr, "checkmate:", err)
 		return exitUsage
 	}
-	if err := export([]*engine.Report{r}, plan, resolveBase(*output, defaultBase(r)), opts, stderr); err != nil {
+	base := defaultBase(r)
+	if *inventoryPath != "" {
+		base = "checkmate-" + strings.TrimSuffix(filepath.Base(*inventoryPath), filepath.Ext(*inventoryPath)) +
+			"-" + r.Started.Format("20060102-150405")
+	}
+	if err := export(reports, plan, resolveBase(*output, base), opts, stderr); err != nil {
 		fmt.Fprintln(stderr, "checkmate:", err)
 		return exitUsage
 	}
@@ -336,18 +370,37 @@ func cmdRun(args []string, stdout, stderr io.Writer) int {
 			return exitUsage
 		}
 	}
-	if r.Summary.Total == 0 {
+	return runExitCode(reports, stderr)
+}
+
+// runExitCode decides how a run ends. A host that could not be checked is
+// neither compliant nor non-compliant: nothing is known about it. It gets
+// an exit code of its own, which a finding on another host outranks.
+func runExitCode(reports []*engine.Report, stderr io.Writer) int {
+	total, evaluated, unchecked, failed := 0, 0, 0, false
+	for _, r := range reports {
+		if r.Error != "" {
+			unchecked++
+			continue
+		}
+		total += r.Summary.Total
+		evaluated += r.Summary.Evaluated
+		failed = failed || (r.Summary.Evaluated > 0 && !r.Summary.Compliant)
+	}
+	switch {
+	case failed:
+		return exitNotCompliant
+	case unchecked > 0:
+		fmt.Fprintf(stderr, "checkmate: %d of %d hosts could not be checked\n", unchecked, len(reports))
+		return exitUnchecked
+	case total == 0:
 		fmt.Fprintln(stderr, "checkmate: no checks selected")
 		return exitUsage
-	}
-	if r.Summary.Evaluated == 0 {
+	case evaluated == 0:
 		fmt.Fprintln(stderr, "checkmate: no check was evaluated (all skipped or not applicable)")
 		return exitUsage
 	}
-	if r.Summary.Compliant {
-		return exitCompliant
-	}
-	return exitNotCompliant
+	return exitCompliant
 }
 
 func cmdValidate(args []string, stdout, stderr io.Writer) int {
