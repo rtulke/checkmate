@@ -34,6 +34,7 @@ Die meisten Compliance-Werkzeuge brauchen für jede Art von Prüfung ein Plugin 
 
 - **Lesbar**: YAML mit Jinja2-Variablen, Schleifen und wiederverwendbaren Snippets, vertraut aus Ansible. Eine Schleife kann auch über die Ausgabe eines Kommandos laufen (ein Check pro Konto, Mountpoint oder virtuellem Host), und das Ergebnis eines Checks kann entscheiden, ob andere laufen.
 - **Portabel**: ein statisches Binary; Plattformvarianten wählen das passende Kommando für RHEL, Debian, SUSE, Alpine, macOS oder PowerShell.
+- **Agentenlos**: Dieselbe Policy läuft lokal oder per SSH auf anderen Hosts, auf einem Host oder einem ganzen Inventory. Auf den Hosts wird nichts installiert.
 - **Fail-closed**: Ein Check, der sich nicht auswerten lässt (Timeout, fehlendes Werkzeug, unerwarteter Exit-Code), ist ein Fehler, und Fehler machen einen Lauf immer nicht konform.
 - **Priorisiert**: Schweregrade, eine `--fail-on`-Schwelle mit Warnungen darunter, ein gewichteter Compliance-Score und Waivers für akzeptierte Abweichungen.
 - **Unabhängige Checks**: Jeder Check holt seine Daten selbst; keine gemeinsamen Scans oder Caches zwischen Checks. Ein Check kann andere Checks steuern, gibt ihnen aber nie seine Ausgabe weiter.
@@ -124,12 +125,12 @@ Zwei weitere Schlüssel decken ab, was eine feste Liste nicht kann. `loop_run` e
 
 ```yaml
   - id: NGINX-INSTALLED
-    severity: info                           # not a finding, only a question
+    severity: info                           # kein Befund, nur eine Frage
     register: nginx
     run: command -v nginx
     expect: true
 
-  - id: "NGINX-VHOST-{{ item }}"             # one check per enabled site
+  - id: "NGINX-VHOST-{{ item }}"             # ein Check pro aktivierter Site
     name: "{{ item }} redirects HTTP to HTTPS"
     when: nginx.passed
     loop_run: ls /etc/nginx/sites-enabled
@@ -151,6 +152,11 @@ expect:
   if: { stdout: "~ ^ubuntu" }                # eine andere Regel je Distribution
   then: "~ 24\\."
   else: "~ 12"
+expect:
+  cases:                                     # der erste zutreffende Fall entscheidet
+    - { if: "~ ^ubuntu", then: "~ 24\\." }
+    - { if: "~ ^debian", then: "~ 1[2-9]" }
+  else: "~ ^alpine"
 ```
 
 Siehe die [Referenz](https://rtulke.github.io/checkmate/reference/expect/) und `man checkmate-policy`.
@@ -169,6 +175,39 @@ checkmate run baseline.yml --waivers waivers.yml
 ```
 
 Siehe [Waivers](https://rtulke.github.io/checkmate/reference/waivers/).
+
+## Viele Hosts
+
+Eine Policy läuft per SSH auf anderen Hosts, ohne dort etwas zu installieren. Die Fakten stammen vom jeweiligen Host, dieselbe Datei prüft also RHEL, Debian und Windows nebeneinander.
+
+```bash
+checkmate run baseline.yml --host audit@web01.example.net --become   # ein Host
+checkmate run baseline.yml -i hosts.yml                              # jeder Host eines Inventorys
+checkmate run baseline.yml -i hosts.yml -l web --export html,pdf -o reports/
+```
+
+```yaml
+# hosts.yml
+defaults: { user: audit, become: true }      # become: sudo -n
+groups:
+  web:
+    vars: { role: web }
+    hosts: [web01.example.net, web02.example.net]
+  windows:
+    become: false
+    hosts: [win01.example.net]
+  switches:
+    device: ios                              # keine Shell: Kommandos gehen unverändert raus
+    become: false
+    hosts: [sw-core-01.example.net]
+```
+
+- checkmate benutzt das Programm `ssh`; `~/.ssh/config`, Agenten, Jump-Hosts und `known_hosts` gelten also wie gewohnt. Nach einem Passwort wird nie gefragt.
+- Linux, macOS, BSD und Windows (OpenSSH, PowerShell) werden durch Nachfragen erkannt; Switches und Firewalls kennzeichnet man mit `device`.
+- Die Konsole zeigt eine Übersicht aller Hosts und Gruppen, und jedes Exportformat enthält alle Hosts.
+- Ein nicht erreichbarer Host ist weder compliant noch nicht-compliant: Er wird als unreachable aufgeführt, zählt nicht in Summen und Score, und der Lauf endet mit Exit-Code 3, wenn sonst nichts fehlgeschlagen ist.
+
+Siehe [entfernte Systeme prüfen](https://rtulke.github.io/checkmate/guides/remote/) und die [Inventory-Referenz](https://rtulke.github.io/checkmate/reference/inventory/).
 
 ## Berichte und Exporte
 
@@ -222,7 +261,8 @@ Siehe [Berichte und Exporte](https://rtulke.github.io/checkmate/reference/export
 | Linux | jeder Distribution mit POSIX-Shell (bash oder sh, auch BusyBox) | Beispiele auf Rocky Linux 8/9, Debian 12, Ubuntu 24.04, openSUSE Leap 15, Alpine; CIS- und STIG-Policies auf 16 Distributionen in Containern; gehärtete PostgreSQL- und Apache-Server; Postfix, NFS, vsftpd, BIND, Kea, Dovecot, Samba und OpenLDAP in Standard- und gehärteter Konfiguration; gepflanzte ATT&CK-Artefakte; XCCDF/ARF mit OpenSCAP, Metriken mit promtool, Syslog mit rsyslog validiert |
 | Windows | Windows 10/11, Windows Server ab 2016 (PowerShell 5.1 oder 7) | CIS- und ATT&CK-Policies auf echtem Windows Server 2022 und 2025, jeweils mit PowerShell 7 und Windows PowerShell 5.1; jedes PowerShell-Kommando durch den PowerShell-Parser |
 | macOS | macOS ab 13 | Unit-Tests und Homebrew-Installation auf macOS-Runnern |
-| Netzwerkgeräte, entfernte Server | über SSH oder SNMP von einem Management-Host | Syntax jedes Kommandos |
+| Entfernte Hosts | Linux, macOS, BSD und Windows per SSH (`--host`, `--inventory`); Switches und Firewalls als Geräte | Linux und Windows über eine echte SSH-Verbindung, jedes Ergebnis mit einem lokalen Lauf verglichen; Geräte mit einem SSH-Ersatz |
+| HTTP- und SNMP-Systeme | von einem Management-Host, mit `curl` oder `snmpget` im Kommando | Syntax jedes Kommandos |
 
 ## Entwicklung
 

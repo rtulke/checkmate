@@ -314,6 +314,62 @@ or
 .TP
 .B N/A
 No command variant for this platform.
+.SH INVENTORY
+The file given with
+.B \-\-inventory
+is YAML with three optional keys.
+.B defaults
+holds settings for every host,
+.B groups
+maps group names to groups, and
+.B hosts
+lists hosts outside of any group.
+A host is a name, or a mapping with
+.B name
+and settings; a group has settings and its own
+.BR hosts .
+.PP
+The settings are
+.B user
+and
+.B port
+for the connection,
+.B address
+(hosts only) if it differs from the name,
+.B become
+to run commands through
+.BR "sudo \-n" ,
+.B device
+with a platform name such as ios or junos for a host without a shell, and
+.B vars
+with variables for the policy.
+Settings and variables go from general to specific: defaults, the groups
+of a host in file order, the host.
+Inventory variables override those of the policy;
+.B \-e
+overrides both.
+.PP
+.RS
+.nf
+defaults: { user: audit, become: true }
+groups:
+  web:
+    vars: { role: web }
+    hosts:
+      \- web01.example.net
+      \- { name: web02, address: 10.0.0.12, port: 2222 }
+  switches:
+    device: ios
+    become: false
+    hosts: [sw\-core\-01.example.net]
+hosts:
+  \- backup01.example.net
+.fi
+.RE
+.PP
+A host that does not answer or cannot be checked has no results.
+It is listed with the reason and counts neither as compliant nor as
+non-compliant.
 .SH EXIT STATUS
 .TP
 .B 0
@@ -339,6 +395,14 @@ Disables colored output when set.
 .TP
 .B COLUMNS
 Width used to shorten result lines when standard output is not a terminal.
+.TP
+.B CHECKMATE_SSH
+The ssh program used for
+.B \-\-host
+and
+.BR \-\-inventory ,
+instead of
+.BR ssh .
 .PP
 Commands run with the environment of checkmate plus the policy's
 .B env
@@ -374,6 +438,16 @@ Run the CIS Level 1 server profile on a RHEL 9 host:
 .RS
 .nf
 sudo checkmate run /usr/share/checkmate/cis/rhel9.yml \-\-tags cis\-level1\-server
+.fi
+.RE
+.PP
+Run a policy on another host over SSH, with sudo, and on the web servers
+of an inventory with one report for all of them:
+.PP
+.RS
+.nf
+checkmate run baseline.yml \-\-host audit@web01.example.net \-\-become
+checkmate run baseline.yml \-i hosts.yml \-l web \-\-export html,pdf \-o reports/
 .fi
 .RE
 .PP

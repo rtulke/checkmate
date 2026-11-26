@@ -48,12 +48,16 @@ Usage:
   checkmate facts                           print the facts gathered for this host
   checkmate version                         print the version
 
+Checks run on this host, or over SSH on another one (run --host) or on
+every host of an inventory (run --inventory).
+
 Run "checkmate <command> -h" for the flags of a command.
 
 Exit codes:
   0  all selected checks passed (compliant)
   1  at least one check failed or could not be evaluated
   2  usage error or invalid policy
+  3  with --inventory: nothing failed, but a host could not be checked
 `
 
 func main() {
