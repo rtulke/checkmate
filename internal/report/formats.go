@@ -13,6 +13,7 @@ import (
 
 	"github.com/rtulke/checkmate/internal/engine"
 	"github.com/rtulke/checkmate/internal/policy"
+	"github.com/rtulke/checkmate/internal/provenance"
 )
 
 // Options apply to every output format; each format uses what it needs.
@@ -263,6 +264,71 @@ func scope(rs []*engine.Report) string {
 		return plural(len(hosts), "host")
 	}
 	return plural(len(rs), "report") + " from " + plural(len(hosts), "host")
+}
+
+// sameSources reports whether all reports were made from the same policy
+// files, as the hosts of one run are.
+func sameSources(rs []*engine.Report) bool {
+	if len(rs) == 0 || len(rs[0].PolicySources) == 0 {
+		return false
+	}
+	for _, r := range rs[1:] {
+		if len(r.PolicySources) != len(rs[0].PolicySources) {
+			return false
+		}
+		for i, s := range r.PolicySources {
+			if s.SHA256 != rs[0].PolicySources[i].SHA256 || s.Path != rs[0].PolicySources[i].Path {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// policyFileRow is one policy file in the report of where the checks come
+// from.
+type policyFileRow struct {
+	Host, Path, Origin, Class, SHA256 string
+}
+
+// policyFileRows lists the policy files of the reports: once if all hosts
+// used the same files, per host otherwise.
+func policyFileRows(rs []*engine.Report) []policyFileRow {
+	shared := sameSources(rs)
+	labels := hostLabels(rs)
+	var rows []policyFileRow
+	for i, r := range rs {
+		if shared && i > 0 {
+			break
+		}
+		for _, s := range r.PolicySources {
+			row := policyFileRow{Path: s.Path, SHA256: s.SHA256, Class: "pass"}
+			if !shared {
+				row.Host = labels[i]
+			}
+			switch s.Origin {
+			case provenance.Shipped:
+				row.Origin = "shipped with checkmate, unchanged"
+			case provenance.Modified:
+				row.Origin, row.Class = "differs from the shipped "+s.Shipped, "warn"
+			default:
+				row.Origin, row.Class = "not shipped with checkmate", "skip"
+			}
+			switch {
+			case s.Signer != "":
+				row.Origin += ", signed by " + s.Signer
+				if s.Origin != provenance.Shipped {
+					row.Class = "pass"
+				}
+			case s.Signature == "invalid":
+				row.Origin, row.Class = row.Origin+", the signature does not match", "fail"
+			case s.Signature != "":
+				row.Origin += ", signature: " + s.Signature
+			}
+			rows = append(rows, row)
+		}
+	}
+	return rows
 }
 
 // checkRow is one check across several reports.

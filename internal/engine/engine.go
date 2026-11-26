@@ -15,6 +15,7 @@ import (
 	"github.com/rtulke/checkmate/internal/expect"
 	"github.com/rtulke/checkmate/internal/facts"
 	"github.com/rtulke/checkmate/internal/policy"
+	"github.com/rtulke/checkmate/internal/provenance"
 	"github.com/rtulke/checkmate/internal/runner"
 	"github.com/rtulke/checkmate/internal/tmpl"
 )
@@ -85,14 +86,17 @@ type Summary struct {
 
 // Report is the outcome of a policy run.
 type Report struct {
-	Tool          string      `json:"tool"`              // always "checkmate"
-	Version       string      `json:"version,omitempty"` // checkmate version that made the report
-	RunID         string      `json:"run_id,omitempty"`  // random ID that ties all outputs of one run together
-	Policy        string      `json:"policy"`
-	PolicyVersion string      `json:"policy_version,omitempty"`
-	PolicyPath    string      `json:"policy_path"`
-	PolicyFiles   []string    `json:"policy_files,omitempty"`
-	Facts         facts.Facts `json:"facts"`
+	Tool          string   `json:"tool"`              // always "checkmate"
+	Version       string   `json:"version,omitempty"` // checkmate version that made the report
+	RunID         string   `json:"run_id,omitempty"`  // random ID that ties all outputs of one run together
+	Policy        string   `json:"policy"`
+	PolicyVersion string   `json:"policy_version,omitempty"`
+	PolicyPath    string   `json:"policy_path"`
+	PolicyFiles   []string `json:"policy_files,omitempty"`
+	// PolicySources says for every policy file where it comes from and
+	// what its hash is.
+	PolicySources []provenance.Source `json:"policy_sources,omitempty"`
+	Facts         facts.Facts         `json:"facts"`
 	// Host and Groups name the host in the inventory of the run; Host is
 	// empty for a run without inventory. Error is set instead of results
 	// when the host could not be checked at all, and Unreachable says that
@@ -355,6 +359,7 @@ func Run(ctx context.Context, p *policy.Policy, opts Options) *Report {
 		PolicyVersion: p.Version,
 		PolicyPath:    p.Path,
 		PolicyFiles:   p.Files,
+		PolicySources: p.Sources,
 		Facts:         opts.Facts,
 		Started:       started,
 		DurationMS:    time.Since(started).Milliseconds(),

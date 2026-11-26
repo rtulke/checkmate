@@ -111,7 +111,18 @@ a { color: var(--accent); }
   </div>
 </section>
 
-{{if .Notices}}<h2>Notices</h2>
+{{if .Files}}<h2>Policy files</h2>
+<div class="panel scroll">
+<table>
+  <thead><tr>{{if (index .Files 0).Host}}<th>Host</th>{{end}}<th>File</th><th>Origin</th><th>SHA-256</th></tr></thead>
+  <tbody>
+  {{range .Files}}<tr>{{if .Host}}<td>{{.Host}}</td>{{end}}<td><code>{{.Path}}</code></td><td class="st {{.Class}}">{{.Origin}}</td><td><code>{{.SHA256}}</code></td></tr>
+  {{end}}
+  </tbody>
+</table>
+</div>
+
+{{end}}{{if .Notices}}<h2>Notices</h2>
 {{range .Notices}}<div class="notice">{{.}}</div>
 {{end}}{{end}}
 
