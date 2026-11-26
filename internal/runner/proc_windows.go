@@ -5,6 +5,7 @@ package runner
 import (
 	"os/exec"
 	"sync"
+	"syscall"
 
 	"golang.org/x/sys/windows"
 )
@@ -23,6 +24,18 @@ func isolate(cmd *exec.Cmd) *processTree {
 		return cmd.Process.Kill()
 	}
 	return tree
+}
+
+// rawCommandLine hands the command to cmd.exe exactly as written. Go
+// quotes arguments for programs that split their command line the usual
+// way: a quote inside an argument becomes \". cmd.exe does not read it
+// that way, so a command with quotes arrived mangled. With /S, cmd.exe
+// drops the outer pair of quotes and runs what is between them as is.
+func rawCommandLine(cmd *exec.Cmd, command string) {
+	if cmd.SysProcAttr == nil {
+		cmd.SysProcAttr = &syscall.SysProcAttr{}
+	}
+	cmd.SysProcAttr.CmdLine = `cmd /D /S /C "` + command + `"`
 }
 
 type processTree struct {

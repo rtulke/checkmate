@@ -135,3 +135,39 @@ func TestWindowsPowerShellLoadsItsOwnModules(t *testing.T) {
 		t.Errorf("rc %d, stdout %q, stderr %q, error %v", res.RC, res.Stdout, res.Stderr, err)
 	}
 }
+
+// cmd.exe reads its command line in its own way; quotes and its special
+// characters must arrive as they were written.
+func TestCmdGetsTheCommandAsWritten(t *testing.T) {
+	dir := t.TempDir()
+	file := filepath.Join(dir, "a b.txt")
+	if err := os.WriteFile(file, []byte("found\r\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	cases := map[string]string{
+		`echo "a b"`:                   `"a b"`,
+		`type "` + file + `"`:          "found",
+		`echo one& echo two`:           "one\ntwo",
+		`echo a^&b`:                    "a&b",
+		`echo "x" | findstr /C:"x"`:    `"x"`,
+		`if "a b"=="a b" (echo same)`:  "same",
+		`for %i in (1 2) do @echo n%i`: "n1\nn2",
+		`echo %CHECKMATE_TEXT%`:        `say "hi" \ there`,
+	}
+	for command, want := range cases {
+		res, err := Run(context.Background(), Request{Command: command, Shell: "cmd", Dir: dir,
+			Env: map[string]string{"CHECKMATE_TEXT": `say "hi" \ there`}})
+		if err != nil {
+			t.Errorf("%q: %v", command, err)
+			continue
+		}
+		got := strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(res.Stdout, " \n", "\n"), "\n\n", "\n"))
+		if res.RC != 0 || got != want {
+			t.Errorf("%q: rc %d, stdout %q, want %q (stderr %q)", command, res.RC, got, want, res.Stderr)
+		}
+	}
+	res, err := Run(context.Background(), Request{Command: `exit /b 7`, Shell: "cmd"})
+	if err != nil || res.RC != 7 {
+		t.Errorf("exit code: %+v, %v", res, err)
+	}
+}

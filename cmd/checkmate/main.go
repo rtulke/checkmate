@@ -612,7 +612,8 @@ func useColor(w io.Writer) bool {
 	if err != nil {
 		return false
 	}
-	return info.Mode()&os.ModeCharDevice != 0
+	// A terminal that cannot show colors would print the escape sequences.
+	return info.Mode()&os.ModeCharDevice != 0 && enableColor(f)
 }
 
 // multiFlag collects a repeatable string flag.

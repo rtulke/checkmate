@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/nikolalohinski/gonja/v2"
 	"github.com/nikolalohinski/gonja/v2/config"
@@ -93,7 +94,19 @@ func unwrapTemplateErr(err error) error {
 func abbreviate(s string) string {
 	s = strings.ReplaceAll(s, "\n", " ")
 	if len(s) > 60 {
-		return s[:57] + "..."
+		return Cut(s, 57) + "..."
 	}
 	return s
+}
+
+// Cut shortens s to at most n bytes without splitting a character, so that
+// the result is still valid UTF-8.
+func Cut(s string, n int) string {
+	if len(s) <= n {
+		return s
+	}
+	for n > 0 && !utf8.RuneStart(s[n]) {
+		n--
+	}
+	return s[:n]
 }

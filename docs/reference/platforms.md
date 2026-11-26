@@ -81,7 +81,7 @@ Use `only_if` when the decision depends on the system state, for example whether
 | Linux, macOS | `bash` (falls back to `sh`) | `bash --noprofile --norc -o pipefail -c '<command>'` |
 | Windows | `pwsh` (falls back to `powershell`) | `pwsh -NoProfile -NonInteractive -Command` with `$ErrorActionPreference = 'Stop'` |
 
-On POSIX systems, commands run with `LC_ALL=C` and `LANG=C`, so output is not translated and sorting is stable. On Windows, PowerShell output is read as UTF-8 whatever the code page of the console is; `cmd` writes in the code page of the console. Checks with `shell: powershell` (Windows PowerShell 5.1) also work when checkmate is started from PowerShell 7: the module directories of PowerShell 7 are taken out of `PSModulePath` for them.
+On POSIX systems, commands run with `LC_ALL=C` and `LANG=C`, so output is not translated and sorting is stable. On Windows, PowerShell output is read as UTF-8 whatever the code page of the console is; `cmd` writes in the code page of the console and gets its command exactly as written, quotes included. Checks with `shell: powershell` (Windows PowerShell 5.1) also work when checkmate is started from PowerShell 7: the module directories of PowerShell 7 are taken out of `PSModulePath` for them.
 
 A timeout ends the command together with every process it started, on all platforms. Ctrl+C, `SIGTERM` and `SIGHUP` stop a run the same way, so no checks are left running. Set `shell:` per check or in `defaults` to use `sh`, `zsh`, `pwsh`, `powershell` or `cmd`.
 

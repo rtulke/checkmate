@@ -123,4 +123,12 @@ checkmate: /opt/policies/base.yml: refusing to load a group- or world-writable p
 checkmate: /home/alice/p.yml: refusing to load a policy file as root that is owned neither by root nor by the owner of the checkmate executable
 ```
 
+The directories above the file count as well, since whoever can write to a directory can replace a file in it. A directory is refused if it belongs to a user who would not be trusted with the file, or if everyone can write to it and it lacks the sticky bit that `/tmp` has.
+
 Fix the ownership and permissions (`chown root:root`, `chmod 644`) or, for a one-off run of a file you trust, pass `--allow-insecure-policy`.
+
+On **Windows** the same applies to a run with administrator rights: a policy file is refused if the access control list of the file or of its directory lets `Users`, `Authenticated Users` or `Everyone` write. That is the case for a folder created directly under `C:\`, which inherits such a right. Keep policies in a folder only administrators can write to, for example below `C:\Program Files` or in the profile of an administrator.
+
+```text
+checkmate: C:\policies\base.yml: refusing to load a policy file with administrator rights: Authenticated Users may write to C:\policies
+```

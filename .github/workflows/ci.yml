@@ -96,7 +96,8 @@ jobs:
           go build -o checkmate.exe ./cmd/checkmate
           if ('${{ matrix.ps }}' -eq 'powershell') { . ./test/windows/without-pwsh.ps1 }
           ./checkmate.exe facts
-          ./checkmate.exe run ${{ matrix.policy }} -q --format json --export json -o report.json | Out-Null
+          # --allow-insecure-policy: every user may write to the workspace of a runner.
+          ./checkmate.exe run ${{ matrix.policy }} --allow-insecure-policy -q --format json --export json -o report.json | Out-Null
           python test/windows/analyze.py report.json
       - name: Detect planted ATT&CK artifacts
         shell: pwsh

@@ -20,6 +20,9 @@ func isolate(cmd *exec.Cmd) *processTree {
 	return &processTree{}
 }
 
+// rawCommandLine is only needed for cmd.exe on Windows.
+func rawCommandLine(*exec.Cmd, string) {}
+
 // processTree needs no bookkeeping on POSIX systems: the process group
 // is the tree.
 type processTree struct{}
