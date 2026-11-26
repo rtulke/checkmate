@@ -16,6 +16,7 @@ import (
 	"github.com/rtulke/checkmate/internal/facts"
 	"github.com/rtulke/checkmate/internal/policy"
 	"github.com/rtulke/checkmate/internal/runner"
+	"github.com/rtulke/checkmate/internal/tmpl"
 )
 
 // Status is the outcome of a single check.
@@ -651,7 +652,7 @@ func oneLine(s string) string {
 		s = s[:i] + " ..."
 	}
 	if len(s) > 160 {
-		s = s[:157] + "..."
+		s = tmpl.Cut(s, 157) + "..."
 	}
 	return s
 }

@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"unicode/utf16"
 
 	"github.com/rtulke/checkmate/internal/engine"
 	"github.com/rtulke/checkmate/internal/policy"
@@ -119,12 +120,36 @@ func ReadReports(path string) ([]*engine.Report, error) {
 	return DecodeReports(fh, path)
 }
 
+// decodeText turns a file with a byte order mark into plain UTF-8. Windows
+// PowerShell writes UTF-16 with `>` and UTF-8 with a mark with Out-File
+// -Encoding utf8; a report saved that way is still a report.
+func decodeText(data []byte) []byte {
+	switch {
+	case bytes.HasPrefix(data, []byte{0xEF, 0xBB, 0xBF}):
+		return data[3:]
+	case bytes.HasPrefix(data, []byte{0xFF, 0xFE}), bytes.HasPrefix(data, []byte{0xFE, 0xFF}):
+		bigEndian := data[0] == 0xFE
+		data = data[2:]
+		units := make([]uint16, len(data)/2)
+		for i := range units {
+			if bigEndian {
+				units[i] = uint16(data[2*i])<<8 | uint16(data[2*i+1])
+			} else {
+				units[i] = uint16(data[2*i]) | uint16(data[2*i+1])<<8
+			}
+		}
+		return []byte(string(utf16.Decode(units)))
+	}
+	return data
+}
+
 // DecodeReports reads a JSON report from r; name is used in errors.
 func DecodeReports(rd io.Reader, path string) ([]*engine.Report, error) {
 	data, err := io.ReadAll(rd)
 	if err != nil {
 		return nil, err
 	}
+	data = decodeText(data)
 	var probe struct {
 		Tool    string            `json:"tool"`
 		Reports []json.RawMessage `json:"reports"`

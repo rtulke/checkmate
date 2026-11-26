@@ -28,6 +28,7 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 
 	"gopkg.in/yaml.v3"
 )
@@ -435,7 +436,12 @@ func describe(s string) string {
 		return "empty output"
 	}
 	if len(s) > 200 {
-		s = s[:197] + "..."
+		// Cut between characters: half of one would be quoted as garbage.
+		cut := 197
+		for cut > 0 && !utf8.RuneStart(s[cut]) {
+			cut--
+		}
+		s = s[:cut] + "..."
 	}
 	return strconv.Quote(s)
 }

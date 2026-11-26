@@ -10,6 +10,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf16"
 
 	"github.com/rtulke/checkmate/internal/engine"
 	"github.com/rtulke/checkmate/internal/facts"
@@ -301,5 +302,31 @@ func TestShortLabels(t *testing.T) {
 		if got := shortLabels(c.in); strings.Join(got, " ") != strings.Join(c.want, " ") {
 			t.Errorf("shortLabels(%v) = %v, want %v", c.in, got, c.want)
 		}
+	}
+}
+
+// Windows PowerShell saves redirected output as UTF-16 and adds a byte
+// order mark to UTF-8; such a report must still be readable.
+func TestReportsWithByteOrderMark(t *testing.T) {
+	plain := renderFormat(t, "json", hostileReport("ä-host"))
+	utf16le := []byte{0xFF, 0xFE}
+	utf16be := []byte{0xFE, 0xFF}
+	for _, u := range utf16.Encode([]rune(plain)) {
+		utf16le = append(utf16le, byte(u), byte(u>>8))
+		utf16be = append(utf16be, byte(u>>8), byte(u))
+	}
+	for name, data := range map[string][]byte{
+		"plain":      []byte(plain),
+		"utf-8 mark": append([]byte{0xEF, 0xBB, 0xBF}, plain...),
+		"utf-16 le":  utf16le,
+		"utf-16 be":  utf16be,
+	} {
+		rs, err := DecodeReports(bytes.NewReader(data), name)
+		if err != nil || len(rs) != 1 || rs[0].Facts.Hostname != "ä-host" || len(rs[0].Results) != len(hostileReport("x").Results) {
+			t.Errorf("%s: %v, %d reports", name, err, len(rs))
+		}
+	}
+	if _, err := DecodeReports(bytes.NewReader([]byte{0xFF, 0xFE, 'x'}), "odd"); err == nil {
+		t.Error("garbage with a mark was accepted")
 	}
 }

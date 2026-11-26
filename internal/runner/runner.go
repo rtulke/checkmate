@@ -99,6 +99,9 @@ func Run(ctx context.Context, req Request) (Result, error) {
 		cmd.Dir = req.Dir
 		cmd.Env = buildEnv(shell, req.Env)
 	}
+	if !remote && shell == "cmd" {
+		rawCommandLine(cmd, req.Command)
+	}
 	cmd.Stdin = nil
 	if stdin != "" {
 		cmd.Stdin = strings.NewReader(stdin)

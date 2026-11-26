@@ -39,7 +39,8 @@ function Fail([string]$message) {
 function Run-Report([string[]]$arguments, [string]$name) {
     $file = Join-Path $out "$name.json"
     $ErrorActionPreference = 'Continue'
-    & $Checkmate run @arguments --format json 2> (Join-Path $out "$name.err") | Out-File -FilePath $file -Encoding utf8
+    # --allow-insecure-policy: every user may write to the workspace of a runner.
+    & $Checkmate run @arguments --allow-insecure-policy --format json 2> (Join-Path $out "$name.err") | Out-File -FilePath $file -Encoding utf8
     $ErrorActionPreference = 'Stop'
     if (-not (Test-Path $file) -or (Get-Item $file).Length -eq 0) {
         Fail "${name}: no report. $(Get-Content (Join-Path $out "$name.err") -Raw)"
@@ -150,7 +151,7 @@ checks:
     expect: "one localhost windows"
 "@ | Out-File -FilePath (Join-Path $out 'inventory.yml') -Encoding utf8
 $ErrorActionPreference = 'Continue'
-& $Checkmate run (Join-Path $out 'inventory.yml') -i (Join-Path $out 'hosts.yml') --format json 2>$null |
+& $Checkmate run (Join-Path $out 'inventory.yml') -i (Join-Path $out 'hosts.yml') --allow-insecure-policy --format json 2>$null |
     Out-File -FilePath (Join-Path $out 'inventory.json') -Encoding utf8
 $code = $LASTEXITCODE
 $ErrorActionPreference = 'Stop'

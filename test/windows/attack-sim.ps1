@@ -5,7 +5,8 @@ param([string]$Checkmate = '.\checkmate.exe')
 $ErrorActionPreference = 'Stop'
 
 function Run-Policy([string]$out) {
-    & $Checkmate run examples/attack/windows.yml -q --format json --export json -o $out | Out-Null
+    # --allow-insecure-policy: every user may write to the workspace of a runner.
+    & $Checkmate run examples/attack/windows.yml --allow-insecure-policy -q --format json --export json -o $out | Out-Null
     Get-Content -LiteralPath $out -Raw | ConvertFrom-Json
 }
 

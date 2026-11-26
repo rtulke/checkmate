@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/rtulke/checkmate/internal/tmpl"
 )
 
 // Painter colors text for terminals; it returns s unchanged without color.
@@ -157,7 +159,7 @@ func splitLines(s string) []string {
 func oneLine(s string) string {
 	s = strings.Join(strings.Fields(s), " ")
 	if len(s) > 160 {
-		s = s[:157] + "..."
+		s = tmpl.Cut(s, 157) + "..."
 	}
 	return s
 }

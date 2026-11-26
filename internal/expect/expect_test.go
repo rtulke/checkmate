@@ -3,6 +3,7 @@ package expect
 import (
 	"strings"
 	"testing"
+	"unicode/utf8"
 
 	"gopkg.in/yaml.v3"
 )
@@ -329,5 +330,17 @@ func TestCasesErrors(t *testing.T) {
 		if _, err := Parse(node.Content[0]); err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("%s: error %v, want one mentioning %q", src, err, want)
 		}
+	}
+}
+
+func TestLongOutputIsQuotedAsValidText(t *testing.T) {
+	e, err := ParseCondition("stdout", "== x")
+	if err != nil {
+		t.Fatal(err)
+	}
+	// 198 bytes of ASCII put the cut into the middle of a character.
+	_, msg, err := e.Eval(Output{Stdout: strings.Repeat("a", 196) + strings.Repeat("€", 10)}, ModeAuto)
+	if err != nil || !utf8.ValidString(msg) || strings.Contains(msg, `\x`) {
+		t.Errorf("message %q, %v", msg, err)
 	}
 }
