@@ -8,5 +8,7 @@
 | [Templating and variables](templating.md) | Jinja2, variables, loops, snippets, raw blocks, available filters |
 | [Platforms and facts](platforms.md) | Facts, platform variants, shells |
 | [Command line](cli.md) | Commands, flags and exit codes |
+| [Reports and exports](exports.md) | Output formats, `checkmate export` and `checkmate diff` |
 | [Results, severity and score](results.md) | Statuses, `fail_on`, warnings and the compliance score |
 | [Waivers](waivers.md) | Accepted deviations with reason, expiry date and host conditions |
+| [Inventory](inventory.md) | Hosts and groups for runs over SSH, their settings and variables, hosts that cannot be checked |

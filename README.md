@@ -34,6 +34,7 @@ Most compliance tools need a plugin or module for every kind of check. checkmate
 
 - **Readable**: YAML with Jinja2 variables, loops and reusable snippets, familiar from Ansible. A loop can also run over the output of a command (one check per account, mount point or virtual host), and the outcome of one check can decide whether others run.
 - **Portable**: one static binary; platform variants pick the right command for RHEL, Debian, SUSE, Alpine, macOS or PowerShell.
+- **Agentless**: the same policy runs locally or on other hosts over SSH, on one host or on a whole inventory. Nothing is installed on the hosts.
 - **Fail-closed**: a check that cannot be evaluated (timeout, missing tool, unexpected exit code) is an error, and errors always make a run non-compliant.
 - **Prioritized**: severities, a `--fail-on` threshold with warnings below it, a weighted compliance score, and waivers for accepted deviations.
 - **Independent checks**: every check collects its own data; no shared scans or caches between checks. A check can steer other checks, but never hands its output to them.
@@ -151,6 +152,11 @@ expect:
   if: { stdout: "~ ^ubuntu" }                # a different rule per distribution
   then: "~ 24\\."
   else: "~ 12"
+expect:
+  cases:                                     # the first case that applies decides
+    - { if: "~ ^ubuntu", then: "~ 24\\." }
+    - { if: "~ ^debian", then: "~ 1[2-9]" }
+  else: "~ ^alpine"
 ```
 
 See the [reference](https://rtulke.github.io/checkmate/reference/expect/) and `man checkmate-policy`.
@@ -169,6 +175,39 @@ checkmate run baseline.yml --waivers waivers.yml
 ```
 
 See [waivers](https://rtulke.github.io/checkmate/reference/waivers/).
+
+## Many hosts
+
+A policy runs on other hosts over SSH without installing anything there. The facts are those of each host, so the same file checks RHEL, Debian and Windows side by side.
+
+```bash
+checkmate run baseline.yml --host audit@web01.example.net --become   # one host
+checkmate run baseline.yml -i hosts.yml                              # every host of an inventory
+checkmate run baseline.yml -i hosts.yml -l web --export html,pdf -o reports/
+```
+
+```yaml
+# hosts.yml
+defaults: { user: audit, become: true }      # become: sudo -n
+groups:
+  web:
+    vars: { role: web }
+    hosts: [web01.example.net, web02.example.net]
+  windows:
+    become: false
+    hosts: [win01.example.net]
+  switches:
+    device: ios                              # no shell: commands are sent as written
+    become: false
+    hosts: [sw-core-01.example.net]
+```
+
+- checkmate uses the `ssh` program, so `~/.ssh/config`, agents, jump hosts and `known_hosts` apply. It never asks for a password.
+- Linux, macOS, BSD and Windows hosts (OpenSSH, PowerShell) are recognized by asking them; switches and firewalls are marked with `device`.
+- The console shows an overview of all hosts and groups, and every export format contains all of them.
+- A host that cannot be reached is neither compliant nor non-compliant: it is listed as unreachable, left out of totals and score, and the run ends with exit code 3 if nothing else failed.
+
+See [checking remote systems](https://rtulke.github.io/checkmate/guides/remote/) and the [inventory reference](https://rtulke.github.io/checkmate/reference/inventory/).
 
 ## Reports and exports
 
@@ -222,7 +261,8 @@ See [reports and exports](https://rtulke.github.io/checkmate/reference/exports/)
 | Linux | any distribution with a POSIX shell (bash or sh, also BusyBox) | examples on Rocky Linux 8/9, Debian 12, Ubuntu 24.04, openSUSE Leap 15, Alpine; CIS and STIG policies on 16 distributions in containers; hardened PostgreSQL and Apache servers; Postfix, NFS, vsftpd, BIND, Kea, Dovecot, Samba and OpenLDAP in default and hardened configuration; planted ATT&CK artifacts; XCCDF/ARF validated with OpenSCAP, metrics with promtool, syslog with rsyslog |
 | Windows | Windows 10/11, Windows Server 2016 and later (PowerShell 5.1 or 7) | CIS and ATT&CK policies on real Windows Server 2022 and 2025, each with PowerShell 7 and Windows PowerShell 5.1; every PowerShell command through the PowerShell parser |
 | macOS | macOS 13 and later | unit tests and Homebrew installation on macOS runners |
-| Network devices, remote servers | over SSH or SNMP from a management host | syntax of every command |
+| Remote hosts | Linux, macOS, BSD and Windows over SSH (`--host`, `--inventory`); switches and firewalls as devices | Linux and Windows over a real SSH connection, every result compared with a local run; devices with a stand-in for ssh |
+| HTTP and SNMP systems | from a management host, with `curl` or `snmpget` in the command | syntax of every command |
 
 ## Development
 

@@ -44,6 +44,12 @@ hide:
 
     One static binary for Linux, macOS and Windows. Platform variants pick the right command for RHEL, Debian, SUSE, macOS or PowerShell.
 
+-   :material-lan: **One host or a whole fleet**
+
+    ---
+
+    The same policy runs locally or over SSH on every host of an [inventory](reference/inventory.md): Linux, macOS, Windows, switches and firewalls. Nothing is installed on the hosts.
+
 -   :material-gauge: **Severity and score**
 
     ---
