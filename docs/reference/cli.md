@@ -6,6 +6,9 @@ checkmate validate [flags] <policy.yml>   check a policy for errors without runn
 checkmate list     [flags] <policy.yml>   list checks and the commands they would run
 checkmate export   [flags] <report.json>...  convert or merge JSON reports (html, pdf, csv, ...)
 checkmate diff     [flags] <old> <new>    compare two reports (.json) or two policies (.yml)
+checkmate verify   [flags] <policy.yml>   say where the files of a policy come from and who signed them
+checkmate sign --key <key> <file>...      sign policy files
+checkmate keygen [-o base] <name>         make a key pair for signing
 checkmate facts                           print the facts gathered for this host
 checkmate version                         print the version
 ```
@@ -39,6 +42,8 @@ Flags may come before or after the policy file.
 | `--color WHEN` | `auto` (default: on a terminal), `always`, `never`. `NO_COLOR` is honored. |
 | `--no-color` | Same as `--color never`. |
 | `--allow-insecure-policy` | Load policy and waiver files as root that are owned by another user or writable by others. See [Running as root](../getting-started/installation.md#running-as-root). |
+| `--trusted-keys FILE` | File with the public keys that may sign policies (repeatable). Default: `/etc/checkmate/trusted_keys`, on Windows `%ProgramData%\checkmate\trusted_keys`. |
+| `--require-signed` | Refuse policy, variable and waiver files that are neither shipped with checkmate nor signed by a trusted key. Also set by `CHECKMATE_REQUIRE_SIGNED=1`. |
 
 ### Output levels
 
@@ -133,6 +138,17 @@ Converts JSON reports into other formats and merges several reports (hosts or ru
 checkmate export -f html,pdf -o fleet reports/*.json
 ```
 
+## checkmate verify, sign, keygen
+
+`verify` lists every file a policy is loaded from, with its hash, its origin and its signer, and runs nothing. It exits with 0 if every file is shipped with checkmate or signed by a trusted key, and with 1 otherwise. `sign` and `keygen` make the signatures. See [Where a policy comes from](trust.md).
+
+```bash
+checkmate keygen release-team                       # release-team.key, release-team.pub
+checkmate sign --key release-team.key baseline.yml common/*.yml
+checkmate verify baseline.yml
+checkmate run baseline.yml --require-signed
+```
+
 ## checkmate diff
 
 Compares two JSON reports or two policies, recognised by the file extension. See [Reports and exports](exports.md#checkmate-diff).
@@ -143,6 +159,8 @@ Compares two JSON reports or two policies, recognised by the file extension. See
 | `--color WHEN` | `auto`, `always`, `never`. |
 | `-e`, `--extra-var KEY=VALUE` | Variables for expanding policies. |
 | `--allow-insecure-policy` | Load policy and waiver files as root that are owned by another user or writable by others. See [Running as root](../getting-started/installation.md#running-as-root). |
+| `--trusted-keys FILE` | File with the public keys that may sign policies (repeatable). Default: `/etc/checkmate/trusted_keys`, on Windows `%ProgramData%\checkmate\trusted_keys`. |
+| `--require-signed` | Refuse policy, variable and waiver files that are neither shipped with checkmate nor signed by a trusted key. Also set by `CHECKMATE_REQUIRE_SIGNED=1`. |
 
 Exit codes: `0` no differences, `1` differences, `2` error.
 

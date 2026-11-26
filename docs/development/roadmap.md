@@ -9,7 +9,7 @@ What is planned, what is being considered, and what was decided against. Nothing
 A policy is code that runs as root, with an inventory on many hosts at once. checkmate should say what it is about to run and where that came from.
 
 1. **Provenance of shipped policies.** Done, see [Where a policy comes from](../reference/trust.md): the hashes of all shipped policies are built into the binary, and every run and report says which files are shipped, modified or your own.
-2. **Signatures for your own policies.** `checkmate sign` writes a signature next to a policy; a setting makes checkmate refuse policies that are not signed by a trusted key. For organizations that release their policies through a review.
+2. **Signatures for your own policies.** Done: `checkmate keygen`, `sign` and `verify`, a file of trusted keys, and `--require-signed`, which refuses everything that is neither shipped nor signed. Still open: a system-wide setting that users without root cannot turn off, and private keys that are encrypted or held in a hardware token.
 3. **Signed releases.** A signature over `SHA256SUMS` of every release, so that the binary the hashes of step 1 live in can be verified itself.
 
 ### Keep secrets out of reports

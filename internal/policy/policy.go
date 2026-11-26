@@ -87,6 +87,12 @@ type fileDefaults struct {
 type LoadOptions struct {
 	// AllowInsecure skips the ownership/permission check of policy files.
 	AllowInsecure bool
+	// TrustedKeys are the keys whose signatures (<file>.sig) vouch for a
+	// policy file.
+	TrustedKeys []provenance.Key
+	// RequireSigned refuses every file that is neither shipped with
+	// checkmate nor signed by a trusted key.
+	RequireSigned bool
 }
 
 // DefaultTimeout applies when neither the policy nor the check sets one.
@@ -260,8 +266,23 @@ func (l *loader) readFile(path string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	source := provenance.Lookup(path, data).WithSignature(data, l.opts.TrustedKeys)
+	switch {
+	case source.Signature == provenance.SignatureInvalid:
+		// Signed by a trusted key, but for other content: the file was
+		// changed after it was signed. That is refused in any case.
+		return nil, fmt.Errorf("%s: the signature in %s does not match the file; it was changed after it was signed",
+			path, path+provenance.SignatureSuffix)
+	case l.opts.RequireSigned && !source.Trusted():
+		reason := "it has no signature"
+		if source.Signature != "" {
+			reason = "its signature is not usable (" + source.Signature + ")"
+		}
+		return nil, fmt.Errorf("%s: refusing to load a file that is neither shipped with checkmate nor signed "+
+			"by a trusted key: %s (sign it with: checkmate sign --key <key> %s)", path, reason, path)
+	}
 	if l.policy != nil { // nil while loading a waiver file on its own
-		l.policy.Sources = append(l.policy.Sources, provenance.Lookup(path, data))
+		l.policy.Sources = append(l.policy.Sources, source)
 	}
 	return data, nil
 }
@@ -287,3 +308,7 @@ func sortedKeys[V any](m map[string]V) []string {
 	sort.Strings(keys)
 	return keys
 }
+
+// CheckFileSecurity applies the check for policy files to another file
+// that decides what runs as root, such as the list of trusted keys.
+func CheckFileSecurity(path string) error { return checkFileSecurity(path) }

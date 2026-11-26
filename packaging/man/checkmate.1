@@ -22,6 +22,16 @@ checkmate \- command-based compliance checks for Linux, macOS and Windows
 .RI [ options ]
 .I old new
 .br
+.B checkmate verify
+.RI [ options ]
+.I policy.yml
+.br
+.B checkmate sign \-\-key
+.I name.key file ...
+.br
+.B checkmate keygen
+.I name
+.br
 .B checkmate facts
 .br
 .B checkmate version
@@ -54,6 +64,27 @@ Load and expand a policy and report errors without running any check.
 List the selected checks; with
 .B \-v
 also the command each check would run on this host.
+.TP
+.B verify
+List every file a policy is loaded from, with its SHA-256 hash, whether it
+was shipped with checkmate, and who signed it.
+Nothing is run.
+The exit status is 0 if every file is shipped or signed by a trusted key.
+.TP
+.B sign
+Write a signature file
+.RI ( file .sig)
+next to each given file, made with the private key given by
+.BR \-\-key .
+.TP
+.B keygen
+Write a new key pair:
+.IR name .key
+for
+.B sign
+and
+.IR name .pub
+for the file of trusted keys.
 .TP
 .B export
 Convert JSON reports written by
@@ -128,6 +159,18 @@ them.
 Without this option, checkmate running as root accepts only files that
 are not group- or world-writable and are owned by root or by the owner of
 the checkmate executable (the admin user with Homebrew).
+.TP
+.BI \-\-trusted\-keys " file"
+File with the public keys that may sign policies, one per line;
+repeatable.
+Default:
+.IR /etc/checkmate/trusted_keys .
+.TP
+.B \-\-require\-signed
+Refuse policy, variable and waiver files that are neither shipped with
+checkmate nor signed by a trusted key.
+A file whose signature by a trusted key does not match its content is
+refused in any case.
 .SS Results (run)
 .TP
 .BI \-\-fail\-on " severity"
@@ -168,6 +211,10 @@ checkmate uses the
 program, with the configuration, keys and known hosts of the user; it
 never asks for a password.
 The environment variable
+.B CHECKMATE_REQUIRE_SIGNED
+Set to 1, it has the effect of
+.BR \-\-require\-signed .
+.TP
 .B CHECKMATE_SSH
 names another ssh program.
 .TP
@@ -395,6 +442,10 @@ Disables colored output when set.
 .TP
 .B COLUMNS
 Width used to shorten result lines when standard output is not a terminal.
+.TP
+.B CHECKMATE_REQUIRE_SIGNED
+Set to 1, it has the effect of
+.BR \-\-require\-signed .
 .TP
 .B CHECKMATE_SSH
 The ssh program used for
