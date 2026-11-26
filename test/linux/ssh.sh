@@ -128,6 +128,25 @@ else
     echo "ok      no process left on the host after the timeout"
 fi
 
+# More checks than sshd accepts sessions on one connection (MaxSessions 10):
+# all of them have to get through, also with a high --jobs.
+{
+    echo "name: many"
+    echo "checks:"
+    echo "  - id: \"MANY-{{ item }}\""
+    echo "    loop: [$(seq -s, 1 60)]"
+    echo "    run: sleep 1; echo {{ item }}"
+    echo "    expect: \"{{ item }}\""
+} > "$out/many.yml"
+bin/checkmate run "$out/many.yml" --host localhost --jobs 40 --format json > "$out/many.json" 2>/dev/null || true
+passed=$(jq '.summary.passed' "$out/many.json")
+if [ "$passed" = 60 ]; then
+    echo "ok      60 checks with --jobs 40 share one connection"
+else
+    fail "only $passed of 60 parallel checks passed"
+    jq -r '.results[] | select(.status != "PASS") | .id + ": " + (.message // "")' "$out/many.json" | head -5
+fi
+
 # A host that does not answer ends the run before any check.
 if bin/checkmate run "$out/probe.yml" --host localhost:1 > "$out/unreachable.txt" 2>&1; then
     fail "an unreachable host was accepted"

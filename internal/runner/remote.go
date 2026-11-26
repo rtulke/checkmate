@@ -39,6 +39,12 @@ type Target struct {
 	controlDir string
 }
 
+// MaxRemoteJobs is the most commands that may run on one host at a time.
+// They share one connection, and sshd accepts 10 sessions per connection
+// by default (MaxSessions); two are left for the checks of the connection
+// itself.
+const MaxRemoteJobs = 8
+
 var (
 	validHost   = regexp.MustCompile(`^[A-Za-z0-9_][A-Za-z0-9_.@:%\[\]-]*$`)
 	validEnvKey = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
