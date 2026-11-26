@@ -2,6 +2,7 @@ package runner
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"math"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf16"
 
 	"github.com/rtulke/checkmate/internal/facts"
 )
@@ -27,11 +29,18 @@ type Target struct {
 	Port   int    // 0 leaves the port to ssh
 	Become bool   // run every command through `sudo -n`
 
-	// Shell is the default shell of the host, "bash" or "sh". HasTimeout
-	// says that the host has a timeout program that ends a command and its
-	// children. Both are set from the facts of the host.
+	// Shell is the default shell of the host: "bash" or "sh", on Windows
+	// "pwsh" or "powershell". HasTimeout says that the host has a timeout
+	// program that ends a command and its children. Windows says that the
+	// host runs Windows. All three are set from the facts of the host.
 	Shell      string
 	HasTimeout bool
+	Windows    bool
+
+	// Device marks a host without a shell, such as a switch or a firewall,
+	// and names its platform (ios, junos, ...). Commands are sent as they
+	// are, one at a time, and nothing is asked of the host beforehand.
+	Device string
 
 	// SSH is the ssh program, "ssh" if empty.
 	SSH string
@@ -66,8 +75,10 @@ func NewTarget(host string, port int, become bool) (*Target, error) {
 // Open prepares the shared connection. The connection itself is made by
 // the first command.
 func (t *Target) Open() error {
-	if runtime.GOOS == "windows" {
-		return nil // OpenSSH for Windows cannot share connections
+	// OpenSSH for Windows cannot share connections, and many devices accept
+	// only one session per connection.
+	if runtime.GOOS == "windows" || t.Device != "" {
+		return nil
 	}
 	// Unix socket paths are short (104 bytes on macOS); ssh adds a 40
 	// character hash, so the directory has to stay close to the root.
@@ -118,13 +129,99 @@ func (t *Target) sshOptions() []string {
 	return opts
 }
 
-// argv is the local command that runs command on the host.
-func (t *Target) argv(shell, command string, env map[string]string, timeout time.Duration) ([]string, error) {
-	remote, err := t.remoteCommand(shell, command, env, timeout)
-	if err != nil {
-		return nil, err
+// MaxJobs is the most commands that may run on the host at a time.
+func (t *Target) MaxJobs() int {
+	if t.Device != "" {
+		return 1
 	}
-	return append(append([]string{t.program()}, t.sshOptions()...), t.Host, remote), nil
+	return MaxRemoteJobs
+}
+
+// defaultShell is the shell of a command that does not name one.
+func (t *Target) defaultShell() string {
+	switch {
+	case t.Device != "":
+		return "device"
+	case t.Shell != "":
+		return t.Shell
+	case t.Windows:
+		return "powershell"
+	}
+	return "sh"
+}
+
+// argv is the local command that runs command on the host, and what it
+// reads from its standard input, if anything.
+func (t *Target) argv(shell, command string, env map[string]string, timeout time.Duration) (argv []string, stdin string, err error) {
+	var remote string
+	switch {
+	case t.Device != "":
+		// No shell on the other side: nothing can carry variables, and
+		// the command is all there is.
+		if len(env) > 0 {
+			return nil, "", fmt.Errorf("a device without a shell cannot receive variables (env, loop_run items)")
+		}
+		remote = command
+	case t.Windows:
+		remote, stdin, err = t.windowsCommand(shell, command, env)
+	default:
+		remote, err = t.remoteCommand(shell, command, env, timeout)
+	}
+	if err != nil {
+		return nil, "", err
+	}
+	return append(append([]string{t.program()}, t.sshOptions()...), t.Host, remote), stdin, nil
+}
+
+// windowsBootstrap reads a script from standard input and runs it. It is
+// all that travels on the command line, encoded, so that neither cmd.exe
+// nor PowerShell as the login shell of the host interprets anything and
+// the 8191 characters cmd.exe accepts are never a limit for a check.
+// Input and output are UTF-8 whatever the code page of the host is.
+const windowsBootstrap = `try { [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $false; $OutputEncoding = [Console]::OutputEncoding } catch {}
+$in = [Console]::OpenStandardInput(); $buf = New-Object System.IO.MemoryStream; $in.CopyTo($buf)
+$script = [scriptblock]::Create([System.Text.Encoding]::UTF8.GetString($buf.ToArray()))
+$ErrorActionPreference = 'Stop'
+& $script
+if ($LASTEXITCODE) { exit $LASTEXITCODE }
+exit 0`
+
+// windowsCommand is the command line for a Windows host and the script it
+// reads. Variables are set at the top of the script, as quoted strings.
+func (t *Target) windowsCommand(shell, command string, env map[string]string) (line, script string, err error) {
+	switch shell {
+	case "pwsh", "powershell":
+	default:
+		return "", "", fmt.Errorf("shell %q is not available on a Windows host over SSH (use powershell or pwsh)", shell)
+	}
+	if t.Become {
+		return "", "", fmt.Errorf("become is not available on Windows; connect as a user with administrator rights")
+	}
+	var b strings.Builder
+	keys := make([]string, 0, len(env))
+	for k := range env {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		if !validEnvKey.MatchString(k) {
+			return "", "", fmt.Errorf("environment variable %q cannot be passed to the host", k)
+		}
+		fmt.Fprintf(&b, "$env:%s = '%s'\n", k, strings.ReplaceAll(env[k], "'", "''"))
+	}
+	b.WriteString(command)
+	return shell + " -NoLogo -NoProfile -NonInteractive -EncodedCommand " + encodePowerShell(windowsBootstrap), b.String(), nil
+}
+
+// encodePowerShell encodes a script for -EncodedCommand: UTF-16LE in
+// base64.
+func encodePowerShell(script string) string {
+	units := utf16.Encode([]rune(script))
+	raw := make([]byte, 2*len(units))
+	for i, u := range units {
+		raw[2*i], raw[2*i+1] = byte(u), byte(u>>8)
+	}
+	return base64.StdEncoding.EncodeToString(raw)
 }
 
 // remoteCommand is the command line handed to the login shell of the host.
@@ -194,6 +291,10 @@ var safeWord = regexp.MustCompile(`^[A-Za-z0-9_./=:@%+,-]+$`)
 // both when the connection fails and when the command does; this tells
 // the two apart.
 func (t *Target) reachable(ctx context.Context) bool {
+	if t.Device != "" {
+		// "exit 0" means something else on every device; ask ssh itself.
+		return false
+	}
 	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
 	defer cancel()
 	args := append(t.sshOptions(), t.Host, "exit 0")
@@ -205,9 +306,31 @@ func (t *Target) reachable(ctx context.Context) bool {
 // so it also proves that the host is reachable and, with Become, that
 // sudo works without a password.
 func (t *Target) Facts(ctx context.Context) (facts.Facts, error) {
+	if t.Device != "" {
+		return facts.Device(t.Host, t.Device), nil
+	}
 	res, err := Run(ctx, Request{Command: facts.RemoteScript, Shell: "sh", Timeout: 30 * time.Second, Target: t})
 	if err != nil {
 		return facts.Facts{}, err
+	}
+	// A Windows host has no sh: cmd.exe or PowerShell answer the script
+	// with an error or with its text. Ask again in PowerShell.
+	if _, _, posixErr := facts.Remote(res.Stdout); res.RC != 0 || posixErr != nil {
+		windows := *t
+		windows.Windows = true
+		if wres, werr := Run(ctx, Request{Command: facts.RemoteWindowsScript, Shell: "powershell", Timeout: 60 * time.Second, Target: &windows}); werr == nil && wres.RC == 0 {
+			if f, hasPwsh, ferr := facts.RemoteWindows(wres.Stdout); ferr == nil {
+				if t.Become {
+					return facts.Facts{}, fmt.Errorf("%s: become is not available on Windows; connect as a user with administrator rights", t.Host)
+				}
+				t.Windows = true
+				t.Shell = "powershell"
+				if hasPwsh {
+					t.Shell = "pwsh"
+				}
+				return f, nil
+			}
+		}
 	}
 	if res.RC != 0 {
 		reason := "exit code " + strconv.Itoa(res.RC)

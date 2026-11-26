@@ -61,16 +61,14 @@ func Run(ctx context.Context, req Request) (Result, error) {
 	shell := req.Shell
 	remote := req.Target != nil
 	var argv []string
+	var stdin string
 	var err error
 	localTimeout := req.Timeout
 	if remote {
-		if shell == "" {
-			shell = req.Target.Shell
+		if shell == "" || req.Target.Device != "" {
+			shell = req.Target.defaultShell()
 		}
-		if shell == "" {
-			shell = "sh"
-		}
-		argv, err = req.Target.argv(shell, req.Command, req.Env, req.Timeout)
+		argv, stdin, err = req.Target.argv(shell, req.Command, req.Env, req.Timeout)
 		if req.Timeout > 0 && req.Target.HasTimeout {
 			// The host ends the command and its children itself; ending
 			// ssh first would leave them running.
@@ -102,6 +100,9 @@ func Run(ctx context.Context, req Request) (Result, error) {
 		cmd.Env = buildEnv(shell, req.Env)
 	}
 	cmd.Stdin = nil
+	if stdin != "" {
+		cmd.Stdin = strings.NewReader(stdin)
+	}
 	stdout := &limitedBuffer{limit: maxOutput}
 	stderr := &limitedBuffer{limit: maxOutput}
 	cmd.Stdout = stdout
@@ -138,7 +139,7 @@ func Run(ctx context.Context, req Request) (Result, error) {
 		if (rc == 124 || rc == 137) && req.Timeout > 0 && req.Target.HasTimeout && res.Duration >= req.Timeout {
 			return res, fmt.Errorf("%w after %s", ErrTimeout, req.Timeout)
 		}
-		if rc == 255 && !req.Target.reachable(ctx) {
+		if rc == 255 && (req.Target.Device == "" || sshFailed(res.Stderr)) && !req.Target.reachable(ctx) {
 			return res, fmt.Errorf("%w: %s%s", ErrUnreachable, req.Target.Host, firstLineSuffix(res.Stderr))
 		}
 	}
@@ -272,6 +273,18 @@ func windowsPowerShellModulePath(value string) string {
 		}
 	}
 	return strings.Join(kept, ";")
+}
+
+// sshFailed reports whether stderr is a message of the ssh client itself,
+// for hosts that cannot be asked whether they are still there.
+func sshFailed(stderr string) bool {
+	for _, mark := range []string{"ssh: ", "Connection closed", "Connection reset", "Connection timed out",
+		"Permission denied", "Host key verification failed", "kex_exchange_identification"} {
+		if strings.Contains(stderr, mark) {
+			return true
+		}
+	}
+	return false
 }
 
 func firstLineSuffix(s string) string {

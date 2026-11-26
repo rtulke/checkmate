@@ -80,6 +80,7 @@ func runHost(ctx context.Context, p *policy.Policy, h inventory.Host, opts engin
 	if err != nil {
 		return unchecked(err)
 	}
+	target.Device = h.Device
 	if err := target.Open(); err != nil {
 		return unchecked(err)
 	}
@@ -87,6 +88,9 @@ func runHost(ctx context.Context, p *policy.Policy, h inventory.Host, opts engin
 	hostFacts, err := target.Facts(ctx)
 	if err != nil {
 		return unchecked(err)
+	}
+	if h.Device != "" {
+		hostFacts.Hostname = h.Name
 	}
 
 	// Variables of the inventory override those of the policy; the command

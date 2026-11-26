@@ -103,3 +103,16 @@ jobs:
         run: |
           if ('${{ matrix.ps }}' -eq 'powershell') { . ./test/windows/without-pwsh.ps1 }
           ./test/windows/attack-sim.ps1
+
+  windows-ssh:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Run policies over SSH and compare with local runs
+        shell: pwsh
+        run: |
+          go build -o checkmate.exe ./cmd/checkmate
+          ./test/windows/ssh.ps1

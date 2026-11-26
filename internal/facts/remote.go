@@ -87,3 +87,50 @@ func goArch(machine string) string {
 	}
 	return machine
 }
+
+// RemoteWindowsScript is RemoteScript for Windows. It runs in Windows
+// PowerShell 5.1 and PowerShell 7.
+const RemoteWindowsScript = `$cv = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion'
+"os=windows"
+"arch=$env:PROCESSOR_ARCHITECTURE"
+"hostname=$([System.Net.Dns]::GetHostName())"
+"version=$($cv.CurrentMajorVersionNumber).$($cv.CurrentMinorVersionNumber).$($cv.CurrentBuild).$($cv.UBR)"
+"build=$($cv.CurrentBuild)"
+"install=$($cv.InstallationType)"
+$id = [Security.Principal.WindowsIdentity]::GetCurrent()
+"elevated=$((New-Object Security.Principal.WindowsPrincipal $id).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))"
+if (Get-Command pwsh -ErrorAction SilentlyContinue) { "pwsh=yes" }
+"end=yes"
+`
+
+// RemoteWindows builds the facts of a Windows host from the output of
+// RemoteWindowsScript. hasPwsh says that PowerShell 7 is installed.
+func RemoteWindows(output string) (f Facts, hasPwsh bool, err error) {
+	values := map[string]string{}
+	for _, line := range strings.Split(output, "\n") {
+		if k, v, ok := strings.Cut(strings.TrimSpace(line), "="); ok {
+			values[k] = strings.TrimSpace(v)
+		}
+	}
+	if values["end"] != "yes" || values["os"] != "windows" {
+		return Facts{}, false, fmt.Errorf("the host did not answer the facts script as expected")
+	}
+	f = Facts{
+		OS:         "windows",
+		Arch:       goArch(strings.ToLower(values["arch"])),
+		Hostname:   values["hostname"],
+		Distro:     "windows",
+		DistroName: windowsProduct(values["install"], leadingInt(values["build"])),
+		Version:    values["version"],
+		Kernel:     values["version"],
+		IsRoot:     strings.EqualFold(values["elevated"], "true"),
+	}
+	f.VersionMajor = leadingInt(f.Version)
+	return f, values["pwsh"] == "yes", nil
+}
+
+// Device is the facts of a host without a shell, such as a switch or a
+// firewall: nothing can be asked, the inventory says what it is.
+func Device(name, platform string) Facts {
+	return Facts{OS: platform, Distro: platform, DistroName: platform, Hostname: name}
+}

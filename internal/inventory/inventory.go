@@ -18,6 +18,11 @@
 //	    become: false
 //	    hosts: [db01.example.net]
 //
+//	  switches:
+//	    device: ios             # no shell: commands are sent as they are
+//	    become: false
+//	    hosts: [sw-core-01.example.net]
+//
 //	hosts:                    # hosts outside of any group
 //	  - backup01.example.net
 //
@@ -29,6 +34,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -42,6 +48,7 @@ type Host struct {
 	User    string         // remote user, empty leaves it to ssh
 	Port    int            // 0 leaves it to ssh
 	Become  bool           // run commands through sudo -n
+	Device  string         // platform of a host without a shell (ios, junos, ...), else empty
 	Groups  []string       // groups the host belongs to, in file order
 	Vars    map[string]any // variables for the policy
 }
@@ -65,6 +72,7 @@ type settings struct {
 	User   *string        `yaml:"user"`
 	Port   *int           `yaml:"port"`
 	Become *bool          `yaml:"become"`
+	Device *string        `yaml:"device"`
 	Vars   map[string]any `yaml:"vars"`
 }
 
@@ -94,6 +102,8 @@ type file struct {
 	Groups   yaml.Node   `yaml:"groups"`
 	Hosts    []hostEntry `yaml:"hosts"`
 }
+
+var deviceName = regexp.MustCompile(`^[a-z][a-z0-9_-]*$`)
 
 // Load reads an inventory file.
 func Load(filename string) (*Inventory, error) {
@@ -198,6 +208,12 @@ func parse(data []byte) (*Inventory, error) {
 		if h.Port < 0 || h.Port > 65535 {
 			return nil, fmt.Errorf("host %s: invalid port %d", h.Name, h.Port)
 		}
+		if h.Device != "" && !deviceName.MatchString(h.Device) {
+			return nil, fmt.Errorf("host %s: invalid device %q (a platform name such as ios or junos)", h.Name, h.Device)
+		}
+		if h.Device != "" && h.Become {
+			return nil, fmt.Errorf("host %s: become needs a shell, a device has none", h.Name)
+		}
 	}
 	return inv, nil
 }
@@ -211,6 +227,9 @@ func apply(h *Host, s settings) {
 	}
 	if s.Become != nil {
 		h.Become = *s.Become
+	}
+	if s.Device != nil {
+		h.Device = strings.TrimSpace(*s.Device)
 	}
 	for k, v := range s.Vars {
 		h.Vars[k] = v
