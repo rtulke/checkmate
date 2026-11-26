@@ -35,6 +35,8 @@ checks:
     only_if: command -v nginx
     run: nginx -t 2>&1
     expect: "~ syntax is ok"
+    rationale: nginx does not start with an invalid configuration, so the next restart takes the sites down.
+    remediation: Run `nginx -t`, correct the reported line and reload nginx.
 
   - id: NGX-NO-DAV
     name: The WebDAV module is not compiled in
@@ -42,6 +44,8 @@ checks:
     only_if: command -v nginx
     run: nginx -V 2>&1
     expect: "!~ http_dav_module"
+    rationale: WebDAV adds methods such as PUT and DELETE that change files on the server.
+    remediation: Install an nginx build without --with-http_dav_module.
 
   - id: NGX-NO-AUTOINDEX
     name: Directory listings are disabled
@@ -50,6 +54,8 @@ checks:
     run: { use: ngx }
     allow_rc: [0, 1]
     expect: { none: "~ ^[[:space:]]*autoindex[[:space:]]+on" }
+    rationale: A directory listing shows every file in a directory, including backups and files that no page links to.
+    remediation: Remove `autoindex on` from the configuration and reload nginx.
 
   # --- service account and permissions ------------------------------------------------
   - id: NGX-USER
@@ -60,6 +66,8 @@ checks:
     run: { use: ngx }
     allow_rc: [0, 1]
     expect: { some: "~ ^[[:space:]]*user[[:space:]]+(nginx|www-data|www)[[:space:];]" }
+    rationale: A flaw in a worker process gives the attacker the rights of the account that the worker runs as.
+    remediation: Set the `user` directive in nginx.conf to the dedicated account, for example `user nginx;`.
 
   - id: NGX-USER-LOCKED
     name: The nginx account is locked and has no login shell
@@ -75,6 +83,8 @@ checks:
         case "$pw" in '!'*|'*'*) ;; *) echo "$u has a password" ;; esac
       done
     expect: empty
+    rationale: A service account with a password or a login shell can be used for interactive logins.
+    remediation: Run `usermod -s /usr/sbin/nologin <account>` and `passwd -l <account>`.
 
   - id: NGX-CONF-OWNER
     name: Configuration files are owned by root and not writable by others
@@ -84,6 +94,8 @@ checks:
     # Symbolic links always have mode 777 and are skipped.
     run: find /etc/nginx ! -type l \( ! -user root -o -perm /022 \)
     expect: empty
+    rationale: The master process runs as root, so whoever can write the configuration controls a root process.
+    remediation: chown -R root /etc/nginx && chmod -R go-w /etc/nginx
 
   - id: NGX-TLS-KEYS
     name: TLS private keys are only readable by root
@@ -97,6 +109,8 @@ checks:
           find -H "$key" \( -perm /077 -o ! -user root \)
         done
     expect: empty
+    rationale: Anyone who can read a private key can impersonate the site and decrypt recorded traffic that lacks forward secrecy.
+    remediation: chown root <key> && chmod 400 <key>
 
   - id: NGX-PIDFILE
     name: The PID file is owned by root and not writable by others
@@ -105,6 +119,8 @@ checks:
     only_if: test -f /run/nginx.pid
     run: find /run/nginx.pid \( -perm /022 -o ! -user root \)
     expect: empty
+    rationale: Control scripts send signals to the process named in the PID file, so a writable file redirects them to another process.
+    remediation: chown root /run/nginx.pid && chmod 644 /run/nginx.pid
 
   # --- timeouts and limits -----------------------------------------------------------
   - id: NGX-KEEPALIVE
@@ -115,6 +131,8 @@ checks:
     run: |
       nginx -T 2>/dev/null | awk '$1 == "keepalive_timeout" {gsub(/[;s]/, "", $2); print $2}'
     expect: ["!empty", { each: ["> 0", "<= {{ max_keepalive_timeout }}"] }]
+    rationale: Long keep-alive times let idle clients hold connections that other clients need.
+    remediation: "Set `keepalive_timeout {{ max_keepalive_timeout }};` in the http block."
 
   - id: NGX-SEND-TIMEOUT
     name: "send_timeout is set and at most {{ max_send_timeout }} seconds"
@@ -124,6 +142,8 @@ checks:
     run: |
       nginx -T 2>/dev/null | awk '$1 == "send_timeout" {gsub(/[;s]/, "", $2); print $2}'
     expect: ["!empty", { each: ["> 0", "<= {{ max_send_timeout }}"] }]
+    rationale: A client that reads its response very slowly holds a connection for as long as the timeout allows.
+    remediation: "Set `send_timeout {{ max_send_timeout }};` in the http block."
 
   - id: "NGX-LIMIT-{{ item | upper | replace('_', '-') }}"
     name: "{{ item }} is configured"
@@ -134,6 +154,8 @@ checks:
     run: { use: ngx }
     allow_rc: [0, 1]
     expect: { some: "~ ^[[:space:]]*{{ item }}[[:space:]]" }
+    rationale: "An explicit {{ item }} bounds what a single client can send or keep open and blunts slow-request and flooding attacks."
+    remediation: "Add a {{ item }} directive with a value that fits the application to the http block."
 
   # --- information disclosure -----------------------------------------------------------
   - id: NGX-SERVER-TOKENS
@@ -143,6 +165,8 @@ checks:
     run: { use: ngx }
     allow_rc: [0, 1]
     expect: { some: "~ ^[[:space:]]*server_tokens[[:space:]]+off" }
+    rationale: The version in headers and error pages tells an attacker which known vulnerabilities to try.
+    remediation: Set `server_tokens off;` in the http block.
 
   - id: NGX-HIDDEN-FILES
     name: Hidden files (.git, .env, .htpasswd) are not served
@@ -152,6 +176,8 @@ checks:
     run: { use: ngx }
     allow_rc: [0, 1]
     expect: { some: "~ location[[:space:]]+~[[:space:]]+/\\\\\\." }
+    rationale: Files such as .git, .env and .htpasswd contain source code, credentials and password hashes.
+    remediation: Add `location ~ /\. { deny all; }` to every server block.
 
   - id: NGX-PROXY-HEADERS
     name: Proxied responses hide backend headers
@@ -161,6 +187,8 @@ checks:
     run: { use: ngx }
     allow_rc: [0, 1]
     expect: [{ some: "~ proxy_hide_header[[:space:]]+X-Powered-By" }, { some: "~ proxy_hide_header[[:space:]]+Server" }]
+    rationale: The X-Powered-By and Server headers of a backend reveal its software and version.
+    remediation: Add `proxy_hide_header X-Powered-By;` and `proxy_hide_header Server;` to the http block.
 
   # --- logging ---------------------------------------------------------------------
   - id: NGX-ACCESS-LOG
@@ -170,6 +198,8 @@ checks:
     run: { use: ngx }
     allow_rc: [0, 1]
     expect: { none: "~ ^[[:space:]]*access_log[[:space:]]+off" }
+    rationale: Without an access log there is no record of requests to reconstruct an attack.
+    remediation: Remove `access_log off;` or replace it with the path of a log file.
 
   - id: NGX-ERROR-LOG
     name: The error log records at least warnings
@@ -179,6 +209,8 @@ checks:
     run: |
       nginx -T 2>/dev/null | awk '$1 == "error_log" {gsub(/;/, ""); print ($3 == "" ? "error" : $3)}'
     expect: ["!empty", { each: "in [debug, info, notice, warn]" }]
+    rationale: At the default level error nginx drops warnings that point to misconfiguration and attacks.
+    remediation: Give every error_log directive the level warn, for example `error_log /var/log/nginx/error.log warn;`.
 
   - id: NGX-LOGROTATE
     name: nginx logs are rotated
@@ -187,6 +219,8 @@ checks:
     only_if: command -v nginx
     run: test -f /etc/logrotate.d/nginx
     expect: true
+    rationale: Without rotation the logs grow until the file system is full.
+    remediation: Create /etc/logrotate.d/nginx with a rotation rule for the nginx log files.
 
   # --- TLS and headers -------------------------------------------------------------
   - id: NGX-TLS-PROTOCOLS
@@ -197,6 +231,8 @@ checks:
     run: |
       nginx -T 2>/dev/null | awk '$1 == "ssl_protocols"'
     expect: { each: "!~ (SSLv[23]|TLSv1[ ;]|TLSv1\\.1)" }
+    rationale: SSLv2, SSLv3, TLS 1.0 and TLS 1.1 have known weaknesses and are deprecated.
+    remediation: Set `ssl_protocols TLSv1.2 TLSv1.3;`.
 
   - id: NGX-TLS-CIPHERS
     name: No weak ciphers are configured
@@ -206,6 +242,8 @@ checks:
     run: |
       nginx -T 2>/dev/null | awk '$1 == "ssl_ciphers"'
     expect: { each: "!~ (?i)(RC4|DES|MD5|NULL|EXPORT|aNULL|eNULL|3DES)([:;!' ]|$)" }
+    rationale: RC4, DES, 3DES, MD5, NULL and EXPORT suites give little or no confidentiality.
+    remediation: Set ssl_ciphers to a list of ECDHE suites with AES-GCM or ChaCha20-Poly1305 that names none of the weak algorithms.
 
   - id: NGX-TLS-TICKETS
     name: TLS session tickets are disabled (forward secrecy)
@@ -215,6 +253,8 @@ checks:
     run: { use: ngx }
     allow_rc: [0, 1]
     expect: { some: "~ ^[[:space:]]*ssl_session_tickets[[:space:]]+off" }
+    rationale: Whoever obtains the session ticket key can decrypt recorded sessions that used a ticket.
+    remediation: Set `ssl_session_tickets off;` in the http block.
 
   - id: NGX-OCSP
     name: OCSP stapling is enabled
@@ -224,6 +264,8 @@ checks:
     run: { use: ngx }
     allow_rc: [0, 1]
     expect: { some: "~ ^[[:space:]]*ssl_stapling[[:space:]]+on" }
+    rationale: Without stapling the browser asks the certificate authority itself, which is slower and tells the authority which site the user visits.
+    remediation: Set `ssl_stapling on;` and `ssl_stapling_verify on;`.
 
   - id: NGX-HTTPS-REDIRECT
     name: Plain HTTP redirects to HTTPS
@@ -232,6 +274,8 @@ checks:
     run: { use: ngx }
     allow_rc: [0, 1]
     expect: { some: "~ return[[:space:]]+30[178][[:space:]]+https://" }
+    rationale: A site that answers over plain HTTP exposes cookies and content to anyone on the network path.
+    remediation: Add `return 301 https://$host$request_uri;` to the server block that listens on port 80.
 
   - id: "NGX-HEADER-{{ item.key }}"
     name: "Header {{ item.key }} is set"
@@ -243,3 +287,5 @@ checks:
       nginx -T 2>/dev/null | grep -iE '^[[:space:]]*add_header[[:space:]]+{{ item.key }}[[:space:]]' | sed -E 's/^[[:space:]]*add_header[[:space:]]+[^[:space:]]+[[:space:]]+//'
     allow_rc: [0, 1]
     expect: ["!empty", { each: "{{ item.value }}" }]
+    rationale: "Without {{ item.key }} browsers do not apply the protection that this header switches on, such as framing limits, MIME type checks or HTTPS enforcement."
+    remediation: "Add `add_header {{ item.key }} <value> always;` with a value that fits the site."

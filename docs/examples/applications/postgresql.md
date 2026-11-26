@@ -65,6 +65,8 @@ checks:
     only_if: command -v pg_isready
     run: pg_isready -q
     expect: true
+    rationale: Applications fail when the database does not accept connections, and the other checks of this policy need a running server.
+    remediation: Start the PostgreSQL service and read the server log if it does not come up.
 
   - id: PG-002
     name: "Server is PostgreSQL {{ (min_server_version_num / 10000) | int }} or newer"
@@ -72,6 +74,8 @@ checks:
     only_if: command -v pg_isready && pg_isready -q
     run: { use: psql, arg: SHOW server_version_num }
     expect: ">= {{ min_server_version_num }}"
+    rationale: Major versions that have reached end of life get no security fixes.
+    remediation: Upgrade the cluster to a supported major version with pg_upgrade or dump and restore.
 
   - id: "PG-SET-{{ item.key }}"
     name: "{{ item.key }} is {{ item.value }}"
@@ -85,6 +89,8 @@ checks:
       log_disconnections: "on"
     run: { use: psql, arg: "SHOW {{ item.key }}" }
     expect: "== {{ item.value }}"
+    rationale: "Another value of {{ item.key }} allows clear-text connections, weak password hashes or sessions that leave no log entry."
+    remediation: "Set {{ item.key }} = {{ item.value }} in postgresql.conf and reload the server."
 
   - id: PG-003
     name: Only approved roles are superusers
@@ -96,6 +102,8 @@ checks:
         grep -vxF {% for r in allowed_superusers %}-e {{ r }} {% endfor %}
     allow_rc: [0, 1]
     expect: empty
+    rationale: A superuser bypasses all permission checks and can run operating system commands as the server account.
+    remediation: Run `ALTER ROLE <role> NOSUPERUSER` for the listed roles or add them to allowed_superusers.
 
   - id: PG-004
     name: pg_hba.conf does not use trust authentication
@@ -107,6 +115,8 @@ checks:
       grep -E '^[[:space:]]*(local|host)' "$hba" | awk '$NF == "trust" {print}'
     allow_rc: [0, 1]
     expect: empty
+    rationale: trust lets everyone who matches the line connect as any database user without a password.
+    remediation: Replace trust with scram-sha-256 or peer in pg_hba.conf and reload the server.
 
   - id: PG-005
     name: PostgreSQL does not listen on all interfaces
@@ -114,4 +124,6 @@ checks:
     only_if: command -v pg_isready && pg_isready -q
     run: { use: psql, arg: SHOW listen_addresses }
     expect: "!~ ^(\\*|0\\.0\\.0\\.0)"
+    rationale: A database that listens on all interfaces is reachable from every network the host is connected to.
+    remediation: Set listen_addresses in postgresql.conf to localhost or the addresses that clients use and restart the server.
 ```

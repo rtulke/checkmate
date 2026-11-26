@@ -62,6 +62,8 @@ checks:
       macos: sysctl -n hw.ncpu
       windows: (Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors
     expect: ">= {{ min_cpus }}"
+    rationale: With fewer CPUs than planned the host cannot carry its intended workload.
+    remediation: Assign more CPUs to the machine or move the workload to a larger host.
 
   - id: HW-MEM-001
     name: "At least {{ min_memory_gb }} GB memory"
@@ -72,6 +74,8 @@ checks:
       macos: echo $(( $(sysctl -n hw.memsize) / 1073741824 ))
       windows: '[math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB)'
     expect: ">= {{ min_memory_gb }}"
+    rationale: With less memory than planned the host cannot carry its intended workload.
+    remediation: Assign more memory to the machine or move the workload to a larger host.
 
   - id: HW-MEM-002
     name: "At least {{ min_available_percent }}% memory available"
@@ -80,6 +84,8 @@ checks:
     run: |
       awk '/^MemTotal:/ {t = $2} /^MemAvailable:/ {a = $2} END {print int(a * 100 / t)}' /proc/meminfo
     expect: ">= {{ min_available_percent }}"
+    rationale: With little available memory the kernel starts to swap or kills processes.
+    remediation: Find the processes with the highest memory use, fix leaks or add memory.
 
   - id: HW-MEM-003
     name: "Swap usage is below {{ max_swap_used_percent }}%"
@@ -88,6 +94,8 @@ checks:
     run: |
       awk '/^SwapTotal:/ {t = $2} /^SwapFree:/ {f = $2} END {print (t > 0) ? int((t - f) * 100 / t) : 0}' /proc/meminfo
     expect: "< {{ max_swap_used_percent }}"
+    rationale: Heavy swap usage means that the workload does not fit into memory, which slows every process down.
+    remediation: Reduce the memory use of the largest processes or add memory.
 
   - id: HW-MEM-004
     name: No out-of-memory kills in the last 24 hours
@@ -98,6 +106,8 @@ checks:
       journalctl -k --since "24 hours ago" --no-pager 2>/dev/null | grep -ci 'out of memory'
     allow_rc: [0, 1]
     expect: "== 0"
+    rationale: An out-of-memory kill ends a process without a clean shutdown, and its service may be down or have lost data.
+    remediation: Find the killed process with `journalctl -k`, restart its service and adjust memory limits or add memory.
 
   - id: HW-CPU-002
     name: The 15-minute load is below the number of CPUs
@@ -109,6 +119,8 @@ checks:
       macos: |
         sysctl -n vm.loadavg | awk -v cpus="$(sysctl -n hw.ncpu)" '{print ($4 < cpus) ? "ok" : "overloaded: " $4}'
     expect: "== ok"
+    rationale: A sustained load above the number of CPUs means that processes wait for CPU time and response times rise.
+    remediation: Find the processes that cause the load with `top`, then limit or move them or add CPUs.
 
   - id: HW-CPU-003
     name: The CPU supports AES instructions
@@ -118,4 +130,6 @@ checks:
     run: grep -m1 -owE 'aes' /proc/cpuinfo
     allow_rc: [0, 1]
     expect: "== aes"
+    rationale: Without AES instructions disk and network encryption run in software and are much slower.
+    remediation: Enable AES-NI in the firmware or pass the host CPU flags to the virtual machine. Plan for slower encryption if the CPU lacks the instructions.
 ```

@@ -19,6 +19,8 @@ checks:
     # -checkend exits 1 if the certificate expires within the given seconds.
     run: openssl x509 -in {{ item }} -noout -checkend {{ min_valid_days * 86400 }}
     expect: true
+    rationale: "Clients reject an expired certificate, which interrupts every service that uses {{ item }}."
+    remediation: "Renew the certificate in {{ item }} and reload the services that use it."
 
   - id: "TLS-EXPIRY-{{ item }}"
     name: "Certificate of {{ item }} is valid for {{ min_valid_days }} more days"
@@ -30,6 +32,8 @@ checks:
       echo | openssl s_client -connect {{ item }}:443 -servername {{ item }} 2>/dev/null |
         openssl x509 -noout -checkend {{ min_valid_days * 86400 }}
     expect: true
+    rationale: "Clients reject an expired certificate, which makes {{ item }} unreachable for them."
+    remediation: "Renew the certificate of {{ item }} and install it on the server."
 
   - id: "TLS-CHAIN-{{ item }}"
     name: "Certificate chain of {{ item }} verifies"
@@ -42,6 +46,8 @@ checks:
         grep -E 'Verify return code'
     allow_rc: [0, 1]
     expect: "~ Verify return code: 0 \\(ok\\)"
+    rationale: "Clients refuse the connection to {{ item }} when the chain does not lead to a trusted root."
+    remediation: "Install the certificate together with all intermediate certificates on the server of {{ item }}."
 
   - id: "TLS-OLD-{{ item }}"
     name: "{{ item }} rejects TLS 1.1"
@@ -55,3 +61,5 @@ checks:
         grep -E '^[[:space:]]*Protocol[[:space:]]*:[[:space:]]*TLSv1\.1'
     allow_rc: [0, 1]
     expect: empty
+    rationale: TLS 1.1 and older have known weaknesses and are deprecated.
+    remediation: "Disable TLS 1.0 and TLS 1.1 in the TLS configuration of the server behind {{ item }}."

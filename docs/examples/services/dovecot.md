@@ -60,6 +60,8 @@ checks:
     only_if: command -v doveconf
     run: doveconf -n >/dev/null 2>&1
     expect: true
+    rationale: Dovecot does not start with an invalid configuration, so the next restart cuts users off from their mail.
+    remediation: Run `doveconf -n`, correct the reported error and reload Dovecot.
 
   - id: DOVECOT-SERVICE
     name: Dovecot is running
@@ -68,6 +70,8 @@ checks:
     only_if: command -v doveconf && command -v systemctl && test -d /run/systemd/system
     run: systemctl show -p ActiveState dovecot | cut -d= -f2
     expect: "== active"
+    rationale: Users cannot read their mail while Dovecot is stopped.
+    remediation: systemctl enable --now dovecot
 
   - id: DOVECOT-SSL-REQUIRED
     name: TLS is required for every connection
@@ -76,6 +80,8 @@ checks:
     only_if: command -v doveconf
     run: doveconf -h ssl 2>/dev/null
     expect: "== required"
+    rationale: Without required TLS passwords and mail cross the network in clear text.
+    remediation: Set `ssl = required` in the Dovecot configuration.
 
   - id: DOVECOT-SSL-MIN-PROTOCOL
     name: TLS 1.2 or newer is required
@@ -84,6 +90,8 @@ checks:
     only_if: command -v doveconf
     run: doveconf -h ssl_min_protocol 2>/dev/null
     expect: "in [TLSv1.2, TLSv1.3]"
+    rationale: TLS 1.0 and TLS 1.1 have known weaknesses and are deprecated.
+    remediation: Set `ssl_min_protocol = TLSv1.2` in the Dovecot configuration.
 
   - id: DOVECOT-NO-CLEARTEXT-AUTH
     name: Passwords are never accepted without TLS
@@ -101,6 +109,8 @@ checks:
         [ "$v" = yes ] && echo ok || echo "disable_plaintext_auth = $v"
       fi
     expect: "== ok"
+    rationale: A password sent before TLS is active can be read on the network path.
+    remediation: Set `auth_allow_cleartext = no` (Dovecot 2.4) or `disable_plaintext_auth = yes` (Dovecot 2.3).
 
   - id: DOVECOT-PRIVATE-KEY
     name: The TLS private key is readable only by root
@@ -115,6 +125,8 @@ checks:
       if [ ! -e "$k" ]; then echo "$k does not exist"; exit 0; fi
       stat -L -c '%a %U' "$k"
     expect: "~ ^[46][04]0 root$"
+    rationale: Anyone who can read the private key can impersonate the mail server.
+    remediation: chown root <key> && chmod 600 <key>
 
   - id: DOVECOT-PLAINTEXT-LISTENERS
     name: Clear-text IMAP and POP3 listeners are disabled
@@ -124,4 +136,6 @@ checks:
     only_if: command -v doveconf
     run: doveconf -n service imap-login service pop3-login 2>/dev/null | awk '/inet_listener (imap|pop3) \{/ {l = 1} l && /port = [1-9]/ {print} /\}/ {l = 0}'
     expect: empty
+    rationale: A client that connects to port 143 or 110 sends its password in clear text if STARTTLS is not enforced.
+    remediation: Set `port = 0` in the imap and pop3 inet_listener blocks so that only imaps and pop3s remain.
 ```

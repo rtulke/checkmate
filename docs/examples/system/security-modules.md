@@ -52,6 +52,8 @@ checks:
     only_if: command -v getenforce
     run: getenforce
     expect: "== Enforcing"
+    rationale: In permissive mode SELinux only logs violations, so a compromised service is not confined.
+    remediation: Set SELINUX=enforcing in /etc/selinux/config and run `setenforce 1`. Reboot if SELinux was disabled.
 
   - id: MAC-SEL-002
     name: SELinux stays enforcing after a reboot
@@ -61,6 +63,8 @@ checks:
     run: |
       awk -F= '$1 == "SELINUX" {print $2}' /etc/selinux/config
     expect: "== enforcing"
+    rationale: A permissive or disabled setting in the configuration file takes effect at the next reboot.
+    remediation: Set SELINUX=enforcing in /etc/selinux/config.
 
   - id: MAC-SEL-003
     name: SELinux uses the targeted policy
@@ -69,6 +73,8 @@ checks:
     run: |
       awk -F= '$1 == "SELINUXTYPE" {print $2}' /etc/selinux/config
     expect: "in [targeted, mls]"
+    rationale: The minimum policy confines only a few services and leaves the rest unprotected.
+    remediation: Set SELINUXTYPE=targeted in /etc/selinux/config and relabel the file system.
 
   - id: MAC-SEL-004
     name: No unconfined services are running
@@ -77,6 +83,8 @@ checks:
     run: ps -eZ | grep -c unconfined_service_t
     allow_rc: [0, 1]
     expect: "== 0"
+    rationale: A service in the unconfined_service_t domain runs without SELinux restrictions.
+    remediation: Restore the file context of the service binaries with `restorecon` or write a policy module for the service.
 
   - id: MAC-SEL-005
     name: SELinux is not disabled on the kernel command line
@@ -85,6 +93,8 @@ checks:
     only_if: command -v getenforce
     run: cat /proc/cmdline
     expect: "!~ (selinux=0|enforcing=0)"
+    rationale: selinux=0 or enforcing=0 on the kernel command line overrides /etc/selinux/config at every boot.
+    remediation: Remove selinux=0 and enforcing=0 from the kernel command line in the bootloader configuration and reboot.
 
   - id: MAC-AA-001
     name: AppArmor is enabled
@@ -93,6 +103,8 @@ checks:
     only_if: command -v aa-enabled
     run: aa-enabled --quiet
     expect: true
+    rationale: Without AppArmor no profile confines a compromised service.
+    remediation: Run `systemctl enable --now apparmor`. Add apparmor=1 security=apparmor to the kernel command line if the kernel starts without it.
 
   - id: MAC-AA-002
     name: No AppArmor profile is in complain mode
@@ -101,4 +113,6 @@ checks:
     only_if: command -v aa-status && aa-enabled --quiet
     run: aa-status --complaining
     expect: "== 0"
+    rationale: A profile in complain mode only logs violations and blocks nothing.
+    remediation: Switch the profiles to enforce mode with `aa-enforce <profile>`.
 ```

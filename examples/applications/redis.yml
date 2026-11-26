@@ -20,6 +20,8 @@ checks:
     only_if: command -v redis-cli
     run: redis-cli -p {{ redis_port }} ping
     expect: "in [PONG, NOAUTH Authentication required.]"
+    rationale: Applications that depend on Redis fail when it does not answer.
+    remediation: Start the Redis service and read its log if it does not come up.
 
   - id: REDIS-002
     name: Redis requires authentication
@@ -29,6 +31,8 @@ checks:
     # An unauthenticated PING must be rejected.
     run: redis-cli -p {{ redis_port }} --no-auth-warning ping
     expect: "~ NOAUTH"
+    rationale: Without authentication every client that reaches the port can read and delete all data and change the configuration.
+    remediation: Set requirepass in redis.conf or give the default user a password with ACL SETUSER.
 
   - id: REDIS-003
     name: Redis only listens on loopback or a private address
@@ -37,6 +41,8 @@ checks:
     only_if: command -v ss
     run: ss -Hlnt 'sport = :{{ redis_port }}' | awk '{print $4}'
     expect: { each: "~ ^(127\\.|\\[::1\\]|10\\.|192\\.168\\.|172\\.(1[6-9]|2[0-9]|3[01])\\.)" }
+    rationale: Redis on a public address is found by scanners within a short time and is a frequent entry point.
+    remediation: Set the bind directive in redis.conf to 127.0.0.1 or a private address and restart Redis.
 
   - id: REDIS-004
     name: Protected mode is on
@@ -44,6 +50,8 @@ checks:
     only_if: command -v redis-cli && redis-cli -p {{ redis_port }} ping | grep PONG >/dev/null
     run: { use: redis_config, arg: protected-mode }
     expect: "== yes"
+    rationale: Protected mode refuses remote clients as long as no password is set, which limits an accidental exposure.
+    remediation: Set `protected-mode yes` in redis.conf.
 
   - id: REDIS-005
     name: Dangerous commands are disabled or renamed
@@ -56,6 +64,8 @@ checks:
         - { some: "~ ^rename-command[[:space:]]+FLUSHALL" }
         - { some: "~ ^rename-command[[:space:]]+CONFIG" }
         - { some: "~ ^rename-command[[:space:]]+DEBUG" }
+    rationale: FLUSHALL deletes all data, and CONFIG and DEBUG let a client write files on the server or crash it.
+    remediation: Add rename-command lines for FLUSHALL, CONFIG and DEBUG to redis.conf. An empty string as the new name disables a command.
 
   - id: REDIS-006
     name: The configuration file is not readable by others
@@ -64,6 +74,8 @@ checks:
     run: find /etc/redis/redis.conf /etc/redis.conf -perm /o+r 2>/dev/null
     allow_rc: [0, 1]
     expect: empty
+    rationale: The configuration file contains the password of the server.
+    remediation: chmod o-rwx <file>
 
   - id: REDIS-007
     name: Redis does not run as root
@@ -72,3 +84,5 @@ checks:
     only_if: pgrep -x redis-server >/dev/null
     run: ps -o user= -p "$(pgrep -x redis-server | sed -n 1p)"
     expect: "!= root"
+    rationale: A client that can change the configuration can make Redis write files with the rights of the account it runs as.
+    remediation: Start Redis through its service unit under the dedicated redis account.

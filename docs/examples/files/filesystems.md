@@ -85,6 +85,8 @@ checks:
     run: findmnt -n -o TARGET {{ item }}
     allow_rc: [0, 1]
     expect: "== {{ item }}"
+    rationale: "On its own file system {{ item }} cannot fill up the root file system and can get its own mount options."
+    remediation: "Create a file system for {{ item }}, move the data to it and add it to /etc/fstab."
 
   - id: "FS-OPT-{{ item.path | replace('/', '_') }}-{{ item.option }}"
     name: "{{ item.path }} is mounted with {{ item.option }}"
@@ -94,6 +96,8 @@ checks:
     only_if: findmnt -n {{ item.path }} >/dev/null
     run: findmnt -n -o OPTIONS {{ item.path }}
     expect: "~ (^|,){{ item.option }}(,|$)"
+    rationale: "Without {{ item.option }} a user can place device files, setuid programs or executables on {{ item.path }} and use them."
+    remediation: "Add {{ item.option }} to the options of {{ item.path }} in /etc/fstab and run `mount -o remount {{ item.path }}`."
 
   - id: FS-001
     name: Only approved filesystem types are mounted
@@ -103,6 +107,8 @@ checks:
       findmnt -rn -o FSTYPE | sort -u | grep -vxF {% for t in allowed_fstypes %}-e {{ t }} {% endfor %}
     allow_rc: [0, 1]
     expect: empty
+    rationale: An unusual file system type points to an unexpected mount and brings rarely tested kernel code into use.
+    remediation: Unmount the file system or add its type to allowed_fstypes.
 
   - id: FS-002
     name: /etc/fstab is consistent
@@ -113,6 +119,8 @@ checks:
     allow_rc: [0, 1]
     # Errors are prefixed with [E]; the summary line mentions "errors" either way.
     expect: "!~ \\[E\\]"
+    rationale: An inconsistent fstab can keep the system from booting.
+    remediation: Correct the entries that `findmnt --verify` reports.
 
   - id: FS-003
     name: The root filesystem is mounted read-write
@@ -120,6 +128,8 @@ checks:
     when: facts.os == "linux"
     run: findmnt -n -o OPTIONS / | cut -d, -f1
     expect: "== rw"
+    rationale: The kernel remounts a file system read-only after I/O or file system errors, which points to a failing disk.
+    remediation: Look for I/O errors in the output of `dmesg`, check the disk and repair the file system with fsck.
 
   - id: FS-004
     name: No LVM physical volume is missing
@@ -131,6 +141,8 @@ checks:
     run: |
       pvs --noheadings -o pv_name,pv_attr 2>/dev/null | awk 'substr($2, 3, 1) == "m" {print $1}'
     expect: empty
+    rationale: A missing physical volume means a lost disk, and the logical volumes on it are incomplete.
+    remediation: Reconnect or replace the device and check the volume group with `pvs` and `vgs`.
 
   - id: FS-005
     name: "At least {{ min_swap_mb }} MB swap"
@@ -140,4 +152,6 @@ checks:
     run: |
       awk '/^SwapTotal:/ {print int($2 / 1024)}' /proc/meminfo
     expect: ">= {{ min_swap_mb }}"
+    rationale: Without enough swap the kernel kills processes as soon as memory runs short.
+    remediation: Add a swap partition or swap file and enable it with `swapon`.
 ```

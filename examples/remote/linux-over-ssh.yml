@@ -32,6 +32,8 @@ checks:
       args:
         script: sshd -T | awk '$1 == "permitrootlogin" {print $2}'
     expect: "== no"
+    rationale: "With root login enabled attackers can guess the root password of {{ item }} directly, and logins cannot be attributed to a person."
+    remediation: "Set PermitRootLogin no in /etc/ssh/sshd_config on {{ item }} and reload sshd."
 
   - id: "REMOTE-UPDATES-{{ item }}"
     name: "{{ item }}: no security updates pending"
@@ -50,6 +52,8 @@ checks:
             apt-get -s upgrade 2>/dev/null | grep -c '^Inst .*[Ss]ecurity' || true
           fi
     expect: "== 0"
+    rationale: "A pending security update means that {{ item }} runs software with a publicly known vulnerability."
+    remediation: "Install the security updates on {{ item }} with `dnf upgrade --security` or `apt-get upgrade`."
 
   - id: "REMOTE-DISK-{{ item }}"
     name: "{{ item }}: root filesystem below 90% usage"
@@ -61,6 +65,8 @@ checks:
       args:
         script: df -P / | awk 'NR == 2 {sub(/%/, "", $5); print $5}'
     expect: "< 90"
+    rationale: "A full root file system stops services and can keep {{ item }} from booting or accepting logins."
+    remediation: "Remove old files from the root file system of {{ item }} or enlarge it."
 
   - id: "REMOTE-UID0-{{ item }}"
     name: "{{ item }}: root is the only UID 0 account"
@@ -74,3 +80,5 @@ checks:
         script: |
           awk -F: '$3 == 0 {print $1}' /etc/passwd
     expect: "== root"
+    rationale: Every account with UID 0 has full root rights under a name that nobody watches.
+    remediation: "Remove the additional account on {{ item }} or give it another UID with `usermod -u <uid> <user>`."

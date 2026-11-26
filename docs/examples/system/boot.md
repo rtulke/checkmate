@@ -53,6 +53,7 @@ checks:
       suse: find /boot/grub2/grub.cfg -perm /go+rwx 2>/dev/null
     allow_rc: [0, 1]
     expect: empty
+    rationale: The bootloader configuration can contain the password hash and shows local users how the system boots.
     remediation: chmod 600 /boot/grub*/grub.cfg
 
   - id: BOOT-002
@@ -67,6 +68,7 @@ checks:
       suse: cat /boot/grub2/grub.cfg 2>/dev/null | grep -cE '^[[:space:]]*password(_pbkdf2)?[[:space:]]'
     allow_rc: [0, 1, 2]
     expect: ">= 1"
+    rationale: Without a bootloader password anyone with console access can edit the kernel command line and boot into a root shell.
     remediation: grub2-setpassword (RHEL) or grub-mkpasswd-pbkdf2 (Debian)
 
   - id: BOOT-003
@@ -76,6 +78,8 @@ checks:
     run: mokutil --sb-state 2>&1
     allow_rc: [0, 1]
     expect: "~ SecureBoot enabled"
+    rationale: Without Secure Boot the firmware starts any bootloader or kernel, including a tampered one.
+    remediation: Enable Secure Boot in the UEFI firmware setup.
 
   - id: "BOOT-AUTH-{{ item | upper }}"
     name: "{{ item }} mode requires the root password"
@@ -88,4 +92,6 @@ checks:
       systemctl cat {{ item }}.service 2>/dev/null | grep -E '^ExecStart=.*(sulogin|systemd-sulogin-shell)'
     allow_rc: [0, 1]
     expect: { lines: ">= 1" }
+    rationale: "Without sulogin, booting into {{ item }} mode gives a root shell to anyone at the console."
+    remediation: "Remove the drop-in that replaces ExecStart of {{ item }}.service so that the unit starts systemd-sulogin-shell again."
 ```

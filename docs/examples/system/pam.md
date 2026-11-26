@@ -61,6 +61,8 @@ checks:
     # authselect exits 2 without a profile; grep exits 1 without a match.
     allow_rc: [0, 1, 2]
     expect: "~ (with-faillock|pam_faillock\\.so)"
+    rationale: Without account lockout an attacker can guess passwords without limit.
+    remediation: Run `authselect enable-feature with-faillock` on RHEL, or add pam_faillock.so to /etc/pam.d/common-auth on Debian and SUSE.
 
   - id: PAM-002
     name: "Accounts lock after at most {{ max_failed_logins }} failures"
@@ -72,6 +74,7 @@ checks:
         awk -F= '/^[[:space:]]*deny[[:space:]]*=/ {gsub(/[[:space:]]/, "", $2); print $2}'
     allow_rc: [0, 1]
     expect: ["!empty", "<= {{ max_failed_logins }}", "> 0"]
+    rationale: A high or missing limit leaves room for many password guesses per account.
     remediation: "Set `deny = {{ max_failed_logins }}` in /etc/security/faillock.conf."
 
   - id: PAM-003
@@ -84,6 +87,8 @@ checks:
         awk -F= '/^[[:space:]]*minlen[[:space:]]*=/ {gsub(/[[:space:]]/, "", $2); print $2}' | tail -1
     allow_rc: [0, 1]
     expect: ["!empty", ">= {{ min_password_length }}"]
+    rationale: Short passwords fall quickly to guessing and offline cracking.
+    remediation: "Set `minlen = {{ min_password_length }}` in /etc/security/pwquality.conf."
 
   - id: PAM-004
     name: Passwords must differ from the user name and dictionary words
@@ -96,6 +101,8 @@ checks:
     allow_rc: [0, 1]
     expect: "in [1, '']"
     as: string
+    rationale: Passwords built from dictionary words are the first ones a cracking tool tries.
+    remediation: Set `dictcheck = 1` in /etc/security/pwquality.conf or remove the setting.
 
   - id: PAM-005
     name: PAM packages are unmodified
@@ -107,4 +114,6 @@ checks:
       debian: debsums -c libpam-modules libpam-modules-bin libpam-runtime
     allow_rc: [0, 1, 2]
     expect: empty
+    rationale: A modified PAM module can record passwords or accept logins without one.
+    remediation: Investigate the listed files and reinstall the PAM packages from a trusted repository.
 ```

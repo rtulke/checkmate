@@ -85,6 +85,8 @@ checks:
     run: |
       sshd -T 2>/dev/null | awk -v key={{ item.key }} '$1 == key {print $2}'
     expect: "== {{ item.value }}"
+    rationale: "Any other value of {{ item.key }} opens a login or forwarding path that a hardened server does not offer."
+    remediation: "Set {{ item.key }} to {{ item.value }} in /etc/ssh/sshd_config and reload sshd."
 
   - id: SSH-001
     name: "sshd allows at most {{ max_auth_tries }} authentication attempts"
@@ -94,6 +96,8 @@ checks:
     run: |
       sshd -T 2>/dev/null | awk '$1 == "maxauthtries" {print $2}'
     expect: "<= {{ max_auth_tries }}"
+    rationale: Many attempts per connection speed up password guessing.
+    remediation: "Set MaxAuthTries {{ max_auth_tries }} in /etc/ssh/sshd_config and reload sshd."
 
   - id: SSH-002
     name: "Login grace time is at most {{ max_login_grace_seconds }} seconds"
@@ -104,6 +108,8 @@ checks:
     run: |
       sshd -T 2>/dev/null | awk '$1 == "logingracetime" {print $2}'
     expect: ["> 0", "<= {{ max_login_grace_seconds }}"]
+    rationale: Connections that stay unauthenticated for a long time occupy connection slots and can block legitimate logins.
+    remediation: "Set LoginGraceTime {{ max_login_grace_seconds }} in /etc/ssh/sshd_config and reload sshd."
 
   - id: SSH-003
     name: No weak ciphers
@@ -114,6 +120,8 @@ checks:
     run: |
       sshd -T 2>/dev/null | awk '$1 == "ciphers" {print $2}'
     expect: ["!empty", "!~ (cbc|arcfour|3des|blowfish)"]
+    rationale: CBC mode, arcfour, 3DES and Blowfish ciphers have known cryptographic weaknesses.
+    remediation: Restrict Ciphers in /etc/ssh/sshd_config to AES-GCM, AES-CTR and ChaCha20-Poly1305 and reload sshd.
 
   - id: SSH-004
     name: No weak MACs
@@ -124,6 +132,8 @@ checks:
     run: |
       sshd -T 2>/dev/null | awk '$1 == "macs" {print $2}'
     expect: ["!empty", "!~ (md5|-96|umac-64[@-])"]
+    rationale: MACs based on MD5, truncated to 96 bits or with 64-bit tags give weak integrity protection.
+    remediation: Restrict MACs in /etc/ssh/sshd_config to SHA-2 based algorithms and reload sshd.
 
   - id: SSH-005
     name: No weak key exchange algorithms
@@ -134,6 +144,8 @@ checks:
     run: |
       sshd -T 2>/dev/null | awk '$1 == "kexalgorithms" {print $2}'
     expect: ["!empty", "!~ (group1-|group14-sha1|group-exchange-sha1)"]
+    rationale: Key exchanges that use SHA-1 or the 1024-bit Diffie-Hellman group 1 no longer give adequate security.
+    remediation: Remove the group1, group14-sha1 and group-exchange-sha1 methods from KexAlgorithms in /etc/ssh/sshd_config and reload sshd.
 
   - id: SSH-006
     name: sshd logs at INFO or VERBOSE
@@ -144,6 +156,8 @@ checks:
     run: |
       sshd -T 2>/dev/null | awk '$1 == "loglevel" {print $2}'
     expect: "in [INFO, VERBOSE]"
+    rationale: Lower levels omit login events, and the DEBUG levels write private user data to the log.
+    remediation: Set LogLevel INFO or LogLevel VERBOSE in /etc/ssh/sshd_config and reload sshd.
 
   - id: SSH-007
     name: Private host keys are not readable by others
@@ -153,6 +167,8 @@ checks:
       find /etc/ssh -name 'ssh_host_*_key' \( -perm /o+rwx -o -perm /g+w \) 2>/dev/null
     allow_rc: [0, 1]
     expect: empty
+    rationale: Anyone who can read a private host key can impersonate the server.
+    remediation: chmod o-rwx,g-w /etc/ssh/ssh_host_*_key
 
   - id: SSH-008
     name: The SSH service is running
@@ -162,6 +178,8 @@ checks:
       debian: systemctl is-active ssh
       linux: systemctl is-active sshd
     expect: "== active"
+    rationale: Without a running SSH service the host cannot be administered remotely.
+    remediation: Start the service with `systemctl enable --now sshd` (`ssh` on Debian).
 
   # Fingerprints of root's authorized keys must all be on the allowlist.
   - id: SSH-009
@@ -175,5 +193,6 @@ checks:
         grep -vxF {% for key in trusted_root_keys %}-e '{{ key }}' {% endfor %}
     allow_rc: [0, 1]
     expect: empty
+    rationale: Every key in root's authorized_keys gives full control of the host, and attackers add keys there to keep access.
     remediation: Remove unknown keys from /root/.ssh/authorized_keys or add their fingerprints to trusted_root_keys.
 ```

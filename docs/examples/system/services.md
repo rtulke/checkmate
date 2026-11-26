@@ -85,6 +85,8 @@ checks:
     run: systemctl is-active {{ item }}
     allow_rc: [0, 3, 4]
     expect: "== active"
+    rationale: "{{ item }} is part of the required baseline, and its function is missing while it is stopped."
+    remediation: "systemctl enable --now {{ item }}"
 
   - id: "SVC-FORBIDDEN-{{ item }}"
     name: "{{ item }} is neither running nor enabled"
@@ -94,6 +96,7 @@ checks:
     # Both commands fail for unknown units, which is fine.
     run: systemctl is-active --quiet {{ item }} || systemctl is-enabled --quiet {{ item }}
     expect: false
+    rationale: "{{ item }} is not needed on this host, and every extra service adds attack surface."
     remediation: "systemctl disable --now {{ item }}"
 
   - id: SVC-001
@@ -103,6 +106,8 @@ checks:
     when: facts.os == "linux"
     run: systemctl get-default
     expect: "== multi-user.target"
+    rationale: A graphical session brings a large amount of software that a server does not need.
+    remediation: systemctl set-default multi-user.target
 
   - id: SVC-002
     name: Ctrl-Alt-Del reboot is masked
@@ -111,6 +116,7 @@ checks:
     when: facts.os == "linux"
     run: systemctl show -p UnitFileState ctrl-alt-del.target | cut -d= -f2
     expect: "== masked"
+    rationale: Anyone with access to the console can reboot the host with Ctrl-Alt-Del.
     remediation: systemctl mask ctrl-alt-del.target
 
   - id: SVC-003
@@ -119,4 +125,6 @@ checks:
     when: facts.os == "linux"
     run: systemctl list-units --state=failed --no-legend --plain
     expect: empty
+    rationale: A failed unit means a service or job is not doing its work, often without anyone noticing.
+    remediation: Inspect each unit with `systemctl status <unit>`, fix the cause and clear the state with `systemctl reset-failed`.
 ```

@@ -53,6 +53,8 @@ checks:
     only_if: command -v nginx
     run: nginx -t 2>&1
     expect: "~ syntax is ok"
+    rationale: nginx does not start with an invalid configuration, so the next restart takes the sites down.
+    remediation: Run `nginx -t`, correct the reported line and reload nginx.
 
   - id: NGINX-002
     name: nginx hides its version
@@ -62,6 +64,8 @@ checks:
       nginx -T 2>/dev/null | grep -E '^[[:space:]]*server_tokens[[:space:]]+off;'
     allow_rc: [0, 1]
     expect: { lines: ">= 1" }
+    rationale: The version in headers and error pages tells an attacker which known vulnerabilities to try.
+    remediation: Set `server_tokens off;` in the http block.
 
   - id: NGINX-003
     name: nginx does not list directories
@@ -71,6 +75,8 @@ checks:
       nginx -T 2>/dev/null | grep -E '^[[:space:]]*autoindex[[:space:]]+on;'
     allow_rc: [0, 1]
     expect: empty
+    rationale: A directory listing shows every file in a directory, including backups and files that no page links to.
+    remediation: Remove `autoindex on` from the configuration and reload nginx.
 
   - id: NGINX-004
     name: nginx offers only TLS 1.2 and 1.3
@@ -81,6 +87,8 @@ checks:
       nginx -T 2>/dev/null | grep -E '^[[:space:]]*ssl_protocols'
     allow_rc: [0, 1]
     expect: "!~ TLSv1(\\.1)?[ ;]"
+    rationale: TLS 1.0 and TLS 1.1 have known weaknesses and are deprecated.
+    remediation: Set `ssl_protocols TLSv1.2 TLSv1.3;`.
 
   - id: APACHE-001
     name: Apache configuration is valid
@@ -91,6 +99,8 @@ checks:
     run: apachectl configtest
     allow_rc: [0, 1]
     expect: { stderr: "~ Syntax OK" }
+    rationale: httpd does not start with an invalid configuration, so the next restart takes the sites down.
+    remediation: Run `apachectl configtest`, correct the reported line and reload httpd.
 
   - id: APACHE-002
     name: Apache reveals neither version nor OS
@@ -102,6 +112,8 @@ checks:
       suse: grep -rhiE '^[[:space:]]*ServerTokens' /etc/apache2/ | tail -1
     allow_rc: [0, 1]
     expect: "~ (?i)ServerTokens[[:space:]]+Prod"
+    rationale: Version and operating system in the Server header tell an attacker which known vulnerabilities to try.
+    remediation: Set `ServerTokens Prod` in the server configuration.
 
   - id: APACHE-003
     name: TRACE is disabled
@@ -113,4 +125,6 @@ checks:
       suse: grep -rhiE '^[[:space:]]*TraceEnable' /etc/apache2/ | tail -1
     allow_rc: [0, 1]
     expect: "~ (?i)TraceEnable[[:space:]]+Off"
+    rationale: TRACE echoes the request with its cookies and credentials back to the client, which cross-site tracing attacks use.
+    remediation: Set `TraceEnable Off` in the server configuration.
 ```

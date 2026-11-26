@@ -65,6 +65,8 @@ checks:
       linux: ip route show default
       macos: route -n get default 2>/dev/null | awk '/gateway:/ {print $2}'
     expect: "!empty"
+    rationale: Without a default route the host reaches only its directly connected networks.
+    remediation: Set the gateway in the network configuration of the host.
 
   - id: NET-002
     name: No relevant interface is down
@@ -79,6 +81,8 @@ checks:
         done
     allow_rc: [0, 1]
     expect: empty
+    rationale: An interface that is down means a broken link or a bond that has lost its redundancy.
+    remediation: Check cable, switch port and configuration of the listed interfaces, or add unused ones to ignored_interfaces.
 
   - id: NET-003
     name: "{{ primary_interface }} uses MTU {{ expected_mtu }}"
@@ -88,6 +92,8 @@ checks:
     only_if: test -d /sys/class/net/{{ primary_interface }}
     run: cat /sys/class/net/{{ primary_interface }}/mtu
     expect: "== {{ expected_mtu }}"
+    rationale: A wrong MTU causes fragmentation or silently dropped large packets.
+    remediation: "Set the MTU of {{ primary_interface }} to {{ expected_mtu }} in the network configuration."
 
   - id: NET-004
     name: No interface is in promiscuous mode
@@ -98,6 +104,8 @@ checks:
       macos: ifconfig | grep -i promisc
     allow_rc: [0, 1]
     expect: empty
+    rationale: An interface in promiscuous mode receives all traffic on the segment, which is how a sniffer works.
+    remediation: Stop the process that switched the mode on, for example a packet capture, or run `ip link set <interface> promisc off`.
 
   - id: NET-005
     name: IP forwarding is disabled
@@ -106,6 +114,8 @@ checks:
     when: facts.os == "linux"
     run: sysctl -n net.ipv4.ip_forward
     expect: "== 0"
+    rationale: A host that forwards packets acts as a router and can connect networks that are meant to be separate.
+    remediation: Set net.ipv4.ip_forward = 0 in a file in /etc/sysctl.d and run `sysctl --system`.
 
   - id: NET-006
     name: IPv6 is disabled
@@ -113,6 +123,8 @@ checks:
     when: facts.os == "linux" and ipv6_disabled
     run: sysctl -n net.ipv6.conf.all.disable_ipv6
     expect: "== 1"
+    rationale: IPv6 that nobody manages is a second, often unfiltered path to the host.
+    remediation: Set net.ipv6.conf.all.disable_ipv6 = 1 in a file in /etc/sysctl.d and run `sysctl --system`.
 
   - id: "NET-REDIRECTS-{{ item }}"
     name: "{{ item }} is 0 (ICMP redirects are not accepted)"
@@ -121,6 +133,8 @@ checks:
     loop: [net.ipv4.conf.all.accept_redirects, net.ipv4.conf.default.accept_redirects, net.ipv6.conf.all.accept_redirects]
     run: sysctl -n {{ item }} 2>/dev/null || echo 0
     expect: "== 0"
+    rationale: An accepted ICMP redirect lets another host on the network change the routing table and divert traffic.
+    remediation: "Set {{ item }} = 0 in a file in /etc/sysctl.d and run `sysctl --system`."
 
   - id: NET-008
     name: Wireless interfaces are disabled on servers
@@ -130,4 +144,6 @@ checks:
     only_if: command -v nmcli
     run: nmcli radio wifi
     expect: "== disabled"
+    rationale: An active wireless interface is a network path around the wired firewall and monitoring.
+    remediation: nmcli radio wifi off
 ```

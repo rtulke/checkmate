@@ -79,6 +79,8 @@ checks:
     loop: "{{ ios_devices }}"
     run: { use: ios, arg: "{{ item }}", args: { cmd: "show running-config | include ^service password-encryption" } }
     expect: "== service password-encryption"
+    rationale: Without this service line and user passwords appear in clear text in the configuration and in every copy of it.
+    remediation: "Run `service password-encryption` in configuration mode on {{ item }}."
 
   - id: "IOS-SECRET-{{ item }}"
     name: "{{ item }}: enable secret instead of enable password"
@@ -87,6 +89,8 @@ checks:
     loop: "{{ ios_devices }}"
     run: { use: ios, arg: "{{ item }}", args: { cmd: "show running-config | include ^enable" } }
     expect: ["~ ^enable secret", "!~ ^enable password"]
+    rationale: The enable password is stored in clear text or in a reversible encoding, while enable secret is stored as a hash.
+    remediation: "Run `no enable password` and set `enable secret <password>` on {{ item }}."
 
   - id: "IOS-SSHV2-{{ item }}"
     name: "{{ item }}: only SSH version 2 is enabled"
@@ -95,6 +99,8 @@ checks:
     loop: "{{ ios_devices }}"
     run: { use: ios, arg: "{{ item }}", args: { cmd: "show ip ssh" } }
     expect: "~ SSH Enabled - version 2\\.0"
+    rationale: SSH version 1 has known protocol weaknesses that allow session hijacking.
+    remediation: "Run `ip ssh version 2` in configuration mode on {{ item }}."
 
   - id: "IOS-NOTELNET-{{ item }}"
     name: "{{ item }}: VTY lines do not accept telnet"
@@ -103,6 +109,8 @@ checks:
     loop: "{{ ios_devices }}"
     run: { use: ios, arg: "{{ item }}", args: { cmd: "show running-config | section line vty" } }
     expect: ["~ transport input ssh", "!~ transport input .*(telnet|all)"]
+    rationale: telnet sends passwords and the whole session in clear text.
+    remediation: "Set `transport input ssh` on all VTY lines of {{ item }}."
 
   - id: "IOS-TIMEOUT-{{ item }}"
     name: "{{ item }}: VTY sessions time out"
@@ -110,6 +118,8 @@ checks:
     loop: "{{ ios_devices }}"
     run: { use: ios, arg: "{{ item }}", args: { cmd: "show running-config | section line vty" } }
     expect: ["~ exec-timeout", "!~ exec-timeout 0 0"]
+    rationale: A session without a timeout stays open on an unattended terminal for whoever comes next.
+    remediation: "Set `exec-timeout 10 0` on the VTY lines of {{ item }}."
 
   - id: "IOS-HTTP-{{ item }}"
     name: "{{ item }}: the plain HTTP server is disabled"
@@ -118,6 +128,8 @@ checks:
     loop: "{{ ios_devices }}"
     run: { use: ios, arg: "{{ item }}", args: { cmd: "show running-config | include ^ip http" } }
     expect: "!~ ^ip http server"
+    rationale: The HTTP server offers device management without encryption.
+    remediation: "Run `no ip http server` in configuration mode on {{ item }}."
 
   - id: "IOS-SNMP-{{ item }}"
     name: "{{ item }}: no default SNMP communities"
@@ -126,6 +138,8 @@ checks:
     loop: "{{ ios_devices }}"
     run: { use: ios, arg: "{{ item }}", args: { cmd: "show running-config | include ^snmp-server community" } }
     expect: "!~ community (public|private)( |$)"
+    rationale: The communities public and private are the first ones every scanner tries, and they let anyone read or change the device configuration.
+    remediation: "Remove them on {{ item }} with `no snmp-server community public` and `no snmp-server community private`."
 
   - id: "IOS-NTP-{{ item }}"
     name: "{{ item }}: NTP is synchronised"
@@ -133,6 +147,8 @@ checks:
     loop: "{{ ios_devices }}"
     run: { use: ios, arg: "{{ item }}", args: { cmd: "show ntp status" } }
     expect: "~ Clock is synchronized"
+    rationale: "Without a synchronised clock the log timestamps of {{ item }} cannot be correlated with other devices."
+    remediation: "Configure reachable NTP servers on {{ item }} with `ntp server <address>`."
 
   - id: "IOS-LOG-{{ item }}"
     name: "{{ item }}: logs are sent to a syslog server"
@@ -140,6 +156,8 @@ checks:
     loop: "{{ ios_devices }}"
     run: { use: ios, arg: "{{ item }}", args: { cmd: "show running-config | include ^logging host" } }
     expect: "!empty"
+    rationale: The local log buffer is small and is lost at a reload, so events exist only if they are sent to a server.
+    remediation: "Run `logging host <address>` in configuration mode on {{ item }}."
 
   - id: "IOS-VERSION-{{ item }}"
     name: "{{ item }}: runs IOS-XE 17.9 or newer"
@@ -150,4 +168,6 @@ checks:
       | sed -nE 's/.*Version ([0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/p' | sed -n 1p
     as: version
     expect: ">= 17.9"
+    rationale: Old software releases lack fixes for known vulnerabilities.
+    remediation: "Upgrade {{ item }} to IOS-XE 17.9 or newer."
 ```

@@ -62,6 +62,7 @@ checks:
     when: facts.os == "linux"
     run: test -d /var/log/journal
     expect: true
+    rationale: Without /var/log/journal the journal lives in memory and is lost at every reboot.
     remediation: Set Storage=persistent in /etc/systemd/journald.conf.
 
   - id: LOG-002
@@ -72,6 +73,8 @@ checks:
     run: systemctl is-active auditd
     allow_rc: [0, 3, 4]
     expect: "== active"
+    rationale: Without auditd security events such as logins and changes to accounts are not recorded.
+    remediation: systemctl enable --now auditd
 
   - id: LOG-003
     name: Audit rules are loaded
@@ -81,6 +84,8 @@ checks:
     only_if: command -v auditctl
     run: auditctl -l
     expect: ["!empty", "!~ ^No rules"]
+    rationale: auditd without rules records almost nothing that helps to reconstruct an incident.
+    remediation: Add rules to /etc/audit/rules.d and load them with `augenrules --load`.
 
   - id: "LOG-WATCH-{{ item | replace('/', '_') }}"
     name: "Changes to {{ item }} are audited"
@@ -91,6 +96,8 @@ checks:
     # Watches appear as "-w <path>" or, on newer kernels, as "path=<path>".
     run: auditctl -l
     expect: "~ (-w |path=){{ item }}( |$)"
+    rationale: "{{ item }} controls accounts or privileges, and a change needs a record of who made it."
+    remediation: "Add `-w {{ item }} -p wa` to a file in /etc/audit/rules.d and run `augenrules --load`."
 
   - id: LOG-004
     name: The audit log never fills the disk silently
@@ -101,6 +108,8 @@ checks:
       cat /etc/audit/auditd.conf 2>/dev/null | awk -F= '/^[[:space:]]*disk_full_action/ {gsub(/[[:space:]]/, "", $2); print tolower($2)}'
     allow_rc: [0, 1]
     expect: "in [halt, single, suspend]"
+    rationale: With any other setting the system keeps running on a full disk and audit events are lost without notice.
+    remediation: Set disk_full_action to halt, single or suspend in /etc/audit/auditd.conf.
 
   - id: LOG-005
     name: Logs are forwarded to a central server
@@ -113,6 +122,8 @@ checks:
     # 1 = no match, 2 = rsyslog not configured at all; both mean "not forwarded".
     allow_rc: [0, 1, 2]
     expect: { lines: ">= 1" }
+    rationale: Logs that exist only on the host are lost or altered when the host is compromised.
+    remediation: Add a forwarding rule such as `*.* @@loghost.example.net:514` to a file in /etc/rsyslog.d and restart rsyslog.
 
   - id: LOG-006
     name: No log file is writable by others
@@ -121,6 +132,8 @@ checks:
     run: find /var/log -type f -perm /o+w 2>/dev/null
     allow_rc: [0, 1]
     expect: empty
+    rationale: Any local user can alter or erase a world-writable log file and hide traces.
+    remediation: chmod o-w <file>
 
   - id: LOG-007
     name: logrotate runs regularly
@@ -129,4 +142,6 @@ checks:
     when: facts.os == "linux"
     run: systemctl is-enabled logrotate.timer 2>/dev/null || test -x /etc/cron.daily/logrotate
     expect: true
+    rationale: Without rotation log files grow until the file system is full.
+    remediation: Enable the timer with `systemctl enable --now logrotate.timer` or reinstall the logrotate package.
 ```

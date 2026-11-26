@@ -86,6 +86,8 @@ checks:
     loop: "{{ forbidden_packages }}"
     run: { use: pkg_installed, arg: "{{ item }}" }
     expect: false
+    rationale: "{{ item }} belongs to a legacy network service without encryption or sound authentication."
+    remediation: "Remove the {{ item }} package."
 
   - id: "PKG-REQUIRED-{{ item }}"
     name: "{{ item }} is installed"
@@ -93,6 +95,8 @@ checks:
     loop: "{{ required_packages }}"
     run: { use: pkg_installed, arg: "{{ item }}" }
     expect: true
+    rationale: "Administration of the host relies on {{ item }}."
+    remediation: "Install the {{ item }} package."
 
   - id: PKG-001
     name: "OpenSSL is version {{ min_openssl }} or newer"
@@ -101,6 +105,8 @@ checks:
     run: { use: pkg_version, arg: openssl }
     as: version
     expect: ">= {{ min_openssl }}"
+    rationale: Old OpenSSL release series no longer get security fixes, which leaves known TLS flaws open.
+    remediation: Upgrade the openssl package, if necessary by moving to a newer distribution release.
 
   - id: PKG-002
     name: No updates are pending
@@ -113,6 +119,8 @@ checks:
     allow_rc: [0, 1]
     # dnf check-update exits 100 when updates exist; the echo turns that into output.
     expect: "== 0"
+    rationale: Pending updates often contain fixes for publicly known vulnerabilities.
+    remediation: Install the updates with `dnf upgrade`, `apt-get upgrade` or `zypper update`.
 
   - id: "PKG-INTEGRITY-{{ item }}"
     name: "Files of {{ item }} are unmodified"
@@ -127,6 +135,8 @@ checks:
       debian: debsums -c {{ item }} 2>/dev/null
     allow_rc: [0, 1, 2]
     expect: empty
+    rationale: "A changed file of {{ item }} points to tampering or a damaged installation."
+    remediation: "Investigate the listed files and reinstall {{ item }} from a trusted repository."
 
   - id: PKG-003
     name: Package signatures are verified
@@ -141,4 +151,6 @@ checks:
         echo "${v:-gpgcheck=on}"
     allow_rc: [0, 1]
     expect: "~ (?i)gpgcheck=(1|true|yes|on)"
+    rationale: Without signature verification a tampered package from a mirror or the network installs unnoticed.
+    remediation: Set gpgcheck=1 in /etc/dnf/dnf.conf, or gpgcheck = on in /etc/zypp/zypp.conf.
 ```
