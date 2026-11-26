@@ -40,15 +40,6 @@ exec sh -c "$*"
 	t.Setenv("CHECKMATE_SSH", path)
 }
 
-func writeFiles(t *testing.T, dir string, files map[string]string) {
-	t.Helper()
-	for name, body := range files {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o600); err != nil {
-			t.Fatal(err)
-		}
-	}
-}
-
 func TestRunInventory(t *testing.T) {
 	dir := t.TempDir()
 	standInSSH(t, dir)

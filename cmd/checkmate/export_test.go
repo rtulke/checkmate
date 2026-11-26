@@ -23,6 +23,16 @@ checks:
 	return path
 }
 
+// writeFiles writes named files with the given content into dir.
+func writeFiles(t *testing.T, dir string, files map[string]string) {
+	t.Helper()
+	for name, body := range files {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
 func TestRunExportAndConvert(t *testing.T) {
 	dir := t.TempDir()
 	policyPath := writeTestPolicy(t, dir)
