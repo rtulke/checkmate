@@ -38,7 +38,6 @@ The command and the output of every check are part of the report. A password tha
 - **`loop` together with `loop_run`**: a fixed list times the answer of the host. Waiting for a concrete case; a `loop_run` command can already print combinations itself.
 - **`register` on a `loop_run` check**: the outcome of a group of checks as one name.
 - **`stdin`** for commands that read their input.
-- **Rationale and remediation for the examples.** Every CIS and STIG check has both; the example policies have a remediation for some checks and no rationale yet.
 
 ### Platforms
 

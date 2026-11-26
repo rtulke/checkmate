@@ -118,7 +118,7 @@ checks:
     run: { use: sql, arg: "SELECT @@{{ item.key }}" }
     expect: "{{ item.value }}"
     rationale: "Another value of {{ item.key }} gives clients access to files through the server, allows unencrypted connections or lets faulty data and errors pass unnoticed."
-    remediation: "Change {{ item.key }} in the [mysqld] section of the option file to a value that satisfies `{{ item.value }}` and restart the server."
+    remediation: "Set the option for {{ item.key }} in the [mysqld] section of the option file so that the variable satisfies `{{ item.value }}`, and restart the server. skip_symbolic_links is set with `symbolic-links=0`."
 
   - id: MYSQL-005
     name: "Server version {{ min_version }} or newer"
