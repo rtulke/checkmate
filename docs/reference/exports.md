@@ -52,7 +52,7 @@ the exports are written, so a failing export never costs the result of a run.
 ## checkmate export
 
 Converts saved JSON reports into any other format, later and on any machine.
-Several reports, from several hosts or runs, become **one** document: one
+Several reports, from several hosts or runs, or the hosts of a run with an [inventory](inventory.md), become **one** document: one
 HTML or PDF report with all hosts, one CSV, one ARF collection with one asset
 per host, one JUnit file with one suite per host.
 
@@ -181,6 +181,7 @@ checkmate run baseline.yml -q --export prom -o /var/lib/node_exporter/textfile/c
 
 | Metric | Labels | Value |
 |---|---|---|
+| `checkmate_host_checked` | policy, host | 1 if the host was checked, 0 if it could not be reached or checked; such a host has none of the series below |
 | `checkmate_score` | policy, host | score 0–100, -1 if nothing was evaluated |
 | `checkmate_compliant` | policy, host | 1 or 0 |
 | `checkmate_checks` | policy, host, status | checks per status |

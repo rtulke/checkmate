@@ -44,7 +44,7 @@ func Text(w io.Writer, r *engine.Report, opts TextOptions) error {
 		return color + s + colorReset
 	}
 
-	host := r.Facts.Hostname
+	host := r.HostName()
 	if r.Facts.DistroName != "" {
 		host += " (" + r.Facts.DistroName + ")"
 	}
@@ -444,9 +444,18 @@ func JUnit(w io.Writer, rs ...*engine.Report) error {
 func junitSuiteFor(r *engine.Report, seconds func(int64) string) junitSuite {
 	s := r.Summary
 	suiteName := policyTitle(r)
+	if r.Unchecked() {
+		// A host without results must not look like a suite that passed.
+		return junitSuite{
+			Name: suiteName, Hostname: r.HostName(), Tests: 1, Errors: 1,
+			Time: seconds(r.DurationMS), Timestamp: r.Started.Format(time.RFC3339),
+			Cases: []junitCase{{Classname: suiteName, Name: "host can be checked", Time: seconds(r.DurationMS),
+				Error: &junitMessage{Message: r.State(), Body: r.Error}}},
+		}
+	}
 	suite := junitSuite{
 		Name:      suiteName,
-		Hostname:  r.Facts.Hostname,
+		Hostname:  r.HostName(),
 		Tests:     s.Total,
 		Failures:  s.Failed,
 		Errors:    s.Errors,
@@ -505,13 +514,10 @@ func TextOverview(w io.Writer, rs []*engine.Report, opts TextOptions) error {
 		s := r.Summary
 		verdict := paint(colorGreen, "compliant")
 		switch {
-		case r.Error != "":
+		case r.Unchecked():
 			// Nothing is known about this host: no numbers, and the reason
 			// instead of a verdict.
-			state := "not checked"
-			if r.Unreachable {
-				state = "unreachable"
-			}
+			state := r.State()
 			fmt.Fprintf(w, "%s  %7s  %5s  %5s  %5s  %5s  %6s  %s\n", padRight(truncate(labels[i], 40), hostWidth),
 				"-", "-", "-", "-", "-", "-", paint(colorYellow, state)+paint(colorDim, ": "+oneLine(r.Error)))
 			continue
@@ -522,6 +528,18 @@ func TextOverview(w io.Writer, rs []*engine.Report, opts TextOptions) error {
 		}
 		fmt.Fprintf(w, "%s  %7s  %5d  %5d  %5d  %5d  %6d  %s\n", padRight(truncate(labels[i], 40), hostWidth),
 			scoreText(s.Score), s.Passed, s.Failed, s.Warnings, s.Errors, s.Waived, verdict)
+	}
+
+	if groups := groupRows(rs); len(groups) > 1 {
+		groupWidth := 5
+		for _, g := range groups {
+			groupWidth = maxInt(groupWidth, minInt(runeLen(g.Name), 40))
+		}
+		fmt.Fprintf(w, "\n%-*s  %5s  %9s  %13s  %11s  %7s\n", groupWidth, "GROUP", "HOSTS", "COMPLIANT", "NOT COMPLIANT", "NOT CHECKED", "SCORE")
+		for _, g := range groups {
+			fmt.Fprintf(w, "%s  %5d  %9d  %13d  %11d  %7s\n", padRight(truncate(g.Name, 40), groupWidth),
+				g.Hosts, g.Compliant, g.NotCompliant, g.Unchecked, scoreText(g.Summary.Score))
+		}
 	}
 
 	problems := problemRows(checkRows(rs))

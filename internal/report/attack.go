@@ -115,7 +115,7 @@ func AttackLayer(w io.Writer, r *engine.Report, version string) error {
 	}
 	layer := map[string]any{
 		"name":        "checkmate: " + r.Policy,
-		"description": fmt.Sprintf("Results of %s on %s (checkmate %s). Each technique shows the worst result of its checks.", r.Policy, r.Facts.Hostname, version),
+		"description": fmt.Sprintf("Results of %s on %s (checkmate %s). Each technique shows the worst result of its checks.", r.Policy, r.HostName(), version),
 		"domain":      "enterprise-attack",
 		"versions":    map[string]string{"attack": "20", "navigator": "5.1.0", "layer": "4.5"},
 		"techniques":  list,

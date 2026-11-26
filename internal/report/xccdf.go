@@ -283,8 +283,8 @@ func xccdfTestResultFor(r *engine.Report, label string, o Options) *xccdfTestRes
 		EndTime:    stamp(end),
 		TestSystem: "cpe:/a:rtulke:checkmate:" + firstNonEmpty(r.Version, o.Version),
 		Version:    firstNonEmpty(r.PolicyVersion, "1"),
-		Title:      "checkmate: " + policyTitle(r) + " on " + r.Facts.Hostname,
-		Target:     firstNonEmpty(r.Facts.Hostname, "unknown"),
+		Title:      "checkmate: " + policyTitle(r) + " on " + r.HostName(),
+		Target:     firstNonEmpty(r.HostName(), "unknown"),
 	}
 	if r.Facts.IsRoot {
 		account := "root"
@@ -298,7 +298,7 @@ func xccdfTestResultFor(r *engine.Report, label string, o Options) *xccdfTestRes
 			tr.TargetFacts = append(tr.TargetFacts, xccdfFact{"urn:xccdf:fact:" + name, "string", value})
 		}
 	}
-	fact("asset:identifier:host_name", r.Facts.Hostname)
+	fact("asset:identifier:host_name", r.HostName())
 	fact("asset:identifier:os_name", r.Facts.DistroName)
 	fact("asset:identifier:os_version", r.Facts.Version)
 	fact("ethernet:kernel", r.Facts.Kernel)
@@ -378,8 +378,10 @@ func writeXMLDoc(w io.Writer, doc any) error {
 	return err
 }
 
+// The SCAP formats describe test results. A host that could not be checked
+// has none, so it does not appear in them.
 func writeXCCDF(w io.Writer, rs []*engine.Report, o Options) error {
-	return writeXMLDoc(w, xccdfDocument(rs, o))
+	return writeXMLDoc(w, xccdfDocument(checkedReports(rs), o))
 }
 
 // --- ARF 1.1 ---
@@ -427,6 +429,7 @@ type arfReport struct {
 }
 
 func writeARF(w io.Writer, rs []*engine.Report, o Options) error {
+	rs = checkedReports(rs)
 	bench := xccdfDocument(rs, o)
 	results := bench.TestResults
 	bench.TestResults = nil
@@ -442,7 +445,7 @@ func writeARF(w io.Writer, rs []*engine.Report, o Options) error {
 		tr.Benchmark = &xccdfBenchRef{Href: "#collection1", ID: bench.ID}
 		asset := fmt.Sprintf("asset%d", i+1)
 		report := fmt.Sprintf("xccdf%d", i+1)
-		host := rs[i].Facts.Hostname
+		host := rs[i].HostName()
 		dev := arfDevice{Hostname: host}
 		if strings.Contains(host, ".") {
 			dev.FQDN = host

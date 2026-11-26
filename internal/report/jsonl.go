@@ -18,6 +18,7 @@ type Event struct {
 	Version       string             `json:"version,omitempty"`
 	RunID         string             `json:"run_id,omitempty"`
 	Host          string             `json:"host"`
+	Groups        []string           `json:"groups,omitempty"`
 	OS            string             `json:"os,omitempty"`
 	Distro        string             `json:"distro,omitempty"`
 	Policy        string             `json:"policy"`
@@ -44,11 +45,20 @@ func Events(r *engine.Report, version string) []Event {
 		Tool:          "checkmate",
 		Version:       firstNonEmpty(r.Version, version),
 		RunID:         r.RunID,
-		Host:          r.Facts.Hostname,
+		Host:          r.HostName(),
+		Groups:        r.Groups,
 		OS:            r.Facts.OS,
 		Distro:        r.Facts.DistroName,
 		Policy:        policyTitle(r),
 		PolicyVersion: r.PolicyVersion,
+	}
+	if r.Unchecked() {
+		// No results and no summary: one event that says why.
+		e := base
+		e.Event = "unchecked"
+		e.Reason = r.Error
+		e.DurationMS = r.DurationMS
+		return []Event{e}
 	}
 	events := make([]Event, 0, len(r.Results)+1)
 	for _, res := range r.Results {
@@ -138,6 +148,9 @@ func syslogSeverity(e Event) int {
 			return notice
 		}
 		return warning
+	}
+	if e.Event == "unchecked" {
+		return errSev
 	}
 	switch e.Status {
 	case engine.StatusError:

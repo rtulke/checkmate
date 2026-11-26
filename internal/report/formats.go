@@ -79,7 +79,7 @@ func FormatNames() string {
 func writeText(w io.Writer, rs []*engine.Report, o Options) error {
 	// A single host that could not be checked has no results to list; the
 	// overview says why.
-	if len(rs) == 1 && rs[0].Error == "" {
+	if len(rs) == 1 && !rs[0].Unchecked() {
 		return Text(w, rs[0], TextOptions{Color: o.Color, Verbosity: o.Verbosity, Quiet: o.Quiet, Version: o.Version, Width: o.Width})
 	}
 	return TextOverview(w, rs, TextOptions{Color: o.Color, Version: o.Version})
@@ -178,29 +178,19 @@ func policyTitle(r *engine.Report) string {
 
 // hostLabels returns a label per report: the hostname, extended by the
 // policy where a host appears more than once.
-// HostName is the name of the host of a report: its name in the inventory
-// if the run had one, since that is how the user knows it, otherwise the
-// host name the host reports.
-func HostName(r *engine.Report) string {
-	if r.Host != "" {
-		return r.Host
-	}
-	return r.Facts.Hostname
-}
-
 func hostLabels(rs []*engine.Report) []string {
 	count := map[string]int{}
 	for _, r := range rs {
-		count[HostName(r)]++
+		count[r.HostName()]++
 	}
 	labels := make([]string, len(rs))
 	seen := map[string]int{}
 	for i, r := range rs {
-		l := HostName(r)
+		l := r.HostName()
 		if l == "" {
 			l = "unknown host"
 		}
-		if count[HostName(r)] > 1 {
+		if count[r.HostName()] > 1 {
 			l += " · " + policyTitle(r)
 		}
 		seen[l]++
@@ -236,7 +226,7 @@ func documentTitle(rs []*engine.Report) string {
 func scope(rs []*engine.Report) string {
 	hosts := map[string]bool{}
 	for _, r := range rs {
-		hosts[HostName(r)] = true
+		hosts[r.HostName()] = true
 	}
 	plural := func(n int, word string) string {
 		if n == 1 {
@@ -334,13 +324,64 @@ func problemRows(rows []checkRow) []checkRow {
 // aggregate sums the results of several reports.
 // unchecked counts the hosts that could not be checked.
 func unchecked(rs []*engine.Report) int {
-	n := 0
+	return len(rs) - len(checkedReports(rs))
+}
+
+// checkedReports returns the reports of the hosts that were checked.
+func checkedReports(rs []*engine.Report) []*engine.Report {
+	out := make([]*engine.Report, 0, len(rs))
 	for _, r := range rs {
-		if r.Error != "" {
-			n++
+		if !r.Unchecked() {
+			out = append(out, r)
 		}
 	}
-	return n
+	return out
+}
+
+// groupRow sums up the hosts of one inventory group.
+type groupRow struct {
+	Name                                      string
+	Hosts, Compliant, NotCompliant, Unchecked int
+	Summary                                   engine.Summary // of the checked hosts
+}
+
+// groupRows returns one row per inventory group, in the order the groups
+// first appear, or nothing if the reports do not come from an inventory
+// with groups. A host counts in every group it belongs to.
+func groupRows(rs []*engine.Report) []groupRow {
+	index := map[string]int{}
+	var rows []groupRow
+	members := map[string][]*engine.Report{}
+	for _, r := range rs {
+		for _, g := range r.Groups {
+			if _, ok := index[g]; !ok {
+				index[g] = len(rows)
+				rows = append(rows, groupRow{Name: g})
+			}
+			row := &rows[index[g]]
+			row.Hosts++
+			switch {
+			case r.Unchecked():
+				row.Unchecked++
+			case r.Summary.Evaluated > 0 && !r.Summary.Compliant:
+				row.NotCompliant++
+				members[g] = append(members[g], r)
+			default:
+				if r.Summary.Evaluated > 0 {
+					row.Compliant++
+				}
+				members[g] = append(members[g], r)
+			}
+		}
+	}
+	for i := range rows {
+		var all []engine.Result
+		for _, r := range members[rows[i].Name] {
+			all = append(all, r.Results...)
+		}
+		rows[i].Summary = engine.Summarize(all)
+	}
+	return rows
 }
 
 // aggregate sums up the hosts that were checked. Hosts that could not be
@@ -352,10 +393,7 @@ func aggregate(rs []*engine.Report) engine.Summary {
 	}
 	var all []engine.Result
 	compliant := len(rs) > unchecked(rs)
-	for _, r := range rs {
-		if r.Error != "" {
-			continue
-		}
+	for _, r := range checkedReports(rs) {
 		all = append(all, r.Results...)
 		compliant = compliant && r.Summary.Compliant
 	}

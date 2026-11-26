@@ -36,6 +36,8 @@ type htmlView struct {
 	Counts    []htmlCount
 	BySev     []htmlSev
 	Hosts     []htmlHost
+	Groups    []htmlGroup
+	Unchecked int
 	Labels    []string
 	Rows      []htmlRow
 	Waivers   []htmlWaiver
@@ -55,7 +57,15 @@ type htmlSev struct {
 	Pct      int
 }
 
+type htmlGroup struct {
+	Name                                      string
+	Hosts, Compliant, NotCompliant, Unchecked int
+	Score, ScoreCls                           string
+}
+
 type htmlHost struct {
+	Groups, Error                                          string // inventory groups; why the host was not checked
+	Unchecked                                              bool
 	Label, Distro, Kernel, Arch, Policy, Started, Duration string
 	Score, ScoreCls, Verdict, VerdictCl                    string
 	Summary                                                engine.Summary
@@ -115,31 +125,48 @@ func verdict(s engine.Summary) (string, string) {
 	return "NOT COMPLIANT", "fail"
 }
 
-func htmlData(rs []*engine.Report, o Options) htmlView {
-	labels := hostLabels(rs)
-	s := aggregate(rs)
+func htmlData(all []*engine.Report, o Options) htmlView {
+	// Totals, the columns of the check table and the details cover the
+	// hosts that were checked; the host table lists every host.
+	rs := checkedReports(all)
+	allLabels := hostLabels(all)
+	labels := make([]string, 0, len(rs))
+	for i, r := range all {
+		if !r.Unchecked() {
+			labels = append(labels, allLabels[i])
+		}
+	}
+	s := aggregate(all)
 	v := htmlView{
 		Title:     documentTitle(rs),
 		Generated: o.now().Format("2006-01-02 15:04:05 MST"),
 		Version:   o.Version,
-		Multi:     len(rs) > 1,
+		Multi:     len(all) > 1,
+		Unchecked: len(all) - len(rs),
 		Score:     scoreText(s.Score),
 		ScoreNum:  s.Score,
 		ScoreCls:  scoreClass(s.Score),
 		Labels:    labels,
 		Total:     s.Total,
-		Scope:     scope(rs),
+		Scope:     scope(all),
 	}
 	v.Verdict, v.VerdictCl = verdict(s)
-	if len(rs) == 1 {
+	if len(rs) == 0 {
+		v.Verdict, v.VerdictCl = "NOT CHECKED", "warn"
+	}
+	for _, g := range groupRows(all) {
+		v.Groups = append(v.Groups, htmlGroup{g.Name, g.Hosts, g.Compliant, g.NotCompliant, g.Unchecked,
+			scoreText(g.Summary.Score), scoreClass(g.Summary.Score)})
+	}
+	if len(all) == 1 && len(rs) == 1 {
 		r := rs[0]
-		v.Subtitle = r.Facts.Hostname
+		v.Subtitle = r.HostName()
 		if r.Facts.DistroName != "" {
 			v.Subtitle += " · " + r.Facts.DistroName
 		}
 		v.Subtitle += " · " + r.Started.Format("2006-01-02 15:04")
 	} else {
-		v.Subtitle = scope(rs)
+		v.Subtitle = scope(all)
 	}
 	v.Counts = []htmlCount{
 		{"passed", "PASS", "pass", s.Passed}, {"failed", "FAIL", "fail", s.Failed},
@@ -167,9 +194,16 @@ func htmlData(rs []*engine.Report, o Options) htmlView {
 		v.BySev = append(v.BySev, htmlSev{sev, sevCount[sev], pct})
 	}
 
-	for i, r := range rs {
+	for i, r := range all {
+		if r.Unchecked() {
+			v.Hosts = append(v.Hosts, htmlHost{Label: allLabels[i], Groups: strings.Join(r.Groups, ", "), Policy: policyTitle(r),
+				Started: r.Started.Format("2006-01-02 15:04:05"), Unchecked: true, Error: r.Error,
+				Verdict: strings.ToUpper(r.State()), VerdictCl: "warn"})
+			continue
+		}
 		h := htmlHost{
-			Label:    labels[i],
+			Label:    allLabels[i],
+			Groups:   strings.Join(r.Groups, ", "),
 			Distro:   r.Facts.DistroName,
 			Kernel:   r.Facts.Kernel,
 			Arch:     r.Facts.Arch,
@@ -186,8 +220,8 @@ func htmlData(rs []*engine.Report, o Options) htmlView {
 		h.Verdict, h.VerdictCl = verdict(r.Summary)
 		v.Hosts = append(v.Hosts, h)
 		for _, n := range r.Notices {
-			if len(rs) > 1 {
-				n = labels[i] + ": " + n
+			if len(all) > 1 {
+				n = allLabels[i] + ": " + n
 			}
 			v.Notices = append(v.Notices, n)
 		}
