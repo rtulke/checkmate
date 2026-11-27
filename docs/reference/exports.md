@@ -125,9 +125,13 @@ Merging policies is not a separate command: that is what
 ### HTML and PDF
 
 Both contain the score, the verdict, the result counts, failures by
-severity, the hosts, every finding with reason, expected value, command,
+severity, the hosts, the policy files with their hashes and
+[origin](trust.md), every finding with reason, expected value, command,
 output, rationale and remediation, the waivers with their reasons, and a
-table of all checks. The HTML page needs no network access, filters by
+table of all checks. With several hosts they add a table per inventory
+group and show which check has a problem on which host; hosts that could
+not be checked are listed with the reason and left out of the totals, see
+[Inventory](inventory.md#hosts-that-cannot-be-checked). The HTML page needs no network access, filters by
 text, status and severity, and follows the light or dark mode of the
 browser. Output is escaped, and command output is shortened to 4000
 characters; JSON keeps it all. The PDF is built into checkmate (standard PDF fonts, no external

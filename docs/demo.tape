@@ -13,8 +13,8 @@ Output docs/assets/demo.gif
 
 Set Shell bash
 Set FontSize 14
-Set Width 1200
-Set Height 820
+Set Width 1320
+Set Height 940
 Set Padding 18
 Set Margin 20
 Set MarginFill "#2A2833"
@@ -61,8 +61,14 @@ Sleep 6s
 Hide
 Type "clear" Enter
 Show
-Type "checkmate run demo.yml -vv --id DISK" Sleep 300ms Enter
-Sleep 5s
+Type "checkmate run demo.yml -vv --id 'DISK-*'" Sleep 300ms Enter
+Sleep 6s
+
+Hide
+Type "clear" Enter
+Show
+Type "checkmate verify demo.yml" Sleep 300ms Enter
+Sleep 4s
 
 Hide
 Type "clear" Enter

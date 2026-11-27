@@ -16,7 +16,7 @@ hide:
   expect: "== no"
 ```
 
-![checkmate demo: show a policy, run it, fix a finding, run it with a severity threshold, show the details of one check, JSON summary](assets/demo.gif)
+![checkmate demo: show a policy, run it, fix a finding, run it with a severity threshold, show one check per file system in detail, verify where the policy comes from, JSON summary](assets/demo.gif)
 
 <div class="grid cards" markdown>
 
@@ -49,6 +49,12 @@ hide:
     ---
 
     The same policy runs locally or over SSH on every host of an [inventory](reference/inventory.md): Linux, macOS, Windows, switches and firewalls. Nothing is installed on the hosts.
+
+-   :material-certificate: **Know what runs**
+
+    ---
+
+    Every run and report names the policy files with their hashes: shipped with checkmate, changed, or your own. [Sign your policies](reference/trust.md) and refuse everything that is not signed.
 
 -   :material-gauge: **Severity and score**
 

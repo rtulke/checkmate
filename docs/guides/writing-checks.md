@@ -200,6 +200,64 @@ expect: empty
 
 Compare exact checksums. Normalizing content first (removing comments or blank lines) creates gaps: in sudoers, for example, `#1000` is a user ID and `#include` is a directive, not a comment.
 
+## One check per thing on the host
+
+A single check that loops over accounts or virtual hosts in the shell gives one result for all of them: one failure hides how many there are, and one waiver covers them all. `loop_run` makes one check per line that a command prints, each with its own result:
+
+```yaml
+- id: "KEYS-{{ item }}"
+  name: "authorized_keys of {{ item }} is writable only by its owner"
+  loop_run: awk -F: '!/^#/ && NF >= 7 && $7 !~ /(nologin|false)$/ {print $1}' /etc/passwd
+  run: |
+    home=$(awk -F: -v user="$CHECKMATE_ITEM" '$1 == user {print $6}' /etc/passwd)
+    if [ -f "$home/.ssh/authorized_keys" ]; then ls -ln "$home/.ssh/authorized_keys" | cut -c6,9; else echo --; fi
+  expect: "--"
+```
+
+The item comes from the host, so commands read it from `$CHECKMATE_ITEM` and never get it pasted into their text. See [Loops over command output](../reference/templating.md#loops-over-command-output).
+
+## Checks that only make sense together
+
+Do not repeat `only_if: command -v nginx` on twenty checks. Ask once, give the answer a name with `register`, and let the others refer to it in `when`:
+
+```yaml
+- id: NGINX-INSTALLED
+  severity: info
+  register: nginx
+  run: command -v nginx
+  expect: true
+
+- id: NGINX-TLS
+  when: nginx.passed
+  run: nginx -T 2>/dev/null | awk '$1 == "ssl_protocols"'
+  expect: "!~ TLSv1(\\.1)?[ ;]"
+```
+
+Only the outcome is passed on, never the output: every check still collects its own data. See [Checks that depend on other checks](../reference/templating.md#checks-that-depend-on-other-checks).
+
+## A different rule per case
+
+When what is right depends on what the command prints, `cases` keeps it readable. The first case that applies decides, and an output that no case covers fails instead of passing by accident:
+
+```yaml
+run: . /etc/os-release && echo "$ID $VERSION_ID"
+expect:
+  cases:
+    - { if: "~ ^ubuntu", then: "~ 2[4-9]\\." }
+    - { if: "~ ^debian", then: "~ 1[2-9]" }
+  else: "~ ^alpine 3\\.2[0-9]"
+```
+
+If the difference is known before the command runs (the distribution, a variable), use `when` and separate checks instead: each gets its own id and result. See [Several cases](../reference/expect.md#several-cases).
+
+## Compare what you mean
+
+`==` compares whole numbers by value and everything else as text: `0644` equals `644`, but `8.1` is not `8.10`. Versions need `as: version`, measurements with a decimal point `as: number`. See [Numbers, versions and strings](../reference/expect.md#numbers-versions-and-strings).
+
+## Secrets
+
+The command and the output of every check end up in reports. A check that handles a password or token sets `no_log: true` and takes the secret from an environment variable, not from the policy or `-e`. See [Secrets](../reference/checks.md#secrets).
+
 ## Keep checks read-only
 
 A compliance check must never change the system. Avoid commands that apply configuration (`puppet agent -t`, `ansible-playbook`), install packages, delete files or restart services. Read state files and status commands instead, for example Puppet's `last_run_summary.yaml` instead of a Puppet run.
@@ -207,6 +265,6 @@ A compliance check must never change the system. Avoid commands that apply confi
 ## Test your checks
 
 - `checkmate validate policy.yml`: syntax, templates and expectations for this host.
-- `checkmate list -v policy.yml`: the rendered commands.
+- `checkmate list -v policy.yml`: the rendered commands. With `-i hosts.yml` or `--host`, the commands for each of those hosts, without running them.
 - `checkmate run policy.yml -v --id 'MY-*'`: run a few checks with full output.
 - Run the policy in containers of every distribution you support; the [test harness](https://github.com/rtulke/checkmate/tree/main/test/linux) of this project does exactly that for the examples.
