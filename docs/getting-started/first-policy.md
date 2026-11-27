@@ -30,7 +30,8 @@ Run it:
 
 ```console
 $ checkmate run first.yml
-checkmate 1.0.0 · My first policy · myhost (Ubuntu 24.04 LTS)
+checkmate 2.4.0 · My first policy · myhost (Ubuntu 24.04 LTS)
+Policy: 1 file of your own
 
 PASS   FIRST-001  /etc/hosts exists
 PASS   FIRST-002  At least 500 MB free in /tmp
@@ -50,6 +51,8 @@ Every check has three essential parts:
 | `id` | A unique, stable identifier, used for filtering and in reports. |
 | `run` | The command. It runs in `bash -o pipefail` with `LC_ALL=C`. |
 | `expect` | The condition. `true` means "exit code 0"; `">= 500"` compares the output. |
+
+The line `Policy: 1 file of your own` says where the policy comes from. For a policy that is shipped with checkmate it reads `shipped with checkmate, unchanged`; see [Where a policy comes from](../reference/trust.md).
 
 ## Make it fail
 
@@ -85,4 +88,6 @@ checkmate validate first.yml
 
 - Use [variables, loops and snippets](../reference/templating.md) to avoid repetition.
 - Make checks work on several distributions with [platform variants](../reference/platforms.md).
+- Say why a check matters and how to fix a failure with [`rationale` and `remediation`](../reference/checks.md); both appear with `-vv` and in every report.
 - Read [Writing robust checks](../guides/writing-checks.md) before writing larger policies.
+- Run the policy on [other hosts over SSH](../guides/remote.md), without installing anything there.

@@ -68,12 +68,19 @@ checkmate combines the threshold of Trivy/Checkov, the informational level of In
 ```json
 {
   "tool": "checkmate",
-  "version": "1.0.0",
+  "version": "2.4.0",
+  "run_id": "3f9c1d2e8a7b6c5d",
   "policy": "Web server baseline",
-  "facts": { "os": "linux", "distro": "rocky", "...": "..." },
+  "policy_path": "/etc/checkmate/baseline.yml",
+  "policy_sources": [
+    { "path": "/etc/checkmate/baseline.yml", "sha256": "9c1f…e2a7", "origin": "local", "signer": "release-team" }
+  ],
+  "facts": { "os": "linux", "distro": "rocky", "hostname": "web01", "...": "..." },
+  "started": "2026-11-23T06:00:00Z",
+  "duration_ms": 1840,
   "summary": {
     "total": 42, "passed": 38, "failed": 1, "warnings": 2, "errors": 1,
-    "skipped": 0, "not_applicable": 0,
+    "skipped": 0, "not_applicable": 0, "waived": 0, "evaluated": 42,
     "fail_on": "low", "score": 91.3, "compliant": false
   },
   "results": [
@@ -86,11 +93,37 @@ checkmate combines the threshold of Trivy/Checkov, the informational level of In
       "message": "expected stdout >= \"500\", got \"312\"",
       "expected": "stdout >= \"500\"",
       "command": "df -Pm /tmp | awk 'NR == 2 {print $4}'",
+      "shell": "bash",
       "rc": 0,
       "stdout": "312\n",
       "duration_ms": 4,
+      "rationale": "A full /tmp makes programs fail that need temporary files.",
+      "remediation": "Remove old files from /tmp or enlarge the file system.",
       "location": "/etc/checkmate/baseline.yml:57"
     }
   ]
 }
 ```
+
+| Field | Content |
+|---|---|
+| `run_id` | The same in every output of one run, to tie reports, events and metrics together. |
+| `policy_sources` | Every file the policy was loaded from: `path`, `sha256`, `origin` (`shipped`, `modified`, `local`) and, if signed by a trusted key, `signer`. See [Where a policy comes from](trust.md). |
+| `summary.evaluated` | Checks that passed, failed, warned, errored or were waived; skipped and not applicable ones do not count. |
+| `results[].no_log` | `true` for a check with `no_log`: `command`, `stdout` and `stderr` are missing, and `expected` and `message` are general. See [Secrets](checks.md#secrets). |
+| `results[].waiver` | Reason, expiry and source of the waiver that accepts the result. See [Waivers](waivers.md). |
+
+A run with an [inventory](inventory.md), like `checkmate export` with several reports, writes one document with the reports of all hosts:
+
+```json
+{
+  "tool": "checkmate",
+  "version": "2.4.0",
+  "reports": [
+    { "host": "web01.example.net", "groups": ["web"], "facts": { "...": "..." }, "summary": { "...": "..." }, "results": [] },
+    { "host": "db02.example.net", "groups": ["db"], "error": "host is not reachable over SSH: ...", "unreachable": true, "results": [] }
+  ]
+}
+```
+
+`host` and `groups` are the names of the inventory. A host with `error` could not be checked: it has no results, and its summary says nothing about compliance.

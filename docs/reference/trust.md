@@ -15,10 +15,10 @@ The SHA-256 hashes of all policies of a release (`cis/`, `stig/`, `examples/`) a
 The header of every run says so in one line, and names the files that differ from what was shipped:
 
 ```text
-checkmate 2.5.0 · CIS Red Hat Enterprise Linux 9 · web01 (Rocky Linux 9.4)
+checkmate 2.4.0 · CIS Red Hat Enterprise Linux 9 · web01 (Rocky Linux 9.4)
 Policy: 1 file shipped with checkmate, unchanged
 
-checkmate 2.5.0 · Web baseline · web01 (Rocky Linux 9.4)
+checkmate 2.4.0 · Web baseline · web01 (Rocky Linux 9.4)
 Policy: 1 shipped file modified, 2 files of your own
         /srv/policies/cis/rhel9.yml: differs from the shipped cis/rhel9.yml
 ```

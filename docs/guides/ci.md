@@ -4,6 +4,18 @@
 
 `checkmate run` exits with `0` when the run is compliant, `1` when it is not and `2` on usage or policy errors, so it works in any pipeline without extra scripting.
 
+A run against an [inventory](../reference/inventory.md) has one more code: `3` means that nothing failed, but at least one host could not be checked. Treat it as "unknown", not as "compliant": in most pipelines that is a failed job with a different message.
+
+```bash
+rc=0; checkmate run baseline.yml -i hosts.yml --export json,html -o reports/ || rc=$?
+case $rc in
+  0) echo "all hosts compliant" ;;
+  1) echo "findings"; exit 1 ;;
+  3) echo "some hosts could not be checked"; exit 1 ;;
+  *) echo "run failed"; exit $rc ;;
+esac
+```
+
 ## Reports
 
 ```bash
@@ -16,6 +28,17 @@ checkmate run baseline.yml --export json,junit,html -o report
 - **HTML** (`report.html`) as a browsable build artifact.
 
 All formats, including PDF, CSV, XCCDF/ARF, Prometheus and syslog, are described in [Reports and exports](../reference/exports.md).
+
+## Only run what was released
+
+A scheduled job or a pipeline runs policies as root without anyone watching. `--require-signed` makes it refuse every policy, variable and waiver file that is neither shipped with checkmate nor signed by a key in the trust file:
+
+```bash
+checkmate verify baseline.yml                 # hash, origin and signer of every file; runs nothing
+checkmate run baseline.yml --require-signed --export json -o reports/
+```
+
+Sign in the pipeline that releases a policy, after review, with a key that only that pipeline holds; put the public key on the machines that run policies. The JSON report records the hash and the signer of every file under `policy_sources`, so a report says exactly which policy produced it. See [Where a policy comes from](../reference/trust.md).
 
 ## Regressions between runs
 

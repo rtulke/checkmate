@@ -6,4 +6,4 @@ checkmate reads a **policy**, a YAML file with a list of **checks**. Each check 
 2. [Write your first policy](first-policy.md) in five minutes.
 3. Understand [how checks are evaluated](concepts.md): statuses, errors and exit codes.
 
-Then browse the [examples](../examples/index.md) for checks you can reuse right away.
+Then browse the [examples](../examples/index.md) for checks you can reuse right away. When one host is not enough, the same policy runs over SSH on [other hosts or a whole inventory](../guides/remote.md).

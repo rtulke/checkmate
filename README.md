@@ -8,7 +8,7 @@
 
 [Deutsche Version](README_de.md) · [Documentation](https://rtulke.github.io/checkmate/) · [Security standards](https://rtulke.github.io/checkmate/standards/) · [Examples](https://rtulke.github.io/checkmate/examples/)
 
-![checkmate: show a policy, run it, fix a finding, run it with a severity threshold, show the details of one check, JSON summary](docs/assets/demo.gif)
+![checkmate: show a policy, run it, fix a finding, run it with a severity threshold, show one check per file system in detail, verify where the policy comes from, JSON summary](docs/assets/demo.gif)
 
 ```yaml
 - id: SSH-001
@@ -38,6 +38,7 @@ Most compliance tools need a plugin or module for every kind of check. checkmate
 - **Fail-closed**: a check that cannot be evaluated (timeout, missing tool, unexpected exit code) is an error, and errors always make a run non-compliant.
 - **Prioritized**: severities, a `--fail-on` threshold with warnings below it, a weighted compliance score, and waivers for accepted deviations.
 - **Independent checks**: every check collects its own data; no shared scans or caches between checks. A check can steer other checks, but never hands its output to them.
+- **Accountable**: every run and report names the policy files with their hashes and says whether they were shipped with checkmate, changed, or are your own. Policies can be signed, and a run can refuse everything that is not.
 - **Reports for everyone**: HTML and PDF for auditors, CSV for spreadsheets, JSON Lines and syslog for SIEMs, Prometheus metrics, JUnit for CI, XCCDF/ARF for SCAP tools and ATT&CK Navigator layers; reports of many hosts merge into one, and `checkmate diff` shows what changed.
 
 ## Install
@@ -207,7 +208,33 @@ groups:
 - The console shows an overview of all hosts and groups, and every export format contains all of them.
 - A host that cannot be reached is neither compliant nor non-compliant: it is listed as unreachable, left out of totals and score, and the run ends with exit code 3 if nothing else failed.
 
+Before the first run, `checkmate list -v baseline.yml -i hosts.yml` shows for every host which commands a run would execute there, without running any of them.
+
 See [checking remote systems](https://rtulke.github.io/checkmate/guides/remote/) and the [inventory reference](https://rtulke.github.io/checkmate/reference/inventory/).
+
+## Trust in policies
+
+A policy is code that runs as root, with an inventory on many hosts at once. checkmate says what it runs and where that came from, and can insist on policies that someone signed off.
+
+```console
+$ sudo checkmate run /usr/share/checkmate/cis/rhel9.yml
+checkmate 2.4.0 · CIS Red Hat Enterprise Linux 9 · web01 (Rocky Linux 9.4)
+Policy: 1 file shipped with checkmate, unchanged
+```
+
+```bash
+checkmate keygen release-team                               # release-team.key, release-team.pub
+checkmate sign --key release-team.key baseline.yml common/*.yml
+checkmate verify baseline.yml                               # hash, origin and signer of every file
+checkmate run baseline.yml --require-signed                 # refuse what is neither shipped nor signed
+```
+
+- The hashes of all shipped policies are built into the binary. A file is shipped, a changed copy of a shipped file, or your own; reports record the hash of every file.
+- A file whose signature no longer matches its content is always refused.
+- As root, policy files that another user could have changed are refused, on Windows as well.
+- `no_log: true` keeps the command and output of a check that handles a secret out of every report.
+
+See [where a policy comes from](https://rtulke.github.io/checkmate/reference/trust/).
 
 ## Reports and exports
 

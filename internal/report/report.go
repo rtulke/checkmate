@@ -507,10 +507,16 @@ func writePolicyOrigin(w io.Writer, r *engine.Report, paint func(string, string)
 	if len(r.PolicySources) == 0 {
 		return
 	}
+	// Shipped and signed files stay in the background, own files are the
+	// normal case and read as plain text, and only a changed copy of a
+	// shipped policy asks for attention.
 	color := colorDim
 	for _, s := range r.PolicySources {
-		if !s.Trusted() {
+		switch {
+		case s.Origin == provenance.Modified && s.Signer == "":
 			color = colorYellow
+		case !s.Trusted() && color == colorDim:
+			color = ""
 		}
 	}
 	fmt.Fprintf(w, "%s\n", paint(color, "Policy: "+provenance.Summary(r.PolicySources)))

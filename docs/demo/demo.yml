@@ -9,6 +9,8 @@ checks:
     severity: critical
     run: awk '$1 == "PermitRootLogin" {print $2}' {{ etc }}/sshd_config
     expect: "== no"
+    rationale: A stolen root password gives full control in one step.
+    remediation: Set PermitRootLogin no and reload sshd.
 
   - id: SSH-CIPHERS
     name: No weak SSH ciphers
@@ -22,10 +24,12 @@ checks:
     run: grep -qx {{ item }} {{ etc }}/enabled-services
     expect: true
 
-  - id: DISK
-    name: Every file system is below 90 %
-    run: awk '{print $2}' {{ etc }}/df
-    expect: { each: "< 90" }
+  - id: "DISK-{{ item }}"                    # one check per line of loop_run
+    name: "File system {{ item }} is below 90 %"
+    loop_run: awk '{print $1}' {{ etc }}/df
+    run: awk -v fs="$CHECKMATE_ITEM" '$1 == fs {print $2}' {{ etc }}/df
+    expect: "< 90"
+    remediation: "Free space on {{ item }} or enlarge it."
 
   - id: TIME
     name: Clock offset is below 0.5 s

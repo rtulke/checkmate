@@ -8,7 +8,7 @@
 
 [English version](README.md) · [Dokumentation](https://rtulke.github.io/checkmate/) · [Sicherheitsstandards](https://rtulke.github.io/checkmate/standards/) · [Beispiele](https://rtulke.github.io/checkmate/examples/)
 
-![checkmate: Policy anzeigen, ausführen, Befund beheben, mit Schwellenwert ausführen, Details eines Checks anzeigen, JSON-Zusammenfassung](docs/assets/demo.gif)
+![checkmate: Policy anzeigen, ausführen, Befund beheben, mit Schwellenwert ausführen, einen Check pro Dateisystem im Detail zeigen, Herkunft der Policy prüfen, JSON-Zusammenfassung](docs/assets/demo.gif)
 
 ```yaml
 - id: SSH-001
@@ -38,6 +38,7 @@ Die meisten Compliance-Werkzeuge brauchen für jede Art von Prüfung ein Plugin 
 - **Fail-closed**: Ein Check, der sich nicht auswerten lässt (Timeout, fehlendes Werkzeug, unerwarteter Exit-Code), ist ein Fehler, und Fehler machen einen Lauf immer nicht konform.
 - **Priorisiert**: Schweregrade, eine `--fail-on`-Schwelle mit Warnungen darunter, ein gewichteter Compliance-Score und Waivers für akzeptierte Abweichungen.
 - **Unabhängige Checks**: Jeder Check holt seine Daten selbst; keine gemeinsamen Scans oder Caches zwischen Checks. Ein Check kann andere Checks steuern, gibt ihnen aber nie seine Ausgabe weiter.
+- **Nachvollziehbar**: Jeder Lauf und jeder Report nennt die Policy-Dateien mit ihren Hashes und sagt, ob sie mit checkmate ausgeliefert, verändert oder eigene sind. Policies lassen sich signieren, und ein Lauf kann alles ablehnen, was nicht signiert ist.
 - **Berichte für alle**: HTML und PDF für Auditoren, CSV für Tabellen, JSON Lines und Syslog für SIEMs, Prometheus-Metriken, JUnit für CI, XCCDF/ARF für SCAP-Werkzeuge und Layer für den ATT&CK Navigator; Berichte vieler Hosts lassen sich zusammenführen, und `checkmate diff` zeigt, was sich geändert hat.
 
 ## Installation
@@ -207,7 +208,33 @@ groups:
 - Die Konsole zeigt eine Übersicht aller Hosts und Gruppen, und jedes Exportformat enthält alle Hosts.
 - Ein nicht erreichbarer Host ist weder compliant noch nicht-compliant: Er wird als unreachable aufgeführt, zählt nicht in Summen und Score, und der Lauf endet mit Exit-Code 3, wenn sonst nichts fehlgeschlagen ist.
 
+Vor dem ersten Lauf zeigt `checkmate list -v baseline.yml -i hosts.yml` für jeden Host, welche Kommandos ein Lauf dort ausführen würde, ohne eines davon auszuführen.
+
 Siehe [entfernte Systeme prüfen](https://rtulke.github.io/checkmate/guides/remote/) und die [Inventory-Referenz](https://rtulke.github.io/checkmate/reference/inventory/).
+
+## Vertrauen in Policies
+
+Eine Policy ist Code, der als root läuft, mit einem Inventory auf vielen Hosts zugleich. checkmate sagt, was es ausführt und woher das stammt, und kann auf Policies bestehen, die jemand freigegeben hat.
+
+```console
+$ sudo checkmate run /usr/share/checkmate/cis/rhel9.yml
+checkmate 2.4.0 · CIS Red Hat Enterprise Linux 9 · web01 (Rocky Linux 9.4)
+Policy: 1 file shipped with checkmate, unchanged
+```
+
+```bash
+checkmate keygen release-team                               # release-team.key, release-team.pub
+checkmate sign --key release-team.key baseline.yml common/*.yml
+checkmate verify baseline.yml                               # Hash, Herkunft und Signatur jeder Datei
+checkmate run baseline.yml --require-signed                 # ablehnen, was weder ausgeliefert noch signiert ist
+```
+
+- Die Hashes aller ausgelieferten Policies sind ins Binary eingebaut. Eine Datei ist ausgeliefert, eine veränderte Kopie einer ausgelieferten Datei oder eine eigene; Reports halten den Hash jeder Datei fest.
+- Eine Datei, deren Signatur nicht mehr zum Inhalt passt, wird immer abgelehnt.
+- Als root werden Policy-Dateien abgelehnt, die ein anderer Benutzer hätte ändern können, auch unter Windows.
+- `no_log: true` hält Kommando und Ausgabe eines Checks, der ein Geheimnis verarbeitet, aus jedem Report heraus.
+
+Siehe [woher eine Policy stammt](https://rtulke.github.io/checkmate/reference/trust/).
 
 ## Berichte und Exporte
 
