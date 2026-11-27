@@ -1,8 +1,8 @@
 class Checkmate < Formula
   desc "Command-based compliance checks for Linux, macOS and Windows"
   homepage "https://github.com/rtulke/checkmate"
-  url "https://github.com/rtulke/checkmate/archive/refs/tags/v2.3.0.tar.gz"
-  sha256 "6bef62cfa4970322050f2084ee4bc6f060aaa08afac1c26ea4d78ff1a37a8f6c"
+  url "https://github.com/rtulke/checkmate/archive/refs/tags/v2.4.0.tar.gz"
+  sha256 "5372cb1a1d27b587f5829212d24ed27e3cf3b2f82cfcb342a173818b32c5be69"
   license "Apache-2.0"
   head "https://github.com/rtulke/checkmate.git", branch: "main"
 
